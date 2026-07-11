@@ -101,6 +101,7 @@ extension AccessibilityAuditUITests {
         if let value = element.value as? String, !value.isEmpty {
             parts.append("value=\(value)")
         }
+        parts.append("frame=\(element.frame)")
         return parts.joined(separator: "; ")
     }
 

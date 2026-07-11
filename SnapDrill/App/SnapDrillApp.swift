@@ -75,7 +75,7 @@ struct SnapDrillApp: App {
             ZStack {
                 AppRootView(
                     router: container.router,
-                    makeProfileManager: { await container.createProfileManager() }
+                    makeLibrarySession: { await container.createLibrarySession() }
                 )
                     .environment(\.services, container.services)
                     // analyticsService 单独注入：5 个 View 直接使用 \.analyticsService，

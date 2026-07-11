@@ -55,11 +55,13 @@ struct ZIPArchiverTests {
             schemaVersion: BackupManifest.currentSchemaVersion,
             createdAt: Date(timeIntervalSince1970: 0),
             appVersion: "1.1.0",
-            totalItemCount: 0,
-            profileCount: 0,
-            profileNames: []
+            totalItemCount: 0
         )
-        let payload = BackupPayload(profiles: [])
+        let payload = BackupPayload(
+            reviewItems: [],
+            dimensions: [],
+            categoryValues: []
+        )
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
 
@@ -76,8 +78,9 @@ struct ZIPArchiverTests {
         let restoredManifest = try await service.readManifest(from: destination)
         let restoredPayload = try await service.extractPayload(from: destination)
         #expect(restoredManifest.schemaVersion == manifest.schemaVersion)
-        #expect(restoredManifest.profileCount == 0)
-        #expect(restoredPayload.profiles.isEmpty)
+        #expect(restoredPayload.reviewItems.isEmpty)
+        #expect(restoredPayload.dimensions.isEmpty)
+        #expect(restoredPayload.categoryValues.isEmpty)
     }
 
     @Test("fileEntries 从磁盘文件按需创建可读 ZIP")
@@ -92,11 +95,13 @@ struct ZIPArchiverTests {
             schemaVersion: BackupManifest.currentSchemaVersion,
             createdAt: Date(timeIntervalSince1970: 0),
             appVersion: "1.1.0",
-            totalItemCount: 0,
-            profileCount: 0,
-            profileNames: []
+            totalItemCount: 0
         )
-        let payload = BackupPayload(profiles: [])
+        let payload = BackupPayload(
+            reviewItems: [],
+            dimensions: [],
+            categoryValues: []
+        )
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
 
@@ -118,6 +123,8 @@ struct ZIPArchiverTests {
         let restoredManifest = try await service.readManifest(from: destination)
         let restoredPayload = try await service.extractPayload(from: destination)
         #expect(restoredManifest.schemaVersion == manifest.schemaVersion)
-        #expect(restoredPayload.profiles.isEmpty)
+        #expect(restoredPayload.reviewItems.isEmpty)
+        #expect(restoredPayload.dimensions.isEmpty)
+        #expect(restoredPayload.categoryValues.isEmpty)
     }
 }

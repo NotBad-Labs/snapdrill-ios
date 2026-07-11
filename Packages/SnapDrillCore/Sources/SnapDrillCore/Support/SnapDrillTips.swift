@@ -7,10 +7,9 @@
 //
 //  Tip 分级治理：
 //  - 设备级 Tip → TipKit（全局 datastore，Apple 原生模型）
-//  - Profile 级 Tip → ProfileTipState（per-profile UserDefaults 隔离）
+//  - 功能 Tip → FeatureTipState（设备级 UserDefaults）
 //
-//  当前 ReviewSwipeTip 和 FieldConfigTip 均为 Profile 级，
-//  已迁移到 ProfileTipState 管理。TipKit 保留给未来设备级 Tip。
+//  当前 ReviewSwipeTip 和 FieldConfigTip 由 FeatureTipState 管理。
 //
 
 import SwiftUI
@@ -18,7 +17,7 @@ import TipKit
 
 // MARK: - 设备级 Tip（TipKit，暂无，保留基础设施）
 
-/// 复习滑动手势提示（保留 TipKit 定义供参考，实际展示由 ProfileTipState 控制）
+/// 回顾滑动手势提示（保留 TipKit 定义供参考，实际展示由 FeatureTipState 控制）
 public struct ReviewSwipeTip: Tip {
     public var title: Text {
         Text(L10n.Review.tooltipTitle)
@@ -35,7 +34,7 @@ public struct ReviewSwipeTip: Tip {
     public init() {}
 }
 
-/// 字段配置引导提示（保留 TipKit 定义供参考，实际展示由 ProfileTipState 控制）
+/// 字段配置引导提示（保留 TipKit 定义供参考，实际展示由 FeatureTipState 控制）
 public struct FieldConfigTip: Tip {
     public var title: Text {
         Text(L10n.Onboarding.fieldConfigTitle)
@@ -52,14 +51,11 @@ public struct FieldConfigTip: Tip {
     public init() {}
 }
 
-// MARK: - Profile 级 Tip 状态管理
+// MARK: - Tip 状态管理
 
-/// 管理 per-profile 的 Tip 展示状态
-///
-/// 通过 UserDefaults 的 per-profile 隔离机制（ProfileManager 在切换时同步偏好），
-/// 实现每个 Profile 独立的 Tip 状态。
+/// 管理设备级 Tip 展示状态。
 @Observable
-public final class ProfileTipState {
+public final class FeatureTipState {
 
     /// 复习滑动提示是否应该显示
     public var showReviewSwipeTip: Bool
@@ -86,14 +82,7 @@ public final class ProfileTipState {
         UserDefaults.standard.set(true, forKey: UDKey.tipFieldConfigSeen)
     }
 
-    /// 从 UserDefaults 重新加载状态（Profile 切换后调用）
-    public func reload() {
-        let defaults = UserDefaults.standard
-        showReviewSwipeTip = !defaults.bool(forKey: UDKey.tipReviewSwipeSeen)
-        showFieldConfigTip = !defaults.bool(forKey: UDKey.tipFieldConfigSeen)
-    }
-
-    /// 重置所有 Profile 级 Tip 状态（当前 Profile）
+    /// 重置所有 Tip 状态
     public func resetAll() {
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: UDKey.tipReviewSwipeSeen)

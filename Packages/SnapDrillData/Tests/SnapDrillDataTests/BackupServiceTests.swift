@@ -17,15 +17,11 @@ struct BackupServiceTests {
 
     // MARK: - Helpers
 
-    private static let testProfileId = UUID()
-
     private static let sampleDimensionId = UUID()
     private static let sampleValueId = UUID()
 
     private func makeSamplePayload() -> BackupPayload {
-        let profileData = ProfileBackupData(
-            profileName: "默认",
-            profileId: Self.testProfileId,
+        BackupPayload(
             reviewItems: [
                 ArchiveItemBackupDTO(
                     id: UUID(),
@@ -55,7 +51,6 @@ struct BackupServiceTests {
                 )
             ]
         )
-        return BackupPayload(profiles: [profileData])
     }
 
     private func makeSampleManifest(totalItemCount: Int = 1) -> BackupManifest {
@@ -63,13 +58,11 @@ struct BackupServiceTests {
             schemaVersion: BackupManifest.currentSchemaVersion,
             createdAt: Date(),
             appVersion: "1.1.0",
-            totalItemCount: totalItemCount,
-            profileCount: 1,
-            profileNames: ["默认"]
+            totalItemCount: totalItemCount
         )
     }
 
-    private func createTempProfileDir() throws -> URL {
+    private func createTempLibraryDirectory() throws -> URL {
         let dir = FileManager.default.temporaryDirectory
             .appendingPathComponent("BackupServiceTests_\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
@@ -113,13 +106,13 @@ struct BackupServiceTests {
         let service = BackupService()
         let payload = makeSamplePayload()
         let manifest = makeSampleManifest()
-        let profileDir = try createTempProfileDir()
-        defer { cleanup(profileDir) }
+        let libraryDirectory = try createTempLibraryDirectory()
+        defer { cleanup(libraryDirectory) }
 
         let backupURL = try await service.createBackup(
             payload: payload,
             manifest: manifest,
-            profileDirectories: [profileDir]
+            libraryDirectory: libraryDirectory
         )
         defer { cleanup(backupURL) }
 
@@ -129,16 +122,13 @@ struct BackupServiceTests {
         #expect(readManifest.schemaVersion == manifest.schemaVersion)
         #expect(readManifest.appVersion == manifest.appVersion)
         #expect(readManifest.totalItemCount == manifest.totalItemCount)
-        #expect(readManifest.profileCount == manifest.profileCount)
 
         let extractedPayload = try await service.extractPayload(from: backupURL)
-        #expect(extractedPayload.profiles.count == 1)
-        let profile = extractedPayload.profiles[0]
-        #expect(profile.reviewItems.count == 1)
-        #expect(profile.reviewItems[0].content == "测试题目")
-        #expect(profile.reviewItems[0].categoryValueIds == [Self.sampleValueId])
-        #expect(profile.dimensions.count == 1)
-        #expect(profile.categoryValues.count == 1)
+        #expect(extractedPayload.reviewItems.count == 1)
+        #expect(extractedPayload.reviewItems[0].content == "测试题目")
+        #expect(extractedPayload.reviewItems[0].categoryValueIds == [Self.sampleValueId])
+        #expect(extractedPayload.dimensions.count == 1)
+        #expect(extractedPayload.categoryValues.count == 1)
     }
 
     @Test("图片恢复 round-trip")
@@ -146,13 +136,13 @@ struct BackupServiceTests {
         let service = BackupService()
         let payload = makeSamplePayload()
         let manifest = makeSampleManifest()
-        let profileDir = try createTempProfileDir()
-        defer { cleanup(profileDir) }
+        let libraryDirectory = try createTempLibraryDirectory()
+        defer { cleanup(libraryDirectory) }
 
         let backupURL = try await service.createBackup(
             payload: payload,
             manifest: manifest,
-            profileDirectories: [profileDir]
+            libraryDirectory: libraryDirectory
         )
         defer { cleanup(backupURL) }
 
@@ -162,7 +152,6 @@ struct BackupServiceTests {
 
         try await service.restoreImages(
             from: backupURL,
-            profileId: Self.testProfileId,
             to: restoreDir
         )
 
@@ -172,10 +161,33 @@ struct BackupServiceTests {
         #expect(String(data: restoredData, encoding: .utf8) == "fake-image-data")
     }
 
+    @Test("同一秒创建的备份使用不同文件路径")
+    func backupsCreatedInSameSecondHaveUniquePaths() async throws {
+        let service = BackupService()
+        let libraryDirectory = try createTempLibraryDirectory()
+        defer { cleanup(libraryDirectory) }
+
+        let first = try await service.createBackup(
+            payload: makeSamplePayload(),
+            manifest: makeSampleManifest(),
+            libraryDirectory: libraryDirectory
+        )
+        defer { cleanup(first) }
+        let second = try await service.createBackup(
+            payload: makeSamplePayload(),
+            manifest: makeSampleManifest(),
+            libraryDirectory: libraryDirectory
+        )
+        defer { cleanup(second) }
+
+        #expect(first != second)
+        #expect(FileManager.default.fileExists(atPath: first.path))
+        #expect(FileManager.default.fileExists(atPath: second.path))
+    }
+
     @Test("restoreImages 暂存失败时保留旧图片，成功时替换为新图片")
     func restoreImages_preservesOriginalsWhenStagingFails_thenSwapsOnSuccess() async throws {
         let service = BackupService()
-        let profileId = UUID()
         let restoreDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("RestoreAtomicityTest_\(UUID().uuidString)", isDirectory: true)
         defer { cleanup(restoreDir) }
@@ -185,11 +197,11 @@ struct BackupServiceTests {
 
         let failingArchive = try makeArchive(entries: [
             ZIPEntry(
-                path: "profiles/\(profileId.uuidString)/images/conflict",
+                path: "images/conflict",
                 data: Data("new-image-data".utf8)
             ),
             ZIPEntry(
-                path: "profiles/\(profileId.uuidString)/images/conflict/child.jpg",
+                path: "images/conflict/child.jpg",
                 data: Data("child-image-data".utf8)
             )
         ])
@@ -197,7 +209,7 @@ struct BackupServiceTests {
 
         var didThrow = false
         do {
-            try await service.restoreImages(from: failingArchive, profileId: profileId, to: restoreDir)
+            try await service.restoreImages(from: failingArchive, to: restoreDir)
         } catch {
             didThrow = true
         }
@@ -210,17 +222,17 @@ struct BackupServiceTests {
 
         let successfulArchive = try makeArchive(entries: [
             ZIPEntry(
-                path: "profiles/\(profileId.uuidString)/images/conflict",
+                path: "images/conflict",
                 data: Data("replacement-image-data".utf8)
             ),
             ZIPEntry(
-                path: "profiles/\(profileId.uuidString)/images/new.jpg",
+                path: "images/new.jpg",
                 data: Data("brand-new-image-data".utf8)
             )
         ])
         defer { cleanup(successfulArchive) }
 
-        try await service.restoreImages(from: successfulArchive, profileId: profileId, to: restoreDir)
+        try await service.restoreImages(from: successfulArchive, to: restoreDir)
 
         #expect(try stringContents(of: originalImage) == "replacement-image-data")
         #expect(try stringContents(
@@ -233,14 +245,14 @@ struct BackupServiceTests {
         let service = BackupService()
         let payload = makeSamplePayload()
         let manifest = makeSampleManifest()
-        let profileDir = try createTempProfileDir()
-        defer { cleanup(profileDir) }
+        let libraryDirectory = try createTempLibraryDirectory()
+        defer { cleanup(libraryDirectory) }
 
         let counter = CallCounter()
         let backupURL = try await service.createBackup(
             payload: payload,
             manifest: manifest,
-            profileDirectories: [profileDir],
+            libraryDirectory: libraryDirectory,
             onProgress: { _, _ in
                 Task { await counter.increment() }
             }
@@ -270,14 +282,11 @@ struct BackupServiceTests {
     @Test("空 payload（零题目）round-trip")
     func emptyPayloadRoundTrip() async throws {
         let service = BackupService()
-        let emptyProfile = ProfileBackupData(
-            profileName: "空",
-            profileId: UUID(),
+        let payload = BackupPayload(
             reviewItems: [],
             dimensions: [],
             categoryValues: []
         )
-        let payload = BackupPayload(profiles: [emptyProfile])
         let manifest = makeSampleManifest(totalItemCount: 0)
         let emptyDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("EmptyTest_\(UUID().uuidString)")
@@ -287,29 +296,26 @@ struct BackupServiceTests {
         let backupURL = try await service.createBackup(
             payload: payload,
             manifest: manifest,
-            profileDirectories: [emptyDir]
+            libraryDirectory: emptyDir
         )
         defer { cleanup(backupURL) }
 
         let extracted = try await service.extractPayload(from: backupURL)
-        #expect(extracted.profiles[0].reviewItems.isEmpty)
-        #expect(extracted.profiles[0].dimensions.isEmpty)
+        #expect(extracted.reviewItems.isEmpty)
+        #expect(extracted.dimensions.isEmpty)
     }
 
     // MARK: - 路径遍历防御
 
-    @Test("restoreImages 跳过含 .. 的路径遍历条目")
-    func restoreImages_skipsPathTraversal() async throws {
+    @Test("备份拒绝数据库中的非法图片路径")
+    func backupRejectsPathTraversal() async throws {
         let service = BackupService()
-        let profileId = UUID()
-        let profileData = ProfileBackupData(
-            profileName: "测试",
-            profileId: profileId,
+        let payload = BackupPayload(
             reviewItems: [
                 ArchiveItemBackupDTO(
                     id: UUID(),
                     content: "恶意条目",
-                    imagePath: "../evil.jpg",
+                    imagePath: "images/../evil.jpg",
                     createdAt: Date(),
                     lastReviewedAt: .distantPast,
                     nextReviewAt: .distantPast,
@@ -323,36 +329,46 @@ struct BackupServiceTests {
             ],
             dimensions: [], categoryValues: []
         )
-        let payload = BackupPayload(profiles: [profileData])
         let manifest = makeSampleManifest()
 
         let sourceDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("PathTraversalTest_\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: sourceDir, withIntermediateDirectories: true)
         defer { cleanup(sourceDir) }
-
-        let backupURL = try await service.createBackup(
-            payload: payload,
-            manifest: manifest,
-            profileDirectories: [sourceDir]
+        try Data("must-not-be-archived".utf8).write(
+            to: sourceDir.appendingPathComponent("evil.jpg")
         )
-        defer { cleanup(backupURL) }
 
+        await #expect(throws: BackupError.self) {
+            try await service.createBackup(
+                payload: payload,
+                manifest: manifest,
+                libraryDirectory: sourceDir
+            )
+        }
+    }
+
+    @Test("恢复拒绝 payload 引用但 ZIP 缺失的图片")
+    func restoreImagesRejectsMissingExpectedImage() async throws {
+        let service = BackupService()
+        let archiveURL = try makeArchive(entries: [])
+        defer { cleanup(archiveURL) }
         let restoreDir = FileManager.default.temporaryDirectory
-            .appendingPathComponent("RestoreTraversalTest_\(UUID().uuidString)")
-        try FileManager.default.createDirectory(at: restoreDir, withIntermediateDirectories: true)
+            .appendingPathComponent("RestoreMissingImage_\(UUID().uuidString)")
         defer { cleanup(restoreDir) }
 
-        try await service.restoreImages(from: backupURL, profileId: profileId, to: restoreDir)
-
-        let evilPath = restoreDir.deletingLastPathComponent().appendingPathComponent("evil.jpg")
-        #expect(!FileManager.default.fileExists(atPath: evilPath.path))
+        await #expect(throws: BackupError.self) {
+            try await service.restoreImages(
+                from: archiveURL,
+                to: restoreDir,
+                expectedPaths: ["images/missing.jpg"]
+            )
+        }
     }
 
     @Test("restoreImages 拒绝真实 ZIP 路径遍历条目并恢复合法条目")
     func restoreImages_rejectsActualPathTraversalPayloads_thenRestoresValidArchive() async throws {
         let service = BackupService()
-        let profileId = UUID()
         let restoreDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("RestoreTraversalPayloadTest_\(UUID().uuidString)", isDirectory: true)
         defer { cleanup(restoreDir) }
@@ -372,39 +388,46 @@ struct BackupServiceTests {
 
         let maliciousArchive = try makeArchive(entries: [
             ZIPEntry(
-                path: "profiles/\(profileId.uuidString)/images/../../evil-outside.jpg",
+                path: "images/../../evil-outside.jpg",
                 data: Data("evil-outside".utf8)
             ),
             ZIPEntry(
-                path: "profiles/\(profileId.uuidString)/images/nested/../../../evil-nested.jpg",
+                path: "images/nested/../../../evil-nested.jpg",
                 data: Data("evil-nested".utf8)
             ),
             ZIPEntry(
-                path: "profiles/\(profileId.uuidString)/images/../keep.jpg",
+                path: "images/../keep.jpg",
                 data: Data("corrupted-image-data".utf8)
+            ),
+            ZIPEntry(
+                path: #"images/safe\evil.jpg"#,
+                data: Data("backslash-path".utf8)
             )
         ])
         defer { cleanup(maliciousArchive) }
 
-        try await service.restoreImages(from: maliciousArchive, profileId: profileId, to: restoreDir)
+        try await service.restoreImages(from: maliciousArchive, to: restoreDir)
 
         #expect(!FileManager.default.fileExists(atPath: outsideEvil.path))
         #expect(!FileManager.default.fileExists(atPath: outsideNestedEvil.path))
         #expect(try stringContents(of: originalImage) == "original-image-data")
+        #expect(!FileManager.default.fileExists(
+            atPath: restoreDir.appendingPathComponent(#"images/safe\evil.jpg"#).path
+        ))
 
         let validArchive = try makeArchive(entries: [
             ZIPEntry(
-                path: "profiles/\(profileId.uuidString)/images/keep.jpg",
+                path: "images/keep.jpg",
                 data: Data("restored-image-data".utf8)
             ),
             ZIPEntry(
-                path: "profiles/\(profileId.uuidString)/images/safe/new.jpg",
+                path: "images/safe/new.jpg",
                 data: Data("safe-new-image-data".utf8)
             )
         ])
         defer { cleanup(validArchive) }
 
-        try await service.restoreImages(from: validArchive, profileId: profileId, to: restoreDir)
+        try await service.restoreImages(from: validArchive, to: restoreDir)
 
         #expect(try stringContents(of: originalImage) == "restored-image-data")
         #expect(try stringContents(

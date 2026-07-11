@@ -32,10 +32,10 @@ struct ExportPreviewView: View {
     @State private var isPrinting = false
     @State private var printAnchorView: UIView?
 
-    @Environment(\.profileManager) private var profileManager
+    @Environment(\.repositories) private var repositories
     @Environment(\.services) private var services
     @Environment(\.printPresenter) private var printPresenter
-    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
+    private var imageStorage: ImageStorage { repositories.imageStorage }
     
     var body: some View {
         VStack {
@@ -158,7 +158,7 @@ struct ExportPreviewView: View {
         let storage = imageStorage
         // 经 ServiceContainer 注入，而非直调 PDFExportService.shared（DI 铁律）
         let pdfExport = services.pdfExport
-        // 导出期间标记 .exporting，阻塞 Profile 切换避免读到错 Vault
+        // 导出期间标记 .exporting，供应用级活动状态统一追踪
         let activityTracker = services.activityTracker
         // Run in background
         Task {

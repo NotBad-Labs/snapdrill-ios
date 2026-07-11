@@ -63,14 +63,14 @@ final class DependencyContainer {
     }
 
     @MainActor
-    func createProfileManager() async -> ProfileManager {
-        let manager = await ProfileManager.create(inMemory: Self.isUITesting)
+    func createLibrarySession() async -> LibrarySession {
+        let session = await LibrarySession.create(inMemory: Self.isUITesting)
         // L3：种入内置维度（分类/来源/级别/标签），替代旧 3 个分类 seed（S6 删旧）
-        manager.activeRepositories.dimension.seedDefaultsIfNeeded()
+        session.repositories.dimension.seedDefaultsIfNeeded()
 #if DEBUG
-        await seedUITestImageFixtureIfNeeded(into: manager)
+        await seedUITestImageFixtureIfNeeded(into: session)
 #endif
-        return manager
+        return session
     }
 
 #if DEBUG
@@ -78,13 +78,13 @@ final class DependencyContainer {
     private static let imageFixtureContent = "Library Image Fixture"
 
     @MainActor
-    private func seedUITestImageFixtureIfNeeded(into manager: ProfileManager) async {
+    private func seedUITestImageFixtureIfNeeded(into session: LibrarySession) async {
         guard Self.isUITesting,
               ProcessInfo.processInfo.arguments.contains(Self.imageFixtureLaunchArgument) else {
             return
         }
 
-        let repositories = manager.activeRepositories
+        let repositories = session.repositories
         var questionPath: String?
         var answerPath: String?
         do {
@@ -93,10 +93,10 @@ final class DependencyContainer {
                 return
             }
 
-            questionPath = try await manager.activeImageStorage.saveImage(
+            questionPath = try await repositories.imageStorage.saveImage(
                 Self.makeFixtureImage(title: "Question", tint: .systemBlue)
             )
-            answerPath = try await manager.activeImageStorage.saveImage(
+            answerPath = try await repositories.imageStorage.saveImage(
                 Self.makeFixtureImage(title: "Answer", tint: .systemGreen)
             )
 
@@ -113,10 +113,10 @@ final class DependencyContainer {
         } catch {
             repositories.archive.rollbackContext()
             if let questionPath {
-                await Self.deleteOrphanedFixtureImage(path: questionPath, storage: manager.activeImageStorage)
+                await Self.deleteOrphanedFixtureImage(path: questionPath, storage: repositories.imageStorage)
             }
             if let answerPath {
-                await Self.deleteOrphanedFixtureImage(path: answerPath, storage: manager.activeImageStorage)
+                await Self.deleteOrphanedFixtureImage(path: answerPath, storage: repositories.imageStorage)
             }
             SnapDrillLogger.generic.error("UI test image fixture seed failed: \(error.localizedDescription)")
         }

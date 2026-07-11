@@ -5,13 +5,13 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  Profile 级 Tip 的 popover 内容视图，模仿 TipKit 原生样式。
+//  功能 Tip 的 popover 内容视图，模仿 TipKit 原生样式。
 //
 
 import SwiftUI
 import SnapDrillCore
 
-/// Profile 级 Tip 的 popover 内容（替代 TipKit 的 .popoverTip 样式）
+/// 功能 Tip 的 popover 内容（替代 TipKit 的 .popoverTip 样式）
 public struct TipPopoverContent: View {
 
     private let icon: String

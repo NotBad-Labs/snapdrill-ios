@@ -18,7 +18,6 @@ struct NotificationSettingsView: View {
     // MARK: - Properties
 
     @Environment(\.services) private var services
-    @Environment(\.profileManager) private var profileManager
 
     @AppStorage(UDKey.notificationsEnabled) private var notificationsEnabled = false
     @AppStorage(UDKey.notificationHour) private var notificationHour: Int = 20
@@ -102,13 +101,8 @@ struct NotificationSettingsView: View {
         }
         .onAppear {
             if viewModel == nil {
-                guard let scope = profileManager.activeScope else {
-                    assertionFailure("ProfileScope missing while building NotificationSettingsViewModel")
-                    return
-                }
                 viewModel = NotificationSettingsViewModel(
-                    notificationService: services.notification,
-                    profileScope: scope
+                    notificationService: services.notification
                 )
             }
         }

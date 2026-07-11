@@ -69,9 +69,9 @@ public final class CaptureResultViewModel {
     public var showErrorAlert = false
     /// 错误提示文本
     public var errorMessage: String?
-    /// 字段配置引导提示（per-profile 隔离，由 ProfileTipState 管理）
+    /// 字段配置引导提示（由设备级 FeatureTipState 管理）
     public var showFieldConfigTip = false
-    private let profileTipState = ProfileTipState()
+    private let featureTipState = FeatureTipState()
     /// AI 标注是否正在进行
     public var isTagging = false
 
@@ -305,7 +305,7 @@ public final class CaptureResultViewModel {
     /// 关闭字段配置引导提示，然后触发导航
     public func dismissFieldConfigTip() {
         showFieldConfigTip = false
-        profileTipState.markFieldConfigSeen()
+        featureTipState.markFieldConfigSeen()
         navigateAfterSave()
     }
 
@@ -345,7 +345,7 @@ public final class CaptureResultViewModel {
             "has_content": !content.isEmpty ? "true" : "false"
         ])
 
-        if profileTipState.showFieldConfigTip {
+        if featureTipState.showFieldConfigTip {
             showFieldConfigTip = true
         } else {
             navigateAfterSave()

@@ -30,7 +30,7 @@ import Foundation
 ///
 /// ## 新增 Core service 规则（S-D4-001 共识）
 /// 1. 若服务跨 Feature 使用、持有状态、依赖系统 API/AI/外部 SDK、或测试需要替换，必须进入 `ServiceContainer`
-/// 2. Profile-scoped 服务走 `ProfileManager` / `RepositoryContainer`，不得放入全局 `ServiceContainer`
+/// 2. 数据仓库和图片存储走 `RepositoryContainer`，不得放入全局 `ServiceContainer`
 /// 3. 静态 facade（如 `TelemetryGate`）必须有架构豁免决策；不得直接从 Feature 层调用
 public protocol ServiceContainer: Sendable {
 
@@ -73,7 +73,7 @@ public protocol ServiceContainer: Sendable {
     /// Pro 订阅 entitlement 判定（阻塞 #479 StoreKit）
     var proEntitlement: any ProEntitlementProvider { get }
 
-    /// Profile 切换保护 + 全局操作活动追踪（导出/备份/恢复期间禁止切 Profile）
+    /// 全局操作活动追踪（采集 / 导出 / 打印 / 备份恢复）
     var activityTracker: AppActivityTracker { get }
 
     /// SM-2 复习调度策略（可替换以支持复习策略实验）

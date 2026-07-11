@@ -47,10 +47,6 @@
 
 // MARK: - Activity
 
-"activity.capturing" = "Capturing in progress";
-"activity.exporting" = "Exporting in progress";
-"activity.printing" = "Printing in progress";
-"activity.backup_restore" = "Backup/Restore in progress";
 
 // MARK: - Capture
 
@@ -326,7 +322,7 @@
 "settings.storage_management" = "Storage";
 "settings.storage_images" = "Item Images";
 "settings.storage_total" = "Total Usage";
-"settings.storage_footer" = "Shows storage usage for the current workspace. Images are automatically compressed to save space.";
+"settings.storage_footer" = "Shows storage usage for the current library. Images are automatically compressed to save space.";
 "settings.appearance" = "Appearance";
 "settings.follow_system" = "System";
 "settings.light_mode" = "Light";
@@ -410,7 +406,7 @@
 "settings.backup_data" = "Create Backup";
 "settings.backup_data_subtitle" = "Export a ZIP file with items, categories, and images";
 "settings.restore_data" = "Restore Backup";
-"settings.restore_data_subtitle" = "Restore from a ZIP backup and replace the current workspace";
+"settings.restore_data_subtitle" = "Restore from a ZIP backup and replace the current library";
 "settings.backup_footer" = "Backup files include all items, categories, and images. Restoring will replace all current data.";
 "settings.import_data" = "Data Import";
 "settings.import_csv" = "Import CSV";
@@ -721,11 +717,6 @@
 // MARK: - Settings (avatar color)
 "settings.avatar_color" = "Avatar Color";
 
-// MARK: - Settings (Profile switch draft guard)
-"settings.draft_exists_title" = "Unsaved Draft Found";
-"settings.draft_exists_message" = "A draft is in progress. Switching workspaces will discard it.";
-"settings.discard_draft" = "Discard & Switch";
-
 // MARK: - Errors (image load)
 "errors.image_load_failed" = "Image failed to load";
 
@@ -756,6 +747,7 @@
 "backup_errors.missing_manifest" = "Backup file is missing manifest information";
 "backup_errors.missing_data_file" = "Backup file is missing data content";
 "backup_errors.schema_version_too_new" = "Backup file version (%d) is newer than the app supports (%d). Please update the app";
+"backup_errors.unsupported_schema_version" = "Backup file version (%d) is not supported by this app version (%d)";
 "backup_errors.insufficient_disk_space" = "Insufficient disk space to complete the operation";
 
 // MARK: - Missing Swift NSLocalizedString Coverage
@@ -822,16 +814,6 @@
 "library.select_all" = "Select All";
 "library.deselect_all" = "Deselect All";
 "settings.help_center" = "Help Center";
-"settings.switch_learner" = "Switch Workspace";
-"settings.profile_spaces_section" = "Workspaces";
-"settings.profile_spaces_footer" = "Each workspace keeps its own items, images, and review progress so you can separate projects or contexts.";
-"settings.default_profile_name" = "Default Workspace";
-"settings.add_learner" = "Add Workspace";
-"settings.delete_learner_confirm" = "Deleting this workspace permanently removes all items, review progress, and images. This cannot be undone.";
-"settings.learner_name" = "Workspace Name";
-"settings.current_learner" = "Current";
-"settings.profile_current_hint" = "This is the current workspace.";
-"settings.profile_switch_hint" = "Switch to this workspace.";
 "settings.card_front_preview" = "Given triangle ABC, AB = AC, angle A = 36 degrees. Find angle B.";
 "settings.card_back_preview" = "Reference: angle B = 72 degrees.";
 "smart_paper.title" = "Smart Paper";
@@ -854,3 +836,15 @@
 "statistics.pro_required" = "More insights are coming later";
 "statistics.questions_count" = "items";
 "statistics.due_count" = "%d to review";
+
+// MARK: - Store Recovery
+"app_root.store_recovery.navigation_title" = "Data Recovery";
+"app_root.store_recovery.title" = "Choose How to Recover Your Data";
+"app_root.store_recovery.description_primary" = "SnapDrill could not open the current library data file.";
+"app_root.store_recovery.description_secondary" = "The original file has been preserved. The app has opened an empty library for now.";
+"app_root.store_recovery.backup_copy_title" = "A Copy of the Original File Is Saved on This Device";
+"app_root.store_recovery.backup_copy_description" = "You can restore from a ZIP backup or continue with an empty library. The copy remains only on this device.";
+"app_root.store_recovery.copy_path" = "Copy Backup Path";
+"app_root.store_recovery.icon_label" = "Data file needs recovery";
+"app_root.store_recovery.restore_backup" = "Restore from Backup";
+"app_root.store_recovery.continue_empty" = "Continue with Empty Library";

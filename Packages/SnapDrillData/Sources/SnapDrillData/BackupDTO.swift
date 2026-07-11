@@ -21,29 +21,24 @@ nonisolated public struct BackupManifest: Codable, Sendable {
     public let createdAt: Date
     /// App 版本号（Marketing Version）
     public let appVersion: String
-    /// 所有 Profile 资料项总数
+    /// 资料项总数
     public let totalItemCount: Int
-    /// 备份中包含的 Profile 数量
-    public let profileCount: Int
-    /// 所有 Profile 名称
-    public let profileNames: [String]
 
     /// 当前备份 Schema 版本。
     ///
     /// **版本历史**：
     /// - 1 → 动态维度系统重构基线（零用户阶段重置；旧 v1–v4 备份不再兼容，删除向后兼容容错）。
     /// - 2 → 移除静态 `difficulty` 字段，级别 / 难度等属性统一经动态维度表达。
+    /// - 3 → 退休 Multi-Profile，payload 直接描述唯一资料库。
     ///
     /// 注：备份 Schema 与 SwiftData Schema 独立管理；版本机制保留，待有真实用户后再递增。
-    public static let currentSchemaVersion = 2
+    public static let currentSchemaVersion = 3
 
-    public init(schemaVersion: Int, createdAt: Date, appVersion: String, totalItemCount: Int, profileCount: Int, profileNames: [String]) {
+    public init(schemaVersion: Int, createdAt: Date, appVersion: String, totalItemCount: Int) {
         self.schemaVersion = schemaVersion
         self.createdAt = createdAt
         self.appVersion = appVersion
         self.totalItemCount = totalItemCount
-        self.profileCount = profileCount
-        self.profileNames = profileNames
     }
 }
 
@@ -140,39 +135,22 @@ nonisolated public struct CategoryValueBackupDTO: Codable, Sendable {
     }
 }
 
-// MARK: - Profile Backup Data
+// MARK: - Top-level Payload
 
-/// 单个 Profile 的备份数据
-nonisolated public struct ProfileBackupData: Codable, Sendable {
-    public let profileName: String
-    public let profileId: UUID
+/// `data.json` 的顶层结构，直接描述唯一资料库。
+nonisolated public struct BackupPayload: Codable, Sendable {
     public let reviewItems: [ArchiveItemBackupDTO]
     public let dimensions: [CategoryDimensionBackupDTO]
     public let categoryValues: [CategoryValueBackupDTO]
 
     public init(
-        profileName: String,
-        profileId: UUID,
         reviewItems: [ArchiveItemBackupDTO],
         dimensions: [CategoryDimensionBackupDTO],
         categoryValues: [CategoryValueBackupDTO]
     ) {
-        self.profileName = profileName
-        self.profileId = profileId
         self.reviewItems = reviewItems
         self.dimensions = dimensions
         self.categoryValues = categoryValues
-    }
-}
-
-// MARK: - Top-level Payload
-
-/// 备份文件中 data.json 的顶层结构（全 Profile）
-nonisolated public struct BackupPayload: Codable, Sendable {
-    public let profiles: [ProfileBackupData]
-
-    public init(profiles: [ProfileBackupData]) {
-        self.profiles = profiles
     }
 }
 

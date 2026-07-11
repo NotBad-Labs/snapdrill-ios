@@ -13,10 +13,10 @@ import Foundation
 /// 容器已重建为可用空库，因此这不是 in-memory fallback；B2 UI 通过该事件提示用户
 /// 从备份恢复、保留空库继续或稍后人工处理隔离目录。
 nonisolated public struct StoreRecoveryEvent: Sendable, Equatable {
-    /// 原始 store 路径，例如 `profiles/<id>/default.store`。
+    /// 原始 store 路径，例如 `Library/default.store`。
     public let storeURL: URL
 
-    /// 被隔离保留的 store 文件所在目录，例如 `profiles/<id>/corrupted/<timestamp>/`。
+    /// 被隔离保留的 store 文件所在目录，例如 `Library/corrupted/<timestamp>/`。
     public let isolationDirectoryURL: URL
 
     /// 首次打开失败的错误描述。

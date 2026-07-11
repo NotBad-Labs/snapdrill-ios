@@ -37,12 +37,12 @@ struct LibraryDetailView: View {
     @State private var showShareError = false
     @State private var showPrintError = false
 
-    @Environment(\.profileManager) private var profileManager
+    @Environment(\.repositories) private var repositories
     @Environment(\.services) private var services
     @Environment(\.printPresenter) private var printPresenter
     private static let answerContentScrollID = "library.detail.answerContentScroll"
     private let tabBarBreathingRoom: CGFloat = 150
-    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
+    private var imageStorage: ImageStorage { repositories.imageStorage }
 
     var body: some View {
         ScrollViewReader { scrollProxy in

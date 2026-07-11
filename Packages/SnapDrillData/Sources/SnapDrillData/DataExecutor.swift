@@ -59,7 +59,7 @@ public actor DataExecutor {
     /// - Parameters:
     ///   - inMemory: 为 `true` 时使用内存存储（测试 / Preview）
     ///   - storeURL: 数据库文件路径。传 nil 使用系统默认路径。
-    ///     Profile 模式下传入 `profiles/<id>/default.store`。
+    ///     生产模式传入 `LibraryLayout.storeURL`。
     public init(inMemory: Bool = false, storeURL: URL? = nil) {
         SnapDrillLogger.data.info("🔧 DataExecutor: 初始化 ModelContainer")
 
@@ -181,13 +181,12 @@ public actor DataExecutor {
 
     private static func isolateStoreFiles(at storeURL: URL) throws -> URL {
         let manager = FileManager.default
-        let profileDirectory = storeURL.deletingLastPathComponent()
+        let libraryDirectory = storeURL.deletingLastPathComponent()
         let timestamp = storeIsolationTimestamp()
         let isolationDirectory = try uniqueIsolationDirectory(
-            under: ProfileVault.corruptedStoreIsolationDirectory(
-                forProfileDirectory: profileDirectory,
-                timestamp: timestamp
-            ),
+            under: libraryDirectory
+                .appendingPathComponent("corrupted", isDirectory: true)
+                .appendingPathComponent(timestamp, isDirectory: true),
             fileManager: manager
         )
 

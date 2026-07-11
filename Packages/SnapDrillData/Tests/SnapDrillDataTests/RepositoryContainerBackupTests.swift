@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  RepositoryContainer 的 collectProfileBackupData / restoreFromProfileData round-trip 测试（L3 动态维度）。
+//  RepositoryContainer 的 collectBackupData / restore round-trip 测试（L3 动态维度）。
 //
 
 import Testing
@@ -18,8 +18,6 @@ import SnapDrillCore
 final class RepositoryContainerBackupTests {
 
     // MARK: - Properties
-
-    private static let testProfileId = UUID()
 
     private let container: ModelContainer
     private let repos: RepositoryContainer
@@ -41,9 +39,9 @@ final class RepositoryContainerBackupTests {
         return value
     }
 
-    // MARK: - collectProfileBackupData
+    // MARK: - collectBackupData
 
-    @Test("collectProfileBackupData 正确收集全量数据（动态维度）")
+    @Test("collectBackupData 正确收集全量数据（动态维度）")
     func collectPayloadBasic() throws {
         let value = try seedCategoryValue(dimensionName: "分类", valueName: "数学")
 
@@ -52,35 +50,29 @@ final class RepositoryContainerBackupTests {
         repos.archive.insert(item)
         try repos.archive.saveContext()
 
-        let profileData = try repos.collectProfileBackupData(
-            profileName: "默认",
-            profileId: Self.testProfileId
-        )
+        let payload = try repos.collectBackupData()
 
-        #expect(profileData.reviewItems.count == 1)
-        #expect(profileData.reviewItems[0].content == "测试题")
-        #expect(profileData.reviewItems[0].categoryValueIds == [value.id])
-        #expect(profileData.reviewItems[0].answerText == "答案文本")
+        #expect(payload.reviewItems.count == 1)
+        #expect(payload.reviewItems[0].content == "测试题")
+        #expect(payload.reviewItems[0].categoryValueIds == [value.id])
+        #expect(payload.reviewItems[0].answerText == "答案文本")
 
-        #expect(profileData.dimensions.contains(where: { $0.name == "分类" }))
-        #expect(profileData.categoryValues.contains(where: { $0.name == "数学" }))
+        #expect(payload.dimensions.contains(where: { $0.name == "分类" }))
+        #expect(payload.categoryValues.contains(where: { $0.name == "数学" }))
     }
 
-    @Test("空数据库 collectProfileBackupData 返回空数据")
+    @Test("空数据库 collectBackupData 返回空数据")
     func collectPayloadEmpty() throws {
-        let profileData = try repos.collectProfileBackupData(
-            profileName: "空",
-            profileId: UUID()
-        )
+        let payload = try repos.collectBackupData()
 
-        #expect(profileData.reviewItems.isEmpty)
-        #expect(profileData.dimensions.isEmpty)
-        #expect(profileData.categoryValues.isEmpty)
+        #expect(payload.reviewItems.isEmpty)
+        #expect(payload.dimensions.isEmpty)
+        #expect(payload.categoryValues.isEmpty)
     }
 
-    // MARK: - restoreFromProfileData
+    // MARK: - restore
 
-    @Test("restoreFromProfileData 全量恢复 round-trip（动态维度）")
+    @Test("restore 全量恢复 round-trip（动态维度）")
     func restorePayloadRoundTrip() async throws {
         let value = try seedCategoryValue(dimensionName: "英语", valueName: "听力")
 
@@ -91,10 +83,7 @@ final class RepositoryContainerBackupTests {
         repos.archive.insert(item)
         try repos.archive.saveContext()
 
-        let profileData = try repos.collectProfileBackupData(
-            profileName: "默认",
-            profileId: Self.testProfileId
-        )
+        let payload = try repos.collectBackupData()
 
         try repos.archive.deleteAll()
         try repos.categoryValue.deleteAll()
@@ -102,7 +91,7 @@ final class RepositoryContainerBackupTests {
         try repos.archive.saveContext()
         #expect(try repos.archive.totalCount() == 0)
 
-        try await repos.restoreFromProfileData(profileData)
+        try await repos.restore(from: payload)
 
         let restoredItems = try repos.archive.fetchAllModels()
         #expect(restoredItems.count == 1)
@@ -119,7 +108,7 @@ final class RepositoryContainerBackupTests {
         #expect(dims.contains(where: { $0.name == "英语" }))
     }
 
-    @Test("restoreFromProfileData 替换已有数据")
+    @Test("restore 替换已有数据")
     func restoreReplacesExistingData() async throws {
         let oldItem = ArchiveItemModel(content: "旧题目")
         repos.archive.insert(oldItem)
@@ -128,9 +117,7 @@ final class RepositoryContainerBackupTests {
 
         let dimID = UUID()
         let valueID = UUID()
-        let newProfileData = ProfileBackupData(
-            profileName: "新",
-            profileId: UUID(),
+        let newPayload = BackupPayload(
             reviewItems: [
                 ArchiveItemBackupDTO(
                     id: UUID(), content: "新题目 A", imagePath: nil,
@@ -159,7 +146,7 @@ final class RepositoryContainerBackupTests {
             ]
         )
 
-        try await repos.restoreFromProfileData(newProfileData)
+        try await repos.restore(from: newPayload)
 
         let items = try repos.archive.fetchAllModels()
         #expect(items.count == 2)
@@ -168,15 +155,61 @@ final class RepositoryContainerBackupTests {
         #expect(!items.contains(where: { $0.content == "旧题目" }))
     }
 
-    @Test("restoreFromProfileData 维度值关联正确恢复")
+    @Test("restore 保留旧图片到协调器确认图片恢复成功")
+    func restoreDefersOldImageDeletion() async throws {
+        let oldPath = "images/old.jpg"
+        let oldImageURL = repos.libraryDirectory.appendingPathComponent(oldPath)
+        try FileManager.default.createDirectory(
+            at: oldImageURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try Data("old-image".utf8).write(to: oldImageURL)
+        defer { try? FileManager.default.removeItem(at: repos.libraryDirectory) }
+
+        let oldItem = ArchiveItemModel(content: "旧资料", imagePath: oldPath)
+        repos.archive.insert(oldItem)
+        try repos.archive.saveContext()
+
+        let stalePaths = try await repos.restore(
+            from: BackupPayload(reviewItems: [], dimensions: [], categoryValues: [])
+        )
+
+        #expect(stalePaths == Set([oldPath]))
+        #expect(FileManager.default.fileExists(atPath: oldImageURL.path))
+
+        await repos.deleteImages(paths: stalePaths)
+        #expect(!FileManager.default.fileExists(atPath: oldImageURL.path))
+    }
+
+    @Test("restore 不将非法图片路径写入数据库")
+    func restoreSanitizesInvalidImagePaths() async throws {
+        let payload = BackupPayload(
+            reviewItems: [
+                ArchiveItemBackupDTO(
+                    id: UUID(), content: "恶意路径", imagePath: "images",
+                    createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
+                    answerText: nil, answerImagePath: #"images\evil.jpg"#,
+                    easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: []
+                )
+            ],
+            dimensions: [],
+            categoryValues: []
+        )
+
+        try await repos.restore(from: payload)
+
+        let restored = try #require(repos.archive.fetchAllModels().first)
+        #expect(restored.imagePath == nil)
+        #expect(restored.answerImagePath == nil)
+    }
+
+    @Test("restore 维度值关联正确恢复")
     func restoreCategoryValueAssociations() async throws {
         let dimID = UUID()
         let v1 = UUID()
         let v2 = UUID()
         let v3 = UUID()
-        let profileData = ProfileBackupData(
-            profileName: "测试",
-            profileId: UUID(),
+        let payload = BackupPayload(
             reviewItems: [
                 ArchiveItemBackupDTO(
                     id: UUID(), content: "多值题目", imagePath: nil,
@@ -198,7 +231,7 @@ final class RepositoryContainerBackupTests {
             ]
         )
 
-        try await repos.restoreFromProfileData(profileData)
+        try await repos.restore(from: payload)
 
         let items = try repos.archive.fetchAllModels()
         #expect(items.count == 1)
@@ -206,7 +239,7 @@ final class RepositoryContainerBackupTests {
         #expect(names == ["易错", "高频", "考前"].sorted())
     }
 
-    @Test("restoreFromProfileData 逐字段 round-trip：维度 flag + 值样式存活（非默认值重建）")
+    @Test("restore 逐字段 round-trip：维度 flag + 值样式存活（非默认值重建）")
     func restorePreservesAllFields() async throws {
         // 多值维度 + 全非默认字段——区分「正确恢复」与「init 默认值重建」
         let tagDim = CategoryDimensionModel(
@@ -224,13 +257,13 @@ final class RepositoryContainerBackupTests {
         repos.archive.insert(item)
         try repos.archive.saveContext()
 
-        let profileData = try repos.collectProfileBackupData(profileName: "默认", profileId: Self.testProfileId)
+        let payload = try repos.collectBackupData()
         try repos.archive.deleteAll()
         try repos.categoryValue.deleteAll()
         try repos.dimension.deleteAll()
         try repos.archive.saveContext()
 
-        try await repos.restoreFromProfileData(profileData)
+        try await repos.restore(from: payload)
 
         let dims = try repos.dimension.fetchAllModels()
         let restoredDim = try #require(dims.first { $0.systemKey == CategorySystemKey.tag })

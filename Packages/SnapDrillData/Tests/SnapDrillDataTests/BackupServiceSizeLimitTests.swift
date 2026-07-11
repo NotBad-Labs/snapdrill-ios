@@ -54,28 +54,27 @@ struct BackupServiceSizeLimitTests {
     @Test("restoreImages 拒绝超过总解压上限的图片 entries 且不提交部分文件")
     func restoreImages_rejectsTotalUncompressedImageLimit() async throws {
         let service = BackupService(restoreSizeLimits: .init(maxSingleEntryBytes: 16, maxTotalEntryBytes: 20))
-        let profileId = UUID()
         let restoreDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("RestoreZipBombLimitTest_\(UUID().uuidString)", isDirectory: true)
         defer { cleanup(restoreDir) }
 
         let archiveURL = try makeArchive(entries: [
             ZIPEntry(
-                path: "profiles/\(profileId.uuidString)/images/one.jpg",
+                path: "images/one.jpg",
                 data: Data(repeating: 0x63, count: 12)
             ),
             ZIPEntry(
-                path: "profiles/\(profileId.uuidString)/images/two.jpg",
+                path: "images/two.jpg",
                 data: Data(repeating: 0x64, count: 12)
             )
         ])
         defer { cleanup(archiveURL) }
 
         do {
-            try await service.restoreImages(from: archiveURL, profileId: profileId, to: restoreDir)
+            try await service.restoreImages(from: archiveURL, to: restoreDir)
             Issue.record("restoreImages should reject archives whose image entries exceed total limit")
         } catch BackupError.archiveEntryTooLarge(let path, let limitBytes) {
-            #expect(path == "profiles/\(profileId.uuidString)/images/two.jpg")
+            #expect(path == "images/two.jpg")
             #expect(limitBytes == 20)
         } catch {
             Issue.record("Unexpected error: \(error)")
@@ -88,9 +87,8 @@ struct BackupServiceSizeLimitTests {
     @Test("restoreImages 总量上限使用实际提取字节而非 ZIP header 声明值")
     func restoreImages_countsActualBytesWhenUncompressedSizeUnderreports() async throws {
         let service = BackupService(restoreSizeLimits: .init(maxSingleEntryBytes: 16, maxTotalEntryBytes: 20))
-        let profileId = UUID()
-        let firstPath = "profiles/\(profileId.uuidString)/images/one.jpg"
-        let secondPath = "profiles/\(profileId.uuidString)/images/two.jpg"
+        let firstPath = "images/one.jpg"
+        let secondPath = "images/two.jpg"
         let restoreDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("RestoreZipBombHeaderTest_\(UUID().uuidString)", isDirectory: true)
         defer { cleanup(restoreDir) }
@@ -104,7 +102,7 @@ struct BackupServiceSizeLimitTests {
         try rewriteDeclaredUncompressedSize(of: secondPath, in: archiveURL, to: 0)
 
         do {
-            try await service.restoreImages(from: archiveURL, profileId: profileId, to: restoreDir)
+            try await service.restoreImages(from: archiveURL, to: restoreDir)
             Issue.record("restoreImages should count actual extracted bytes, not ZIP header declarations")
         } catch BackupError.archiveEntryTooLarge(let path, let limitBytes) {
             #expect(path == secondPath)

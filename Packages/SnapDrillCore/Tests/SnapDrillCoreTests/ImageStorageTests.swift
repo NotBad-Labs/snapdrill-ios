@@ -16,7 +16,7 @@ import ImageIO
 @Suite("ImageStorage 单元测试")
 struct ImageStorageTests {
 
-    // 使用临时目录隔离测试，避免依赖 UserDefaults.activeProfileId
+    // 使用临时目录隔离测试，避免污染生产资料库
     private let testDir = FileManager.default.temporaryDirectory
         .appendingPathComponent("ImageStorageTests_\(UUID().uuidString)")
     private var storage: ImageStorage { ImageStorage(baseDirectory: testDir) }
@@ -96,6 +96,23 @@ struct ImageStorageTests {
         try await storage.deleteImage(path: "../\(outsideURL.lastPathComponent)")
 
         #expect(FileManager.default.fileExists(atPath: outsideURL.path))
+    }
+
+    @Test("deleteImage 拒绝删除 images 根目录")
+    func deleteImage_rejectsImagesRoot() async throws {
+        let fileManager = FileManager.default
+        let imageURL = testDir.appendingPathComponent("images/keep.jpg")
+        try fileManager.createDirectory(
+            at: imageURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try Data("keep".utf8).write(to: imageURL)
+        defer { try? fileManager.removeItem(at: testDir) }
+
+        try await storage.deleteImage(path: "images")
+
+        #expect(fileManager.fileExists(atPath: imageURL.path))
+        #expect(!ImageStorage.isSafeRelativeImagePath("images"))
     }
 
     // MARK: - compressedJPEGData & saveImage

@@ -22,22 +22,16 @@ extension UNUserNotificationCenter: UserNotificationScheduling {}
 
 /// SnapDrill 管理的通知 ID 命名空间
 ///
-/// 命名层级：`com.snapdrill.notification.<type>.profile.<lowercase-uuid>`
+/// 命名层级：`com.snapdrill.notification.<type>`
 /// - 第一级 `com.snapdrill` reverse-DNS app 域
 /// - 第二级 `notification` 通知功能域（区分于其他子系统）
 /// - 第三级 `<type>` 通知类型（daily-review / 未来错题提醒等）
-/// - 第四级 `profile.<uuid>` Profile 隔离作用域
-///
 /// legacy `"com.snapdrill.daily-review"` 是修复前的硬编码 ID，
 /// schedule 时级联清理以实现平滑升级。
 public enum SnapDrillNotificationID {
     public static let legacyDailyReview = "com.snapdrill.daily-review"
     public static let managedPrefix = "com.snapdrill.notification."
-    private static let dailyReviewPrefix = managedPrefix + "daily-review.profile."
-
-    public static func dailyReview(for profileId: UUID) -> String {
-        dailyReviewPrefix + profileId.uuidString.lowercased()
-    }
+    public static let dailyReview = managedPrefix + "daily-review"
 
     /// 判断 identifier 是否属于 SnapDrill 管理的通知（含 legacy ID）
     public static func isManaged(_ identifier: String) -> Bool {
@@ -83,16 +77,15 @@ public final class LiveNotificationService: NotificationServiceProtocol {
         }
     }
 
-    /// 安排指定 Profile 的每日固定时间复习提醒
+    /// 安排每日固定时间回顾提醒
     ///
-    /// 只替换同一 Profile 的每日提醒，**不影响其他 Profile**。
     /// 同时级联清理 legacy ID `"com.snapdrill.daily-review"`（平滑升级，无需 boot 阻塞）。
-    public func scheduleDaily(at hour: Int, minute: Int, for scope: ProfileScope) async throws {
-        let identifier = SnapDrillNotificationID.dailyReview(for: scope.id)
-        // 级联清理当前 profile 旧 schedule + legacy 全局 ID（修复前的硬编码 ID）
-        notificationCenter.removePendingNotificationRequests(
-            withIdentifiers: [identifier, SnapDrillNotificationID.legacyDailyReview]
-        )
+    public func scheduleDaily(at hour: Int, minute: Int) async throws {
+        let identifier = SnapDrillNotificationID.dailyReview
+        let staleIdentifiers = await notificationCenter.pendingNotificationRequests()
+            .map(\.identifier)
+            .filter(SnapDrillNotificationID.isManaged)
+        notificationCenter.removePendingNotificationRequests(withIdentifiers: staleIdentifiers)
 
         let content = UNMutableNotificationContent()
         content.title = L10n.Notification.dailyTitle
@@ -112,16 +105,16 @@ public final class LiveNotificationService: NotificationServiceProtocol {
 
         try await notificationCenter.add(request)
         SnapDrillLogger.generic.info(
-            "已安排每日复习提醒 profile=\(scope.id.uuidString) time=\(hour):\(String(format: "%02d", minute))"
+            "已安排每日回顾提醒 time=\(hour):\(String(format: "%02d", minute))"
         )
     }
 
-    /// 取消指定 Profile 的每日提醒
-    public func cancelDaily(for scope: ProfileScope) {
+    /// 取消每日提醒
+    public func cancelDaily() {
         notificationCenter.removePendingNotificationRequests(
-            withIdentifiers: [SnapDrillNotificationID.dailyReview(for: scope.id)]
+            withIdentifiers: [SnapDrillNotificationID.dailyReview]
         )
-        SnapDrillLogger.generic.info("已取消每日复习提醒 profile=\(scope.id.uuidString)")
+        SnapDrillLogger.generic.info("已取消每日回顾提醒")
     }
 
     /// 管理员/重置语义：仅取消 SnapDrill 管理的通知，不触碰第三方 app pending request

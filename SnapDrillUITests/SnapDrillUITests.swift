@@ -173,7 +173,7 @@ final class SnapDrillUITests: XCTestCase {
     }
 
     /// 步骤①：启动竞态修复验证 —— 连续冷启动多次，每次都应稳定进入主界面
-    /// （防 ProfileManager 环境注入冷启动崩溃复发）
+    /// （防资料库环境注入冷启动崩溃复发）
     func testLaunchStabilityAcrossRelaunches() {
         let app = XCUIApplication()
         app.launchArguments = l3LaunchArguments()
@@ -769,7 +769,6 @@ final class SnapDrillUITests: XCTestCase {
 
         let routes: [(entry: String, root: String, screenshot: String)] = [
             ("settings.editProfile", "settings.editProfile.root", "ui-freeze-settings-01-edit-profile"),
-            ("settings.profileList", "settings.profileList.root", "ui-freeze-settings-02-profile-list"),
             ("settings.reviewAppearance", "settings.reviewAppearance.root", "ui-freeze-settings-03-review-appearance"),
             ("settings.notifications", "settings.notifications.root", "ui-freeze-settings-04-notifications"),
             ("settings.dataAndSync", "settings.dataAndSync.root", "ui-freeze-settings-05-data-sync"),
@@ -817,7 +816,7 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-settings-edit-profile-photo-avatar")
     }
 
-    /// UI-freeze evidence: capture Profile/taxonomy selection controls and symbol-picker search states.
+    /// UI-freeze evidence: capture personalization/taxonomy controls and symbol-picker search states.
     func testUIFreezeTaxonomyControlStateScreenshots() {
         let app = XCUIApplication()
         app.launchArguments = l3LaunchArguments()
@@ -832,12 +831,12 @@ final class SnapDrillUITests: XCTestCase {
         editProfile.tap()
         waitForAnyElement("settings.editProfile.root", in: app)
 
-        let secondProfileColor = app.buttons["settings.editProfile.color.1"]
-        scrollUntilHittable(secondProfileColor, in: app, maxSwipes: 6)
-        XCTAssertTrue(secondProfileColor.waitForExistence(timeout: 5), "Profile 主题色应可定位")
-        secondProfileColor.tap()
+        let secondThemeColor = app.buttons["settings.editProfile.color.1"]
+        scrollUntilHittable(secondThemeColor, in: app, maxSwipes: 6)
+        XCTAssertTrue(secondThemeColor.waitForExistence(timeout: 5), "个人资料主题色应可定位")
+        secondThemeColor.tap()
         waitForUIAnimation(seconds: 0.4)
-        addScreenshot(named: "ui-freeze-taxonomy-01-profile-color-selected")
+        addScreenshot(named: "ui-freeze-taxonomy-01-theme-color-selected")
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
         waitForAnyElement("settings.root", in: app)
@@ -950,26 +949,6 @@ final class SnapDrillUITests: XCTestCase {
         app.tabBars.buttons.element(boundBy: 4).tap()
         waitForAnyElement("settings.root", in: app)
 
-        let profileList = app.descendants(matching: .any)["settings.profileList"]
-        scrollUntilHittable(profileList, in: app, maxSwipes: 4)
-        XCTAssertTrue(profileList.waitForExistence(timeout: 5), "设置应有资料空间列表入口")
-        profileList.tap()
-        waitForAnyElement("settings.profileList.root", in: app)
-
-        app.buttons["settings.profileList.add"].tap()
-        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 5), "新增资料空间应显示输入弹窗")
-        addScreenshot(named: "ui-freeze-settings-interactions-01-profile-add-alert")
-        let profileNameField = app.alerts.firstMatch.textFields.firstMatch
-        XCTAssertTrue(profileNameField.waitForExistence(timeout: 5), "新增资料空间弹窗应有名称输入框")
-        profileNameField.tap()
-        profileNameField.typeText("视觉 QA")
-        app.alerts.firstMatch.buttons["确定"].tap()
-        XCTAssertTrue(app.buttons["settings.profileList.profile.视觉 QA"].waitForExistence(timeout: 5), "新增资料空间应出现在列表")
-        addScreenshot(named: "ui-freeze-settings-interactions-02-profile-multiple")
-
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        waitForAnyElement("settings.root", in: app)
-
         let language = app.buttons["settings.language"]
         scrollUntilHittable(language, in: app, maxSwipes: 8)
         XCTAssertTrue(language.waitForExistence(timeout: 5), "设置应有语言入口")
@@ -994,12 +973,17 @@ final class SnapDrillUITests: XCTestCase {
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
         XCTAssertTrue(app.buttons["JSON 格式"].waitForNonExistence(timeout: 5), "点空白处应关闭导出格式选择")
 
-        app.navigationBars.buttons.element(boundBy: 0).tap()
+        app.terminate()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 4).tap()
         waitForAnyElement("settings.root", in: app)
 
         let reviewAppearance = app.buttons["settings.reviewAppearance"]
         scrollUntilHittable(reviewAppearance, in: app, maxSwipes: 8)
         XCTAssertTrue(reviewAppearance.waitForExistence(timeout: 5), "设置应有回顾外观入口")
+        XCTAssertTrue(reviewAppearance.isHittable, "回顾外观入口应可点击")
         reviewAppearance.tap()
         waitForAnyElement("settings.reviewAppearance.root", in: app)
 
@@ -1023,31 +1007,6 @@ final class SnapDrillUITests: XCTestCase {
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
         app.tabBars.buttons.element(boundBy: 4).tap()
-        waitForAnyElement("settings.root", in: app)
-
-        let profileList = app.buttons["settings.profileList"]
-        scrollUntilHittable(profileList, in: app, maxSwipes: 4)
-        XCTAssertTrue(profileList.waitForExistence(timeout: 5), "设置应有资料空间入口")
-        profileList.tap()
-        waitForAnyElement("settings.profileList.root", in: app)
-
-        app.buttons["settings.profileList.add"].tap()
-        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 5), "新增资料空间应显示输入弹窗")
-        let profileNameField = app.alerts.firstMatch.textFields.firstMatch
-        XCTAssertTrue(profileNameField.waitForExistence(timeout: 5), "新增资料空间弹窗应有名称输入框")
-        profileNameField.tap()
-        profileNameField.typeText("删除 QA")
-        app.alerts.firstMatch.buttons["确定"].tap()
-        let deleteProfile = app.buttons["settings.profileList.profile.删除 QA"]
-        XCTAssertTrue(deleteProfile.waitForExistence(timeout: 5), "新增资料空间应出现在列表")
-        deleteProfile.swipeLeft()
-        XCTAssertTrue(app.buttons["删除"].waitForExistence(timeout: 5), "多资料空间应显示删除滑动操作")
-        app.buttons["删除"].tap()
-        XCTAssertTrue(app.alerts["删除"].waitForExistence(timeout: 5), "删除资料空间应显示确认弹窗")
-        addScreenshot(named: "ui-freeze-settings-controls-01-profile-delete-alert")
-        app.alerts["删除"].buttons["取消"].tap()
-
-        app.navigationBars.buttons.element(boundBy: 0).tap()
         waitForAnyElement("settings.root", in: app)
 
         let reviewAppearance = app.buttons["settings.reviewAppearance"]
@@ -1940,10 +1899,23 @@ final class SnapDrillUITests: XCTestCase {
     }
 
     /// 在可滚动容器里向上滑动直到目标元素可点击（应对 List 懒加载/折叠在下方的行）
-    private func scrollUntilHittable(_ element: XCUIElement, in app: XCUIApplication, maxSwipes: Int = 8) {
+    private func scrollUntilHittable(
+        _ element: XCUIElement,
+        in app: XCUIApplication,
+        maxSwipes: Int = 8,
+        towardBottom: Bool = true
+    ) {
         var swipes = 0
+        let collectionView = app.collectionViews.firstMatch
+        let table = app.tables.firstMatch
         while !element.isHittable && swipes < maxSwipes {
-            app.swipeUp()
+            if collectionView.exists {
+                towardBottom ? collectionView.swipeUp() : collectionView.swipeDown()
+            } else if table.exists {
+                towardBottom ? table.swipeUp() : table.swipeDown()
+            } else {
+                towardBottom ? app.swipeUp() : app.swipeDown()
+            }
             swipes += 1
         }
     }

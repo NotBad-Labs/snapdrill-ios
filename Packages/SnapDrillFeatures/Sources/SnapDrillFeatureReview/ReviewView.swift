@@ -26,7 +26,7 @@ public struct ReviewView: View {
     @Environment(\.analyticsService) private var analyticsService
     @Environment(\.services) private var services
     @State private var viewModel: ReviewViewModel?
-    @State private var profileTipState = ProfileTipState()
+    @State private var featureTipState = FeatureTipState()
 
     // Dynamic Type 支持：滑动标记文字随系统字号缩放
     @ScaledMetric(relativeTo: .title2) private var stampFontSize: CGFloat = 28
@@ -164,13 +164,13 @@ public struct ReviewView: View {
     private func reviewingPhaseView(vm: ReviewViewModel) -> some View {
         reviewSessionView(vm: vm)
             .transition(.asymmetric(insertion: .move(edge: .bottom), removal: .opacity))
-            .popover(isPresented: $profileTipState.showReviewSwipeTip, arrowEdge: .top) {
+            .popover(isPresented: $featureTipState.showReviewSwipeTip, arrowEdge: .top) {
                 TipPopoverContent(
                     icon: "hand.draw",
                     title: L10n.Review.tooltipTitle,
                     message: L10n.Review.tooltipMessage
                 ) {
-                    profileTipState.markReviewSwipeSeen()
+                    featureTipState.markReviewSwipeSeen()
                 }
             }
     }

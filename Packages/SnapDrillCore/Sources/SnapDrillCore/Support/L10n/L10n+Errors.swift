@@ -106,6 +106,9 @@ nonisolated extension L10n {
         public static func schemaVersionTooNew(_ fileVersion: Int, _ appVersion: Int) -> String {
             String(format: NSLocalizedString("backup_errors.schema_version_too_new", value: "备份文件版本（%d）高于当前应用支持的版本（%d），请更新应用", comment: "版本过新"), fileVersion, appVersion)
         }
+        public static func unsupportedSchemaVersion(_ fileVersion: Int, _ appVersion: Int) -> String {
+            String(format: NSLocalizedString("backup_errors.unsupported_schema_version", value: "备份文件版本（%d）不受当前应用版本（%d）支持", comment: "不支持的备份版本"), fileVersion, appVersion)
+        }
         public static let insufficientDiskSpace = NSLocalizedString("backup_errors.insufficient_disk_space", value: "磁盘空间不足，无法完成操作", comment: "空间不足")
     }
 }

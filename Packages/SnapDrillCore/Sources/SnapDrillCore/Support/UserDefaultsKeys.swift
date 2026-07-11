@@ -79,22 +79,17 @@ nonisolated public enum UDKey {
     public static let smartPaperFreeQuotaMonth = "smartPaper.freeQuota.month"
     public static let smartPaperFreeQuotaUsed = "smartPaper.freeQuota.used"
 
-    // MARK: - Profile
-
-    /// 当前活跃的 Profile ID（UUID 字符串）
-    public static let activeProfileId = "activeProfileId"
-
     // MARK: - Onboarding
 
     public static let hasCompletedOnboarding = "hasCompletedOnboarding"
     /// 功能提示前缀，实际 key 为 `hasShownTooltip_\(feature)`
     public static let hasShownTooltipPrefix = "hasShownTooltip_"
 
-    // MARK: - Profile-level Tip State
+    // MARK: - Tip State
 
-    /// 复习滑动手势提示是否已展示（per-profile 隔离）
+    /// 回顾滑动手势提示是否已展示
     public static let tipReviewSwipeSeen = "tip.reviewSwipe.v1.seen"
-    /// 字段配置引导提示是否已展示（per-profile 隔离）
+    /// 字段配置引导提示是否已展示
     public static let tipFieldConfigSeen = "tip.fieldConfig.v1.seen"
 
 }

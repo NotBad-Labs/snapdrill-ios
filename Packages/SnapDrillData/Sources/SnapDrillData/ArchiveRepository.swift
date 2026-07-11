@@ -25,7 +25,7 @@ public final class ArchiveRepository {
     /// 创建归档资料仓库（推荐路径）
     /// - Parameters:
     ///   - executor: DataExecutor，从其 mainContext 获取 SwiftData 上下文
-    ///   - imageStorageFactory: 可选的 ImageStorage 工厂闭包（用于 Profile 隔离的图片删除）
+    ///   - imageStorageFactory: 可选的 ImageStorage 工厂闭包（用于删除关联图片）
     public init(executor: DataExecutor, imageStorageFactory: (() -> ImageStorage)? = nil) {
         self.modelContext = executor.container.mainContext
         self.imageStorageFactory = imageStorageFactory

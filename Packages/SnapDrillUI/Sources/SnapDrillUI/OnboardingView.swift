@@ -265,7 +265,7 @@ public final class OnboardingManager {
         shouldShowOnboarding = false
     }
 
-    /// 重置引导状态（含 TipKit 设备级提示 + Profile 级提示）
+    /// 重置引导状态（含 TipKit 与功能提示）
     public func resetAll() {
         UserDefaults.standard.set(false, forKey: UDKey.hasCompletedOnboarding)
         shouldShowOnboarding = true
@@ -274,7 +274,7 @@ public final class OnboardingManager {
         } catch {
             SnapDrillLogger.generic.error("TipKit 重置失败: \(error.localizedDescription)")
         }
-        ProfileTipState().resetAll()
+        FeatureTipState().resetAll()
     }
 }
 

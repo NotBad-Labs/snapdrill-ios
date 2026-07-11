@@ -22,6 +22,7 @@ public actor BackupService {
     public typealias ProgressHandler = @Sendable (Int, Int) -> Void
 
     private struct StagedImageFile {
+        let relativePath: String
         let stagedURL: URL
         let destinationURL: URL
     }
@@ -29,8 +30,7 @@ public actor BackupService {
     private struct ImageRestoreStageContext {
         let imageEntries: [Entry]
         let archive: Archive
-        let profileId: UUID
-        let imageBasePath: URL
+        let libraryDirectory: URL
         let stagingDir: URL
     }
 
@@ -68,22 +68,31 @@ public actor BackupService {
     /// 将全量数据序列化为 JSON + 图片目录，打包为 ZIP 文件存储到临时目录。
     ///
     /// - Parameters:
-    ///   - payload: 所有 Profile 数据的 Codable 快照
+    ///   - payload: 唯一资料库的 Codable 快照
     ///   - manifest: 备份元数据清单
-    ///   - profileDirectories: 每个 Profile 的图片目录（与 payload.profiles 一一对应）
+    ///   - libraryDirectory: 唯一资料库根目录
     ///   - onProgress: 进度回调（当前已处理图片数 / 总图片数）
     /// - Returns: 生成的 .zip 文件 URL（位于临时目录）
     public func createBackup(
         payload: BackupPayload,
         manifest: BackupManifest,
-        profileDirectories: [URL],
+        libraryDirectory: URL,
+        allowsMissingImages: Bool = false,
         onProgress: ProgressHandler? = nil
     ) throws -> URL {
         let fileManager = FileManager.default
         let tempDir = fileManager.temporaryDirectory
         let timestamp = ISO8601DateFormatter().string(from: Date())
             .replacingOccurrences(of: ":", with: "-")
-        let backupURL = tempDir.appendingPathComponent("SnapDrill_Backup_\(timestamp).zip")
+        let backupURL = tempDir.appendingPathComponent(
+            "SnapDrill_Backup_\(timestamp)_\(UUID().uuidString).zip"
+        )
+        var completed = false
+        defer {
+            if !completed {
+                try? fileManager.removeItem(at: backupURL)
+            }
+        }
 
         // 清理可能存在的旧文件
         do {
@@ -125,65 +134,68 @@ public actor BackupService {
             provider: { position, size in payloadData[Int(position) ..< Int(position) + size] }
         )
 
-        // 3. 逐个 Profile 写入图片
-        try writeProfileImages(
-            to: archive, payload: payload,
-            profileDirectories: profileDirectories, onProgress: onProgress
+        // 3. 写入图片
+        try writeImages(
+            to: archive,
+            payload: payload,
+            libraryDirectory: libraryDirectory,
+            allowsMissingImages: allowsMissingImages,
+            onProgress: onProgress
         )
 
+        completed = true
         return backupURL
     }
 
-    /// 将各 Profile 的图片写入 ZIP 归档（Store 模式，不压缩——JPEG 已压缩）
-    private func writeProfileImages(
+    /// 将图片写入 ZIP 归档（Store 模式，不压缩——JPEG 已压缩）
+    private func writeImages(
         to archive: Archive,
         payload: BackupPayload,
-        profileDirectories: [URL],
+        libraryDirectory: URL,
+        allowsMissingImages: Bool,
         onProgress: ProgressHandler?
     ) throws {
         let fileManager = FileManager.default
-        var totalImages = 0
-        for profileData in payload.profiles {
-            for item in profileData.reviewItems {
-                if item.imagePath != nil { totalImages += 1 }
-                if item.answerImagePath != nil { totalImages += 1 }
-            }
-        }
-
+        let imagePaths = Set(payload.reviewItems.flatMap { item in
+            [item.imagePath, item.answerImagePath].compactMap { $0 }
+        })
+        let totalImages = imagePaths.count
         var processedImages = 0
         var lastReportedPercent = -1
 
-        for (profileIndex, profileData) in payload.profiles.enumerated() {
-            let imageBasePath = profileIndex < profileDirectories.count
-                ? profileDirectories[profileIndex] : profileDirectories[0]
-
-            var imagePaths: [String] = []
-            for item in profileData.reviewItems {
-                if let path = item.imagePath { imagePaths.append(path) }
-                if let path = item.answerImagePath { imagePaths.append(path) }
-            }
-
-            let profilePrefix = "profiles/\(profileData.profileId.uuidString)"
-            for relativePath in Set(imagePaths) {
-                let absoluteURL = imageBasePath.appendingPathComponent(relativePath)
-                guard fileManager.fileExists(atPath: absoluteURL.path) else {
-                    SnapDrillLogger.generic.warning("备份跳过缺失图片: \(relativePath)")
+        for relativePath in imagePaths {
+            guard ImageStorage.isSafeRelativeImagePath(relativePath) else {
+                if allowsMissingImages {
+                    SnapDrillLogger.generic.warning("安全网备份跳过非法图片路径: \(relativePath)")
                     processedImages += 1
                     reportProgress(processedImages, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
                     continue
                 }
-
-                let fileData = try Data(contentsOf: absoluteURL)
-                try archive.addEntry(
-                    with: "\(profilePrefix)/\(relativePath)",
-                    type: .file,
-                    uncompressedSize: Int64(fileData.count),
-                    compressionMethod: .none,
-                    provider: { position, size in fileData[Int(position) ..< Int(position) + size] }
-                )
-                processedImages += 1
-                reportProgress(processedImages, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
+                SnapDrillLogger.generic.error("备份包含非法图片路径: \(relativePath)")
+                throw BackupError.archiveCreationFailed
             }
+            let absoluteURL = libraryDirectory.appendingPathComponent(relativePath)
+            guard fileManager.fileExists(atPath: absoluteURL.path) else {
+                if allowsMissingImages {
+                    SnapDrillLogger.generic.warning("安全网备份跳过缺失图片: \(relativePath)")
+                    processedImages += 1
+                    reportProgress(processedImages, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
+                    continue
+                }
+                SnapDrillLogger.generic.error("备份缺失数据库引用的图片: \(relativePath)")
+                throw BackupError.archiveCreationFailed
+            }
+
+            let fileData = try Data(contentsOf: absoluteURL)
+            try archive.addEntry(
+                with: relativePath,
+                type: .file,
+                uncompressedSize: Int64(fileData.count),
+                compressionMethod: .none,
+                provider: { position, size in fileData[Int(position) ..< Int(position) + size] }
+            )
+            processedImages += 1
+            reportProgress(processedImages, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
         }
     }
 
@@ -233,19 +245,29 @@ public actor BackupService {
         return try decoder.decode(BackupPayload.self, from: payloadData)
     }
 
-    /// 从备份文件中恢复指定 Profile 的图片
+    /// 从备份文件中恢复图片
     ///
     /// - Parameters:
     ///   - backupURL: .zip 文件路径
-    ///   - profileId: 要恢复的 Profile ID（对应 ZIP 中 profiles/<id>/ 前缀）
-    ///   - imageBasePath: 目标 Profile 的图片目录
+    ///   - libraryDirectory: 目标资料库根目录
     ///   - onProgress: 进度回调（当前已恢复图片数 / 总图片数）
+    public func validateImages(in backupURL: URL, expectedPaths: Set<String>) throws {
+        let archive: Archive
+        do {
+            archive = try Archive(url: backupURL, accessMode: .read)
+        } catch {
+            throw BackupError.invalidArchive
+        }
+        _ = try validatedImageEntries(from: archive, expectedPaths: expectedPaths)
+    }
+
+    @discardableResult
     public func restoreImages(
         from backupURL: URL,
-        profileId: UUID,
-        to imageBasePath: URL,
+        to libraryDirectory: URL,
+        expectedPaths: Set<String>? = nil,
         onProgress: ProgressHandler? = nil
-    ) throws {
+    ) throws -> Set<String> {
         let archive: Archive
         do {
             archive = try Archive(url: backupURL, accessMode: .read)
@@ -253,9 +275,7 @@ public actor BackupService {
             throw BackupError.invalidArchive
         }
 
-        let imageEntries = extractImageEntries(from: archive, profileId: profileId)
-        let totalImages = imageEntries.count
-
+        let imageEntries = try validatedImageEntries(from: archive, expectedPaths: expectedPaths)
         let fileManager = FileManager.default
         let stagingDir = fileManager.temporaryDirectory
             .appendingPathComponent("restore-images-\(UUID().uuidString)", isDirectory: true)
@@ -266,8 +286,7 @@ public actor BackupService {
             let context = ImageRestoreStageContext(
                 imageEntries: imageEntries,
                 archive: archive,
-                profileId: profileId,
-                imageBasePath: imageBasePath,
+                libraryDirectory: libraryDirectory,
                 stagingDir: stagingDir
             )
             let stagedFiles = try stageImageEntries(
@@ -276,12 +295,12 @@ public actor BackupService {
                 onProgress: onProgress
             )
             try commitStagedFiles(stagedFiles, fileManager: fileManager)
+            try? fileManager.removeItem(at: stagingDir)
+            return Set(stagedFiles.map(\.relativePath))
         } catch {
             try? fileManager.removeItem(at: stagingDir)
             throw error
         }
-
-        try? fileManager.removeItem(at: stagingDir)
     }
     // MARK: - Private Helpers
 
@@ -295,9 +314,27 @@ public actor BackupService {
         }
     }
 
-    private func extractImageEntries(from archive: Archive, profileId: UUID) -> [Entry] {
-        let prefix = "profiles/\(profileId.uuidString)/images/"
-        return archive.filter { $0.path.hasPrefix(prefix) && $0.type == .file }
+    private func extractImageEntries(from archive: Archive) -> [Entry] {
+        archive.filter { $0.path.hasPrefix("images/") && $0.type == .file }
+    }
+
+    private func validatedImageEntries(
+        from archive: Archive,
+        expectedPaths: Set<String>?
+    ) throws -> [Entry] {
+        let entries = extractImageEntries(from: archive)
+        guard let expectedPaths else { return entries }
+        guard expectedPaths.allSatisfy(ImageStorage.isSafeRelativeImagePath) else {
+            throw BackupError.invalidArchive
+        }
+
+        let availablePaths = Set(entries.compactMap { entry in
+            ImageStorage.isSafeRelativeImagePath(entry.path) ? entry.path : nil
+        })
+        guard expectedPaths.isSubset(of: availablePaths) else {
+            throw BackupError.invalidArchive
+        }
+        return entries.filter { expectedPaths.contains($0.path) }
     }
 
     private func stageImageEntries(
@@ -307,19 +344,19 @@ public actor BackupService {
     ) throws -> [StagedImageFile] {
         let fileManager = FileManager.default
         let totalImages = context.imageEntries.count
-        let basePath = context.imageBasePath.standardizedFileURL.path + "/"
+        let basePath = context.libraryDirectory.standardizedFileURL.path + "/"
         let stagingBasePath = context.stagingDir.standardizedFileURL.path + "/"
-        let profilePrefix = "profiles/\(context.profileId.uuidString)/"
         var stagedFiles: [StagedImageFile] = []
         var totalRestoredBytes: Int64 = 0
 
         for (index, entry) in context.imageEntries.enumerated() {
-            let relativePath = String(entry.path.dropFirst(profilePrefix.count))
+            let relativePath = entry.path
             let pathComponents = relativePath.split(separator: "/")
-            let destinationURL = context.imageBasePath.appendingPathComponent(relativePath).standardizedFileURL
+            let destinationURL = context.libraryDirectory.appendingPathComponent(relativePath).standardizedFileURL
             let stagedURL = context.stagingDir.appendingPathComponent(relativePath).standardizedFileURL
 
-            guard !pathComponents.contains(".."),
+            guard ImageStorage.isSafeRelativeImagePath(relativePath),
+                  !pathComponents.contains(".."),
                   destinationURL.path.hasPrefix(basePath),
                   stagedURL.path.hasPrefix(stagingBasePath) else {
                 SnapDrillLogger.generic.warning("跳过可疑路径: \(entry.path)")
@@ -335,7 +372,13 @@ public actor BackupService {
                 totalBytesSoFar: totalRestoredBytes
             )
             totalRestoredBytes += restoredBytes
-            stagedFiles.append(StagedImageFile(stagedURL: stagedURL, destinationURL: destinationURL))
+            stagedFiles.append(
+                StagedImageFile(
+                    relativePath: relativePath,
+                    stagedURL: stagedURL,
+                    destinationURL: destinationURL
+                )
+            )
             reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
         }
 
@@ -414,45 +457,6 @@ public actor BackupService {
             } else {
                 try fileManager.moveItem(at: file.stagedURL, to: file.destinationURL)
             }
-        }
-    }
-}
-
-// MARK: - Errors
-
-/// 备份操作错误
-public enum BackupError: LocalizedError {
-    /// 无法创建 ZIP 归档
-    case archiveCreationFailed
-    /// 备份文件格式无效或已损坏
-    case invalidArchive
-    /// 备份文件中缺少 manifest.json
-    case missingManifest
-    /// 备份文件中缺少 data.json
-    case missingDataFile
-    /// 备份文件的 Schema 版本高于当前 App，需要升级
-    case schemaVersionTooNew(fileVersion: Int, appVersion: Int)
-    /// 磁盘空间不足
-    case insufficientDiskSpace
-    /// ZIP entry 解压体积超过恢复上限
-    case archiveEntryTooLarge(path: String, limitBytes: Int64)
-
-    public var errorDescription: String? {
-        switch self {
-        case .archiveCreationFailed:
-            return L10n.BackupErrors.archiveCreationFailed
-        case .invalidArchive:
-            return L10n.BackupErrors.invalidArchive
-        case .missingManifest:
-            return L10n.BackupErrors.missingManifest
-        case .missingDataFile:
-            return L10n.BackupErrors.missingDataFile
-        case .schemaVersionTooNew(let fileVersion, let appVersion):
-            return L10n.BackupErrors.schemaVersionTooNew(fileVersion, appVersion)
-        case .insufficientDiskSpace:
-            return L10n.BackupErrors.insufficientDiskSpace
-        case .archiveEntryTooLarge:
-            return L10n.BackupErrors.invalidArchive
         }
     }
 }

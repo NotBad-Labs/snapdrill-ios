@@ -30,7 +30,7 @@ public enum LibraryDestination: Hashable {
 ///
 /// ## 导航路径
 /// - **列表页**: 模块首页，展示题目列表。
-/// - **智能组卷**: `.smartPaper`，按当前 Profile 的资料生成可导出的资料集。
+/// - **智能组卷**: `.smartPaper`，按资料库内容生成可导出的资料集。
 /// - **详情页**: `.detail(ArchiveItemModel)`，展示题目的图片、完整文本及元数据。
 @MainActor
 @Observable

@@ -78,7 +78,7 @@ public final class CategoryDimensionModel {
 
 extension CategoryDimensionModel {
 
-    /// 可见性 key 的统一前缀（ProfileManager 据此做 per-Profile 搬运/清理；勿散写）。
+    /// 可见性 key 的统一前缀（勿散写）。
     public static let visibilityKeyPrefix = "capture_dim_visible_"
 
     /// per-维度可见性的 UserDefaults key（录入页 / 编辑页 / 分类管理页共用的唯一契约）。

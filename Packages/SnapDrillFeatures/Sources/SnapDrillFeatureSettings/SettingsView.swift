@@ -25,7 +25,6 @@ import MessageUI
 public struct SettingsView: View {
     @Bindable private var router: SettingsRouter
     @Environment(\.repositories) private var repositories
-    @Environment(\.profileManager) private var profileManager
     // 仅用于 #if DEBUG DataSeeder，正式功能通过 RepositoryContainer 访问
     @Environment(\.modelContext) private var modelContext
 
@@ -43,7 +42,7 @@ public struct SettingsView: View {
     @State private var clearTask: Task<Void, Never>?
     @State private var settingsAvatarImage: UIImage?
     private let tabBarBreathingRoom: CGFloat = 160
-    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
+    private var imageStorage: ImageStorage { repositories.imageStorage }
 
     private static let categoryVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.category)"
     private static let sourceVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.source)"
@@ -78,7 +77,7 @@ public struct SettingsView: View {
     public var body: some View {
         NavigationStack(path: $router.path) {
             List {
-                // 1. Profile（系统头像区）
+                // 1. 个人资料（系统头像区）
                 Section {
                     NavigationLink {
                         EditProfileView()
@@ -86,13 +85,6 @@ public struct SettingsView: View {
                         profileRow
                     }
                     .accessibilityIdentifier("settings.editProfile")
-                }
-
-                Section {
-                    NavigationLink(value: SettingsDestination.profileList) {
-                        SettingsRow(icon: "person.2.fill", gradientStart: .cyan, gradientEnd: .blue, title: L10n.Settings.switchLearner)
-                    }
-                    .accessibilityIdentifier("settings.profileList")
                 }
 
                 // 2. 录入字段配置
@@ -126,8 +118,6 @@ public struct SettingsView: View {
                     .accessibilityIdentifier("settings.captureField.answer")
                     .accessibilityHint(L10n.Accessibility.fieldAnswerHint)
 
-                } footer: {
-                    bottomBreathingRoom
                 }
 
                 // 3. 回顾设置
@@ -267,8 +257,6 @@ public struct SettingsView: View {
 
                 } header: {
                     Text(L10n.Settings.about)
-                } footer: {
-                    debugSectionBreathingRoom
                 }
 
 #if DEBUG
@@ -306,8 +294,6 @@ public struct SettingsView: View {
                     PrivacyPolicyView()
                 case .termsOfService:
                     TermsOfServiceView()
-                case .profileList:
-                    ProfileListView(profileManager: profileManager)
                 }
             }
             .alert(L10n.Settings.clearConfirmTitle, isPresented: $showingClearAlert) {
@@ -331,7 +317,7 @@ public struct SettingsView: View {
             }
             .onAppear {
                 if viewModel == nil {
-                    viewModel = SettingsViewModel(repositories: repositories, profileManager: profileManager)
+                    viewModel = SettingsViewModel(repositories: repositories)
                 }
             }
             .onDisappear {
@@ -358,16 +344,7 @@ public struct SettingsView: View {
             .accessibilityHidden(true)
     }
 
-    @ViewBuilder
-    private var debugSectionBreathingRoom: some View {
-#if DEBUG
-        bottomBreathingRoom
-#else
-        EmptyView()
-#endif
-    }
-
-    /// Profile 行：系统 insetGrouped 行内的头像 + 姓名 + 副标题。
+    /// 个人资料行：系统 insetGrouped 行内的头像 + 姓名 + 副标题。
     @ViewBuilder
     private var profileRow: some View {
         HStack(spacing: 14) {

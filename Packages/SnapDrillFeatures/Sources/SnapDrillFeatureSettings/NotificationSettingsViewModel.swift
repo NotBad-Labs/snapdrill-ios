@@ -28,13 +28,11 @@ final class NotificationSettingsViewModel {
     // MARK: - Dependencies
 
     private let notificationService: NotificationServiceProtocol
-    private let profileScope: ProfileScope
 
     // MARK: - Initialization
 
-    init(notificationService: NotificationServiceProtocol, profileScope: ProfileScope) {
+    init(notificationService: NotificationServiceProtocol) {
         self.notificationService = notificationService
-        self.profileScope = profileScope
     }
 
     // MARK: - Public API
@@ -60,10 +58,10 @@ final class NotificationSettingsViewModel {
             return false
         }
         do {
-            try await notificationService.scheduleDaily(at: hour, minute: minute, for: profileScope)
+            try await notificationService.scheduleDaily(at: hour, minute: minute)
         } catch {
             SnapDrillLogger.generic.error("安排每日通知失败: \(error.localizedDescription)")
-            notificationService.cancelDaily(for: profileScope)
+            notificationService.cancelDaily()
             rescheduleError = L10n.Settings.rescheduleFailedMessage
             return false
         }
@@ -71,16 +69,16 @@ final class NotificationSettingsViewModel {
         return true
     }
 
-    /// 用户关闭通知开关时调用：取消当前 Profile 已安排的通知
+    /// 用户关闭通知开关时调用：取消已安排的通知
     func disable() {
-        notificationService.cancelDaily(for: profileScope)
+        notificationService.cancelDaily()
     }
 
     /// 用户修改提醒时间时调用：重新安排（仅在已开启状态下生效）
     @discardableResult
     func reschedule(hour: Int, minute: Int) async -> Bool {
         do {
-            try await notificationService.scheduleDaily(at: hour, minute: minute, for: profileScope)
+            try await notificationService.scheduleDaily(at: hour, minute: minute)
             rescheduleError = nil
             return true
         } catch {

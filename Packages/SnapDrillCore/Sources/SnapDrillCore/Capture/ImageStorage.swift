@@ -29,21 +29,13 @@ public struct ImageStorage: Sendable {
 
     // MARK: - Properties
 
-    /// 图片存储根目录（Profile 隔离目录）
+    /// 图片存储根目录
     private let baseDirectory: URL
 
     // MARK: - Initialization
 
-    /// 创建 Profile 隔离的图片存储服务（生产路径）
-    /// - Parameters:
-    ///   - baseDirectory: Profile 图片根目录（如 `profiles/<id>/`）
-    ///   - scope: Profile 隔离作用域（用于日志/调试）
-    nonisolated public init(baseDirectory: URL, scope: ProfileScope) {
-        self.baseDirectory = baseDirectory
-    }
-
-    /// 创建图片存储服务（测试/Preview 路径，不使用 Profile 隔离）
-    /// - Parameter baseDirectory: 临时目录
+    /// 创建图片存储服务。
+    /// - Parameter baseDirectory: 唯一资料库根目录
     nonisolated public init(baseDirectory: URL) {
         self.baseDirectory = baseDirectory
     }
@@ -201,14 +193,13 @@ public struct ImageStorage: Sendable {
         return totalSize
     }
 
-    nonisolated private static func isSafeRelativeImagePath(_ path: String) -> Bool {
-        guard !path.isEmpty,
-              !path.hasPrefix("/"),
+    nonisolated public static func isSafeRelativeImagePath(_ path: String) -> Bool {
+        guard path.hasPrefix("images/"),
               !path.contains("\\") else {
             return false
         }
         let components = path.split(separator: "/", omittingEmptySubsequences: false)
-        guard !components.isEmpty else { return false }
+        guard components.count >= 2, components.first == "images" else { return false }
         return components.allSatisfy { component in
             !component.isEmpty && component != "." && component != ".."
         }

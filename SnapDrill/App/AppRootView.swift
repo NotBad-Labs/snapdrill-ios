@@ -29,30 +29,28 @@ struct AppRootView: View {
     // MARK: - Properties
 
     @Bindable var router: AppRouter
-    let makeProfileManager: () async -> ProfileManager
+    let makeLibrarySession: () async -> LibrarySession
     @Environment(\.services) private var services
-    @State private var profileManager: ProfileManager?
+    @State private var librarySession: LibrarySession?
     @State private var handledStoreRecoveryEventKey: String?
 
     var body: some View {
         Group {
-            if let profileManager {
-                loadedContent(profileManager: profileManager)
-                    .modelContainer(profileManager.activeContainer)
-                    .environment(\.repositories, profileManager.activeRepositories)
-                    .environment(\.profileManager, profileManager)
-                    .id(profileManager.activeProfileId)
+            if let librarySession {
+                loadedContent(librarySession: librarySession)
+                    .modelContainer(librarySession.container)
+                    .environment(\.repositories, librarySession.repositories)
             } else {
                 ProgressView()
                     .task {
-                        await loadProfileManagerIfNeeded()
+                        await loadLibrarySessionIfNeeded()
                     }
             }
         }
     }
 
     @ViewBuilder
-    private func loadedContent(profileManager: ProfileManager) -> some View {
+    private func loadedContent(librarySession: LibrarySession) -> some View {
         ZStack(alignment: .top) {
             // Tab struct（iOS 18+）：自动获得 Liquid Glass 效果
             // iPad 上自动切换为侧边栏导航
@@ -96,18 +94,17 @@ struct AppRootView: View {
             }
             
             // 降级模式警告横幅
-            if shouldShowDegradedModeWarning(for: profileManager) {
+            if shouldShowDegradedModeWarning(for: librarySession) {
                 degradedModeWarningBanner
                     .accessibilityIdentifier("app.degradedBanner")
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        .fullScreenCover(isPresented: storeRecoveryPresentationBinding(for: profileManager)) {
-            if let event = activeStoreRecoveryEvent(for: profileManager) {
+        .fullScreenCover(isPresented: storeRecoveryPresentationBinding(for: librarySession)) {
+            if let event = activeStoreRecoveryEvent(for: librarySession) {
                 StoreRecoveryBlockingView(
                     event: event,
-                    repositories: profileManager.activeRepositories,
-                    profileManager: profileManager,
+                    repositories: librarySession.repositories,
                     activityTracker: services.activityTracker,
                     onResolved: { markStoreRecoveryHandled(event) }
                 )
@@ -118,8 +115,8 @@ struct AppRootView: View {
     
     // MARK: - Private Helpers
 
-    private func shouldShowDegradedModeWarning(for profileManager: ProfileManager) -> Bool {
-        if profileManager.isUsingInMemoryFallback {
+    private func shouldShowDegradedModeWarning(for librarySession: LibrarySession) -> Bool {
+        if librarySession.isUsingInMemoryFallback {
             return true
         }
 
@@ -130,16 +127,16 @@ struct AppRootView: View {
 #endif
     }
 
-    private func storeRecoveryPresentationBinding(for profileManager: ProfileManager) -> Binding<Bool> {
+    private func storeRecoveryPresentationBinding(for librarySession: LibrarySession) -> Binding<Bool> {
         Binding(
             get: {
-                guard let event = activeStoreRecoveryEvent(for: profileManager) else {
+                guard let event = activeStoreRecoveryEvent(for: librarySession) else {
                     return false
                 }
                 return handledStoreRecoveryEventKey != storeRecoveryEventKey(event)
             },
             set: { isPresented in
-                guard !isPresented, let event = activeStoreRecoveryEvent(for: profileManager) else {
+                guard !isPresented, let event = activeStoreRecoveryEvent(for: librarySession) else {
                     return
                 }
                 markStoreRecoveryHandled(event)
@@ -147,8 +144,8 @@ struct AppRootView: View {
         )
     }
 
-    private func activeStoreRecoveryEvent(for profileManager: ProfileManager) -> StoreRecoveryEvent? {
-        if let event = profileManager.storeRecoveryEvent {
+    private func activeStoreRecoveryEvent(for librarySession: LibrarySession) -> StoreRecoveryEvent? {
+        if let event = librarySession.storeRecoveryEvent {
             return event
         }
 
@@ -211,9 +208,9 @@ struct AppRootView: View {
         .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
     }
 
-    private func loadProfileManagerIfNeeded() async {
-        guard profileManager == nil else { return }
-        profileManager = await makeProfileManager()
+    private func loadLibrarySessionIfNeeded() async {
+        guard librarySession == nil else { return }
+        librarySession = await makeLibrarySession()
     }
 }
 
@@ -228,7 +225,6 @@ private struct StoreRecoveryBlockingView: View {
     init(
         event: StoreRecoveryEvent,
         repositories: RepositoryContainer,
-        profileManager: ProfileManager,
         activityTracker: AppActivityTracker,
         onResolved: @escaping () -> Void
     ) {
@@ -237,7 +233,6 @@ private struct StoreRecoveryBlockingView: View {
         _viewModel = State(
             initialValue: SettingsViewModel(
                 repositories: repositories,
-                profileManager: profileManager,
                 activityTracker: activityTracker
             )
         )
@@ -285,7 +280,12 @@ private struct StoreRecoveryBlockingView: View {
                 .font(.largeTitle.weight(.bold))
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text(L10n.AppRoot.storeRecoveryDescription)
+            Text(L10n.AppRoot.storeRecoveryDescriptionPrimary)
+                .font(.body)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(L10n.AppRoot.storeRecoveryDescriptionSecondary)
                 .font(.body)
                 .foregroundStyle(.primary)
                 .fixedSize(horizontal: false, vertical: true)

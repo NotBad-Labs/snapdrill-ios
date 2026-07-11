@@ -24,8 +24,8 @@ struct ReviewCardFront: View {
     let showsActions: Bool
 
     @State private var showingEditSheet = false
-    @Environment(\.profileManager) private var profileManager
-    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
+    @Environment(\.repositories) private var repositories
+    private var imageStorage: ImageStorage { repositories.imageStorage }
     @State private var loadedImage: UIImage?
 
     // 用户偏好：正面卡片排版

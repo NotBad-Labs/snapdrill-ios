@@ -154,12 +154,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
         guard let supportDir = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
             return nil
         }
-        // 数据隔离：草稿图按 Profile 隔离（与 ProfileManager.perProfileKeys 已隔离的元数据对齐），
-        // 防切换孩子档案时 A 的草稿图配上 B 的元数据——这是撞儿童隐私隔离根基的敏感数据串档。
-        let profileId = defaults.string(forKey: UDKey.activeProfileId) ?? "default"
-        let draftDir = supportDir
-            .appendingPathComponent("CaptureDrafts", isDirectory: true)
-            .appendingPathComponent(profileId, isDirectory: true)
+        let draftDir = supportDir.appendingPathComponent("CaptureDrafts", isDirectory: true)
         do {
             try fileManager.createDirectory(at: draftDir, withIntermediateDirectories: true)
         } catch {

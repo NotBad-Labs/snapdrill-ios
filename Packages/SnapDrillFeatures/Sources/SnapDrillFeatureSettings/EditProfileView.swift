@@ -36,8 +36,8 @@ struct EditProfileView: View {
     @State private var avatarImage: UIImage?
     /// 头像加载/保存失败时的用户可见提示（修复 #637：失败原本完全静默）
     @State private var avatarLoadError: String?
-    @Environment(\.profileManager) private var profileManager
-    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
+    @Environment(\.repositories) private var repositories
+    private var imageStorage: ImageStorage { repositories.imageStorage }
     
     // 头像主题色预设
     private let gradients: [[Color]] = [

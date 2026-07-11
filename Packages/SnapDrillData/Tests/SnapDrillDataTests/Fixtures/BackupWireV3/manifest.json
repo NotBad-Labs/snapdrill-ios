@@ -1,10 +1,6 @@
 {
   "appVersion" : "1.0.0",
   "createdAt" : "2024-01-01T00:00:00Z",
-  "profileCount" : 1,
-  "profileNames" : [
-    "Default"
-  ],
-  "schemaVersion" : 2,
+  "schemaVersion" : 3,
   "totalItemCount" : 1
 }

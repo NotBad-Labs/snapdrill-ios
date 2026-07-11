@@ -35,7 +35,7 @@ nonisolated extension L10n {
         public static let storageManagement = NSLocalizedString("settings.storage_management", value: "存储管理", comment: "存储管理")
         public static let storageImages = NSLocalizedString("settings.storage_images", value: "资料图片", comment: "图片存储占用")
         public static let storageTotal = NSLocalizedString("settings.storage_total", value: "总占用", comment: "总存储占用")
-        public static let storageFooter = NSLocalizedString("settings.storage_footer", value: "显示当前资料空间的存储占用。图片会自动压缩以节省空间。", comment: "存储管理说明")
+        public static let storageFooter = NSLocalizedString("settings.storage_footer", value: "显示当前资料库的存储占用。图片会自动压缩以节省空间。", comment: "存储管理说明")
 
         // 通用
         public static let general = NSLocalizedString("settings.general", value: "通用", comment: "通用区标题")
@@ -155,21 +155,6 @@ nonisolated extension L10n {
         public static let systemIcon = NSLocalizedString("settings.system_icon", value: "使用系统图标", comment: "使用系统图标")
         public static let removeAvatar = NSLocalizedString("settings.remove_avatar", value: "移除当前头像", comment: "移除当前头像")
 
-        // Profile 管理
-        public static let switchLearner = NSLocalizedString("settings.switch_learner", value: "切换资料空间", comment: "切换资料空间入口")
-        public static let profileSpacesSection = NSLocalizedString("settings.profile_spaces_section", value: "资料空间", comment: "资料空间列表区标题")
-        public static let profileSpacesFooter = NSLocalizedString("settings.profile_spaces_footer", value: "每个资料空间独立保存资料、图片和回顾进度，适合按项目或场景分开管理。", comment: "资料空间列表说明")
-        public static let defaultProfileName = NSLocalizedString("settings.default_profile_name", value: "默认资料空间", comment: "默认资料空间名称")
-        public static let addLearner = NSLocalizedString("settings.add_learner", value: "添加资料空间", comment: "添加资料空间按钮")
-        public static let deleteLearnerConfirm = NSLocalizedString("settings.delete_learner_confirm", value: "删除后该资料空间的所有资料、回顾进度和图片将永久丢失，无法恢复。", comment: "删除资料空间确认")
-        public static let learnerName = NSLocalizedString("settings.learner_name", value: "资料空间名称", comment: "资料空间名称输入")
-        public static let currentLearner = NSLocalizedString("settings.current_learner", value: "当前", comment: "当前资料空间标记")
-        public static let profileCurrentHint = NSLocalizedString("settings.profile_current_hint", value: "当前正在使用的资料空间", comment: "当前资料空间无障碍提示")
-        public static let profileSwitchHint = NSLocalizedString("settings.profile_switch_hint", value: "切换到此资料空间", comment: "切换资料空间无障碍提示")
-        public static let draftExistsTitle = NSLocalizedString("settings.draft_exists_title", value: "存在未保存的草稿", comment: "切换资料空间时草稿提示标题")
-        public static let draftExistsMessage = NSLocalizedString("settings.draft_exists_message", value: "当前有未完成的录入草稿，切换资料空间后草稿将被丢弃。", comment: "切换资料空间时草稿提示详情")
-        public static let discardDraft = NSLocalizedString("settings.discard_draft", value: "放弃草稿并切换", comment: "放弃草稿确认按钮")
-
         // 反馈
         public static let feedbackAndSupport = NSLocalizedString("settings.feedback_and_support", value: "反馈与支持", comment: "反馈与支持")
         public static let feedbackTitle = NSLocalizedString("settings.feedback_title", value: "意见反馈", comment: "意见反馈弹窗标题")
@@ -181,7 +166,7 @@ nonisolated extension L10n {
         public static let backupData = NSLocalizedString("settings.backup_data", value: "创建备份", comment: "创建备份按钮")
         public static let backupDataSubtitle = NSLocalizedString("settings.backup_data_subtitle", value: "导出包含资料、分类设置和图片的 ZIP 文件", comment: "创建备份说明")
         public static let restoreData = NSLocalizedString("settings.restore_data", value: "恢复备份", comment: "恢复备份按钮")
-        public static let restoreDataSubtitle = NSLocalizedString("settings.restore_data_subtitle", value: "从 ZIP 备份恢复，会替换当前资料空间", comment: "恢复备份说明")
+        public static let restoreDataSubtitle = NSLocalizedString("settings.restore_data_subtitle", value: "从 ZIP 备份恢复，会替换当前资料库", comment: "恢复备份说明")
         public static let backupFooter = NSLocalizedString("settings.backup_footer", value: "备份文件包含所有资料、分类设置和图片。恢复操作将替换当前全部数据。", comment: "备份说明")
 
         // 数据导入

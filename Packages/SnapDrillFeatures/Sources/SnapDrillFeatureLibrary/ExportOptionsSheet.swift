@@ -22,9 +22,9 @@ struct ExportOptionsSheet: View {
     
     let items: [ArchiveExportSnapshot]
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.profileManager) private var profileManager
+    @Environment(\.repositories) private var repositories
     @Environment(\.services) private var services
-    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
+    private var imageStorage: ImageStorage { repositories.imageStorage }
 
     @State private var showingPDFPreview = false
     @State private var hideAnswers = true

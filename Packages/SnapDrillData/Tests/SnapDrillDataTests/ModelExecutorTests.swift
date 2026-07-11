@@ -130,7 +130,7 @@ struct DataExecutorTests {
         #expect(event.storeURL == storeURL)
         #expect(event.originalErrorDescription.isEmpty == false)
         #expect(event.retryErrorDescription.isEmpty == false)
-        #expect(isolationDirectory.path.hasPrefix(ProfileVault.corruptedStoresDirectory(forProfileDirectory: root).path))
+        #expect(isolationDirectory.path.hasPrefix(root.appendingPathComponent("corrupted").path))
         #expect(try Data(contentsOf: isolationDirectory.appendingPathComponent("default.store")) == corruptStoreData)
         #expect(try Data(contentsOf: isolationDirectory.appendingPathComponent("default.store-wal")) == staleWALData)
         #expect(try Data(contentsOf: isolationDirectory.appendingPathComponent("default.store-shm")) == staleSHMData)
@@ -149,7 +149,7 @@ struct DataExecutorTests {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("DataExecutorStoreRetention_\(UUID().uuidString)")
         let storeURL = root.appendingPathComponent("default.store")
-        let corruptedRoot = ProfileVault.corruptedStoresDirectory(forProfileDirectory: root)
+        let corruptedRoot = root.appendingPathComponent("corrupted", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
 
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
@@ -196,14 +196,17 @@ struct DataExecutorTests {
         #expect(await executor.initializationError == nil)
         #expect(await executor.storeRecoveryEvent == nil)
         #expect(!FileManager.default.fileExists(
-            atPath: ProfileVault.corruptedStoresDirectory(forProfileDirectory: root).path
+            atPath: root.appendingPathComponent("corrupted", isDirectory: true).path
         ))
     }
 
     @Test("RepositoryContainer 通过 DataExecutor 构造可正常工作")
     func repositoryContainerViaExecutor() throws {
         let executor = DataExecutor(inMemory: true)
-        let repos = RepositoryContainer(executor: executor, scope: ProfileScope(id: UUID(), name: "Test"), profileDirectory: FileManager.default.temporaryDirectory)
+        let repos = RepositoryContainer(
+            executor: executor,
+            libraryDirectory: FileManager.default.temporaryDirectory
+        )
         repos.archive.insert(ArchiveItemModel.mock(content: "container via executor"))
         try repos.archive.saveContext()
         #expect(try repos.archive.totalCount() == 1)

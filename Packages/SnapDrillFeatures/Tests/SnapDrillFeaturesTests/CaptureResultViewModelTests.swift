@@ -320,7 +320,6 @@ final class CaptureResultViewModelTests {
 
     // MARK: - 字段配置引导
 
-    // 字段配置引导由 ProfileTipState 管理（per-profile UserDefaults 隔离），
+    // 字段配置引导由 FeatureTipState 管理（设备级 UserDefaults），
     // ViewModel 通过 showFieldConfigTip / dismissFieldConfigTip() 控制展示。
-    // ProfileTipState 的状态依赖 UserDefaults，集成测试在 Profile 切换场景中覆盖。
 }

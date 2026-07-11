@@ -47,10 +47,6 @@
 
 // MARK: - Activity
 
-"activity.capturing" = "正在采集";
-"activity.exporting" = "正在导出";
-"activity.printing" = "正在打印";
-"activity.backup_restore" = "正在备份/恢复";
 
 // MARK: - Capture
 
@@ -318,7 +314,7 @@
 "settings.storage_management" = "存储管理";
 "settings.storage_images" = "资料图片";
 "settings.storage_total" = "总占用";
-"settings.storage_footer" = "显示当前资料空间的存储占用。图片会自动压缩以节省空间。";
+"settings.storage_footer" = "显示当前资料库的存储占用。图片会自动压缩以节省空间。";
 "settings.appearance" = "外观";
 "settings.follow_system" = "跟随系统";
 "settings.light_mode" = "浅色";
@@ -402,7 +398,7 @@
 "settings.backup_data" = "创建备份";
 "settings.backup_data_subtitle" = "导出包含资料、分类设置和图片的 ZIP 文件";
 "settings.restore_data" = "恢复备份";
-"settings.restore_data_subtitle" = "从 ZIP 备份恢复，会替换当前资料空间";
+"settings.restore_data_subtitle" = "从 ZIP 备份恢复，会替换当前资料库";
 "settings.backup_footer" = "备份文件包含所有资料、分类设置和图片。恢复操作将替换当前全部数据。";
 "settings.restore_dialog_title" = "恢复数据";
 "settings.select_backup_file" = "选择备份文件";
@@ -701,11 +697,6 @@
 // MARK: - Settings (avatar color)
 "settings.avatar_color" = "头像颜色";
 
-// MARK: - Settings (Profile switch draft guard)
-"settings.draft_exists_title" = "存在未保存的草稿";
-"settings.draft_exists_message" = "当前有未完成的录入草稿，切换资料空间后草稿将被丢弃。";
-"settings.discard_draft" = "放弃草稿并切换";
-
 // MARK: - Errors (image load)
 "errors.image_load_failed" = "图片加载失败";
 
@@ -736,6 +727,7 @@
 "backup_errors.missing_manifest" = "备份文件缺少清单信息";
 "backup_errors.missing_data_file" = "备份文件中缺少数据文件";
 "backup_errors.schema_version_too_new" = "备份文件版本（%d）高于当前应用支持的版本（%d），请更新应用";
+"backup_errors.unsupported_schema_version" = "备份文件版本（%d）不受当前应用版本（%d）支持";
 "backup_errors.insufficient_disk_space" = "磁盘空间不足，无法完成操作";
 
 // MARK: - Missing Swift NSLocalizedString Coverage
@@ -810,16 +802,6 @@
 "library.share" = "分享";
 "library.share_card_title" = "SnapDrill 摘录卡";
 "settings.help_center" = "帮助中心";
-"settings.switch_learner" = "切换资料空间";
-"settings.profile_spaces_section" = "资料空间";
-"settings.profile_spaces_footer" = "每个资料空间独立保存资料、图片和回顾进度，适合按项目或场景分开管理。";
-"settings.default_profile_name" = "默认资料空间";
-"settings.add_learner" = "添加资料空间";
-"settings.delete_learner_confirm" = "删除后该资料空间的所有资料、回顾进度和图片将永久丢失，无法恢复。";
-"settings.learner_name" = "资料空间名称";
-"settings.current_learner" = "当前";
-"settings.profile_current_hint" = "当前正在使用的资料空间";
-"settings.profile_switch_hint" = "切换到此资料空间";
 "settings.import_data" = "数据导入";
 "settings.import_csv" = "导入 CSV";
 "settings.import_csv_subtitle" = "从表格文件批量导入资料";
@@ -853,3 +835,15 @@
 "statistics.pro_required" = "更多数据洞察稍后推出";
 "statistics.questions_count" = "条";
 "statistics.due_count" = "待回顾 %d 条";
+
+// MARK: - Store Recovery
+"app_root.store_recovery.navigation_title" = "数据恢复";
+"app_root.store_recovery.title" = "需要确认数据恢复方式";
+"app_root.store_recovery.description_primary" = "SnapDrill 无法打开当前资料库的数据文件。";
+"app_root.store_recovery.description_secondary" = "原始文件已完整保留，应用当前打开的是一个空资料库。";
+"app_root.store_recovery.backup_copy_title" = "原始文件已在本设备保留副本";
+"app_root.store_recovery.backup_copy_description" = "你可以从 ZIP 备份恢复，或先以空资料库继续使用。该副本仅保留在本设备上。";
+"app_root.store_recovery.copy_path" = "复制副本路径";
+"app_root.store_recovery.icon_label" = "数据文件需要恢复";
+"app_root.store_recovery.restore_backup" = "从备份恢复";
+"app_root.store_recovery.continue_empty" = "以空资料库继续";

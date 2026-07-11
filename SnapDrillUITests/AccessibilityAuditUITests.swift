@@ -170,8 +170,8 @@ final class AccessibilityAuditUITests: XCTestCase {
             return
         }
 
-        guard openSymbolPicker(in: app) else {
-            recordBlocked(screen: "Symbol Picker", reason: "Symbol picker navigation did not complete.", app: app)
+        if let failureReason = openSymbolPicker(in: app) {
+            recordBlocked(screen: "Symbol Picker", reason: failureReason, app: app)
             app.terminate()
             return
         }

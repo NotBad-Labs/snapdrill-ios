@@ -26,7 +26,6 @@ public struct CaptureView: View {
     
     @Bindable private var router: CaptureRouter
     @Environment(\.repositories) private var repositories
-    @Environment(\.profileManager) private var profileManager
     @Environment(\.analyticsService) private var analyticsService
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     
@@ -217,7 +216,7 @@ public struct CaptureView: View {
                         repositories: repositories,
                         ocrService: viewModel.ocrService,
                         analyticsService: analyticsService,
-                        imageStorage: profileManager.activeImageStorage,
+                        imageStorage: repositories.imageStorage,
                         router: router
                     )
                     CaptureResultView(viewModel: resultViewModel)

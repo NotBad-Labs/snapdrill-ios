@@ -22,8 +22,8 @@ struct ReviewCardBack: View {
     let item: ArchiveItemModel
     let showsActions: Bool
 
-    @Environment(\.profileManager) private var profileManager
-    private var imageStorage: ImageStorage { profileManager.activeImageStorage }
+    @Environment(\.repositories) private var repositories
+    private var imageStorage: ImageStorage { repositories.imageStorage }
     @State private var showingEditSheet = false
     @State private var loadedAnswerImage: UIImage?
     @State private var answerImageLoadFailed = false

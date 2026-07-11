@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  中心状态机，追踪全局进行中的操作。
-//  Profile 切换前检查此状态，避免数据丢失。
+//  用于跨页面展示和防止关键操作重入。
 //
 
 import Foundation
@@ -25,8 +25,7 @@ public enum AppActivity: Sendable, Hashable {
 
 /// 中心活动追踪器（全局单例，与 App 生命周期等长）
 ///
-/// 各 ViewModel 在开始/结束操作时调用 `begin/end`，
-/// `ProfileManager` 切换前通过 `canSwitchProfile` 检查。
+/// 各 ViewModel 在开始/结束操作时调用 `begin/end`。
 @Observable public final class AppActivityTracker {
 
     @available(*, deprecated, message: "通过 @Environment(\\.services).activityTracker 注入，避免静态单例污染测试（S-D4-001）")
@@ -34,25 +33,6 @@ public enum AppActivity: Sendable, Hashable {
 
     /// 当前进行中的活动集合
     public private(set) var activeActivities: Set<AppActivity> = []
-
-    /// 是否可以安全切换 Profile
-    public var canSwitchProfile: Bool {
-        activeActivities.isEmpty
-    }
-
-    // 阻塞切换的原因描述（用于 UI 提示）
-    public var switchBlockReason: String? {
-        guard !canSwitchProfile else { return nil }
-        let descriptions = activeActivities.map { activity -> String in
-            switch activity {
-            case .capturing: return L10n.Activity.capturing
-            case .exporting: return L10n.Activity.exporting
-            case .printing: return L10n.Activity.printing
-            case .backupRestore: return L10n.Activity.backupRestore
-            }
-        }
-        return descriptions.joined(separator: ", ")
-    }
 
     public init() {}
 

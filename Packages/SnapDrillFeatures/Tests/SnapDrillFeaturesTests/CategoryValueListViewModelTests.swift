@@ -6,7 +6,7 @@
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
 //  维度详情 ViewModel 守护测试（L3）：值增删改、在用拦截、
-//  单/多值开关（内置守卫）、per-Profile 录入页可见性写穿。
+//  单/多值开关（内置守卫）、录入页可见性写穿。
 //
 
 import Testing
@@ -135,7 +135,7 @@ final class CategoryValueListViewModelTests {
         #expect(dim.isMultiValue == false)
     }
 
-    // MARK: - per-Profile 录入页可见性
+    // MARK: - 录入页可见性
 
     @Test("isVisibleInCapture 写穿到 captureVisibilityKey")
     func visibility_writesThroughToUserDefaults() throws {

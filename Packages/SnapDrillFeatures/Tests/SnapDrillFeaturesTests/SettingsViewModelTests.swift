@@ -168,27 +168,6 @@ final class SettingsViewModelTests {
         }
     }
 
-    @Test("createBackup 多 Profile 时包含非活跃 Profile 数据")
-    func createBackup_multipleProfiles_includesInactiveProfile() async throws {
-        repos.archive.insert(ArchiveItemModel(content: "活跃 Profile 题目"))
-        try repos.archive.saveContext()
-
-        let profileManager = ProfileManager(inMemory: true)
-        let inactiveProfile = try #require(profileManager.createProfile(name: "Second"))
-        let vm = SettingsViewModel(repositories: repos, profileManager: profileManager)
-
-        await vm.createBackup()
-
-        let backupURL = try #require(vm.backupFileURL)
-        defer { try? FileManager.default.removeItem(at: backupURL) }
-        let payload = try await BackupService().extractPayload(from: backupURL)
-
-        #expect(payload.profiles.count == 2)
-        #expect(payload.profiles.map(\.profileName).contains("Second"))
-        #expect(payload.profiles.first(where: { $0.profileId == inactiveProfile.id })?.reviewItems.isEmpty == true)
-        #expect(payload.profiles.reduce(0) { $0 + $1.reviewItems.count } == 1)
-    }
-
     @Test("createBackup 完成后 isBackupInProgress 恢复为 false")
     func createBackup_resetsInProgressAfterCompletion() async throws {
         let item = ArchiveItemModel(content: "题目")
@@ -309,71 +288,156 @@ final class SettingsViewModelTests {
         #expect(vm.isBackupInProgress == false)
     }
 
-    @Test("restoreFromBackup 磁盘路径：外来 Profile ID ZIP 可恢复")
-    func restoreFromBackup_diskForeignProfileIdZip() async throws {
-        let (vault, docs) = try makeTempVault()
-        let previousActiveProfileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
-        defer {
-            restoreActiveProfileId(previousActiveProfileId)
-            try? FileManager.default.removeItem(at: docs)
+    @Test("restore 明确拒绝已退休的 schema v2")
+    func restore_rejectsRetiredSchemaV2() async throws {
+        let manifest = BackupManifest(
+            schemaVersion: 2,
+            createdAt: Date(timeIntervalSince1970: 0),
+            appVersion: "test",
+            totalItemCount: 0
+        )
+        let payload = BackupPayload(reviewItems: [], dimensions: [], categoryValues: [])
+        let archiveURL = try makeArchive(manifest: manifest, payload: payload)
+        defer { try? FileManager.default.removeItem(at: archiveURL) }
+
+        let coordinator = SettingsBackupCoordinator(
+            repositories: repos,
+            backupService: BackupService()
+        )
+        do {
+            try await coordinator.restoreFromBackup(fileURL: archiveURL)
+            Issue.record("Retired schema v2 should be rejected before restore")
+        } catch BackupError.unsupportedSchemaVersion(let fileVersion, let appVersion) {
+            #expect(fileVersion == 2)
+            #expect(appVersion == BackupManifest.currentSchemaVersion)
+        } catch {
+            Issue.record("Unexpected error: \(error)")
         }
-
-        let manager = await ProfileManager.create(vault: vault)
-        let foreignProfileData = makeProfileBackupData(
-            profileId: UUID(),
-            profileName: "外来资料空间",
-            itemCount: 2
-        )
-        let backupURL = try await makeBackupFile(for: foreignProfileData, vault: vault)
-        defer { try? FileManager.default.removeItem(at: backupURL) }
-
-        let vm = SettingsViewModel(
-            repositories: manager.activeRepositories,
-            profileManager: manager,
-            profileVault: vault
-        )
-
-        await vm.restoreFromBackup(fileURL: backupURL)
-
-        #expect(vm.backupError == nil)
-        #expect(manager.profiles.contains { $0.id == foreignProfileData.profileId })
-        let restored = await makeRepositories(
-            profileId: foreignProfileData.profileId,
-            profileName: foreignProfileData.profileName,
-            vault: vault
-        )
-        #expect(try restored.archive.totalCount() == foreignProfileData.reviewItems.count)
     }
 
-    @Test("restoreFromBackup 磁盘路径：本机已有 Profile ID ZIP 可恢复")
-    func restoreFromBackup_diskExistingProfileIdZip() async throws {
-        let (vault, docs) = try makeTempVault()
-        let previousActiveProfileId = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
-        defer {
-            restoreActiveProfileId(previousActiveProfileId)
-            try? FileManager.default.removeItem(at: docs)
+    @Test("图片恢复失败时 taxonomy-only 资料库也从自动备份回滚")
+    func restore_imageFailureRollsBackTaxonomyOnlyLibrary() async throws {
+        let dimension = CategoryDimensionModel(
+            name: "保留分类",
+            isMultiValue: false,
+            isBuiltIn: false,
+            systemKey: nil,
+            sortOrder: 0,
+            icon: "folder"
+        )
+        try repos.dimension.insertAndSave(dimension)
+
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSince1970: 0),
+            appVersion: "test",
+            totalItemCount: 1
+        )
+        let payload = BackupPayload(
+            reviewItems: [
+                ArchiveItemBackupDTO(
+                    id: UUID(), content: "冲突图片", imagePath: "images/conflict",
+                    createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
+                    answerText: nil, answerImagePath: "images/conflict/child.jpg",
+                    easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: []
+                )
+            ],
+            dimensions: [],
+            categoryValues: []
+        )
+        let archiveURL = try makeArchive(
+            manifest: manifest,
+            payload: payload,
+            additionalEntries: [
+                ZIPEntry(path: "images/conflict", data: Data("file".utf8)),
+                ZIPEntry(path: "images/conflict/child.jpg", data: Data("child".utf8))
+            ]
+        )
+        defer { try? FileManager.default.removeItem(at: archiveURL) }
+
+        let coordinator = SettingsBackupCoordinator(
+            repositories: repos,
+            backupService: BackupService()
+        )
+        await #expect(throws: (any Error).self) {
+            try await coordinator.restoreFromBackup(fileURL: archiveURL)
         }
 
-        let manager = await ProfileManager.create(vault: vault)
-        let activeProfile = try #require(manager.activeProfile)
-        let profileData = makeProfileBackupData(
-            profileId: activeProfile.id,
-            profileName: activeProfile.name,
-            itemCount: 3
+        let restoredDimensions = try repos.dimension.fetchAllModels()
+        #expect(restoredDimensions.contains { $0.name == "保留分类" })
+        #expect(try repos.archive.totalCount() == 0)
+    }
+
+    @Test("当前资料库已缺图时仍可从完整备份恢复")
+    func restore_damagedCurrentLibraryDoesNotDeadlock() async throws {
+        let damagedItem = ArchiveItemModel(
+            content: "当前损坏资料",
+            imagePath: "images/missing.jpg"
         )
-        let backupURL = try await makeBackupFile(for: profileData, vault: vault)
-        defer { try? FileManager.default.removeItem(at: backupURL) }
+        repos.archive.insert(damagedItem)
+        try repos.archive.saveContext()
 
-        let vm = SettingsViewModel(
-            repositories: manager.activeRepositories,
-            profileManager: manager,
-            profileVault: vault
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSince1970: 0),
+            appVersion: "test",
+            totalItemCount: 0
         )
+        let archiveURL = try makeArchive(
+            manifest: manifest,
+            payload: BackupPayload(reviewItems: [], dimensions: [], categoryValues: [])
+        )
+        defer { try? FileManager.default.removeItem(at: archiveURL) }
 
-        await vm.restoreFromBackup(fileURL: backupURL)
+        let coordinator = SettingsBackupCoordinator(
+            repositories: repos,
+            backupService: BackupService()
+        )
+        try await coordinator.restoreFromBackup(fileURL: archiveURL)
 
-        #expect(vm.backupError == nil)
-        #expect(try manager.activeRepositories.archive.totalCount() == profileData.reviewItems.count)
+        #expect(try repos.archive.totalCount() == 0)
+    }
+
+    @Test("输入备份只读校验失败时不创建安全网或改写资料库")
+    func restore_preflightFailureDoesNotMutateLibrary() async throws {
+        let currentItem = ArchiveItemModel(content: "保留当前资料")
+        repos.archive.insert(currentItem)
+        try repos.archive.saveContext()
+
+        let payload = BackupPayload(
+            reviewItems: [
+                ArchiveItemBackupDTO(
+                    id: UUID(), content: "缺图备份", imagePath: "images/missing.jpg",
+                    createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
+                    answerText: nil, answerImagePath: nil,
+                    easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: []
+                )
+            ],
+            dimensions: [],
+            categoryValues: []
+        )
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSince1970: 0),
+            appVersion: "test",
+            totalItemCount: 1
+        )
+        let archiveURL = try makeArchive(manifest: manifest, payload: payload)
+        defer { try? FileManager.default.removeItem(at: archiveURL) }
+
+        let recoveryDirectory = repos.libraryDirectory.appendingPathComponent("Recovery")
+        let coordinator = SettingsBackupCoordinator(
+            repositories: repos,
+            backupService: BackupService()
+        )
+        await #expect(throws: BackupError.self) {
+            try await coordinator.restoreFromBackup(fileURL: archiveURL)
+        }
+
+        let remaining = try repos.archive.fetchAllModels()
+        #expect(remaining.count == 1)
+        #expect(remaining.first?.content == "保留当前资料")
+        #expect(!FileManager.default.fileExists(atPath: recoveryDirectory.path))
     }
 
     // MARK: - cleanupBackupFile
@@ -405,90 +469,23 @@ final class SettingsViewModelTests {
         #expect(vm.backupFileURL == nil)
     }
 
-    private func makeTempVault() throws -> (vault: ProfileVault, docs: URL) {
-        let docs = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-        try FileManager.default.createDirectory(at: docs, withIntermediateDirectories: true)
-        return (ProfileVault(documentsURL: docs), docs)
+    private func makeArchive(
+        manifest: BackupManifest,
+        payload: BackupPayload,
+        additionalEntries: [ZIPEntry] = []
+    ) throws -> URL {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let archiveURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("SettingsRestore_\(UUID().uuidString).zip")
+        try ZIPArchiver().createArchive(
+            entries: [
+                ZIPEntry(path: "manifest.json", data: try encoder.encode(manifest)),
+                ZIPEntry(path: "data.json", data: try encoder.encode(payload))
+            ] + additionalEntries,
+            at: archiveURL
+        )
+        return archiveURL
     }
 
-    private func restoreActiveProfileId(_ previousActiveProfileId: String?) {
-        if let previousActiveProfileId {
-            UserDefaults.standard.set(previousActiveProfileId, forKey: UDKey.activeProfileId)
-        } else {
-            UserDefaults.standard.removeObject(forKey: UDKey.activeProfileId)
-        }
-    }
-
-    private func makeBackupFile(for profileData: ProfileBackupData, vault: ProfileVault) async throws -> URL {
-        let payload = BackupPayload(profiles: [profileData])
-        let manifest = BackupManifest(
-            schemaVersion: BackupManifest.currentSchemaVersion,
-            createdAt: Date(timeIntervalSinceReferenceDate: 0),
-            appVersion: "test",
-            totalItemCount: profileData.reviewItems.count,
-            profileCount: 1,
-            profileNames: [profileData.profileName]
-        )
-        return try await BackupService().createBackup(
-            payload: payload,
-            manifest: manifest,
-            profileDirectories: [vault.profileDirectory(for: profileData.profileId)]
-        )
-    }
-
-    private func makeRepositories(profileId: UUID, profileName: String, vault: ProfileVault) async -> RepositoryContainer {
-        let executor = await DataExecutor.createOffMainActor(storeURL: vault.storeURL(for: profileId))
-        return RepositoryContainer(
-            executor: executor,
-            scope: ProfileScope(id: profileId, name: profileName),
-            profileDirectory: vault.profileDirectory(for: profileId)
-        )
-    }
-
-    private func makeProfileBackupData(profileId: UUID, profileName: String, itemCount: Int) -> ProfileBackupData {
-        let now = Date(timeIntervalSinceReferenceDate: 0)
-        let dimensionId = UUID()
-        let valueId = UUID()
-        let items = (0 ..< itemCount).map { index in
-            ArchiveItemBackupDTO(
-                id: UUID(),
-                content: "恢复测试 \(index)",
-                imagePath: nil,
-                createdAt: now,
-                lastReviewedAt: now,
-                nextReviewAt: now,
-                answerText: "答案 \(index)",
-                answerImagePath: nil,
-                easeFactor: 2.5,
-                interval: index,
-                repetitions: index,
-                categoryValueIds: [valueId]
-            )
-        }
-        let dimension = CategoryDimensionBackupDTO(
-            id: dimensionId,
-            name: "分类",
-            isMultiValue: false,
-            isBuiltIn: true,
-            systemKey: CategorySystemKey.category,
-            sortOrder: 0,
-            icon: "folder"
-        )
-        let value = CategoryValueBackupDTO(
-            id: valueId,
-            name: "回归",
-            icon: "circle",
-            colorHex: "#0A84FF",
-            sortOrder: 0,
-            createdAt: now,
-            dimensionId: dimensionId
-        )
-        return ProfileBackupData(
-            profileName: profileName,
-            profileId: profileId,
-            reviewItems: items,
-            dimensions: [dimension],
-            categoryValues: [value]
-        )
-    }
 }

@@ -32,10 +32,15 @@ nonisolated extension L10n {
         public static let checkUpdate = NSLocalizedString("app_root.check_update", value: "检查更新", comment: "检查更新按钮")
         public static let storeRecoveryNavigationTitle = NSLocalizedString("app_root.store_recovery.navigation_title", value: "数据恢复", comment: "损坏库恢复页导航标题")
         public static let storeRecoveryTitle = NSLocalizedString("app_root.store_recovery.title", value: "需要确认数据恢复方式", comment: "损坏库恢复页标题")
-        public static let storeRecoveryDescription = NSLocalizedString(
-            "app_root.store_recovery.description",
-            value: "SnapDrill 无法打开当前资料空间的数据文件。原始文件已完整保留，应用当前打开的是一个空资料库。",
-            comment: "损坏库恢复页说明"
+        public static let storeRecoveryDescriptionPrimary = NSLocalizedString(
+            "app_root.store_recovery.description_primary",
+            value: "SnapDrill 无法打开当前资料库的数据文件。",
+            comment: "损坏库恢复页主说明"
+        )
+        public static let storeRecoveryDescriptionSecondary = NSLocalizedString(
+            "app_root.store_recovery.description_secondary",
+            value: "原始文件已完整保留，应用当前打开的是一个空资料库。",
+            comment: "损坏库恢复页补充说明"
         )
         public static let storeRecoveryBackupCopyTitle = NSLocalizedString(
             "app_root.store_recovery.backup_copy_title",
@@ -103,15 +108,6 @@ nonisolated extension L10n {
             String(format: NSLocalizedString("common.item_count_short", value: "%d 条", comment: "题目数量（短格式）"), count)
         }
 
-    }
-
-    // MARK: - Activity（Profile 切换阻塞提示）
-
-    public enum Activity {
-        public static let capturing = NSLocalizedString("activity.capturing", value: "正在采集", comment: "采集中阻塞切换提示")
-        public static let exporting = NSLocalizedString("activity.exporting", value: "正在导出", comment: "导出中阻塞切换提示")
-        public static let printing = NSLocalizedString("activity.printing", value: "正在打印", comment: "打印中阻塞切换提示")
-        public static let backupRestore = NSLocalizedString("activity.backup_restore", value: "正在备份/恢复", comment: "备份恢复中阻塞切换提示")
     }
 
     // MARK: - Notification

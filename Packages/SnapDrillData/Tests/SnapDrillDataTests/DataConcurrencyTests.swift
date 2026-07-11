@@ -320,7 +320,7 @@ func deleteAllDataAfterConcurrentInsertsClearsAll() async throws {
     #expect(counts.2 == 0)
 }
 
-@Test("deleteAllData + restoreFromProfileData 两轮不残留数据")
+@Test("deleteAllData + restore 两轮不残留数据")
 func deleteThenRestoreRoundTripNoResidue() async throws {
     let container = try TestModelContainer.create()
     let repos = RepositoryContainer(modelContext: container.mainContext)
@@ -334,11 +334,11 @@ func deleteThenRestoreRoundTripNoResidue() async throws {
     repos.archive.insert(item)
     try repos.archive.saveContext()
 
-    let backup = try repos.collectProfileBackupData(profileName: "p1", profileId: UUID())
+    let backup = try repos.collectBackupData()
     try await repos.deleteAllData()
     #expect(try repos.archive.totalCount() == 0)
 
-    try await repos.restoreFromProfileData(backup)
+    try await repos.restore(from: backup)
     #expect(try repos.archive.totalCount() > 0)
 }
 

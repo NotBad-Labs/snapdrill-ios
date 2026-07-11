@@ -22,10 +22,8 @@ import SnapDrillData
 @Observable
 public final class SettingsViewModel {
     private let repositories: RepositoryContainer
-    private let profileManager: ProfileManager
     private let backupService = BackupService()
     private let activityTracker: AppActivityTracker
-    private let profileVault: ProfileVault
 
     // MARK: - Properties
 
@@ -47,18 +45,13 @@ public final class SettingsViewModel {
     /// 创建设置页 ViewModel
     /// - Parameters:
     ///   - repositories: 应用的数据仓库容器
-    ///   - profileManager: Profile 管理器（备份恢复需要遍历所有 Profile）。未传入时使用测试用 in-memory 实例
     ///   - activityTracker: 活动追踪器（默认参数缝注入，避免静态单例污染测试）
     public init(
         repositories: RepositoryContainer,
-        profileManager: ProfileManager = ProfileManager(inMemory: true),
-        activityTracker: AppActivityTracker? = nil,
-        profileVault: ProfileVault = ProfileVault()
+        activityTracker: AppActivityTracker? = nil
     ) {
         self.repositories = repositories
-        self.profileManager = profileManager
         self.activityTracker = activityTracker ?? AppActivityTracker.shared
-        self.profileVault = profileVault
     }
 
     // MARK: - Public API
@@ -327,9 +320,7 @@ public final class SettingsViewModel {
     private func makeBackupCoordinator() -> SettingsBackupCoordinator {
         SettingsBackupCoordinator(
             repositories: repositories,
-            profileManager: profileManager,
-            backupService: backupService,
-            vault: profileVault
+            backupService: backupService
         )
     }
 }

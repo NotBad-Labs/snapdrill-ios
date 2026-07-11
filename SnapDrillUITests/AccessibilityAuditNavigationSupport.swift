@@ -83,27 +83,48 @@ extension AccessibilityAuditUITests {
         return true
     }
 
-    func openSymbolPicker(in app: XCUIApplication) -> Bool {
+    func openSymbolPicker(in app: XCUIApplication) -> String? {
         let manageCategories = app.buttons["settings.manageCategories"]
         scrollUntilHittable(manageCategories, in: app, maxSwipes: 10)
-        guard manageCategories.waitForExistence(timeout: 5) else {
-            return false
+        guard manageCategories.waitForExistence(timeout: 5), manageCategories.isHittable else {
+            return "settings.manageCategories did not become hittable."
         }
         manageCategories.tap()
 
         guard waitForElement("settings.categoryManager.root", in: app) else {
-            return false
+            return "settings.categoryManager.root did not appear."
         }
-        app.buttons["dim.row.category"].tap()
+        let category = app.buttons["dim.row.category"]
+        scrollUntilHittable(category, in: app, maxSwipes: 4)
+        guard category.waitForExistence(timeout: 5), category.isHittable else {
+            return "dim.row.category did not become hittable."
+        }
+        category.tap()
         guard waitForElement("dimValueList.root.category", in: app) else {
-            return false
+            return "dimValueList.root.category did not appear."
         }
-        app.buttons["dimValue.资料"].tap()
+        let value = app.buttons.matching(
+            NSPredicate(
+                format: "identifier BEGINSWITH 'dimValue.' AND identifier != 'dimValue.add'"
+            )
+        ).firstMatch
+        guard value.waitForExistence(timeout: 5), value.isHittable else {
+            return "No category value became hittable."
+        }
+        value.tap()
         guard waitForElement("dimValueEdit.root", in: app) else {
-            return false
+            return "dimValueEdit.root did not appear."
         }
-        app.buttons["dimValueEdit.iconPicker"].tap()
-        return waitForElement("symbolPicker.category.common", in: app)
+        let iconPicker = app.buttons["dimValueEdit.iconPicker"]
+        scrollUntilHittable(iconPicker, in: app, maxSwipes: 4)
+        guard iconPicker.waitForExistence(timeout: 5), iconPicker.isHittable else {
+            return "dimValueEdit.iconPicker did not become hittable."
+        }
+        iconPicker.tap()
+        guard waitForElement("symbolPicker.category.common", in: app) else {
+            return "symbolPicker.category.common did not appear."
+        }
+        return nil
     }
 
     func waitForElement(
@@ -120,8 +141,16 @@ extension AccessibilityAuditUITests {
 
     func scrollUntilHittable(_ element: XCUIElement, in app: XCUIApplication, maxSwipes: Int) {
         var swipes = 0
+        let collectionView = app.collectionViews.firstMatch
+        let table = app.tables.firstMatch
         while !element.isHittable && swipes < maxSwipes {
-            app.swipeUp()
+            if collectionView.exists {
+                collectionView.swipeUp()
+            } else if table.exists {
+                table.swipeUp()
+            } else {
+                app.swipeUp()
+            }
             swipes += 1
         }
     }

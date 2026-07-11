@@ -155,7 +155,7 @@ final class PrivacySettingsViewModelTests {
         // 导出完成后 defer 已执行 end()，活动应清空
         try await waitUntilExportDone(vm)
         // S-D4-001：用注入的 activityTracker（独立实例），避免与全局 .shared 串扰
-        #expect(activityTracker.canSwitchProfile == true)
+        #expect(activityTracker.activeActivities.isEmpty)
     }
 
     // MARK: - 任务取消

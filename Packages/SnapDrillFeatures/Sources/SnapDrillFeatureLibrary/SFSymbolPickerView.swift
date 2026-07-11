@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  图标选择器，提供一组适合资料空间和分类的预设 SF Symbols。
+//  图标选择器，提供一组适合个人资料和分类的预设 SF Symbols。
 //
 
 import SwiftUI
