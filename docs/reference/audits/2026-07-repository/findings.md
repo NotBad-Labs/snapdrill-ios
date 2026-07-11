@@ -45,5 +45,8 @@
 | RA-04-006 | P1 | data/recovery | verified | `56e9d27e` | best-effort auto backup; DB/image restore ordering; focused three-agent review | Draft PR #868 adds preflight, persistent tolerant safety ZIP and delayed image cleanup; merge requires PO |
 | RA-04-007 | P2 | data/backup | verified | `56e9d27e` | missing images skipped; second-resolution ZIP names; `phases/04b-results.md` | Draft PR #868 enforces completeness and UUID names; verify again in post-merge `04c` |
 | RA-04-008 | P2 | data/recovery | verified | `b670a2c8` candidate | DB commit precedes per-file image commit; orphan Recovery ZIP has no launch UX/retention | first `04c` question after v3 merge; no P0/P1 remains in focused implementation review |
+| RA-04-009 | P1 | security/backup | verified | `56e9d27e` | raw restore DTO paths at `RepositoryContainer.swift:182-197`; raw backup join/read at `BackupService.swift:156-183`; detached byte-for-byte export probe | Draft PR #868 validates backup paths, sanitizes restore writes and carries direct regression tests; merge still needs PO authorization |
+| RA-04-010 | P2 | data/image-quality | verified | `56e9d27e` | `LibraryEditViewModel.swift:91-111,227-273,304-351`; detached text-only edit changed image UUID | after #868, preserve original paths unless primary/answer image actually changed; test text-only and answer-removal paths |
+| RA-04-011 | P3 | data/storage | verified | `56e9d27e` | `EditProfileView.swift:237-309`; new avatar save has no old/cancelled file cleanup | post-#868 image-lifecycle slice deletes replaced and cancellation-lost avatar files after preference handoff |
 
 允许状态：`verified` / `rejected` / `pending-po` / `deferred` / `fixed`。`candidate` 只存在于 phase 工作报告，不进入本表。

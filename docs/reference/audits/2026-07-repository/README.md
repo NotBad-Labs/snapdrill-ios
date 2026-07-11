@@ -73,5 +73,5 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **Phase 02e PO 工作坊候选 / 复核**：`phases/02e-po-product-workshop-candidate.md` / `phases/02e-product-workshop-review-results.md`
 - **Phase 02f 产品意图影响图 / 复核**：`phases/02f-product-intent-impact-map-candidate.md` / `phases/02f-product-impact-review-results.md`
 - **Phase 03 结果**：`phases/03-results.md`
-- **Phase 04a/04b 结果**：`phases/04a-results.md` / `phases/04b-results.md`
+- **Phase 04a/04b/04d 结果**：`phases/04a-results.md` / `phases/04b-results.md` / `phases/04d-results.md`
 - **下一步**：先完成 02d Gate A 产品治理裁决，再起草 Product Constitution v1 与 Release 1 Product Contract；#868 维持 Draft，不进入合并裁决

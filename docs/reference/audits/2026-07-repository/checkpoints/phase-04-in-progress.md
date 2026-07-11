@@ -15,8 +15,8 @@
 
 - `04a`: SwiftData models, relationships, repository save/delete and migration baseline
 - `04b`: destructive Multi-Profile retirement and single-library replacement
-- `04c`: backup V2 wire, ZIP validation, restore staging, rollback and round-trip
-- `04d`: image paths, Profile filesystem ownership, EXIF privacy and orphan cleanup
+- `04c`: superseded V2 brief; regenerate from merged single-library v3 before execution
+- `04d`: image paths, Profile filesystem ownership, EXIF privacy and orphan cleanup; complete
 
 Each slice uses the same product base and an independent neutral brief. Claude, Antigravity and Grok remain read-only reviewers; Codex C1 reproduces every candidate before ledger entry.
 
@@ -72,6 +72,19 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
   WIP already at 2, a contract branch waits for a separate PO merge/close action
   on #867; #868 stays frozen implementation evidence.
 
+## Phase 04d Image Integrity
+
+- Codex, Claude Fable 5, Antigravity Gemini 3.5 Flash (High) and Grok 4.5
+  independently reviewed the fixed base. C1 rejected Antigravity's false claim
+  that the live guard requires an `images/` prefix.
+- A detached probe proved that backup export packages an existing Profile-external
+  file named by malicious `imagePath`, that text-only edits replace the image UUID,
+  and that the Share Data path strips a self-checked GPS dictionary.
+- Three findings were added: RA-04-009 P1 backup-export escape (already addressed
+  in unmerged #868), RA-04-010 P2 edit re-encoding and RA-04-011 P3 avatar orphans.
+- Existing restore loss/root-delete findings remain RA-04-006/005 and were not
+  double counted. The probe worktree/DerivedData were deleted.
+
 ## Recovery
 
 - `04a` complete: `phases/04a-results.md`; 2×P2 and 2×P3, no P0/P1
@@ -83,6 +96,8 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
   and `phases/02e-product-workshop-review-results.md`; no new ledger finding
 - `02f` impact map/review complete: `phases/02f-product-intent-impact-map-candidate.md`
   and `phases/02f-product-impact-review-results.md`; no new ledger finding
+- `04d` complete: `phases/04d-results.md`; 1×P1, 1×P2 and 1×P3 new findings;
+  P1 candidate fix is already in frozen Draft PR #868
 - next action: obtain PO Gate A rulings, then draft Product Constitution v1 and
   Release 1 Product Contract; no #868 merge request and no `04c` regeneration yet
 - stop conditions: base drift, write WIP above 2, verified destructive P0/P1 without fix authority, or a required dynamic probe that cannot run
