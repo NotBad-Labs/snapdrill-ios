@@ -23,7 +23,7 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 ## 节奏与纪律
 
 - **周期长度**：起步 **2–4 周**（不是 6 周）。赌注可大小不一（原书附录允许）。WIP=1（一次只赌一个主项目）。
-- **三个模式**（原书 Ch.9 New products）：**R&D**（核心流程还不确定→赌 spike，不指望出货）/ **Production**（流程已能点通→周期末出 TestFlight 增量）/ **Cleanup**（上架前打磨）。本项目核心闭环 ~90% → 多在 **Production**。
+- **三个模式**（原书 Ch.9 New products）：**R&D**（核心流程还不确定→赌 spike，不指望出货）/ **Production**（流程已能点通→周期末出 TestFlight 增量）/ **Cleanup**（上架前打磨）。当前处于产品重基线 shaping：Release 1 Product Contract 生效前，不因代码完成度推断为 Production。
 - **🔑 不可省的纪律（PMF 前）**：**每个 bet 必须绑一个学习目标**。这是 Shape Up 不覆盖的「做错产品」风险的补丁——betting 时除了问「做得完吗」，还要问「这若成功，改变哪条赌注（assumptions.md 的 H#）的置信度？用什么可观察信号？」答不出就别赌。
 - **质量地板（ship 的判据，原书 Ch.14 Compare to baseline）**：当它**比用户当前替代方案更好**就 ship，不是完美时。对要拿 PMF 信号的目标用户，地板 = **不崩 + 核心路径可靠 + 像模像样 + EXIF/隐私扎实**；不是每个 edge case/动画完美。先你自己 dogfood 过地板，**再**邀真实用户（内测用户也是用户、且稀缺不可再生）。
 - **circuit breaker**：到期不延期。没做完=shaping/scope 错了，打回重塑，不加时间。
@@ -39,7 +39,7 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 
 ## ⚠️ 不删能跑的代码
 
-「轻装上阵」=**冻结未验证功能的规划重量**（停止往里投入），**不是删字节**。代码价值的判据来自 live code、测试与构建实证，不来自任何 agent 私有记忆。**复习/SmartPaper/Pro 等是「焊死的未验证赌注」→ 进下面的 Parked、停止投入、但一行别删。**
+「轻装上阵」=**冻结未验证功能的规划重量**，不是因为整洁偏好就删代码。代码价值的判据来自 Product Constitution / Release Contract 与 live 实证，不来自 agent 私有记忆。effective contract 可以明确授权保留、隐藏或删除某项能力；在 contract 之前，不得新增投入，也不得用“已经能跑”反向生成产品承诺。
 
 ---
 
@@ -54,10 +54,11 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 
 ### Parked（明确不赌、停止投入，但代码留着 · 取舍的牙齿）
 
-哪些功能被冻结、哪些是阻塞依赖，以 `feature-status.md` 的 frontmatter 与 live GitHub issues 为准，例如：
+`feature-status.md` 只说明实现状态，不拥有投资范围。Product Constitution v1 已固定产品边界；具体功能的 Release 1 分类等待 Release Product Contract：
 
-- 复习/SM-2 增强、SmartPaper 组卷、高级统计 —— 未验证赌注（[`../explanations/assumptions.md`](../explanations/assumptions.md) H9），冻结。
-- Pro/StoreKit #479、CloudKit #485、Word 导出 #486 等 —— 延后的外部/产品依赖，描述其状态前先核实 live Issues。
+- Dashboard、Review、SmartPaper —— 当前实现可作为证据，但新增产品投入冻结，等待 Gate C 分类。
+- Pro/StoreKit #479、CloudKit #485、Word 导出 #486、付费配额 —— 不属于 Release 1，只是未来候选假设。
+- Multi-Profile —— 产品目标已退休；Draft #868 保持候选实现，等待 Release 1 / Data Contract 后重审。
 - 公开上架合规队列 —— **不阻塞 TestFlight 内测**（隐私/分析策略见 [`../decisions/ADR-005-analytics-privacy-strategy.md`](../decisions/ADR-005-analytics-privacy-strategy.md)），延到决定公开上架时。
 
 ### 链接

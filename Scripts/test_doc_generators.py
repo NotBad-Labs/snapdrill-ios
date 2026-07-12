@@ -106,6 +106,25 @@ intent_refs:
             "历史记录（已取代，当前权威：ADR-001）：Legacy cloud analytics",
         )
 
+    def test_renders_undecided_tier_for_unratified_candidate(self) -> None:
+        self.write_feature(
+            """---
+title: Candidate
+status: backlog
+tier: undecided
+intent_refs:
+  - vision:P1
+---
+
+# Feature: Candidate
+"""
+        )
+
+        refs = self.module.collect_known_refs()
+        content = self.module.render(self.module.collect_features(refs), refs)
+
+        self.assertIn("| 未定 |", content)
+
     def test_rejects_missing_intent_refs(self) -> None:
         self.write_feature(
             """---
@@ -225,6 +244,22 @@ last_updated: 2026-06-14
                 self.module.collect()
 
         self.assertEqual(raised.exception.code, 1)
+
+    def test_renders_undecided_tier_for_unratified_candidate(self) -> None:
+        self.write_feature(
+            """id: feat-capture
+title: Candidate
+status: backlog
+tier: undecided
+blocked_by: []
+mode: lightweight
+last_updated: 2026-07-12
+"""
+        )
+
+        content = self.module.render(self.module.collect())
+
+        self.assertIn("| 未定 |", content)
 
     def test_rejects_invalid_blocked_by_type(self) -> None:
         self.write_feature(

@@ -1,14 +1,14 @@
 ---
-last_verified: 2026-06-20
+last_verified: 2026-07-12
 layer: principle
 ---
 # 设计原则与全局规范
 
-> 本文档承载**跨功能**的总览与方法论：不属于任何单个 feature 的全局设计规则、信息架构、空状态与错误处理基线、iPad + Apple Pencil 价值定位，以及缺陷严重度框架（S0-S3）。各功能专属的设计细节见对应 feature spec（`../features/active/` 与 `../features/backlog/`）。
+> 本文档承载**跨功能**的总览与方法论：不属于任何单个 feature 的全局设计规则、信息架构、空状态与错误处理基线，以及缺陷严重度框架（S0-S3）。各功能专属的设计细节见对应 feature spec（`../features/active/` 与 `../features/backlog/`）。
 >
 > **上游依赖**：`vision.md`（使命、定位、用户、6 条原则、冲突裁决规则）。
 > 本文件定义「为什么这样设计」——设计决策、交互铁律、策略理由。
-> 具体功能规格见 `../reference/scope-and-roadmap.md` 与各 feature spec。
+> 具体功能行为见各 feature spec；发布范围与结果级验收见当前 Release Product Contract，`../reference/scope-and-roadmap.md` 只维护候选与重入边界。
 >
 > **设计决策变更需产品负责人批准**；编辑性修正由开发者维护。
 
@@ -20,50 +20,38 @@ layer: principle
 
 ```
 ┌─────────────────────────────┐
-│   智能回顾（锦上添花）          │  ← Kano: Excitement / Could
+│   回顾 / SmartPaper（可选复用） │  ← Kano: Excitement / Optional
 ├─────────────────────────────┤
-│   增强导出打印（价值链增值）     │  ← Kano: Performance / Should
+│   导出 / 打印（核心终点）        │  ← Kano: Performance / Must outcome
 ├─────────────────────────────┤
-│   整理管理（核心体验）          │  ← Kano: Performance / Should
+│   整理 / 找回（核心体验）        │  ← Kano: Performance / Must outcome
 ├─────────────────────────────┤
-│   基础导出 + 数字化录入（生命线）│  ← Kano: Basic / Must
+│   忠实采集（生命线）             │  ← Kano: Basic / Must outcome
 └─────────────────────────────┘
 ```
 
-**导出分层**：基础导出（PDF/JSON/CSV）是 P4 数据所有权的 Must，缺失 = 数据被锁在 App 中。增强导出打印（去答案、留白、组卷）是 Performance/Should。
+**输出边界**：导出 / 打印是核心价值链终点，手动可携带备份是 P4 的耐久承诺。具体格式和增强项由 Release Contract 决定，不能从当前实现反推永久 Must。
 
-**设计铁律**：任何功能如果损害了"录入"和"管理"的简洁性，就不该做。导出/打印是核心价值链终点（纸质资料 / 打印资料）。回顾是可选留存层，智能组卷是导出/打印的 Pro 增值延伸。
+**设计铁律**：任何功能如果损害了采集、整理 / 找回、导出 / 打印的简洁性，就不该做。回顾与 SmartPaper 可以提供附加复用价值，但不得占据或复杂化主路径；当前不存在有效 Pro 分层。
 
 ### 情绪基调
 
-SnapDrill 是纯粹的效率工具。全局文案、Onboarding、成功反馈、空状态、付费提示均遵循：
+SnapDrill 是纯粹的效率工具。全局文案、Onboarding、成功反馈与空状态均遵循以下规则。B6-A 下当前不应出现付费 / Pro 提示；未来若有新的 effective 商业 contract，相关文案仍受同一基调约束：
 - **客观冷静**：不向用户贩卖焦虑（不做"今日仅剩 X 题额度"、不做连续天数打卡、不弹成就渲染）
 - **成熟语气**：界面面向成年用户，中性、不幼稚、不卡通、无低龄化信号
 - **尊重节奏**：把选择权交给用户，不主动推送、不施加压力
 
 ### 原则冲突裁决
 
-冲突裁决规则见 `vision.md`§原则冲突裁决（含免费层能力不得降级的额外约束）；本文档不重复列出，只在具体设计场景中引用。
+冲突裁决规则见 `vision.md`§产品原则、§耐久取舍与§三层 SSOT 与变更生命周期；本文档不重复列出，只在具体设计场景中引用。
 
 ### 原则追溯标注
 
 本文档每个设计章节标题后标注 `[PX]`，表示该设计服务于哪条 Vision 原则。下游文档引用时使用章节标题（含 `[PX]` 标注）。
 
-### 成功信号校准（承接 `vision.md` §成功信号）
+### 学习与成功信号
 
-Vision 列出 8 项可度量信号；本段把它们映射到具体设计承诺，让设计层有可校准的标的：
-
-| Vision 信号 | 对应设计承接 |
-|---|---|
-| 首次录入效率（含 onboarding） | §信息架构 / 字段配置规格（默认开启字段最少，见 `../features/active/feat-capture.md`） / Onboarding 不强制配置（见 `../features/active/feat-onboarding.md`） |
-| 首次录入效率（进入采集页后） | OCR 定位（不强迫校对）/ 连续录入设计 / 一图多题（拆题不阻塞保存），均见 `../features/active/feat-capture.md` |
-| 持续录入行为 | 连续录入设计 / 字段配置（按需开启）/ 草稿恢复，均见 `../features/active/feat-capture.md` |
-| 激活深度 | 字段配置（见 `../features/active/feat-capture.md`）/ 批量操作（见 `../features/active/feat-library.md`）/ 回顾（见 `../features/active/feat-review.md`） |
-| Multi-Profile 可用性 | 多 Profile 设计 / 数据隔离边界（S0 监控），见 `../features/active/feat-profile.md` |
-| 成果分发 | 导出与打印（系统分享菜单非社交分享），见 `../features/active/feat-export.md` |
-| 价值链完成率 | 导出与打印（PDF 主路径，见 `../features/active/feat-export.md`）/ 智能组卷（Pro 增值，见 `../features/backlog/feat-smartpaper.md`） |
-
-> 当前生产不做后端行为采集；App Store Connect 聚合与端侧 MetricKit 见 ADR-005。历史事件字典见 `../reference/analytics-events.md`，不得据此恢复 Firebase。
+Product Constitution 不定义虚构 KPI。当前产品假设及推翻信号由 `assumptions.md` 管理；Release 1 的任务完成、质量阈值和 go / no-go 证据由待建立的 Release 1 Product Contract 定义。当前生产不做后端行为采集；不得为了补指标恢复 Firebase 或逐事件用户追踪。
 
 ---
 
@@ -71,19 +59,15 @@ Vision 列出 8 项可度量信号；本段把它们映射到具体设计承诺�
 
 ### 导航结构
 
-底部 Tab 栏常驻（首页/题库/采集/复习/设置），采集入口作为标准 Tab 始终可达。
-为保持导航架构的极致简洁（P2 简洁）和降低认知负荷，采集入口作为标准 Tab 而非自定义突出按钮。
-如未来用户反馈可发现性不足，可评估 FAB 方案——参考 Apple Reminders / Journal 的做法。
-
-回顾是可选留存层（非核心价值链），但因其使用频率足以支撑独立 Tab，故既有独立 Tab（主入口），也在 Dashboard 提供待回顾快捷入口，两者并存。本版用户旅程未单列回顾流程，其价值假设由 `assumptions.md` H9 承接。
+当前五个同级 Tab（首页 / 资料库 / 采集 / 回顾 / 设置）是实现事实，不是 Product Constitution 承诺。Release 1 Contract 必须根据 B3-A 分类 Dashboard、Review 与 SmartPaper，再决定最终导航。任何方案都必须让采集、资料库和输出路径容易到达，且不得让附加能力主导首屏。
 
 ### Dashboard 设计角色
 
-Dashboard 是用户打开 App 后的第一屏，定位是**状态总览 + 快捷入口**，不是功能操作界面：
-- 展示当前 Profile 的核心统计（资料总数、待回顾数、已回顾数、今日新增）
+当前 Dashboard 若在 Release 1 保持可达，其角色只能是**状态总览 + 快捷入口**，不是核心任务的替代入口：
+- 展示单一资料库的中性事实（资料总数、待回顾数、已回顾数、今日新增）
 - 展示待回顾数量和快捷入口
 - 问候语 + 用户昵称（个性化但不过度）
-- 不在 Dashboard 做录入或管理操作——录入走采集 Tab，管理走题库 Tab
+- 不在 Dashboard 做录入或管理操作——录入走采集 Tab，管理走资料库 Tab
 
 **Dashboard 文案防焦虑约束**（承接 vision §不贩卖焦虑）：
 - 数字只显示**中性事实**（资料总数 / 今日新增 N / 待回顾 N）
@@ -91,7 +75,7 @@ Dashboard 是用户打开 App 后的第一屏，定位是**状态总览 + 快捷
 - **不**用红色 / 警告色 / 感叹号渲染数字
 - 「今日新增」语义仅是事实计数，不是「打卡」「冲量」隐喻
 
-### 题库信息架构 [P1 录入体验, P2 简洁]
+### 资料库信息架构 [P1 录入体验, P2 简洁]
 
 **为什么默认按录入时间倒序**：最新录入的题目最可能需要编辑补充（加答案、补字段），倒序让它们最先出现。
 
@@ -105,13 +89,9 @@ Dashboard 是用户打开 App 后的第一屏，定位是**状态总览 + 快捷
 
 ---
 
-## iPad + Apple Pencil 价值定位 [P1 录入体验, P6 原生优先]
+## iPad + Apple Pencil 重入边界 [P2 简洁, P6 原生优先]
 
-**iPad + Apple Pencil 价值定位**：
-- iPad 大屏适合「整理 + 复习」场景（在桌面或大屏上完整翻阅题库）
-- Apple Pencil 暂不深度集成（PoC 阶段），优先级低于 iPhone 录入主路径
-- 未来 PoC 可能方向：在 ReviewCard 反面用 Pencil 批注 / 在 Capture 完成后用 Pencil 圈选 OCR 区域
-- 当前阶段 iPad 体验通过自适应布局（compact/regular）自动兼容，不做 iPad 专属功能
+Release 1 为 iPhone-only。iPad 与 Apple Pencil 不属于当前产品或设计承诺；现有自适应代码只算实现事实。未来重入必须先有外部价值证据和新的平台裁决，再补齐大屏工作流、布局、输入、无障碍、截图与发布验收，不能仅因代码可以运行就宣布支持。
 
 ---
 
@@ -120,17 +100,17 @@ Dashboard 是用户打开 App 后的第一屏，定位是**状态总览 + 快捷
 ### 空状态原则
 
 - 空状态先解释"这里为什么是空的"，再给一个最近动作入口，不做教育式说教
-- 空题库、无搜索结果、无到期复习题属于三类不同空状态：首次未开始、过滤后为空、当前阶段已完成，文案必须区分
+- 空资料库、无搜索结果、无待回顾资料属于三类不同空状态：首次未开始、过滤后为空、当前阶段已完成，文案必须区分
 - 空状态 CTA 只给一个主动作，避免把用户带回复杂选择题
-- 空状态不得借机强推订阅；免费层空状态优先指向采集、恢复、帮助而非付费墙
+- 空状态不得借机强推订阅；Release 1 空状态优先指向采集、恢复或帮助，不出现付费墙
 
 ### 错误分级
 
 | 级别 | 场景 | 处理原则 |
 |---|---|---|
 | **L1 可忽略提示** | OCR 识别不准、搜索无结果、无到期复习题 | 内联说明 + 可继续当前流程，不打断任务 |
-| **L2 可恢复错误** | 权限缺失、导出失败、恢复校验失败、网络/CloudKit 暂时异常 | 明确原因 + 给重试或替代路径，不静默吞错 |
-| **L3 数据风险错误** | 保存失败、恢复半成功、活跃 Profile 丢失、图片文件缺失 | 必须醒目提示结果摘要和后果，优先保护现有数据 |
+| **L2 可恢复错误** | 权限缺失、导出失败、恢复校验失败、未来同步暂时异常 | 明确原因 + 给重试或替代路径，不静默吞错 |
+| **L3 数据风险错误** | 保存失败、恢复半成功、资料库不可用、图片文件缺失 | 必须醒目提示结果摘要和后果，优先保护现有数据 |
 
 ### 可访问性基线
 
@@ -154,6 +134,6 @@ Dashboard 是用户打开 App 后的第一屏，定位是**状态总览 + 快捷
 
 优先级排序：**S0 > S1 > S2 > S3**。术语定义同 `../reference/glossary.md`§术语表。
 
-**边界用例收录约定**：边界用例（Boundary Cases）仅收录 S0/S1 全部 + 高频 S2。具体边界用例（B01-B26 等）已按功能归入各 feature spec 的 Verify 节，例如采集相关见 `../features/active/feat-capture.md`、备份恢复相关见 `../features/active/feat-backup.md`、Profile 相关见 `../features/active/feat-profile.md`。
+**边界用例收录约定**：边界用例（Boundary Cases）仅收录 S0/S1 全部 + 高频 S2。具体边界用例按功能归入各 feature spec 的 Verify 节，例如采集相关见 `../features/active/feat-capture.md`、备份恢复相关见 `../features/active/feat-backup.md`。`../features/active/feat-profile.md` 已重基线为单一本地资料库规则；其中标注的 `develop` Multi-Profile 只属实现实证。
 
 > 双框架分工：本严重度框架（S0-S3）与§价值链与优先级中的用户价值金字塔（Kano 对标）并用——价值金字塔回答"做什么 / 优先做什么"，严重度框架回答"哪个缺陷先修 / 哪个边界必测"。

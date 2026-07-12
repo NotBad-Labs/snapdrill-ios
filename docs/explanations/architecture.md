@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-20
+last_verified: 2026-07-12
 layer: pattern
 freshness:
   max_age_days: 180
@@ -8,6 +8,8 @@ freshness:
 # SnapDrill 技术架构
 
 > 面向新开发者的架构全景图。
+>
+> **产品重基线边界（2026-07-12）**：本文描述当前代码，不定义产品。Product Constitution v1 已选择一个可见资料库、Release 1 无 IAP，并把 Apple 私有同步 / Pro 降为未来假设；因此下文 Multi-Profile、per-profile 偏好、Pro gating 与 CloudKit 路径只用于刻画待重审实现。不得据此新增功能或反向覆盖 `vision.md`。候选单资料库实现为 Draft #868，仍须等待 Release 1 / Data Contract 后重审。
 
 ---
 
@@ -18,8 +20,8 @@ SnapDrill.app（薄壳，Composition Root）
     │
     ├── SnapDrillFeatures（5 个 Feature Target，UI + ViewModel）
     │   ├── FeatureCapture      采集
-    │   ├── FeatureLibrary      题库
-    │   ├── FeatureReview       复习（依赖 Library）
+    │   ├── FeatureLibrary      资料库
+    │   ├── FeatureReview       回顾（依赖 Library）
     │   ├── FeatureDashboard    首页（依赖 Library）
     │   └── FeatureSettings     设置（依赖 Library）
     │
@@ -201,32 +203,32 @@ SwiftData @Model（持久化）
 | 手动 | `CaptureResultView` 纯文本路径 | 不依赖 OCR，允许无图保存（Image is Truth 例外）|
 | Share Extension | `SnapDrillShare` Extension target | 系统 ShareSheet 入口（已实现并启用，SnapDrillShare.appex 已 embed 进主 app）|
 
-**Smart Paper（智能组卷，ADR-001 Hybrid Pro 增值）**：
+**SmartPaper（当前遗留实现；候选，商业分层未定）**：
 - 触发：`SnapDrillFeatureLibrary/SmartPaperView` + `SmartPaperViewModel`
 - 选题策略：复用 `ReviewScheduler` + `SM2State`（基于 SM-2 数据驱动选题）
 - 排版/导出：复用 `SnapDrillCore/Service/PDFExportService` 管线（不重新实现 PDF 引擎）
-- Pro gating：通过 `ProEntitlementProvider` 接入 StoreKit（阻塞 #479）
+- 旧 gating：代码通过 `ProEntitlementProvider` 表达不可达分支；B6-A 后不得据此扩展 StoreKit 或公开升级路径
 
-**ShareCard（题目分享卡片）**：
+**ShareCard（资料分享卡片）**：
 - 归属：`SnapDrillFeatureLibrary/ShareCardView`
 - 渲染：SwiftUI `ImageRenderer`（iOS 16+ 标准 API），不依赖 PDFExport 管线
-- 边界：仅渲染单题；不与 PDF 批量导出共享流水线（design §简洁，单一职责）
+- 边界：仅渲染单条资料；不与 PDF 批量导出共享流水线（design §简洁，单一职责）
 
-**1/2/4 题快速打印（PrintService）**：
-- 入口：`SnapDrillFeatureLibrary/LibraryDetailView`（详情页固定 1 题/页）+ 多选模式 N 题
+**当前 1/2/4 条快速打印（PrintService）**：
+- 入口：`SnapDrillFeatureLibrary/LibraryDetailView`（详情页固定 1 条/页）+ 多选模式 N 条
 - 契约：Core 的 `PDFExportService` 只生成 PDF `Data`；UIKit presentation adapter 放在 `SnapDrillUI`，由 Feature View 调用
 - 打印与分享是两个一等入口，不把 `UIView` / `UIPrintInteractionController` 固化进 Core。完整裁决见 `docs/ui-redesign/flagship-cross-layer-contracts.md`
 
-**高级统计（Pro 增值，Dashboard Hybrid 路径）**：
+**高级统计（当前遗留候选实现，商业分层未定）**：
 - 数据源：`SnapDrillData/RepositoryContainer` 各 Repository 聚合查询
 - 聚合层：`SnapDrillFeatureDashboard/DashboardAnalyticsViewModel`
 - 图表渲染：SwiftUI Charts 框架（iOS 16+）
-- Pro gating：通过 `ProEntitlementProvider` 控制可见性（ADR-001 Hybrid，免费层只看基础指标）
+- 旧 gating：通过 `ProEntitlementProvider` 控制不可达分支；Release 1 用户可见面必须隐藏 teaser / upsell
 
-**iCloud 同步（占位段，阻塞 #485（前置 #479））**：
+**Apple 私有同步（关闭的候选占位）**：
 - 当前实现：所有 `@Model` 默认 `cloudKitDatabase: .none`（关闭）
-- 启用路径：StoreKit 落地（#479）→ 创建 CloudKit Container（#485）→ ProEntitlementProvider 判断 → Per-Profile 同步（与 BackupService 同语义边界）
-- 触发文档：`business-model.md` §iCloud 同步 / `../features/backlog/feat-icloud-sync.md` §设计
+- 重入路径：未裁决；旧 #479 / #485 和 Per-Profile 设计不能自行授权实现
+- 候选边界：`business-model.md` 与 `../features/backlog/feat-icloud-sync.md`
 
 ## Multi-Profile 实现
 

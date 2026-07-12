@@ -27,7 +27,7 @@ STATUS_LABEL = {
     "poc-needed": "🔬 需 PoC",
     "backlog": "📋 Backlog",
 }
-TIER_LABEL = {"free": "免费", "pro": "Pro"}
+TIER_LABEL = {"free": "免费", "pro": "Pro", "undecided": "未定"}
 
 STATIC_REFS = {
     "positioning-and-audience": {

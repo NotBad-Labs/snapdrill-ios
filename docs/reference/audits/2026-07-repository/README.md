@@ -74,4 +74,5 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **Phase 02f 产品意图影响图 / 复核**：`phases/02f-product-intent-impact-map-candidate.md` / `phases/02f-product-impact-review-results.md`
 - **Phase 03 结果**：`phases/03-results.md`
 - **Phase 04a/04b/04d 结果**：`phases/04a-results.md` / `phases/04b-results.md` / `phases/04d-results.md`
-- **下一步**：单独取得 #867 合并授权，随后在小型 authority/contract 分支落地已 ratify 的 Gate A，并起草 Product Constitution v1 与 Release 1 Product Contract；#868 维持 Draft，不进入合并裁决
+- **当前产品治理状态**：#867 审计、#869 Gate A 与 #870 中文工作坊已合入；PO 于 2026-07-12 逐项批准 Gate B 的 B1-A 至 B7-A
+- **下一步**：在 `codex/gate-b-product-constitution-v1` 固化并人工复核 Product Constitution v1；单独授权合并后再起草 Release 1 Product Contract。#868 维持 Draft，不进入合并裁决

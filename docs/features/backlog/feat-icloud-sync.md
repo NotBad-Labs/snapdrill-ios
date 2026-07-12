@@ -1,60 +1,49 @@
 ---
 id: feat-icloud-sync
-title: iCloud 多设备同步
-status: blocked
-tier: pro
-blocked_by: [485]
+title: Apple 私有同步（候选，商业分层未定）
+status: backlog
+tier: undecided
+blocked_by: []
 mode: lightweight
-last_updated: 2026-05-30
+last_updated: 2026-07-12
 intent_refs:
   - vision:P4
   - vision:P6
-  - ADR-001
 ---
 
-# Feature: iCloud 多设备同步
+# Feature: Apple 私有同步（候选，商业分层未定）
 
-> 人读摘要：⛔ 阻塞（Pro）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要：📋 候选 backlog，产品范围与商业分层未定；旧 #485 不能自行授权重入。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > `mode: lightweight`（backlog）：仅 Why + What 必填；How / Verify 只记录当前已确认约束，未实现部分标注，不编造假设计。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / business / journeys / tech 聚合（docs 重组 B）。
+>
+> **商业规范偏差（2026-07-12）**：B4-A 只把 Apple 私有同步保留为独立假设，B6-A 已取代旧 Pro 分层，B7-A 也不包含 iPad；frontmatter 已改为 `tier: undecided`。新的 Product / Data / Privacy / Commercial contract 与 Release Contract 生效前不得实现或公开承诺。
 
-## 1. 为什么做 (Why)
-- **痛点 / 价值**：多设备场景下，纯本地存储无法跨设备流转——免费用户换机或卸载即数据永久丢失，只能靠手动 `.zip` 备份迁移。iCloud 同步打通「手机随时拍 + iPad 随时整理/复习 + 打印机随时印」的多设备闭环，让数据自动跨设备到位、换机后自动回来，无需手动操作。
-- **定位**：iCloud 多设备实时同步是 **Pro 付费的核心引擎 / 核心卖点**——免费层是完整单设备闭环（采集→管理→导出/打印），付费层叠加跨设备流转。同步功能不单独售卖，与图片处理增强、高级导出等打包进 Pro 订阅，避免 App Store 审核指引 3.2.2 风险。
-- **隐私边界**：同步完全基于系统级 CloudKit，数据由 Apple 加密存储在用户个人 iCloud 账户；SnapDrill 不接触、不存储、不可访问用户的 Apple ID 或 iCloud 数据。零注册 + 纯本地 + iCloud 的隐私架构在 Apple 生态内有系统级支撑。
-- **原则归属**：P4 数据属于用户（隐私是核心差异化）+ P6 原生优先（同步必须用 Apple 原生 CloudKit，不引入第三方同步层）。详见 `../../explanations/vision.md`。
+## 1. 候选价值假设 (Why)
 
-## 2. 需求规则 (What)
-- **核心能力**：iCloud CloudKit 多设备同步（Pro）。同步范围为**全部 Profile**（与备份策略对齐），基于 Apple CloudKit，利用设备已有的 Apple ID 凭证，无需单独注册。同步是数据层面的——所有设备拥有完整数据副本；UI 层面仍需切换 Profile 才能查看特定资料库的题库。
-- **冲突策略**：同一题在两设备同时编辑时，采用 last-write-wins + 冲突记录保留（CloudKit 默认行为），实现时细化。
-- **iCloud 空间提示**：2000 题约 400MB，可能占满 5GB 免费 iCloud 空间；需在设置页提供空间占用与风险提示，保留手动备份/恢复作为降级出口。
-- **边界 / 不做**：
-  - 不做自建服务器同步（违反 P6 原生优先 + P4 隐私）。
-  - 不单独售卖同步（打包进 Pro，规避审核 3.2.2）。
-  - SwiftData 不原生支持 CloudKit 公共数据库，仅做私有数据库同步（无共享/公共数据）。
-  - 配额计数等本地状态不跨设备同步。
-- **前置依赖**：
-  - StoreKit 闸门（#479）——Pro 解锁判断（`ProEntitlementProvider`）；
-  - CloudKit Container（#485，需 Apple 开发者账号）；
-  - `feat-profile`（同步范围 = 全部 Profile，与 `feat-backup` 的 `.zip` 备份同语义边界）。
-- **商业分层**：iCloud 自动同步 = Pro；免费层不含自动同步，但必须可迁移（`.zip` 手动备份/恢复，见 `../active/feat-backup.md`）。订阅取消后数据完整保留可编辑，仅停止新数据跨设备 push（本机数据仍在），不锁定/不隐藏/不阻断手动备份。定价见 `../../explanations/business-model.md`。
+- Apple 私有同步可能减少用户在多设备或换机时的手动搬运，但当前没有外部需求或付费证据。
+- B4-A 只允许把它保留为独立假设；它不能替代永久手动备份，也不能改变 local-first、无 SnapDrill 账户和一个资料库的定位。
+- 若未来回归，必须重新通过产品、数据、隐私、CloudKit 可行性和商业 contract；B7-A 的 Release 1 不包含 iPad 或中国专项路线。
+
+## 2. 候选范围与重入条件 (What)
+
+- 候选只考虑 Apple 私有 CloudKit，不建立开发者可访问的内容后端，也不引入 SnapDrill 账户。
+- 同步范围必须是一个资料库；冲突、删除、离线、空间不足、备份共存和退出后的数据权利均需新的 Data / Privacy Contract 明确。
+- 手动备份 / 恢复始终保留为独立出口；同步异常不得锁定、隐藏或损坏本地资料。
+- 当前无 Pro、StoreKit、价格或订阅取消规则；ADR-001 的商业分层和 iPad 闭环只作历史证据。
+- 前置包括外部价值证据、PO 新裁决、CloudKit PoC、容器与签名配置、隐私复核、Release Contract 和完整同步测试；#485 只是技术 issue，不能自行授权实现。
 
 ## 3. 技术设计 (How)
-> backlog / blocked：以下为当前已确认的设计意图；同步引擎细节（SLO、离线降级）解锁 #485 后补，**不在此编造假实现**。
-- **当前实现状态**：所有 `@Model` 默认 `cloudKitDatabase: .none`（显式关闭）；StoreKit 未接（`ProEntitlementProvider.isProUser` 硬编码 false），首版纯免费、无法购买或测试。
-- **模块归属**：同步随 SwiftData `@Model`（`SnapDrillData`）启用；Pro gating 经 `ProEntitlementProvider`（Core 注入）；与 `BackupService`（`SnapDrillData`）同语义边界（Per-Profile）。
-- **启用路径**：StoreKit 落地（#479）→ 创建 CloudKit Container（#485）→ `ProEntitlementProvider` 判断 → Per-Profile 同步。
-- **活跃状态管理铁律**：侦测到当前活跃 Profile 被 iCloud 远端删除时，UI 会话自动 fallback 至默认 Profile 并提示，避免崩溃。
+> backlog：以下只记录当前关闭状态与候选技术边界；同步引擎细节等待新的 Product / Data / Privacy / Release Contract，**不在此编造假实现**。
+- **当前实现状态**：所有 `@Model` 默认 `cloudKitDatabase: .none`（显式关闭）；旧 `ProEntitlementProvider` / Profile 相关路径仅是遗留代码背景。
+- **启用路径**：未裁决。不得从旧 StoreKit、Profile 或 CloudKit issue 链推导未来架构。
 - **State & Concurrency**（Swift 6 strict）：同步落库走 SwiftData `ModelContainer`（由 `DataExecutor` actor 拥有），重活不阻塞主线程；其余 actor/State 归属待解锁实现时定（PoC 阶段填）。
-- **平台边界**：SwiftData 仅私有数据库同步；`#Unique` 与 CloudKit 不兼容（PR #454 已全量移除）。中国区 iCloud 由云上贵州运营、数据存境内，同步实现时做中国区专项性能测试。
+- **平台边界**：SwiftData 仅支持相关私有数据库能力；`#Unique` 与 CloudKit 的兼容约束仍需 PoC。中国专项路线不在 B7-A 当前范围。
 
 ## 4. 验证标准 (Verify)
-> backlog / blocked：解锁 #485 后补完整 GWT 与 NFR（同步延迟 SLO、冲突策略、离线降级）。以下为多设备协作的目标主流程，非已实现验证。
-- **Success path (GWT，目标态)**：Given 用户已订阅 Pro 且多设备登录同一 Apple ID，When 在 iPhone 切换到某 Profile 录入新题，Then 新题通过 CloudKit 自动推送到该 Apple ID 下的其他设备（如 iPad），无需手动操作，对应 Profile 下数据一致到位（多设备协作目标态）。
-- **边界 / 异常**：活跃 Profile 被远端删除 → 自动 fallback 默认 Profile 并提示；网络/CloudKit 暂时异常属 L2 可恢复错误，给重试或替代路径，不静默吞错；iCloud 空间不足 → 设置页风险提示 + 手动备份降级出口。
-- **数据保证**：冲突 last-write-wins + 保留冲突记录（CloudKit 默认）；Profile 隔离在多设备间保持一致。
-- **NFR**：待实现补——同步延迟 SLO / 冲突策略细化 / 离线降级 依赖 #485 解锁后在 `../../reference/non-functional-requirements.md`§同步与网络 补齐（当前为占位）。
+
+> 当前不在 Release 1 范围，且生产配置显式关闭。新的 Product / Data / Privacy / Commercial / Release Contract 生效后再定义多设备 GWT、冲突策略、离线降级、延迟 SLO、退出行为和恢复演练；在此之前不得显示同步或升级入口。
 
 
 ## 意图追溯（永久保留）
@@ -62,17 +51,16 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P4 用户拥有数据·隐私 / P6 Apple 原生优先） | 同步基于系统级 CloudKit、Apple 加密、SnapDrill 不接触；不引入第三方同步层 |
-| 产品政策 / ADR | `../../decisions/ADR-001-smart-paper-analytics-pricing.md`（Pro 分层）；`../../decisions/ADR-003-dual-region-release.md`（区域 iCloud 差异，挂起的区域路线历史参考） | 同步打包进 Pro（规避审核 3.2.2）；免费层靠 `.zip` 迁移 |
-| 待验证假设 | `../../explanations/business-model.md` H7（iCloud 同步是否足以成为 Pro 核心付费理由） | 解锁后验证 H7 |
-| 验收证据 | 解锁 #485 后补；当前 `cloudKitDatabase: .none` | 见本 spec Verify 节（目标态） |
+| 产品政策 / ADR | `../../explanations/business-model.md`（B6-A）；`../../decisions/ADR-003-dual-region-release.md`（挂起历史） | 当前无有效 Pro 或区域同步承诺；手动备份永久免费 |
+| 待验证假设 | `../../explanations/business-model.md` H7 | 先验证多设备价值，不预设付费理由 |
+| 验收证据 | 新 contract 生效后补；当前 `cloudKitDatabase: .none` | 见本 spec Verify 节 |
 
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
 - 原则：`../../explanations/vision.md`（P4 数据属于用户 / P6 原生优先）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
-- 用户旅程：`../../explanations/user-journeys.md`（多设备协作；本版本未单列该 Pro 旅程，参 旅程 4 资料库隔离 + 旅程 6 打印）
-- 商业分层 / 定价：`../../explanations/business-model.md`
-- 决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（Pro 分层 Hybrid）、`../../decisions/ADR-003-dual-region-release.md`（双地区，中国区 iCloud 差异）
+- 商业假设：`../../explanations/business-model.md`
+- 历史决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`、`../../decisions/ADR-003-dual-region-release.md`（均非当前实现授权）
 - 免费迁移出口（互补）：`../active/feat-backup.md`（`.zip` 手动备份/恢复）
-- 同步范围依赖：`../active/feat-profile.md`（全部 Profile）
+- 产品边界：`../active/feat-profile.md`（一个可见资料库）

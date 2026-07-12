@@ -9,7 +9,14 @@
 
 把“产品应该是什么”从散落的聊天、功能现状和历史 ADR 中抽离出来，让 PO 用有限选择稳定 Product Constitution v1 与 Release 1。目标不是保留现有实现，也不是为了整洁删除功能；每个推荐都必须同时说明用户价值、当前证据、可逆性和下游成本。
 
-## 当前证据矩阵
+## PO 裁决进度
+
+- Gate A 已由 PR #869 合入 `develop@5c31eff7`，决策生命周期、旧规范显式 supersede 与 contract-first 规则已经 effective。
+- Gate B 已由 PO 于 2026-07-12 逐项批准 B1-A 至 B7-A；这些裁决只有在归属权威 `docs/explanations/vision.md` 及直接产品政策合入 `develop` 后才 effective。
+- Gate C 尚未开始裁决。本文后半的 C1-C6 仍是非规范性 shaping 选项。
+- Multi-Profile 的用户可见产品行为由 B5-A 承接；开发期数据、偏好和旧备份不兼容的过渡边界仍等待 Release 1 / Data Contract。
+
+## 工作坊启动时证据矩阵（冻结快照）
 
 | 问题 | 当前规范主张 | 当前实证状态 | 尚未决定 |
 |---|---|---|---|
@@ -26,11 +33,11 @@
 
 ## Gate A — 治理
 
-**PO 状态（2026-07-11）：下列第 1-3 项已作为一个整体批准，但在归属权威合并前仍未生效。第 0 项是单独批准的产品 / 数据候选，也必须经过同一生命周期落地。本裁决不隐含合并授权。**
+**PO 状态（2026-07-12 更新）：第 1-3 项已通过 PR #869 成为 effective。第 0 项的产品行为已由 B5-A 承接，过渡兼容边界等待 Release 1 / Data Contract。本裁决不隐含任何后续合并授权。**
 
-已批准事项（归属权威合并前不生效）：
+已批准事项：
 
-0. 单独批准的产品 / 数据候选：退休 Multi-Profile，不迁移数据、不兼容旧备份。即使 #868 已有实现证据，该裁决仍未生效。
+0. 退休 Multi-Profile 的产品目标已由 B5-A ratify；#868 仍只是实现证据，不迁移 / 不兼容边界尚未获得 Release 1 / Data Contract 的 effective 承接。
 1. `exploration -> shaped candidate -> ratified -> effective -> superseded`。
 2. 当前 tracked 规范持续有效，直到被明确 supersede。
 3. 跨 feature、数据 wire、公开承诺、商业或平台边界的变更，合并前必须先有上游 contract；Draft 探索可以更早开始。
@@ -38,6 +45,8 @@
 替代方案：聊天内容立即具有约束力。审计否决该方案，因为 fresh clone 无法重建聊天内容，而且并行 lane 可以在不违反任何 tracked 规则的情况下发生分歧。
 
 ## Gate B — Product Constitution 选项
+
+**PO 结果（2026-07-12）：B1-A、B2-A、B3-A、B4-A、B5-A、B6-A、B7-A 均已逐项批准，等待归属权威合并后 effective。下列未选选项保留为 shaping 历史，不得继续驱动工作。**
 
 ### B1. 首个工作流切口与待完成任务（job-to-be-done）
 
@@ -210,10 +219,10 @@ C3-A/D 仅适用于内部 C1-A 产物。收到第一份结构化 TestFlight 反�
 
 ## 推荐决策顺序
 
-1. Gate A 治理。
-2. B1/B2/B3：用户、承诺与价值链。
-3. B4/B5：数据定位与单资料库持久性。
-4. B6/B7：商业 / 平台定位。
+1. Gate A 治理（已 effective）。
+2. B1/B2/B3：用户、承诺与价值链（已 ratified）。
+3. B4/B5：数据定位与单资料库持久性（已 ratified）。
+4. B6/B7：商业 / 平台定位（已 ratified）。
 5. C1/C2：目标与 Must 结果。
 6. C3/C4/C5：可选功能处理。
 7. C6：验收与成功信号。

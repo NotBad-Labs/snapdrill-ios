@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-22
+last_verified: 2026-07-12
 layer: pattern
 ---
 # SnapDrill 术语表
@@ -18,12 +18,12 @@ layer: pattern
 | **资料** | Material / Item | 用户保存和管理的单条内容，可能包含图片、OCR 文本、答案/备注、分类、标签与回顾状态。PO 2026-07-05 裁决：通用资料系界面中，“题目”统一改为“资料”。 | `ArchiveItemModel` (Data) |
 | **录入** | Create / Save | 完成资料项编辑（OCR 文本、答案/备注、分类、标签）并保存到资料库的动作 | `CaptureResultViewModel` 模块 (Features) |
 | **资料库** | Library | 已保存资料项的集合，支持浏览、搜索、过滤、编辑、导出。PO 2026-07-05 裁决：用户可见容器统一称“资料库”；代码与部分内部 spec 仍使用 `Library` 指代同一功能域。 | `SnapDrillFeatureLibrary` 模块 (Features) |
-| **管理** | Management | 价值链中间环节：资料库浏览、编辑、分类、标签、搜索、过滤等整理操作的统称 | `SnapDrillFeatureLibrary` 模块 (Features) |
+| **整理 / 找回** | Organize / Retrieve | 核心价值链中间环节：资料库浏览、编辑、分类、标签、搜索和过滤等操作 | `SnapDrillFeatureLibrary` 模块 (Features) |
 | **导出** | Export | 将资料数据从 App 输出为外部格式。资料库导出：PDF/CSV/ZIP/分享卡片；隐私数据导出：JSON（设置→隐私） | `ExportOptionsSheet` (Features)；隐私导出见 `PrivacySettingsView` (Features) |
 | **打印** | Print | 导出 PDF 后通过系统打印服务输出到纸质 | `ExportPreviewView` (Features) 提供打印入口，依赖 `PDFExportService` (Core) 生成 PDF |
 | **回顾** | Review | 基于 SM-2 间隔重复算法的卡片式回顾会话。代码 target 仍为 `FeatureReview` | `SnapDrillFeatureReview` 模块 (Features) |
 
-**价值链完整表述**：核心价值链为采集 → 管理（资料库浏览/编辑/分类） → 导出/打印。回顾是可选留存层，智能组卷是导出/打印的 Pro 增值延伸。
+**价值链完整表述**：核心价值链为采集 → 整理 / 找回 → 导出 / 打印。回顾与 SmartPaper 是可选复用能力，不得占据或复杂化主路径；当前不存在有效 Pro 分层。
 
 ---
 
@@ -31,7 +31,7 @@ layer: pattern
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **资料空间 (Profile)** | Profile / Workspace | 独立的本地资料库 / 工作区，每个 Profile 拥有独立的资料库、回顾进度、字段配置和统计数据。用户可见中文优先用“资料空间”，代码和英文界面保留 Profile / Workspace。 | `Profile` struct (Core), `ProfileManager` (Data) |
+| **Profile（当前实现遗留）** | Profile / Workspace | 当前代码中的多资料库容器。Product Constitution v1 的产品目标是一个可见资料库，用户文案不得继续引入“资料空间 / Profile / Workspace”；本词只用于 #868 重基线前识别代码、数据和测试风险。 | `Profile` struct (Core), `ProfileManager` (Data) |
 | **基线用户** | Baseline User | 不熟悉专业扫描 / 归档工具的成年用户（假设，待首批用户画像验证，见 `../explanations/assumptions.md` H1）。所有设计决策以此用户能否顺利完成为最低标准 | — |
 | **图片是真相** | Image is Truth | 当 OCR 文本与原图冲突时，以原图为准。原图是资料项的唯一真相源 | `ArchiveItemModel.imagePath` (Data) |
 | **.zip 备份** | .zip Backup | App 备份文件格式（ZIP 内含 JSON 数据 + 图片文件）；线格式合同见 `backup-wire-format.md` | `BackupService` (Data) |
@@ -50,7 +50,7 @@ layer: pattern
 
 ### SmartPaper 域保留词
 
-PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库 / 资料空间”，但 SmartPaper 是生成练习卷的功能域，域内保留以下术语：
+PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库”，但 SmartPaper 是生成练习卷的功能域，域内保留以下术语。Product Constitution v1 不保证 SmartPaper 进入 Release 1；只有该功能保持可达时才应用本域词表：
 
 | 术语 | 英文 | 使用边界 |
 |---|---|---|
@@ -64,11 +64,11 @@ PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库 / 资料
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **Dashboard** | Dashboard | 首屏状态总览界面，展示当前 Profile 的资料统计（总数、待回顾数）、回顾快捷入口和用户问候语 | `DashboardView` (Features) |
+| **Dashboard** | Dashboard | 当前实现中的状态总览界面，展示单一资料库相关统计、回顾快捷入口和用户问候语；是否作为 Release 1 首屏等待 Release Contract | `DashboardView` (Features) |
 | **Onboarding** | Onboarding | 首次启动多页引导流程（3-4 页），介绍核心功能（采集/回顾/导出），完成后不再显示 | `OnboardingView` (UI) |
 | **回顾卡片** | Review Card | 正反面翻转式卡片，正面展示资料内容（图文），背面展示答案/备注。用户通过滑动或按钮评估掌握程度 | `ReviewCardFront` / `ReviewCardBack` (Features) |
 | **标签** | Tag | 多选资料分类维度（如"重点""考前"），支持过滤和批量操作 | `CategorySystemKey.tag`, `CategoryValueModel` (Data) |
-| **Profile 切换** | Profile Switch | 用户在多个独立资料库间切换，各 Profile 拥有独立数据库和统计 | `ProfileManager.switchProfile(to:)` (Data) |
+| **Profile 切换（当前实现遗留）** | Profile Switch | 当前 Multi-Profile 代码路径；不属于已批准的单资料库产品行为，只用于重基线前的实现与测试识别 | `ProfileManager.switchProfile(to:)` (Data) |
 
 ---
 
@@ -86,10 +86,8 @@ PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库 / 资料
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **免费层** | Free Tier | 全部基础功能，单设备完整体验（采集 → 管理 → 导出/打印） | — |
-| **Pro** | Pro Subscription | 付费订阅层：iCloud 同步 / 图片处理增强 / 智能组卷（无限+精准选题）/ Word 导出 / 高级统计（趋势图+薄弱排行）等增值能力。智能组卷和图片处理增强采用"免费限次体验 + Pro 无限"模式（ADR-001）。**Pro 功能现状**：智能组卷无限 / 高级统计深度 / iCloud 同步 / Word 导出 / 图片处理增强等的实现状态以 `feature-status.md`§功能状态总表（SSOT）为准。当前 StoreKit（#479）未接、Pro 全为"敬请期待"占位、首版纯免费；**Pro 体系为愿景/路线，非当前 shipping**。 | — |
-| **Grandfather** | Grandfather Pricing | 老用户保留原价的涨价策略 | — |
-| **Lifetime** | Lifetime Purchase | 一次性买断 Pro 全部功能，永久有效，不受后续涨价影响 | — |
+| **免费版** | Free Release | Release 1 的当前商业形态：免费、无广告、无 IAP，并在单设备完成核心价值链 | — |
+| **Pro（未来候选）** | Pro | 尚未批准的未来商业化概念，不代表订阅、功能组合、价格或时间表。任何用户可见 Pro 承诺必须等待新商业 contract | — |
 
 ---
 

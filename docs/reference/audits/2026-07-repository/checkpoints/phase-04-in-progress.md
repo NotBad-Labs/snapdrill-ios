@@ -36,6 +36,12 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
 
 ## Product Constitution Interlude
 
+- **2026-07-12 status**: #867 audit evidence, #869 Gate A activation and #870
+  Simplified-Chinese workshop have merged. Gate A is effective. The PO then
+  approved B1-A through B7-A individually; `codex/gate-b-product-constitution-v1`
+  is the bounded authority branch that will make Gate B effective only after a
+  separate merge authorization. Gate C remains open and #868 remains Draft.
+
 - On 2026-07-11 the PO questioned whether product intent and requirements were
   stable enough to keep driving downstream work. Phase 02 was reopened as the
   bounded `02d` product-constitution slice; no third write branch was created.
@@ -53,9 +59,9 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
 - PO Gate A is now the earliest dependency: decision lifecycle, legacy-baseline
   default and contract-first rule for high-blast changes. The recommended rules
   are recorded in `phases/02d-product-constitution-results.md`.
-- On 2026-07-11 the PO ratified all three Gate A rules. They remain non-effective
-  until the activation clause lands in its owning authority on `develop`; the
-  ruling does not authorize merging #867, #868 or a future contract PR.
+- On 2026-07-11 the PO ratified all three Gate A rules. PR #869 later landed the
+  activation clause on `develop`; that ruling is now effective and did not
+  authorize #868 or later contract merges.
 - While Gate A awaited PO response, `02e` produced a non-normative workshop
   candidate with options for workflow wedge, promise, data posture, single
   library, commercial/platform scope, Release 1 outcomes and optional features.
@@ -71,9 +77,9 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
   public and verification consumers. Independent review added live App Group
   identity paths, onboarding/export behavior, frozen-wire compatibility or
   explicit rejection, the native `UITests` plan and shared preference seams.
-- The map rejects retargeting #867 into a normative contract branch. With write
-  WIP already at 2, a contract branch waits for a separate PO merge/close action
-  on #867; #868 stays frozen implementation evidence.
+- The map rejected retargeting #867 into a normative contract branch. #867 has
+  since merged; the separate Gate B authority branch now occupies the second
+  write slot while #868 stays frozen implementation evidence.
 
 ## Phase 04d Image Integrity
 
@@ -93,15 +99,15 @@ Each slice uses the same product base and an independent neutral brief. Claude, 
 - `04a` complete: `phases/04a-results.md`; 2×P2 and 2×P3, no P0/P1
 - `04b` complete: `phases/04b-results.md`; 2×P1 and 2×P2; P1 fixes committed at
   `codex/single-library-rebaseline@b670a2c8` in Draft PR #868, not merged
-- `02d` Gate A ratified, authority integration pending:
-  `phases/02d-product-constitution-results.md`; Gate B/C product choices remain open
+- `02d` Gate A effective via #869: `phases/02d-product-constitution-results.md`;
+  Gate B B1-A through B7-A ratified on 2026-07-12, Gate C remains open
 - `02e` workshop packet/review complete: `phases/02e-po-product-workshop-candidate.md`
   and `phases/02e-product-workshop-review-results.md`; no new ledger finding
 - `02f` impact map/review complete: `phases/02f-product-intent-impact-map-candidate.md`
   and `phases/02f-product-impact-review-results.md`; no new ledger finding
 - `04d` complete: `phases/04d-results.md`; 1×P1, 1×P2 and 1×P3 new findings;
   P1 candidate fix is already in frozen Draft PR #868
-- next action: obtain separate PO merge authorization for #867, then open a small
-  Gate A/Product Constitution/Release Contract branch; no #868 merge request and
-  no `04c` regeneration yet
+- next action: validate and manually review Product Constitution v1, then obtain
+  separate merge authorization; only after it is effective start the Release 1
+  Product Contract. No #868 merge request and no `04c` regeneration yet
 - stop conditions: base drift, write WIP above 2, verified destructive P0/P1 without fix authority, or a required dynamic probe that cannot run

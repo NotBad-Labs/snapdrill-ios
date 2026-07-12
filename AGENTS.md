@@ -18,19 +18,19 @@
 
 ## 项目概览
 
-SnapDrill：一款 SwiftUI 单平台 iOS 通用效率工具。扫描、归档、整理题目与文档，完成 OCR → 分类 → 回顾 → 导出/打印；产品内核可继续为试卷/错题场景优化，但不对外呈现为儿童教育 App。
+SnapDrill：一款 SwiftUI 单平台 iOS 通用效率工具。首个切口是帮助处理结构化纸张 / PDF 的成年人，以最低摩擦形成可搜索、可整理、可打印的个人资料库；产品可继续优化试卷 / 题目工作流，但不对外呈现为儿童教育 App。
 
 - **平台**：iOS 26.0+，当前 shipping target 为 iPhone-only（`TARGETED_DEVICE_FAMILY = 1`）；iPad / 通用发行需 PO 决策与 UI dogfood 后再开启；原生 SwiftUI，Swift 6.3 strict concurrency
-- **价值链**：采集 > 管理 > 导出/打印（复习是独立附加值）
+- **价值链**：采集 > 整理 / 找回 > 导出 / 打印（Review / SmartPaper 是可选附加值）
 - **生产基线**：美国 NotBad Labs L.L.C. Team `J58U72W335` + Bundle `com.snapdrill.global`；Release Archive + Development signing 已验证，开发签名真机 Release build/install/launch 已验证，真机功能 dogfood 与 TestFlight / App Store distribution signing 待验。国内路线暂时挂起，相关资源保留可复活
-- **状态**：核心闭环约 90% 完成；零上架零用户；Pro/同步阻塞 #479（StoreKit）/ #485（CloudKit 同步）/ #486（Word 导出），均可延后
+- **状态**：零上架零用户；Release 1 免费、无广告、无 IAP。Pro / StoreKit、CloudKit、Word 与定价只是未来候选，不属于当前发布承诺
 - **架构铁律**：单向依赖向下，Core 层零外部依赖
 
 ### 意图与事实的裁决规则
 
 SnapDrill 不使用一条混合优先级同时裁决“应该做什么”和“现在实现了什么”。两类问题分别沿不同链路判断：
 
-- **规范链（产品应该是什么）**：`develop` 中当前有效的 `docs/explanations/vision.md` > 定位 / 设计原则 / 商业模型 / ADR > feature spec > 代码与测试。
+- **规范链（产品应该是什么）**：`develop` 中当前有效的 Product Constitution（`docs/explanations/vision.md`）> 当前 Release Product Contract > 产品政策 / typed decision > feature spec > 验收标准 > 代码与测试。
 - **实证链（产品现在是什么）**：当前代码、测试、构建、真机与发布实证 > 自动生成状态 > 当前说明文档 > agent 私有记忆与历史材料。
 
 代码可以证明当前实现，但不能覆盖产品规范。两条链不一致时，应记录为待修复偏差或待裁决问题，不能用现状反向改写产品目标。PO 的最新明确意图启动 shaping，但在归属权威文档合入 `develop` 前，不替换其他 lane 正在执行的有效基线。
@@ -49,7 +49,9 @@ exploration -> shaped candidate -> ratified -> effective -> superseded
 
 现有 tracked 规范在被明确 supersede 前持续有效。跨 feature、数据 / wire、公开承诺、商业或平台边界的变更，合并前必须先有上游产品或 release contract；Draft 实验可提前存在，但不得凭实现反向生成产品事实。每次合并仍需 PO 单独明确授权。
 
-私有记忆只是可丢弃缓存，不能覆盖仓库事实或产品意图。当前定位见 `docs/explanations/positioning-and-audience.md`；多 agent 协作边界、Claude planning DRI 与 Codex 本地实证挑战权见 `docs/how-to/parallel-lanes.md`。
+当前 Release 1 Product Contract 尚未建立。现有 feature spec / architecture 中的 Multi-Profile、Pro、CloudKit、Word、iPad 和五 Tab 描述属于下游漂移或实现刻画，只能作为下一阶段影响证据；不得据此新增范围、修改公开承诺或合并 #868。
+
+私有记忆只是可丢弃缓存，不能覆盖仓库事实或产品意图。Product Constitution 固定入口为 `docs/explanations/vision.md`，当前定位见 `docs/explanations/positioning-and-audience.md`；多 agent 协作边界、Claude planning DRI 与 Codex 本地实证挑战权见 `docs/how-to/parallel-lanes.md`。
 
 ## 构建命令
 
@@ -81,7 +83,7 @@ SnapDrill.app（薄壳，Composition Root）
     │   ├── FeatureCapture       拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板
     │   ├── FeatureLibrary       题库 + SmartPaper（智能组卷）+ ShareCard
     │   ├── FeatureReview        SM-2 复习
-    │   ├── FeatureDashboard     首页 + 高级统计（Pro）
+    │   ├── FeatureDashboard     首页 + 高级统计（Pro 门控，当前实现遗留）
     │   └── FeatureSettings      设置 + CSV 导入/导出 + 备份
     │
     ├── SnapDrillUI              公共 UI + 路由协议（依赖 Mantis 图片裁剪）
@@ -101,7 +103,7 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 
 - `DependencyContainer.shared` App 启动时初始化
 - Core service 全部经 `ServiceContainer` 注入（14 属性：analytics / pdfExport / appConfig / privacyConsent / notification / ocr / captureDraft / contentTagging / questionSplitting / deletionScheduler / proEntitlement / activityTracker / reviewScheduler / metricService）
-- Profile-scoped 服务走 `ProfileManager` / `RepositoryContainer`（典型例外：`ImageStorage`）
+- 当前代码的 Profile-scoped 服务走 `ProfileManager` / `RepositoryContainer`（典型例外：`ImageStorage`）；这是待重基线的实现事实，不是继续扩展 Multi-Profile 的产品依据
 - `DataExecutor` 是 actor 拥有 `ModelContainer`，`createOffMainActor()` 消除 MainActor + XPC 死锁（#599）
 - 静态 facade 显式豁免清单：`TelemetryGate` / `ZIPArchiver` / `ImageStorage` / `OnboardingManager` / `DependencyContainer.shared`
 
@@ -112,7 +114,7 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 | 4 个 SPM Package（Features 含 5 个 feature target） | 编译隔离 + 依赖方向强制 + 模块独立测试 |
 | SwiftData 而非 Core Data | iOS 26+ 原生 Swift 集成 |
 | `defaultIsolation(MainActor)` | xcconfig 全局 + `-default-isolation MainActor`，减少并发标注噪音 |
-| Multi-Profile Vault 模式 | 每个 Profile 独立 ModelContainer + 图片目录 + per-profile UserDefaults |
+| Multi-Profile Vault（当前实现偏差） | 当前代码仍为每 Profile 独立容器；Product Constitution 已选单一资料库，候选替换 #868 待 contract 后重审 |
 | Soft Delete + Undo | `DeletionScheduler` 管理 5 秒撤销窗口 |
 | 零后端行为采集 | Firebase 已删除；生产注入 NoOp analytics，设备诊断使用端侧 MetricKit |
 
@@ -172,8 +174,8 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 
 - **Vision OCR**：擅长印刷体；**无独立中文手写识别模型**；`RecognizeDocumentsRequest` 适合整页文档，不适合裁剪后单题
 - **Foundation Models**（iOS 26+）：擅长分类 / 摘要；**不擅长数学推理**；`contentTagging` 自动标签可用，**解题不可**
-- **CloudKit**：公司账号已 active；同步仍需配置 CloudKit Container，功能 = #485（当前 `cloudKitDatabase: .none` 禁用）；SwiftData **不原生支持公共数据库**，仅私有同步；冲突 last-write-wins
-- **StoreKit**：需 Apple Developer + ASC 配置产品（#479；#486 Word 导出为其下游 Pro 功能）；Simulator 沙箱有限支持
+- **CloudKit**：当前 `cloudKitDatabase: .none`，Release 1 不含同步。未来 Apple 私有同步须重新通过 Product / Data / Privacy contract；技术上 SwiftData 不原生支持公共数据库
+- **StoreKit**：Release 1 无 IAP，#479 / #486 不属于当前发布范围。未来重入仍需 Apple Developer、ASC 产品、购买 / 恢复 / 取消与隐私验证
 - **不存在的 API**：Math Notes（Calculator 私有）/ Smart Script（屏幕手写非照片 OCR）/ 原生公式识别 LaTeX/MathML（需第三方）
 
 ## 隐私与合规
@@ -184,11 +186,11 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 - 图片 EXIF GPS/位置信息必须经 `ImageStorage` 剥离
 - CSV 导出含 `=+-@` 前缀防注入；JSON 含 schema 版本
 
-## 区域发布约束（双账号双地区，勿误改）
+## 区域资源约束（双区域路线已挂起，资源勿误删）
 
-SnapDrill = 一个产品 + 两区域发行版（非两独立产品）。完整决策见 `docs/decisions/ADR-003-dual-region-release.md`。
+SnapDrill 曾规划“一个产品 + 两区域发行版”；该路线已挂起，历史与可逆资源见 `docs/decisions/ADR-003-dual-region-release.md`。
 
-> **🔁 PIVOT 2026-06-09（PO 决策）**：**暂时挂起（非删除）国内大陆路线**，改用**美国公司账号 NotBad Labs L.L.C.（Team `J58U72W335`，Organization）做全球版生产**。工程已切到 `com.snapdrill.global`；已验证命令行 Release Archive + Development signing 与开发签名真机 Release build/install/launch，真机功能 dogfood 与 TestFlight / App Store distribution signing 待验。下方"国内 first"脉络保留，但**当前生产基线 = 美国全球版**。国内个人账号/标识符保留可复活（续费 deadline 2027-01，见运营待决）。
+> **当前产品政策（B7-A，2026-07-12）**：Release 1 由美国 NotBad Labs L.L.C. 发布一个 iPhone-only 全球版，产品语言为英文与简体中文。iPad 与中国大陆专项发行已退出当前范围，只有新的明确立项才能重入；下方资源保留仅代表可逆资产，不是发布承诺。
 
 - **当前生产签名**：Team `J58U72W335`（美国 NotBad Labs L.L.C.）+ Bundle `com.snapdrill.global` + App Group `group.com.snapdrill.global`；Automatic Signing；已删未用的 iCloud/CloudKit entitlement。Release archive 与真机安装使用 Apple Development identity 与 `iOS Team Provisioning Profile: com.snapdrill.global` 成功；本机 keychain 尚无 Apple Distribution identity；App Store Connect 本地 export 当前缺 `com.snapdrill.global` / `com.snapdrill.global.share` distribution profiles。
 - **挂起的国内资源**（保留勿删、可复活）：Bundle `com.snapdrill.app` / iCloud `iCloud.com.snapdrill.app` / App Group `group.com.snapdrill.app` / 个人 Team `W5A8THDKW8`。
@@ -227,7 +229,7 @@ PO 裁决采用 thin pointer：裁决写入其权威文档（vision / positionin
 |---|---|
 | `docs/features/active\|backlog/feat-*.md` | 功能规格（一元化，每功能一文件）；backlog 为 `mode: lightweight` |
 | `docs/features/template.md` | 新建 feature spec 模板 |
-| `docs/explanations/` | 为什么：vision 愿景 / design-principles 设计原则 / business-model 商业化 / architecture 架构 / assumptions 待验证假设 / competitive-analysis 竞品 / user-journeys 旅程 / privacy-compliance 隐私合规 |
+| `docs/explanations/` | 为什么：vision = Product Constitution / design-principles 设计原则 / business-model 商业政策 / architecture 架构 / assumptions 待验证假设 / competitive-analysis 竞品 / user-journeys 旅程 / privacy-compliance 隐私合规 |
 | `docs/reference/` | 查阅：feature-status 功能状态(SSOT·自动生成) / intent-traceability 意图追溯索引(自动生成) / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO |
 | `docs/how-to/` | 操作：definition-of-ready 开工入口 / shape-up 工作方式 / parallel-lanes 协作边界 / release-and-ci 发布与 CI |
 | `docs/decisions/` | 架构决策 ADR-001~005 |

@@ -1,6 +1,9 @@
 ---
-last_verified: 2026-06-13
+last_verified: 2026-07-12
 layer: decision
+current_status: superseded
+historical_record: true
+current_authority: docs/explanations/business-model.md
 derived_from:
   - vision.md#p3-免费层完成核心闭环
   - business-model.md
@@ -10,7 +13,9 @@ freshness:
 ---
 # ADR-001: 智能组卷与高级统计定价模型
 
-> 状态：**已决策** | 日期：2026-04-10 | 决策者：PO
+> 状态：**已被 Product Constitution v1 / Gate B6-A 取代，保留为历史记录** | 原决策日期：2026-04-10 | 取代裁决：2026-07-12 | 决策者：PO
+>
+> 本 ADR 的 Hybrid 配额、Pro 分层和转化联动不再是当前商业权威。Release 1 免费、无广告、无 IAP，未来 Pro / 定价只是候选假设；现行政策见 [`business-model.md`](../explanations/business-model.md)。当前代码中的 SmartPaper 配额只是实现事实，其 Release 1 可见性与处理方式等待 Release 1 Product Contract，不得从本历史 ADR 反推。
 
 ## 背景
 
