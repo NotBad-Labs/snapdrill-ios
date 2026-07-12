@@ -1,224 +1,221 @@
-# Phase 02e Candidate: PO Product Constitution and Release 1 Workshop
+# 阶段 02e 候选：PO 产品宪章（Product Constitution）与 Release 1 工作坊
 
-> **NON-NORMATIVE SHAPING INPUT** — 本文件只列证据、选项、推荐与影响。
-> 它不是 Product Constitution、Release Contract、roadmap 或 PO 决策。
+> **非规范性塑形输入（NON-NORMATIVE SHAPING INPUT）** — 本文件只列证据、选项、推荐与影响。
+> 它不是 Product Constitution、Release Contract、路线图（roadmap）或 PO 决策。
 > 任何选项只有经过 02d Gate A 生命周期、PO 明确批准并合入权威文档后才生效。
-> **Recommended 不等于默认选中**；工作坊开始时所有产品选项均为空，推荐只表示当前判断及其置信度。
+> **“推荐”不等于默认选中**；工作坊开始时所有产品选项均为空，推荐只表示当前判断及其置信度。
 
-## Purpose
+## 目的
 
 把“产品应该是什么”从散落的聊天、功能现状和历史 ADR 中抽离出来，让 PO 用有限选择稳定 Product Constitution v1 与 Release 1。目标不是保留现有实现，也不是为了整洁删除功能；每个推荐都必须同时说明用户价值、当前证据、可逆性和下游成本。
 
-## Current Evidence Matrix
+## 当前证据矩阵
 
-| Question | Current normative claim | Current empirical state | What remains undecided |
+| 问题 | 当前规范主张 | 当前实证状态 | 尚未决定 |
 |---|---|---|---|
-| public posture | general-audience adult productivity tool; exam/question/training workflows may remain sharp | UI/L10n 已大体转向“资料 / 资料库”，旧 ASO/部分 docs 仍 education-first | public posture can remain broad, but the first product wedge is unnamed |
-| core value | capture -> manage -> export/print; Review is optional | app has five equal tabs: Dashboard, Library, Capture, Review, Settings | whether optional Review/Dashboard deserve primary navigation and Release 1 scope |
-| capture | lowest friction; image is truth, OCR is assistive | camera, Photos, document scan, PDF, manual, clipboard/share paths exist | which outcomes are Must versus merely implemented channels |
-| management | searchable/editable personal library | search, filtering, taxonomy, edit, batch actions and undo exist | whether dynamic taxonomy complexity is core or optional |
-| output | export/print is a first-class endpoint | PDF/print/share, JSON/CSV and backup are present | which formats are user-value Must versus data-portability support |
-| data | local-first, no account, user owns data | SwiftData/files local; no CloudKit/Firebase; backup/restore exists | local-first forever versus optional future Apple-private sync |
-| library identity | `develop@56e9d27e` 仍把 Multi-Profile 视为 Must；PO 已明确裁决退休，该裁决为 ratified candidate，尚未按 Gate A 成为 effective baseline | Draft PR #868 replaces it across 126 files; not merged (count reproduced in `02d-product-constitution-results.md`) | route the ratified ruling into its owning authority, then separate durable product behavior from implementation strategy |
-| business | free core; future Pro may add sync/intelligence/output | StoreKit/CloudKit/Word unavailable; SmartPaper free quota still promotes future Pro | hide unavailable Pro, show placeholders, or finish monetization before ship |
-| platform/region | US-company global production; current target iPhone-only | `com.snapdrill.global`, iPhone family, English + Simplified Chinese resources | Release 1 languages; iPad/China re-entry policy |
-| quality/success | no crash/data loss, privacy/AX, low capture friction | strong local gates; no external users and no backend event stream | outcome acceptance and post-TestFlight learning signals |
+| 对外定位 | 面向通用受众的成人生产力工具；仍可深耕考试 / 题目 / 培训工作流 | UI/L10n 已大体转向“资料 / 资料库”，旧 ASO / 部分文档仍以教育为先 | 对外定位可以保持宽泛，但首个产品切口尚未命名 |
+| 核心价值 | 采集 -> 管理 -> 导出/打印；Review 是可选能力 | App 有五个同级标签页：Dashboard、Library、Capture、Review、Settings | 可选的 Review/Dashboard 是否应占据主导航，以及是否属于 Release 1 范围 |
+| 采集 | 摩擦最低；图片是内容真相，OCR 只起辅助作用 | 已有相机、Photos、文档扫描、PDF、手动、剪贴板 / Share 等路径 | 哪些结果是 Must，哪些只是已经实现的渠道 |
+| 管理 | 可搜索、可编辑的个人资料库 | 已有搜索、过滤、taxonomy、编辑、批量操作和撤销 | 动态 taxonomy 的复杂度属于核心还是可选能力 |
+| 输出 | 导出 / 打印是一等终点 | 已有 PDF / 打印 / 分享、JSON/CSV 和备份 | 哪些格式是用户价值 Must，哪些只是数据可携带性支持 |
+| 数据 | local-first、无账户、数据属于用户 | SwiftData / 文件均在本地；无 CloudKit/Firebase；已有备份 / 恢复 | 永久 local-first，还是未来可选的 Apple 私有同步 |
+| 资料库身份 | `develop@56e9d27e` 仍把 Multi-Profile 视为 Must；PO 已明确裁决退休，该裁决为 ratified candidate，尚未按 Gate A 成为 effective baseline | Draft PR #868 在 126 个文件中替换该实现；尚未合并（数量复核见 `02d-product-constitution-results.md`） | 先把已批准裁决路由到归属权威，再区分耐久产品行为与实现策略 |
+| 商业 | 核心能力免费；未来 Pro 可增加同步 / 智能 / 输出 | StoreKit/CloudKit/Word 不可用；SmartPaper 免费配额仍在推广未来 Pro | 隐藏不可用 Pro、展示占位，还是上架前完成商业化 |
+| 平台 / 区域 | 美国公司全球发行；当前目标设备为 iPhone-only | `com.snapdrill.global`、iPhone device family、英文 + 简体中文资源 | Release 1 语言范围；iPad / 中国路线的重新进入政策 |
+| 质量 / 成功 | 无崩溃与数据丢失、隐私与 AX、低采集摩擦 | 本地门禁强；无外部用户，也无后端事件流 | 结果级验收，以及 TestFlight 后的学习信号 |
 
-## Gate A — Governance
+## Gate A — 治理
 
-**PO status (2026-07-11): items 1-3 below are ratified as a package but remain
-non-effective until their owning authority is merged. Item 0 is a separately
-ratified product/data candidate and must land through the same lifecycle. No
-merge authorization is implied.**
+**PO 状态（2026-07-11）：下列第 1-3 项已作为一个整体批准，但在归属权威合并前仍未生效。第 0 项是单独批准的产品 / 数据候选，也必须经过同一生命周期落地。本裁决不隐含合并授权。**
 
-Ratified package (not effective until the owning authority is merged):
+已批准事项（归属权威合并前不生效）：
 
-0. Separately ratified product/data candidate: retire Multi-Profile with no data migration/old-backup compatibility. It remains non-effective despite #868 implementation evidence.
-1. `exploration -> shaped candidate -> ratified -> effective -> superseded`.
-2. Current tracked norms remain effective until explicitly superseded.
-3. Cross-feature, data-wire, public, business or platform changes require an upstream contract before merge; Draft exploration may happen earlier.
+0. 单独批准的产品 / 数据候选：退休 Multi-Profile，不迁移数据、不兼容旧备份。即使 #868 已有实现证据，该裁决仍未生效。
+1. `exploration -> shaped candidate -> ratified -> effective -> superseded`。
+2. 当前 tracked 规范持续有效，直到被明确 supersede。
+3. 跨 feature、数据 wire、公开承诺、商业或平台边界的变更，合并前必须先有上游 contract；Draft 探索可以更早开始。
 
-Alternative: chat becomes binding immediately. Rejected by the audit because a fresh clone cannot reconstruct it and parallel lanes can diverge without violating any tracked rule.
+替代方案：聊天内容立即具有约束力。审计否决该方案，因为 fresh clone 无法重建聊天内容，而且并行 lane 可以在不违反任何 tracked 规则的情况下发生分歧。
 
-## Gate B — Product Constitution Options
+## Gate B — Product Constitution 选项
 
-### B1. First workflow wedge and job-to-be-done
+### B1. 首个工作流切口与待完成任务（job-to-be-done）
 
-| Option | Definition | Consequence |
+| 选项 | 定义 | 影响 |
 |---|---|---|
-| **B1-A (recommended shaping hypothesis, medium confidence)** | Adults handling structured paper/PDF material that needs capture, organization, later retrieval and print; exam, certification, training and adult-managed family material are examples | Gives the workflow a sharp shape without claiming one unproven demographic; current structured capture/print strengths remain relevant |
-| B1-B | Adults preparing for exams, certifications or structured training | Sharpest historical fit, but no external demand evidence yet; may overfit existing answer/SM-2 code |
-| B1-C | Any adult organizing any personal paper or document | Broad addressable use, but competes directly with Notes/Files/scanner apps and gives weak defaults/ASO direction |
-| B1-D | Adults organizing family study material | Valid adult-owned workflow, but should not revive multi-child accounts/Profile architecture or child-directed marketing |
+| **B1-A（推荐的塑形假设，中等置信度）** | 处理结构化纸张 / PDF 材料的成年人，需要完成采集、整理、稍后找回和打印；考试、职业认证、培训以及成年人管理的家庭资料都是示例 | 在不声称某个未经验证的人群的前提下，让工作流具备清晰形状；现有结构化采集 / 打印优势仍然相关 |
+| B1-B | 准备考试、职业认证或结构化培训的成年人 | 与历史产品最贴合，但尚无外部需求证据；可能过度拟合现有答案 / SM-2 代码 |
+| B1-C | 整理任何个人纸张或文档的所有成年人 | 可触达范围宽，但会直接与 Notes / Files / 扫描工具竞争，也难以形成有力的默认设置与 ASO 方向 |
+| B1-D | 整理家庭学习资料的成年人 | 是合理的成年人主导工作流，但不应重新引入多孩账户 / Profile 架构，也不应采用低龄受众导向营销 |
 
-Recommendation rationale: “general audience” is an audience/compliance posture, not a useful first workflow. B1-A is a TestFlight learning hypothesis, not a proven market segment or permanent constitutional demographic. External acquisition and willingness-to-pay evidence: none yet. It is cheap to revise at the metadata/onboarding/example layer if the durable value promise remains content-neutral.
+推荐理由：“通用受众”是一种受众 / 合规定位，不是有效的首个工作流。B1-A 是 TestFlight 学习假设，不是已经证实的市场细分或永久宪法人群。目前没有外部获客或付费意愿证据。只要耐久价值承诺保持内容中立，就可以低成本调整元数据（metadata）、引导页（onboarding）和示例层。
 
-### B2. Durable value promise
+### B2. 耐久价值承诺
 
-| Option | Promise |
+| 选项 | 承诺 |
 |---|---|
-| **B2-A (recommended)** | Turn paper, photos and PDFs into a searchable, organized and printable personal material library with minimal friction |
-| B2-B | Scan, archive and organize any question or document | Current wording; durable but broad and less outcome-oriented |
-| B2-C | Build a personal question bank and review system | Strongly education-first and makes Review core, contradicting current positioning |
+| **B2-A（推荐）** | 以最低摩擦，把纸张、照片和 PDF 变成可搜索、可整理、可打印的个人资料库 |
+| B2-B | 扫描、归档并整理任何题目或文档 | 当前表述；耐久但较宽泛，结果导向较弱 |
+| B2-C | 建立个人题库与回顾系统 | 强烈偏向教育，并把 Review 变成核心，与当前定位冲突 |
 
-### B3. Core value chain
+### B3. 核心价值链
 
-| Option | Chain | Treatment of Review / SmartPaper |
+| 选项 | 价值链 | Review / SmartPaper 的处理 |
 |---|---|---|
-| **B3-A (recommended)** | capture -> organize/retrieve -> export/print | optional reuse tools; they must not occupy or complicate the main path |
-| B3-B | capture -> organize -> review -> improve | Review becomes core and needs equal acceptance/investment |
-| B3-C | scan -> file/archive | simpler scanner product; discards differentiated print/structured workflow |
+| **B3-A（推荐）** | 采集 -> 整理 / 找回 -> 导出 / 打印 | 可选的复用工具；不得占据或复杂化主路径 |
+| B3-B | 采集 -> 整理 -> 回顾 -> 提升 | Review 成为核心，需要同等验收与投入 |
+| B3-C | 扫描 -> 归档 | 更简单的扫描工具；放弃有差异化的打印 / 结构化工作流 |
 
-### B4. Data and identity posture
+### B4. 数据与身份定位
 
-| Option | Definition | Consequence |
+| 选项 | 定义 | 影响 |
 |---|---|---|
-| **B4-A (recommended)** | local-first, no SnapDrill account, one library; manual portable backup is permanent; optional future Apple-private sync remains a separate hypothesis | Preserves privacy/differentiation without promising CloudKit or Pro architecture now |
-| B4-B | strictly local-only forever | Simplest privacy posture; permanently gives up multi-device value |
-| B4-C | sync-first with account/cloud as eventual core | Changes privacy, business, architecture and release positioning; requires new product evidence |
+| **B4-A（推荐）** | local-first、无 SnapDrill 账户、一个资料库；永久提供手动可携带备份；未来可选的 Apple 私有同步仍是独立假设 | 在当前不承诺 CloudKit 或 Pro 架构的前提下，保留隐私与差异化 |
+| B4-B | 永久严格 local-only | 隐私定位最简单；永久放弃多设备价值 |
+| B4-C | 以同步为先，账户 / 云最终成为核心 | 改变隐私、商业、架构和发布定位；需要新的产品证据 |
 
-### B5. Single-library product behavior
+### B5. 单资料库产品行为
 
-| Option | Definition | Consequence |
+| 选项 | 定义 | 影响 |
 |---|---|---|
-| **B5-A (recommended shaping hypothesis, medium confidence)** | users see one library; no workspace/Profile model is planned until external evidence earns a new product decision | Removes unvalidated user-facing complexity; does not claim multiple workspaces can never return |
-| B5-B | users see one library in Release 1, but a future workspace/Profile model remains an explicit roadmap item | Preserves a product promise with no demand evidence and keeps downstream architecture uncertain |
-| B5-C | retain visible Multi-Profile now | Retains current `develop` behavior but conflicts with the ratified, non-effective PO ruling and adds cross-cutting UI/data burden |
-| B5-D | ship one visible library while hiding/disabling the existing Multi-Profile code path | Maximizes short-term technical reversibility but retains speculative state, backup and failure complexity |
+| **B5-A（推荐的塑形假设，中等置信度）** | 用户只看到一个资料库；除非外部证据支持新的产品决策，否则不规划工作区（workspace）/ Profile 模型 | 移除未经验证的用户可见复杂度；但不声称多个工作区永远不能回归 |
+| B5-B | Release 1 中用户只看到一个资料库，但未来工作区 / Profile 模型仍是明确路线图项 | 保留一个没有需求证据的产品承诺，并让下游架构持续不确定 |
+| B5-C | 现在保留可见的 Multi-Profile | 保留当前 `develop` 行为，但与已批准且尚未生效的 PO 裁决冲突，并增加跨 UI / 数据负担 |
+| B5-D | 发布一个可见资料库，同时隐藏 / 禁用现有 Multi-Profile 代码路径 | 短期技术可逆性最高，但保留推测性状态、备份和失败复杂度 |
 
-The PO should decide product behavior, not whether a particular `ProfileManager` abstraction survives. After B5 is ratified, engineering owns the simplest implementation consistent with the chosen reversibility and data contract. #868's existing work is impact evidence, not product justification. Any future evidence-backed PDR may supersede B5 through Gate A.
+PO 应决定产品行为，而不是某个 `ProfileManager` 抽象是否保留。B5 获得批准后，工程侧负责选择符合所选可逆性与数据 contract 的最简单实现。#868 的现有工作是影响证据，不是产品理由。未来由证据支持的 PDR 可以通过 Gate A supersede B5。
 
-### B6. Commercial posture
+### B6. 商业定位
 
-| Option | Definition | Consequence |
+| 选项 | 定义 | 影响 |
 |---|---|---|
-| **B6-A (recommended)** | Release 1 is free, no ads/IAP; future Pro/CloudKit/Word/pricing remain hypotheses; unavailable purchase surfaces are hidden | Product makes no promise it cannot fulfill and gathers core-value evidence first |
-| B6-B | Release 1 free but visibly advertises coming Pro capabilities | Tests interest weakly but adds unfinished-product signals and public commitments |
-| B6-C | finish StoreKit/CloudKit before Release 1 | Delays core validation and expands privacy/release scope without users |
+| **B6-A（推荐）** | Release 1 免费、无广告 / IAP；未来 Pro/CloudKit/Word/定价仍是候选假设；隐藏不可用的购买界面 | 产品不承诺当前无法兑现的能力，并先收集核心价值证据 |
+| B6-B | Release 1 免费，但明显宣传即将推出的 Pro 能力 | 可以较弱地测试兴趣，但会增加半成品信号和公开承诺 |
+| B6-C | Release 1 前完成 StoreKit/CloudKit | 在没有用户的情况下延迟核心验证，并扩大隐私与发布范围 |
 
-Current Pro-surface inventory that B6 must classify: SmartPaper quota and Pro toast; Dashboard “more insights later” placeholder; App Store metadata price/IAP claim; settings/library future-feature copy; Pro-tier backlog rows. Hiding Pro is a bounded product policy but not a one-string edit.
+B6 必须分类的当前 Pro 界面清单：SmartPaper 配额与 Pro toast；Dashboard“稍后提供更多洞察”占位；App Store 元数据中的价格 / IAP 主张；Settings / Library 的未来功能文案；Pro 层 backlog 行。隐藏 Pro 是有界产品政策，但不是单字符串修改。
 
-### B7. Platform and region
+### B7. 平台与区域
 
-| Option | Definition | Consequence |
+| 选项 | 定义 | 影响 |
 |---|---|---|
-| **B7-A (recommended)** | Release 1: iPhone-only, NotBad Labs US global build; English and Simplified Chinese product UI; iPad and China-specific release require explicit re-entry decisions | Matches live production facts and existing localization investment |
-| B7-B | add iPad before Release 1 | Requires UI dogfood, screenshots, NFR and release work before core validation |
-| B7-C | revive China-specific build before Release 1 | Reopens account, metadata, privacy, signing and regional maintenance scope |
+| **B7-A（推荐）** | Release 1：iPhone-only，由 NotBad Labs 美国公司发布全球版；产品 UI 为英文和简体中文；iPad 与中国特定发行必须经过明确的重新进入决策 | 符合当前生产事实与现有本地化投入 |
+| B7-B | Release 1 前增加 iPad | 核心验证前需要 UI dogfood、截图、NFR 和发布工作 |
+| B7-C | Release 1 前恢复中国特定构建 | 重新打开账户、元数据、隐私、签名和区域维护范围 |
 
-## Gate C — Release 1 Options
+## Gate C — Release 1 选项
 
-### C1. Target artifact
+### C1. 目标产物
 
-| Option | Definition | Recommendation |
+| 选项 | 定义 | 推荐意见 |
 |---|---|---|
-| **C1-A** | Internal TestFlight build for PO dogfood, followed by a separate public go/no-go | **Recommended**: creates a real release artifact without prematurely claiming market readiness |
-| C1-B | Public App Store release immediately after rebaseline | Requires metadata/legal/screenshots/support and full external-user compatibility now |
-| C1-C | No ship; repository rebaseline only | Produces cleaner internals but no product evidence; should be time-bounded |
+| **C1-A** | 先发布供 PO 内部试用（dogfood）的 TestFlight 构建，再单独进行公开发布 go/no-go | **推荐**：形成真实发布产物，但不提前声称已具备市场发布条件 |
+| C1-B | rebaseline 后立即公开发布到 App Store | 现在就需要元数据、法律文本、截图、支持渠道和完整的外部用户兼容性 |
+| C1-C | 不发布；只做仓库 rebaseline | 内部更整洁，但不会产生产品证据；应设定时间边界 |
 
-### C2. Must outcomes, not implementation inventory
+### C2. Must 结果，而非实现清单
 
-Recommended Release 1 Must outcomes:
+推荐的 Release 1 Must 结果：
 
-1. A new user starts without registration or identity setup.
-2. The user captures/imports a real item, retains the original image truth and can save even when OCR fails or is inaccurate.
-3. The user can find, inspect, edit and delete/undo saved material in one library.
-4. The user can turn selected material into a usable PDF and print/share/save it.
-5. Cancelled capture/import/export does not create partial data; an interrupted unsaved capture can be recovered or explicitly discarded.
-6. Permission denial offers a usable alternate input path instead of a dead end.
-7. The user can create and restore a complete portable backup without silent overwrite/loss or traversal/extraction risk; failure leaves the prior library recoverable and visible.
-8. The product clearly explains local-storage/uninstall loss and does not upload user content unexpectedly.
-9. A returning user whose local store cannot open reaches an understandable recovery choice and can restore a backup or continue with an explicitly empty library without a blank/dead-end screen.
-10. All Must journeys remain usable with VoiceOver and supported Dynamic Type; public privacy claims match the build.
+1. 新用户无需注册或设置身份即可开始使用。
+2. 用户能采集 / 导入真实资料，保留原始图片真相；即使 OCR 失败或不准确也能保存。
+3. 用户能在一个资料库中找到、查看、编辑和删除 / 撤销删除已保存资料。
+4. 用户能把选定资料生成可用 PDF，并打印 / 分享 / 保存。
+5. 取消采集 / 导入 / 导出不会产生部分数据；被中断且尚未保存的采集可恢复或明确丢弃。
+6. 权限被拒绝时提供可用的替代输入路径，而不是进入死路。
+7. 用户能创建并恢复完整的可携带备份，不发生静默覆盖 / 丢失或路径穿越 / 解压攻击；失败后原资料库仍可恢复且可见。
+8. 产品清楚说明本地存储 / 卸载丢失风险，且不会意外上传用户内容。
+9. 再次打开 App 的用户遇到本地 store 无法打开时，会看到可理解的恢复选择；可以恢复备份，或在明确知情下以空资料库继续，而不是进入空白页 / 死路。
+10. 所有 Must 旅程在 VoiceOver 与受支持 Dynamic Type 下均可使用；公开隐私声明与实际构建一致。
 
-Channels such as clipboard, Share Extension, JSON/CSV, every taxonomy field and every setting may ship, but are not automatically Must merely because they are implemented.
+剪贴板、Share Extension、JSON/CSV、每个 taxonomy 字段和每项设置等渠道可以随版本交付，但不能仅因已经实现就自动成为 Must。
 
 ### C3. Dashboard
 
-| Option | Treatment | Impact |
+| 选项 | 处理方式 | 影响 |
 |---|---|---|
-| C3-A (lowest-churn experiment) | keep as current home, but judge it only by navigation/orientation value; do not make statistics a core promise | Lets dogfood test whether it helps or delays capture, but risks accidental primary-product commitment |
-| C3-B | Library becomes home; Dashboard is removed/demoted | Sharper core path, but requires navigation/UI rework before evidence |
-| C3-C | Dashboard/analytics become core | Requires measurable insight value and ongoing investment |
-| C3-D | keep Dashboard module, but default launch to Capture or Library during dogfood | Preserves evidence gathering while testing whether users intentionally seek Dashboard |
+| C3-A（最低改动实验） | 保留为当前首页，但只按导航 / 方向指引价值判断；不把统计作为核心承诺 | 允许内部试用测试它是帮助用户还是延迟采集，但存在意外形成首要产品承诺的风险 |
+| C3-B | Library 成为首页；移除或降级 Dashboard | 核心路径更清晰，但证据出现前就需要导航 / UI 重做 |
+| C3-C | Dashboard / analytics 成为核心 | 需要可衡量的洞察价值和持续投入 |
+| C3-D | 保留 Dashboard 模块，但内部试用默认启动到 Capture 或 Library | 在保留证据收集能力的同时，测试用户是否会主动寻找 Dashboard |
 
-C3-A/D are valid only with the internal C1-A artifact. After the first structured TestFlight feedback packet, PO re-decides Dashboard using activation/core-utility evidence; a public C1-B release would turn the chosen home/navigation into a soft external commitment.
+C3-A/D 仅适用于内部 C1-A 产物。收到第一份结构化 TestFlight 反馈包后，PO 根据激活（activation）/ 核心效用（core utility）证据重新决定 Dashboard；公开的 C1-B 发布会让所选首页 / 导航成为软性外部承诺。
 
 ### C4. Review
 
-| Option | Treatment | Impact |
+| 选项 | 处理方式 | 影响 |
 |---|---|---|
-| C4-A (lowest-churn experiment) | ship existing Review as an optional capability but park new investment; explicitly test whether an equal top-level tab overstates its importance | Preserves working value while collecting evidence, but equal chrome risks accidental core-product commitment |
-| C4-B | demote Review from primary navigation before Release 1 | Stronger alignment with the core chain; user-flow and screenshot change |
-| C4-C | remove Review from Release 1 | Maximum simplification, but deletes a substantial working feature without usage evidence |
-| C4-D | keep Review module for dogfood behind a secondary Library/Dashboard entry | Separates optional-value testing from an equal primary-tab promise |
+| C4-A（最低改动实验） | 把现有 Review 作为可选能力交付，但暂停新增投入；明确测试同级顶层标签页是否夸大了它的重要性 | 在收集证据时保留已有价值，但同级界面层级（chrome）存在意外形成核心产品承诺的风险 |
+| C4-B | Release 1 前把 Review 从主导航降级 | 更符合核心价值链，但会改变用户流程和截图 |
+| C4-C | 从 Release 1 移除 Review | 最大程度简化，但在没有使用证据时删除一个规模可观且可用的既有功能 |
+| C4-D | 内部试用中保留 Review 模块，但通过 Library / Dashboard 的次级入口进入 | 把可选价值测试与同级主标签页承诺分离 |
 
-An equal primary tab in an internal dogfood build is an experiment, not a Product Constitution commitment. After the first structured feedback packet, PO re-decides Review using optional-value evidence. Keeping that IA for public Release 1 requires intentional-use evidence.
+内部试用构建中的同级主标签页是实验，不是 Product Constitution 承诺。收到第一份结构化反馈包后，PO 根据可选价值证据重新决定 Review。若公开 Release 1 保留该 IA，需要有主动使用证据。
 
-### C5. SmartPaper and unavailable Pro
+### C5. SmartPaper 与不可用 Pro
 
-| Option | Treatment | Impact |
+| 选项 | 处理方式 | 影响 |
 |---|---|---|
-| C5-A | keep the existing basic generator as an unlimited free secondary tool for Release 1; remove quota/Pro upsell until a purchasable tier exists | No artificial dead end, but creates a strong free-use precedent and requires ADR-001 to be explicitly suspended or superseded |
-| **C5-B (recommended shaping hypothesis, medium confidence)** | hide SmartPaper for Release 1 and park it | Simplest coherent release and strongest future pricing optionality; loses dogfood evidence for differentiated print |
-| C5-C | keep 3/month quota and “Pro coming soon” | Preserves pre-07-10 decision but blocks users without offering an upgrade; not recommended |
-| C5-D | implement StoreKit/Pro now | Converts a release-scope question into a major commercial/privacy program |
-| C5-E | expose unlimited basic SmartPaper only in the internal dogfood build, with no Pro copy; decide public treatment from evidence | Preserves dogfood learning without silently making a public free-tier promise; still requires ADR-001 status to be explicit |
+| C5-A | Release 1 把现有基础生成器作为不限次数的免费次级工具；在可购买层级存在前移除配额 / Pro 升级引导（upsell） | 不产生人为死路，但会形成强烈的免费使用先例，并要求明确 suspend 或 supersede ADR-001 |
+| **C5-B（推荐的塑形假设，中等置信度）** | Release 1 隐藏并暂停 SmartPaper | 形成最简单的一致版本，并最大程度保留未来定价主动权；但失去差异化打印的 dogfood 证据 |
+| C5-C | 保留每月 3 次配额和“Pro 即将推出” | 保留 07-10 前决策，但会在没有升级路径时阻断用户；不推荐 |
+| C5-D | 现在实现 StoreKit/Pro | 把发布范围问题转换为大型商业 / 隐私项目 |
+| C5-E | 仅在内部试用构建中开放不限次数的基础 SmartPaper，不显示 Pro 文案；根据证据决定公开版本处理方式 | 保留内部试用学习机会，但不会悄然做出公开免费层承诺；仍需明确 ADR-001 状态 |
 
-Any unlimited-free option must say whether ADR-001 Hybrid is suspended or superseded. SmartPaper domain language (`题 / 试卷 / 组卷`) may remain only if the PO confirms that specialized workflow language still fits the Release 1 public posture.
+任何不限次数的免费选项都必须说明 ADR-001 Hybrid 是 suspend 还是 supersede。只有 PO 确认领域专用工作流语言仍符合 Release 1 对外定位后，SmartPaper 域内术语（`题 / 试卷 / 组卷`）才能保留。
 
-For C5-A/E, PO must also choose which already-implemented selector is exposed: basic random selection only, or the SM-2 urgency-based precise selector currently parked behind the Pro entitlement. This is separate from quota and cannot be inferred from “free SmartPaper.” C5-A/E supersede or suspend the tracked 07-01 quota, deduct-on-export and non-Pro-gated-entry decisions through Gate A.
+对于 C5-A/E，PO 还必须选择开放哪种已实现选择器（selector）：仅基础随机选择，还是当前放在 Pro entitlement 后的 SM-2 紧迫度精准选择器。这与配额是两个独立问题，不能从“免费 SmartPaper”推导出来。C5-A/E 需要通过 Gate A supersede 或 suspend tracked 的 07-01 配额、导出完成才扣费和入口不受 Pro 门槛限制的决策。
 
-### C6. Release 1 acceptance
+### C6. Release 1 验收
 
-Recommended outcome evidence:
+推荐的结果证据：
 
-- one clean-install and one returning-user physical-device dogfood pass;
-- deterministic automated coverage for save (including storage failure), delete/undo, export and backup/restore failure paths;
-- explicit dogfood for denied permissions, failed OCR, cancelled flows, draft recovery and failed restore without prior-data loss;
-- zero unresolved P0/P1 and explicit PO acceptance for remaining P2;
-- zero Accessibility Audit issues on all reachable Release 1 screens;
-- no truncated/blocking UI at supported Dynamic Type and the shipping iPhone viewport set;
-- release archive/install/launch plus TestFlight upload/install evidence for the exact candidate, including the main app -> App Group -> Share Extension round trip;
-- public copy, Privacy Manifest, entitlements and observed network/data flow agree.
-- the chosen tester audience has a working privacy-policy, support and feedback path;
-- unavailable Pro/coming-soon surfaces are either zero or individually accepted by PO as explicit Release 1 debt;
-- the first external-user build declares the compatibility boundary after which backup wire/data changes require explicit migration or incompatibility decisions.
+- 一次全新安装（clean install）真机试用，以及一次已有本地资料的再次启动真机试用；
+- 保存（包括存储失败）、删除 / 撤销、导出和备份 / 恢复失败路径的确定性自动化覆盖；
+- 明确试用权限拒绝、OCR 失败、取消流程、草稿恢复，以及恢复失败但既有数据不丢失；
+- 未解决 P0/P1 为零，剩余 P2 均由 PO 明确接受；
+- 所有可到达 Release 1 屏幕的 Accessibility Audit issue 为零；
+- 在受支持 Dynamic Type 和发行 iPhone viewport 集合中无截断 / 阻断 UI；
+- 针对同一候选构建的 release archive / install / launch 与 TestFlight upload / install 证据，包括主 App -> App Group -> Share Extension 往返；
+- 公开文案、Privacy Manifest、entitlements 与观察到的网络 / 数据流一致；
+- 所选测试者群体拥有可用的隐私政策、支持和反馈路径；
+- 不可用 Pro / coming-soon 界面为零，或每一项都由 PO 明确接受为 Release 1 债务；
+- 首个外部用户构建声明兼容性边界；此后 backup wire / 数据变更必须明确选择迁移或不兼容。
 
-Build success and a feature-status row are supporting evidence, not outcome acceptance.
+构建成功和 feature-status 行只是辅助证据，不等于结果验收。
 
-## Success Signals After First TestFlight
+## 首次 TestFlight 后的成功信号
 
-No backend event stream is required. Apple aggregate signals cannot prove task-level activation, retrieval or optional-feature intent. The product/research DRI must collect those through a scripted moderated dogfood session, TestFlight feedback form and short follow-up interview; participants must know what feedback they are providing.
+不需要后端事件流。Apple 聚合信号无法证明任务级激活、找回或可选功能意图。产品 / 研究 DRI 必须通过有脚本的主持式内部试用、TestFlight 反馈表和简短跟进访谈收集这些信息；参与者必须知道自己在提供什么反馈。
 
-1. **Activation**: can an unfamiliar adult complete first capture/save without help, and where do they stop?
-2. **Core utility**: can the user later retrieve the saved item and produce a usable PDF/print?
-3. **Repeat value**: does the user return to capture/manage another real item within a week?
-4. **Trust**: does backup/restore work and do users understand local-data ownership/uninstall risk?
-5. **Optional value**: do users intentionally use Review or SmartPaper after completing the core chain?
-6. **Quality**: crash/hang/launch and accessibility evidence remain within the Release Contract threshold.
+1. **Activation（激活）**：不熟悉产品的成年人能否在无人帮助下完成首次采集 / 保存，停在哪里？
+2. **Core utility（核心效用）**：用户稍后能否找回已保存资料并生成可用 PDF / 打印产物？
+3. **Repeat value（重复价值）**：用户是否会在一周内再次回来采集 / 管理另一份真实资料？
+4. **Trust（信任）**：备份 / 恢复是否有效，用户是否理解本地数据所有权与卸载风险？
+5. **Optional value（可选价值）**：完成核心价值链后，用户是否主动使用 Review 或 SmartPaper？
+6. **Quality（质量）**：崩溃 / 卡死 / 启动和 accessibility 证据是否保持在 Release Contract 阈值内？
 
-These signals test H1/H2/H3/H9. They do not promote a hypothesis to a product promise without a later PO decision. Before external dogfood, PO must accept the evidence-collection method and owner under the no-telemetry posture.
+这些信号用于检验 H1/H2/H3/H9。在后续 PO 决策前，它们不会把假设提升为产品承诺。外部试用前，PO 必须在无遥测（telemetry）定位下接受证据收集方法和负责人（owner）。
 
-## Downstream Impact Map
+## 下游影响图
 
-| Decision | First authorities to update | Main downstream surfaces |
+| 决策 | 首批需要更新的权威 | 主要下游表面 |
 |---|---|---|
-| B1/B2/B3 | Vision + positioning | onboarding, user journeys, metadata, navigation emphasis, feature intent refs |
-| B4/B5 | Vision/product policy + `feat-profile` / local-library PDR | #868, backup wire, settings, CloudKit backlog, architecture/NFR |
-| B6/C5 | business model + ADR-001 + Release Contract | SmartPaper quota/strings/tests, Settings Pro surfaces, metadata |
-| B7 | production/platform policy + Release Contract | NFR, orientations/device family, release guide, screenshots, localization |
-| C2-C5 | Release Contract + affected feature specs | top-level navigation, UI tests, AX route matrix, dogfood scripts, screenshots |
-| C6/success | Release Contract + assumptions/success-signal owner | test plan, audit gates, TestFlight feedback packet, go/no-go |
+| B1/B2/B3 | Vision + positioning | onboarding、user journeys、metadata、导航重点、feature intent refs |
+| B4/B5 | Vision / product policy + `feat-profile` / local-library PDR | #868、backup wire、settings、CloudKit backlog、architecture/NFR |
+| B6/C5 | business model + ADR-001 + Release Contract | SmartPaper 配额 / 字符串 / 测试、Settings Pro 界面、metadata |
+| B7 | production / platform policy + Release Contract | NFR、orientations / device family、release guide、截图、本地化 |
+| C2-C5 | Release Contract + 受影响的 feature specs | 顶层导航、UI tests、AX route matrix、dogfood scripts、截图 |
+| C6 / 成功信号 | Release Contract + assumptions / success-signal owner | test plan、审计门禁、TestFlight 反馈包、go/no-go |
 
-## Recommended Decision Order
+## 推荐决策顺序
 
-1. Gate A governance.
-2. B1/B2/B3 user, promise and value chain.
-3. B4/B5 data posture and single-library durability.
-4. B6/B7 commercial/platform posture.
-5. C1/C2 target and Must outcomes.
-6. C3/C4/C5 optional feature treatment.
-7. C6 acceptance and success signals.
+1. Gate A 治理。
+2. B1/B2/B3：用户、承诺与价值链。
+3. B4/B5：数据定位与单资料库持久性。
+4. B6/B7：商业 / 平台定位。
+5. C1/C2：目标与 Must 结果。
+6. C3/C4/C5：可选功能处理。
+7. C6：验收与成功信号。
 
-This order prevents a feature-level decision from defining the product upstream.
+这个顺序避免功能级决策反向定义上游产品。
