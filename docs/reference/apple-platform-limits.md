@@ -31,14 +31,14 @@ gap_evidence_required: WWDC 2026 session 笔记 + iOS 26 真机验证（Vision /
 
 ## CloudKit
 
-- 需要 **Apple 开发者账号**才能创建 CloudKit Container（阻塞 #485）
+- 创建 CloudKit Container 需要 Apple 开发者账号；当前同步只是候选，旧 #485 不构成产品授权
 - SwiftData **不原生支持 CloudKit 公共数据库**，仅支持私有数据库同步
 - `#Unique` 约束与 CloudKit 不兼容（见上方 SwiftData 段）
 - 冲突解决策略：last-write-wins（CloudKit 默认行为）
 
 ## StoreKit
 
-- 需要 **Apple 开发者账号** + App Store Connect 配置产品（阻塞 #479/#486）
+- StoreKit 需要 Apple 开发者账号与 App Store Connect 产品配置；B6-A 下当前无 IAP，旧 #479 / #486 仅作历史技术 issue
 - 沙箱测试需真机或 Xcode StoreKit Configuration 文件（Simulator 有限支持）
 - Subscription 价格变更需通过 App Store Connect 审核
 

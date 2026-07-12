@@ -1,6 +1,6 @@
 # SnapDrill
 
-**SnapDrill** 是一款通用的简洁、私有、原生效率工具：扫描、归档、整理任何题目与文档，帮助用户以最低成本完成"看到内容 → 数字化存档 → 导出打印"的闭环。（产品定位见 [positioning-and-audience.md](docs/explanations/positioning-and-audience.md)；铁律「定位≠产品」，内核仍可为试卷 / 错题场景优化。）
+**SnapDrill** 是一款简洁、私有、原生的成人效率工具：以最低摩擦，把纸张、照片和 PDF 变成可搜索、可整理、可打印的个人资料库。首个切口是处理结构化纸张 / PDF 的成年人，试卷与题目只是擅长处理的内容类型。（最高产品权威见 [Product Constitution v1](docs/explanations/vision.md)。）
 
 ## 文档
 
@@ -15,15 +15,15 @@
 | [AGENTS.md](AGENTS.md) | 智能体协作行为约束 + 架构 + 编码（CLAUDE.md 软链至此）|
 | [DocC API 文档](Packages/) | Xcode: Product > Build Documentation |
 
-## 当前状态（2026-06-21）
+## 当前状态（2026-07-12）
 
 > 当前生产与发布事实的入口。历史区域路线见 [ADR-003](docs/decisions/ADR-003-dual-region-release.md) / [ADR-004](docs/decisions/ADR-004-china-build-firebase-free.md)；现行分析与隐私策略见 [ADR-005](docs/decisions/ADR-005-analytics-privacy-strategy.md)。实现状态以当前代码、构建、签名和发布实证为准。
 
-- **阶段**（🔁 2026-06-09 pivot）：**改用美国公司账号 NotBad Labs L.L.C.（Team `J58U72W335`）做全球版生产**，工程已切 `com.snapdrill.global`（命令行 Release Archive + Development signing 已验证；开发签名真机 Release build/install/launch 已于 2026-06-21 验证；真机功能 dogfood 与 TestFlight / App Store distribution signing 待验）；**国内大陆路线暂时挂起**（资源保留可复活）。核心免费闭环约 90% build-complete；Pro / 同步为外部阻塞，非闭环本身。
-- **产品定位**（PO 2026-06-11 决策）：**通用效率工具——扫描、归档、整理任何题目与文档**（试卷 / 竞赛 / 证书 / 培训 / 票据），非儿童教育工具；`general-audience` 是产品定位与设计目标，不是对具体司法结论的替代。SSOT 见 [positioning-and-audience.md](docs/explanations/positioning-and-audience.md)。
+- **阶段**：美国 NotBad Labs L.L.C.（Team `J58U72W335`）全球版，工程标识为 `com.snapdrill.global`。Release 1 为 iPhone-only、英文 + 简体中文、免费、无广告、无 IAP；iPad 与中国大陆专项发行只有新裁决后才能重入。
+- **产品定位**（PO 2026-07-12 Gate B）：通用受众的成人效率工具；当前首个切口是结构化纸张 / PDF 的采集、整理 / 找回、导出 / 打印。SSOT 见 [Product Constitution v1](docs/explanations/vision.md) 与 [positioning-and-audience.md](docs/explanations/positioning-and-audience.md)。
 - **分析 / 隐私**（ADR-005 D6=A）：**零采集 / 本地优先**——Apple ASC 聚合 + 端侧 MetricKit（#799 已合，`ServiceContainer` 14 服务），无后端、无 Firebase。
 - **发布就绪**：流程与检查项见 [release-and-ci.md](docs/how-to/release-and-ci.md)；是否可发布必须以当次代码、依赖、签名、隐私清单、构建和 App Store Connect 实证重新判定，不使用固定 RC 快照替代实时检查。
-- **决策 · Pro**：免费优先，本期**不接 StoreKit**；Pro 入口保留（待改"敬请期待"占位）。
+- **决策 · 商业**：Release 1 不接 StoreKit，所有 Pro、CloudKit、Word、价格与 IAP 只是未来候选；不可用入口必须隐藏，不保留“敬请期待”承诺。
 - **决策 · Firebase**：**已编译层彻底剔除（#803）**——删除整个 `SnapDrillInfrastructure` 包 + 切断 pbxproj 引用 + 清理 GoogleService 示例，二进制不再链接任何 Firebase SDK；生产端零采集（注入 `NoOpAnalyticsService`、ATT 已移除）。同步根治了 SwiftPM protobuf 子模块 clone 卡顿。
 
 **阻塞真相**（旧文档 issue 编号有漂移，以下以本地为准）：
@@ -31,11 +31,11 @@
 | 项 | 真相 |
 |---|---|
 | 公司 Apple 账号 | 美国 NotBad Labs L.L.C.（Team `J58U72W335`）**已 active**（pivot 后）；旧国内 #163 Organization/DUNS 路线随大陆路线挂起 |
-| StoreKit / Pro | #479 —— 延后（免费优先）|
-| CloudKit 同步 | #485 —— 已 `cloudKitDatabase: .none` 禁用，延后 |
-| Word 导出 | **#486**（旧文档误标为"Apple 账号"）—— Pro，延后 |
+| StoreKit / Pro | #479 —— 不属于 Release 1；未来重入候选 |
+| CloudKit 同步 | #485 —— 当前 `cloudKitDatabase: .none`；未来 Apple 私有同步假设 |
+| Word 导出 | #486 —— 不属于 Release 1；未来高级输出假设 |
 
-**发布路径**：美国全球版生产基线（`com.snapdrill.global`，自动签名）；DoD 门禁 = `swiftlint --strict` + `build-for-testing`(AllTests)；Archive 与开发签名真机安装已有本机实证，TestFlight / App Store 上传仍需 distribution profiles、distribution signing、export/upload 与 App Store Connect 实证。当前 shipping target 为 iPhone-only（`UIDeviceFamily = [1]`）；iPad / 通用发行需 PO 决策与 UI dogfood 后再开启。挂起的大陆发行路线仅在 PO 明确复活时重新评估。
+**发布路径**：美国全球版生产基线（`com.snapdrill.global`，自动签名）；DoD 门禁 = `swiftlint --strict` + `build-for-testing`(AllTests)。Archive 与开发签名真机安装已有本机实证，TestFlight / App Store 上传仍需当次 distribution signing、export/upload 与 App Store Connect 实证。shipping target 为 iPhone-only（`UIDeviceFamily = [1]`）；iPad 与中国大陆专项发行均须明确重入，不是默认后续步骤。
 
 ## 架构设计
 

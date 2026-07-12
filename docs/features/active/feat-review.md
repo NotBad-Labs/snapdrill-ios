@@ -5,15 +5,16 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-06-25
+last_updated: 2026-07-12
 intent_refs:
   - vision:P2
   - vision:P3
   - vision:P5
-  - ADR-001
 ---
 
 # Feature: 回顾（SM-2 间隔调度）
+
+> **产品重基线（2026-07-12）**：frontmatter 与下文记录当前实现，不代表 Release 1 范围。Product Constitution v1 将回顾定义为不得抢占核心链路的可选附加值；其可见性、入口和结果级验收等待 Gate C / Release 1 Product Contract。下文 Pro / 高级统计 / SmartPaper 分层只作历史 / 规范偏差追溯，不得驱动新工作。
 
 > 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
@@ -26,14 +27,14 @@ intent_refs:
 
 ## 2. 需求规则 (What)
 - **SM-2 间隔回顾**：翻卡 + 滑动评估（有印象 / 没印象）。
-- **Dashboard 回顾字段**（基础统计免费；口径由 Review 定义、Dashboard 仅消费）：
+- **Dashboard 回顾字段**（当前实现口径；Dashboard 是否进入 Release 1 等待 Gate C）：
   - 资料总数；**待回顾数 = `ArchiveItemModel.nextReviewAt ≤ now` 且资料未软删**；**已回顾数 = 至少 1 次 SM-2 评估**；今日新增；各分类分布。
-  - 时间序列 / 高级统计为 Pro，见 `../backlog/feat-advanced-stats.md`。
+  - 时间序列 / 高级统计属于未获当前范围授权的候选，见 `../backlog/feat-advanced-stats.md`。
 - **复习卡片外观设置**：正/反面字号独立、对齐三选项（默认左对齐）、实时预览。
 - **提醒**：默认不推送通知；用户可在设置开启频率（选择权交用户）。
-- **边界 / 不做**：不做打卡、连续天数、成就弹窗；回顾入口在信息架构中不得压过采集与题库。
+- **边界 / 不做**：不做打卡、连续天数、成就弹窗；回顾入口在信息架构中不得压过采集与资料库。
 - **前置依赖**：无。Review 是**被依赖方**——`feat-smartpaper`、`feat-advanced-stats` 依赖 Review 产出的 SM-2 数据。
-- **商业分层**：基础 SM-2 回顾 = 免费附加值，不做付费墙；SM-2 数据**驱动**的智能组卷 / 高级统计是 Pro（定价见 `../../explanations/business-model.md`）。
+- **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP。回顾若被 Gate C 纳入 Release 1，不做付费墙；SmartPaper / 高级统计是否存在或商业化等待新 contract。
 
 ## 3. 技术设计 (How)
 - **模块归属**：SM-2 引擎 `SnapDrillCore`（`ReviewScheduler` / `SM2State`）；Dashboard 聚合 `SnapDrillFeatureDashboard`。
@@ -56,7 +57,7 @@ intent_refs:
   - **软删除 × 回顾队列**：资料软删除（5s undo 窗口）→ 立即从到期队列移除；undo 恢复 → 回顾状态一并恢复；过窗口永久删除 → 其 `ArchiveItemModel` 随资料级联清理。
     - **⚠ 实现现状（GAP-R1，代码债）**：当前 `ReviewViewModel.loadDataAsync()` 已在加载队列时排除 `DeletionScheduler.pendingDeletionIDs`；但 `.reviewing` 期仍忽略 `reviewDataDidChange` 通知，进行中会话不会被外部删除即时打断。需求不变（应避免已删除资料继续处理），待后续 ViewModel 契约修复。
   - 单题状态更新失败 → 阻止标记"已完成本轮"，提示重试，避免**假完成**。
-- **数据保证**：只更新当前 Profile 下被评估资料的回顾状态、不改资料主内容；每次评估只落库一次（重复手势/点击不得双重更新）；结果摘要必须与本轮成功提交的评估一致。
+- **数据保证**：只更新唯一资料库中被评估资料的回顾状态、不改资料主内容；每次评估只落库一次（重复手势 / 点击不得双重更新）；结果摘要必须与本轮成功提交的评估一致。
 - **NFR**：卡片大图用降采样加载（`loadDownsampledImage`）控制延迟与内存；因每次评估即时落库，**中途退出不丢已评估进度**（仅未评估题保留到期）。
 
 ## 5. Review flagship polish checklist (2026-06-17)
@@ -107,7 +108,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P5 成人生产力工具） | 复习是可选留存层、免费附加值；不向 Anki 靠拢、不贩卖焦虑；无障碍是基础质量 |
-| 产品政策 / ADR | `../../decisions/ADR-001-smart-paper-analytics-pricing.md`（SM-2 数据驱动的组卷/统计为下游 Pro） | 基础 SM-2 复习免费；SM-2 数据驱动功能为 Pro |
+| 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | Release 1 免费、无广告、无 IAP；数据驱动候选不构成 Pro 承诺 |
 | 待验证假设 | `../../explanations/assumptions.md` H9（可选回顾提升复用价值但不应拖向复杂记忆工具） | 复习使用率与复杂度验证 H9 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
 
@@ -117,5 +118,5 @@ intent_refs:
 - 原则：`../../explanations/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P5 成人生产力工具）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（复习作用于旅程 2 归档、旅程 5 整理后的题目；本版本未单列复习旅程）
-- 决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（Pro 分层）
+- 商业政策：`../../explanations/business-model.md`
 - 被依赖：`../backlog/feat-smartpaper.md`、`../backlog/feat-advanced-stats.md`

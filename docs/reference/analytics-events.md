@@ -4,11 +4,11 @@ layer: pattern
 ---
 # SnapDrill Analytics 事件字典
 
-> 上游依赖：`../explanations/vision.md`§成功信号。
+> 上游依赖：`../explanations/assumptions.md`。Release 1 的结果级成功证据等待 Release Product Contract。
 > 本文件是 Analytics 事件的 SSOT。新增/修改事件必须同步本文档。
 > 代码定义见 `AnalyticsEvent` 枚举（`Packages/SnapDrillCore/Sources/SnapDrillCore/Service/AnalyticsServiceProtocol.swift`）。
 
-> **当前实现状态（2026-06-13，全球生产基线）**：Firebase SDK 与 `SnapDrillInfrastructure` 已由 #803 从项目删除；生产注入 `NoOpAnalyticsService`。下列事件仅作为 Core 协议、调用点和测试使用的事件词汇，不会在生产环境被记录或发送。端侧 MetricKit 是独立的设备诊断能力，不使用本事件字典，也不上传用户内容。当前策略见 ADR-005。
+> **当前实现状态（2026-07-12，全球生产基线）**：Firebase SDK 与 `SnapDrillInfrastructure` 已由 #803 从项目删除；生产注入 `NoOpAnalyticsService`。下列事件仅作为 Core 协议、调用点和测试使用的历史事件词汇，不会在生产环境被记录或发送。端侧 MetricKit 是独立的设备诊断能力，不使用本事件字典，也不上传用户内容。当前策略见 ADR-005。
 
 ## 当前采集边界
 
@@ -17,11 +17,11 @@ layer: pattern
 - Firebase 没有“海外版恢复”计划。任何后端分析方案都必须由 PO 新决策、独立 ADR、隐私披露和代码实证重新启用。
 - App Store Connect 聚合指标与端侧 MetricKit 是当前可用信号；未来本地账本或用户自愿快照尚未实现。
 
-## 成功信号（设计校准器）
+## 候选学习信号（非 Release 验收）
 
 > 本节于 2026-05-29 自 `../explanations/vision.md` 迁移（vision 瘦身重构：vision 只留 why，本类规格归本文档）。
 
-判断「我们做对了吗」的可度量标准。
+这些信号帮助检验 assumptions，但不能替代待建立的 Release 1 Product Contract，也不能让 optional 功能自动成为 Must。
 
 > ⚠️ 以下指标仅作为设计校准方向。生产版本没有逐事件数据源；涉及本字典事件的指标在实现隐私合规的本地账本或自愿快照前不可计算。当前使用 App Store Connect、用户访谈和 TestFlight 反馈。
 
@@ -30,11 +30,11 @@ layer: pattern
 | 首次录入效率（含 onboarding） | 从 App 冷启动到首次保存成功的时间中位数 | 可用性测试；事件口径：`app_launched` → `capture_saved` | 当前无生产事件数据源 |
 | 首次录入效率（进入采集页后） | 从进入采集页到保存成功的时间中位数 | 可用性测试；事件口径：`camera_opened` → `capture_saved` | 当前无生产事件数据源 |
 | 持续录入行为 | D7 仍有录入/管理/导出行为的用户占 D0 用户比例 | App Store Connect 聚合留存；事件口径仅供未来本地统计设计 | 待发布后观察 |
-| 激活深度 | D7 留存用户的题库题目数中位数 | 定性验证（无内置 `library_count` 事件；可由 `review_item_created` 累计推导，或后续补查询事件） | 待发布后测定 |
+| 首个切口清晰度 | 不熟悉产品的成年人能否理解“结构化纸张 / PDF → 资料库 → 打印”用途 | 主持式任务、TestFlight 定性反馈；对应 H11 | 待首批用户验证 |
 | 有机增长结构 | App Store 下载来源分布（Search / Browse / Referral / 外部） | App Store Connect（非 Analytics 事件） | 待发布后观察，不做预设比例 |
-| Multi-Profile 可用性 | 跨 Profile 数据泄漏事件 = 0 | 定性验证（用户测试）+ 自动化：跨 Profile 数据泄漏作为 S0 级 Bug | 已实现，持续监控 |
+| 单资料库适配度 | 首批用户能否用分类、标签、过滤和搜索处理多主题资料 | 主持式任务、支持请求；对应 H12 | 待首批用户验证 |
 | 成果分发 | 用户能导出或分享整理成果（通过系统分享菜单，非社交功能） | 可用性测试；系统分享 sheet 不产生 Analytics 事件 | 待发布后验证 |
-| 价值链完成率 | 完成“管理 → 导出/打印”闭环 | 用户测试；`pdf_exported` 仅保留为未来本地统计事件口径 | 当前无生产事件数据源 |
+| 价值链完成率 | 完成“采集 → 整理 / 找回 → 导出 / 打印”闭环 | 用户测试；`pdf_exported` 仅保留为历史 / 未来本地统计事件口径 | 当前无生产事件数据源 |
 
 ## 事件列表
 

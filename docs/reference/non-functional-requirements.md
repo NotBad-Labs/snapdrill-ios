@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-06-12
+last_verified: 2026-07-12
 layer: pattern
 freshness:
   max_age_days: 180
@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 非功能需求（NFR）
 
-> 性能、隐私、存储、兼容性的量化标准。功能需求见 `scope-and-roadmap.md`。
+> 性能、隐私、存储、兼容性的量化标准。单功能行为见 feature spec；本次发布范围与验收见当前 Release Product Contract，`scope-and-roadmap.md` 只维护候选与重入边界。
 
 ---
 
@@ -17,19 +17,19 @@ freshness:
 |---|---|---|
 | **App 启动（冷启动）** | < 2 秒到首屏可交互 | Xcode Instruments Time Profiler |
 | **OCR 识别响应** | < 2 秒（印刷体中英文） | 拍照后到文字出现在编辑区 |
-| **题库列表加载** | < 500ms（200 题） | 从 Tab 切换到列表渲染完成 |
+| **资料库列表加载** | < 500ms（200 条） | 从 Tab 切换到列表渲染完成 |
 | **搜索响应** | < 300ms | 输入关键词到结果更新 |
-| **PDF 导出** | < 5 秒（50 题） | 点击导出到预览页显示 |
-| **快速打印** | < 3 秒（4 题） | 选中题目到系统打印面板弹出 |
-| **备份打包** | < 30 秒（500 题 + 图片） | 点击备份到 ShareSheet 弹出 |
-| **CSV 导入** | < 5 秒（1000 行）| 选择文件到题目入库完成 |
-| **滚动帧率** | 60fps（无掉帧） | 题库列表快速滚动 |
+| **PDF 导出** | < 5 秒（50 条） | 点击导出到预览页显示 |
+| **快速打印** | < 3 秒（4 条） | 选中资料到系统打印面板弹出 |
+| **备份打包** | < 30 秒（500 条 + 图片） | 点击备份到 ShareSheet 弹出 |
+| **CSV 导入** | < 5 秒（1000 行）| 选择文件到资料入库完成 |
+| **滚动帧率** | 60fps（无掉帧） | 资料库列表快速滚动 |
 
 ## 内存
 
 | 场景 | 上限 | 防护措施 |
 |---|---|---|
-| 题库浏览（200 题） | < 150MB | 图片按需加载 + 下采样 |
+| 资料库浏览（200 条） | < 150MB | 图片按需加载 + 下采样 |
 | PDF 批量导出 | < 200MB | autoreleasepool 逐页释放 |
 | 备份/恢复 | < 200MB | 流式 ZIP 写入，不全量加载 |
 | 图片裁剪 | < 300MB | Mantis 内部管理 |
@@ -64,11 +64,11 @@ freshness:
 | 维度 | 要求 |
 |---|---|
 | **最低 iOS** | 26.0 |
-| **设备** | 所有支持 iOS 26 的 iPhone 和 iPad |
-| **屏幕尺寸** | iPhone（compact）+ iPad（regular）自适应 |
-| **方向** | iPhone 竖屏；iPad 横竖屏均支持 |
-| **分屏** | iPad Slide Over + Split View 不崩溃 |
-| **国际化** | 中文（简体）+ 英文，App 内可切换 |
+| **设备** | Release 1 仅支持可运行 iOS 26 的 iPhone；iPad 需新平台裁决 |
+| **屏幕尺寸** | Release 1 iPhone viewport 集合；现有 regular-size 代码不构成 iPad 支持声明 |
+| **方向** | iPhone 竖屏；其他方向须以发布构建和 Release Contract 为准 |
+| **分屏** | 不属于 Release 1；iPad 重入时重新定义 |
+| **国际化** | 英文 + 简体中文，App 内可切换 |
 | **深色模式** | 跟随系统 / 浅色 / 深色 三选项 |
 
 ## 无障碍
@@ -86,7 +86,7 @@ freshness:
 |---|---|
 | **正面字号** | 用户在设置中通过滑杆调整（默认 32pt，范围按代码实现） |
 | **反面字号** | 独立设置（默认 16pt，与正面互不影响） |
-| **存储** | `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)`，Per-Profile 隔离 |
+| **存储** | 当前实现为 `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)` 的 Per-Profile 隔离；单资料库重基线后按 effective data contract 收敛 |
 | **关系** | **与 Dynamic Type 互不依赖**——复习卡片正反面是阅读体验核心，需用户精细控制；Dynamic Type 仅影响装饰性数字（统计、印章） |
 
 ## 可靠性
@@ -102,4 +102,4 @@ freshness:
 ## 同步与网络
 
 > **占位**：当前 MVP 为端上处理 + 本地存储，无跨设备同步、无网络依赖。
-> iCloud 同步能力依赖 issue #485 解锁；解锁时再在此处补 SLO（同步延迟、冲突策略、离线降级）。
+> Apple 私有同步只是候选。新的 Product / Data / Privacy / Release Contract 生效时，再补同步延迟、冲突策略和离线降级 SLO；旧 #485 不构成重入授权。

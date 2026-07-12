@@ -28,7 +28,7 @@ STATUS_LABEL = {
     "poc-needed": "🔬 需 PoC",
     "backlog": "📋 Backlog",
 }
-TIER_LABEL = {"free": "免费", "pro": "Pro"}
+TIER_LABEL = {"free": "免费", "pro": "Pro", "undecided": "未定"}
 STATUS_ORDER = {"implemented": 0, "in-progress": 1, "blocked": 2, "poc-needed": 3, "backlog": 4}
 
 REQUIRED = ("id", "title", "status", "tier", "mode", "last_updated")

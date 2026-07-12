@@ -13,9 +13,10 @@ check, shape the task further or ask PO instead of silently choosing.
    only a file list.
 2. **Scope**: in-scope and out-of-scope work are explicit. Adjacent cleanup is
    not implied.
-3. **Authority**: product intent links to its current authority document:
-   `vision.md`, `positioning-and-audience.md`, an ADR, a feature spec, or a
-   PO-specified scope document.
+3. **Authority**: product intent links through the three-layer SSOT: Product
+   Constitution (`vision.md`) -> current Release Product Contract -> owning
+   feature spec. Product policy or a typed decision may refine its assigned
+   question but cannot bypass those layers.
 4. **Decision state**: every upstream product decision is identified as
    exploration, shaped candidate, ratified, effective, or superseded. Only an
    effective authority on `develop` may replace the current cross-lane baseline.
@@ -50,9 +51,12 @@ Stop before implementation when any of these are true:
 
 PO rulings live in their authority document, not in this file. Examples:
 
+- durable product / data / commercial / platform rulings -> Product
+  Constitution at `docs/explanations/vision.md` and its direct policy owner
+- current-release scope / non-goal / acceptance rulings -> the current dated
+  Release Product Contract
 - positioning rulings -> `docs/explanations/positioning-and-audience.md`
-- product vision rulings -> `docs/explanations/vision.md`
-- architecture / release-region rulings -> `docs/decisions/ADR-*.md`
+- architecture rulings -> typed `docs/decisions/ADR-*.md`
 - feature behavior rulings -> the owning `docs/features/*/feat-*.md`
 
 The generated `docs/reference/intent-traceability.md` is the index for existing

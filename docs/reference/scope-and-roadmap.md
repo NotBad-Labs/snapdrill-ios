@@ -1,188 +1,90 @@
 ---
-last_verified: 2026-06-22
-layer: pattern
+last_verified: 2026-07-12
+layer: roadmap
+derived_from:
+  - ../explanations/vision.md
 ---
 # 功能范围与路线
 
-> 本文档承载不属于单个 feature 的跨功能总览：功能边界（MoSCoW）、v2.0 功能全景、探索性功能评估框架。
-> 它回答「整体做什么、不做什么、怎么决定要不要做」——而非任一具体功能的规格。
-> 单个功能的规格见对应 feature spec；**逐功能现状以 [feature-status.md](feature-status.md)（SSOT）为准**，本文档只引用、不重复罗列状态。
-> 待验证假设（H1-H10）见 [../explanations/assumptions.md](../explanations/assumptions.md)。
+> 本文件只维护跨功能候选、重入边界和投资状态，不定义当前实现，也不充当 Release Product Contract。
+>
+> 当前实现见自动生成的 [feature-status.md](feature-status.md)；单功能行为见 feature spec；Release 1 的 Must outcomes、明确非目标和验收必须由待建立的 Release 1 Product Contract 单独定义。
 
----
+## 当前上游边界
 
-## 功能边界（MoSCoW 分类）
+Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在其权威内容合入 `develop` 后生效：
 
-> **MoSCoW** 优先级框架：Must = 没有就不能发布；Should = 重要但可延期；Could = 锦上添花；Won't = 明确不做。
-> Kano 模型映射见 [../explanations/design-principles.md](../explanations/design-principles.md) §价值链与优先级。
+- 首个切口：处理结构化纸张 / PDF 的成年人。
+- 核心价值链：采集 -> 整理 / 找回 -> 导出 / 打印。
+- 数据定位：local-first、无 SnapDrill 账户、一个资料库、永久手动备份。
+- 商业定位：Release 1 免费、无广告、无 IAP；未来商业化只是候选假设。
+- 平台定位：Release 1 iPhone-only，美国主体全球版，英文 + 简体中文。
 
-### Must Have（缺失 = 产品不可用）
+任何 roadmap 项都不得覆盖这些边界。改变跨 feature、数据 / wire、公开承诺、商业或平台范围时，必须先有新的 effective 上游 contract。
 
-- 多种方式采集资料 / 题目（拍照、导入、手动）
-- OCR 文字识别（降低手动输入成本）
-- 资料分类管理（分类、来源、级别、标签与用户自定义属性；面向学习资料的分类/级别/难度模板降级为可选配置）
-- 搜索和过滤
-- 导出（PDF / JSON / CSV）
-- 本地数据存储（隐私优先）
-- 多 Profile（多套独立资料库 / 工作区隔离场景）
-- 草稿恢复（S0 数据丢失防护）
-- 删除撤销（数据安全信任）
+## Release 1 合同前的投资边界
 
-### Should Have（缺失 = 有摩擦但可用）
+在 Release 1 Product Contract 生效前：
 
-- PDF 增强（去答案、留白、页眉页码）
-- 单题快速打印
-- 批量打标签
-- 批量删除（选择模式 + 软删除）
-- 动态字段过滤
-- App 内语言切换
-- 手动备份/恢复
-- iOS Share Extension
-- 基础 SM-2 间隔重复复习（已实现，免费附加值定位）
+1. 不把任何已实现功能自动提升为 Release 1 Must。
+2. 不根据旧 MoSCoW、旧 `v2.0` 全景、历史 ADR、issue 数量或 Draft PR 反推产品范围。
+3. Dashboard、Review 与 SmartPaper 的发布分类保持待 PO 裁决；现有可达性只是实现事实。
+4. 不新增 Pro、StoreKit、CloudKit、Word、付费配额、iPad 或中国大陆专项发行工作。
+5. 安全、数据完整性、CI 可靠性和不改变产品范围的缺陷修复仍可按 DoR 独立 shaping。
+6. Draft PR #868 作为单资料库候选实现与风险证据保持冻结，等待上游 contract 后重审。
 
-### Could Have（锦上添花）
+## 能力簇状态
 
-- 图片处理增强：去手写/去批改痕迹/试卷还原（Pro 付费，免费限次体验）[需 PoC: 端上方案可用且 SDK < 50MB]
-- 智能组卷 / Smart Paper（Hybrid：免费限次体验 + Pro 无限精准选题，ADR-001）
-- iCloud 同步（Pro 付费）[阻塞: #485（前置 #479）]
-- Word 导出（Pro 付费）[阻塞: #486（前置 #479）]
-- 高级统计（Hybrid：基础统计免费 + 趋势图/薄弱排行 Pro，ADR-001）
-- 资料分享（单项生成卡片分享）
-- 批量导出原图（ZIP）
-- iPad 大屏优化
-- 批量导入增强（AI 辅助拆题，探索性）
-- 手写体识别增强（探索性）
-- 角色预设套件（为不同使用场景提供预配置的字段/标签方案，如"考试备考"/"证书培训"/"竞赛题"）—— **边界**：仅作为设置页的可选模板入口（按一下就改字段开关），**不进入 Onboarding**，不增加首次配置摩擦（vision §1 录入体验 + §2 简洁）
+本表用于安排后续 shaping，不是功能承诺：
 
-### Won't Have（明确不做）
+| 能力簇 | 当前产品关系 | 下一裁决 |
+|---|---|---|
+| 采集 | 核心价值链起点 | Release Contract 选择 Must outcomes 与输入边界 |
+| 资料库搜索、整理、找回 | 核心价值链中段 | Release Contract 选择 Must outcomes、字段与批量操作边界 |
+| 导出 / 打印 | 核心价值链终点 | Release Contract 选择格式、打印与取消 / 失败验收 |
+| 手动备份 / 恢复 | 耐久数据所有权承诺 | Release Contract 定义兼容、损坏与恢复结果边界 |
+| Dashboard | 当前实现可达，不是宪章承诺 | Gate C 分类 Must、optional、hidden 或 removed |
+| Review | 可选复用价值 | Gate C 分类及导航位置 |
+| SmartPaper | 可选复用 / 输出工具；旧 Pro 定价已失效 | Gate C 决定可见性、配额和 Release 1 范围 |
+| Multi-Profile | 当前代码已实现，但产品目标已退休 | Product / Release Contract 生效后重审 #868 |
+| Apple 私有同步 | 候选假设 | 外部证据 + 新 Product / Data / Privacy contract |
+| Word、高级统计、图片增强 | 候选增值方向 | 外部证据 + 新商业裁决，不进入当前 Release 1 |
+| iPad | 已退出当前范围 | 新平台立项、UI / AX / 截图 / 发布证据 |
+| 中国大陆专项发行 | 已挂起 | 新区域立项、账号 / 签名 / 合规 / 元数据复核 |
 
-- 提供题库内容（我们是工具，不是内容平台）
-- 社交功能（不是社区）
-- 排行榜 / 竞争机制（不是游戏）
-- 限制免费录入数量（核心差异化，永不限制）
-- 去水印（产品本身不应该有水印）
-- 注册/登录（零注册是核心差异化）
+## 耐久非目标
 
-### 待评估（需技术可行性确认）
+下列边界来自 Product Constitution，不属于可随意排期的 backlog：
 
-- 公式识别与渲染（LaTeX/MathML，无 Apple 原生 API）
-- iPad + Apple Pencil 深度集成（依赖第三方 App 支持）
-- 学习资料模板（分类 / 级别等结构化字段）—— **边界**：仅作为可选字段配置模板，不进入默认录入页，不扩展核心字段系统的层级（vision §2 简洁，不增加 [../explanations/design-principles.md](../explanations/design-principles.md) §字段可配置系统 复杂度）
-- AI 解题提示（**初步评估为蚕食 vision §不是内容平台禁令 + 推翻 H3「核心需求是存档/打印，不是解题」假设；不进入近期路线**。若未来 H3 数据推翻，需先在 [../explanations/vision.md](../explanations/vision.md) 加新假设/原则承接才能纳入）
+- 平台题库、答案搜索、自动解题或内容分发服务。
+- 社交关系、排行榜、签到、虚拟奖励和焦虑驱动增长。
+- 使用核心价值链前强制创建 SnapDrill 账户。
+- 开发者可访问的用户内容后端或默认第三方行为分析。
+- 通过限制基础录入、锁定资料、阻断手动备份、广告或水印变现。
 
----
+要重新考虑任一非目标，必须先修改 Product Constitution；普通 feature PR 无权改变。
 
-## v2.0 功能全景
+## 探索性能力评估
 
-> 所有功能统一为 v2.0。已实现功能无特殊标注；未实现功能标注阻塞原因或 PoC 条件。
-> 本节只描述产品能力与实现状态，不记录 PR 编号和 Review 状态。研发流转见 git log + GitHub issues/PRs。
-> 逐功能权威状态见 [feature-status.md](feature-status.md)（SSOT）；本节内联的 `[阻塞: #N]` / `[需 PoC: 条件]` 标签与之对齐。
+探索项只有满足“明确用户问题、可证伪假设、风险边界和 Go / No-Go 证据”后才能进入 shaped candidate。技术可行不等于产品应做。
 
-**录入**
-- 智能相机拍照（实时文字区域检测 + 稳定性指示器 + 自动框选）
-- 相册导入
-- 文档扫描（含多页选择）
-- PDF 导入（文件选择器 + 逐页预览 + 页面选择 + 裁剪）
-- 手动编辑
-- 剪贴板导入（从系统剪贴板粘贴文本内容）
-- 一图一题手动裁剪（自动框选 + 手动调整）
-- 一图连续裁剪（同一张图上连续裁剪多题）
-- OCR 印刷体中英文识别（Apple Vision 高精度模式），用户可手动修正
-- OCR 手动重试 + 稳定性提示（失败后提供重试选项，引导调整拍摄）
-- OCR 结果复制到剪贴板
-- 字段可配置系统（内置分类 / 来源 / 级别 / 标签默认隐藏，用户按需开启；自定义维度默认可见）
-- 字段自动推断（沿用上次选值）
-- 端上 AI 自动标注（Apple Foundation Models：从内容自动推断分类，离线、零上传）
-- 连续录入（保存后自动回到摄像头）
-- 草稿恢复（意外退出后可恢复，含纯文本草稿）
-- 相机权限缺失处理（权限拒绝/受限时引导用户到系统设置开启）
-- iOS Share Extension
-- 手写体识别增强 [需 PoC: 识别率 >= 70% (20 张真实试卷) 则纳入]
-- AI 辅助拆题 [需 PoC: 边界准确率 >= 80% (10 份真实试卷) 则纳入]
+| 候选方向 | 最低证据 | 主要边界 |
+|---|---|---|
+| 手写识别增强 | 真实材料任务准确率与人工修正成本 | Apple 平台能力、误识别、离线隐私 |
+| 自动拆分 / 智能标注 | 对核心采集摩擦的可测改善 | 错误可见、可改、可撤销，不阻塞保存 |
+| 图片处理增强 | 端侧质量、体积、速度与隐私证据 | 不上传内容，不把原图真相替换为不可恢复结果 |
+| Apple 私有同步 | 多设备需求与手动备份摩擦证据 | 冲突、兼容、存储、区域和取消 / 降级策略 |
+| iPad / Pencil | iPhone 无法满足的明确任务 | 不以“布局能跑”代替完整平台验收 |
 
-**管理**
-- 资料库管理：搜索 + 动态维度过滤（分类/来源/级别/标签/自定义属性）+ 编辑
-- 系统字段选项增删改（分类/来源/级别，含颜色和预设图标）
-- 题库排序（时间/分类/复习状态）
-- 批量打标签（选择模式 + 多题操作）
-- 删除撤销（软删除 + 5 秒 Toast 撤销，超时永久删除）
-- 批量删除（选择模式 + 软删除）
-
-**复习**
-- SM-2 间隔重复复习（翻卡 + 滑动评估）
-- Dashboard 统计 + 待复习入口
-
-**导出与备份**
-- PDF 导出（含预览、去答案打印、留白答题区、页眉页码）
-- 单题快速打印（详情页固定 1 题/页）
-- JSON / CSV 结构化数据导出（以实际导出字段清单为准）
-- 手动备份/恢复（`.zip` 文件）
-- 资料分享卡片（ImageRenderer 生成分享图片）
-- 批量导出原图 ZIP
-- CSV 数据导入（RFC 4180 合规）
-- 图片处理增强（Pro 付费，免费限次体验）：去手写/去批改痕迹/试卷还原 [需 PoC: 端上方案可用且 SDK < 50MB]
-- Word 导出（Pro 付费）[阻塞: #486（前置 #479）]
-- 智能组卷 / Smart Paper（Hybrid：免费限次 + Pro 无限；SM-2 驱动选题 → 自动排版 → PDF/打印，ADR-001）
-
-**同步与存储**
-- iCloud CloudKit 同步（Pro 付费，**付费核心引擎**）：同步范围为全部 Profile（与备份策略对齐），基于 Apple CloudKit，利用设备已有 Apple ID。设计决策见 [../features/backlog/feat-icloud-sync.md](../features/backlog/feat-icloud-sync.md) [阻塞: #485（前置 #479）— 需 CloudKit Container]
-
-**多 Profile**
-- 多 Profile / 多题库隔离（本地切换，参考 Obsidian Vault 切换，覆盖多套独立资料库 / 工作区场景）
-
-**设置与个性化**
-- 用户资料（昵称/座右铭/头像/每日目标，纯本地）
-- 复习卡片外观（字号正反面独立设置，对齐三选项默认左对齐）
-- 通知设置（提醒时间/声音；不使用角标，仅本地通知提醒）
-- 外观模式（跟随系统/浅色/深色）
-- 匿名遥测开关（仅保存本地 `TelemetryGate` 同意状态；全球生产服务为 NoOp，当前不启用网络采集）
-- App 内语言切换（中文/英文直选）
-- 媒体缓存清理 + 存储管理
-
-**引导与帮助**
-- 多页 Onboarding（功能介绍，不含字段选择）
-- 首次录入后字段配置引导
-- Feature Tooltips（首次使用提示；TipKit 按 Profile 隔离）
-- 帮助中心（外部网页 FAQ 链接）
-
-**隐私与合规**
-- 零注册，纯本地存储
-- 隐私政策 / 服务条款
-- 卸载数据丢失提醒
-- 开源许可展示（第三方库 Mantis / ZIPFoundation 等；Firebase SDK 已由 #803 从工程删除，许可页不再列出 Firebase）
-
-**无障碍**
-- 全模块 VoiceOver 辅助标签、提示和公告（Dashboard / Capture / Library / Settings / Review）
-
-**平台优化**
-- iPad 分屏/大屏优化（sidebarAdaptable + 动态 grid 列数）
-- iPad + Apple Pencil 深度集成 [需 PoC]
-
----
-
-## 探索性功能评估框架
-
-| 功能 | 评估维度 | Go 条件 | No-Go 条件 | 评估窗口 |
-|---|---|---|---|---|
-| 手写体识别增强 | Apple Vision 中文手写识别率 | PoC 识别率 >= 70%（20 张真实试卷） | 识别率 < 50% 且无 Apple 改进路线 | 正式纳入前 |
-| AI 辅助拆题 | 文档结构识别的题目边界检测精度 | 边界准确率 >= 80%（10 份真实试卷） | 准确率 < 60% 或误拆严重 | 正式纳入前 |
-| 图片处理增强（去手写/去批改痕迹/试卷还原） | 第三方端上方案（离线、无数据上传、Pro 付费） | 端上方案可用，SDK < 50MB，去手写准确率 >= 80% | 所有方案均需云端或准确率 < 60% | 正式纳入前 |
-| 数理化公式识别 | 第三方端上方案（离线、无数据上传） | 端上方案可用，SDK < 50MB | 所有方案均需云端 | 待排期 |
-
-**评估流程**：PoC → 对照 Go/No-Go 条件决策 → Go 创建 Issue；No-Go 标注原因，下次 iOS 大版本重新评估。
-
-**待评估（需技术可行性确认）**
-- 数理化公式识别与渲染（LaTeX，无 Apple 原生 API，需第三方端上方案）
-
----
+评估结论写入 assumptions 或 shaped brief。Go 仍需 PO / DRI 按决策类别批准，并由 Release Contract 或 feature spec 承接；No-Go 保留证据和复核触发器。
 
 ## 相关文档
 
-| 文档 | 关系 | 说明 |
-|---|---|---|
-| [feature-status.md](feature-status.md) | SSOT | 逐功能权威状态（已实现/阻塞/PoC/Backlog） |
-| [../explanations/vision.md](../explanations/vision.md) | 上游 | 产品定位、原则、用户画像 |
-| [../explanations/design-principles.md](../explanations/design-principles.md) | 上游 | 设计决策、交互铁律、价值链与优先级 |
-| [../explanations/assumptions.md](../explanations/assumptions.md) | 相关 | 待验证假设 H1-H10 |
-| [../explanations/business-model.md](../explanations/business-model.md) | 相关 | 商业化分层、Pro/Free 划分 |
-| [../decisions/ADR-001-smart-paper-analytics-pricing.md](../decisions/ADR-001-smart-paper-analytics-pricing.md) | 相关 | Smart Paper / 高级统计 Hybrid 定价决策 |
+| 文档 | 单一职责 |
+|---|---|
+| [../explanations/vision.md](../explanations/vision.md) | Product Constitution 与最高产品边界 |
+| 待建立的 Release 1 Product Contract | 当前发布范围、非目标和结果级验收 |
+| [feature-status.md](feature-status.md) | 自动生成的当前实现状态 |
+| [../features/](../features/) | 单功能 Why / What / How / Verify |
+| [../explanations/assumptions.md](../explanations/assumptions.md) | 可证伪假设与推翻信号 |
+| [../explanations/business-model.md](../explanations/business-model.md) | 当前商业政策与重入条件 |
