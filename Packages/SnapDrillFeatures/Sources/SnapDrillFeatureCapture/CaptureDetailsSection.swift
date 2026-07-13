@@ -36,7 +36,8 @@ struct CaptureDetailsSection: View {
     // MARK: - 答案
 
     private var answerSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let isAnswerPhotoLoading = viewModel.isAnswerPhotoLoading
+        return VStack(alignment: .leading, spacing: 12) {
             Text(L10n.Capture.answer)
             TextEditor(text: $viewModel.answerText)
                 .frame(minHeight: 80)
@@ -67,7 +68,7 @@ struct CaptureDetailsSection: View {
                     HStack(spacing: 8) {
                         Label(L10n.Capture.addAnswerImage, systemImage: "photo.badge.plus")
                             .font(.subheadline)
-                        if viewModel.isAnswerPhotoLoading {
+                        if isAnswerPhotoLoading {
                             ProgressView()
                                 .controlSize(.small)
                                 .accessibilityLabel(L10n.Common.loading)

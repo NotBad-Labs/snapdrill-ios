@@ -176,6 +176,7 @@ final class DashboardViewModelTests {
 
         #expect(receivedDraft != nil)
         #expect(receivedDraft?.content == "草稿")
+        #expect(draftService.clearDraftCallCount == 0)
         vm.cancelTasks()
     }
 

@@ -54,11 +54,12 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 
 ### Parked（明确不赌、停止投入，但代码留着 · 取舍的牙齿）
 
-`feature-status.md` 只说明实现状态，不拥有投资范围。Product Constitution v1 已固定产品边界；具体功能的 Release 1 分类等待 Release Product Contract：
+`feature-status.md` 只说明实现状态，不拥有投资范围。Product Constitution v1 已 effective；本更新中的 Release 1 Contract 已 ratified，并在合入 `develop` 后固定本次发布边界。代码投入仍需要独立 implementation bet：
 
-- Dashboard、Review、SmartPaper —— 当前实现可作为证据，但新增产品投入冻结，等待 Gate C 分类。
+- Dashboard —— 默认首屏由 C3 固定；当前卡片 / 五 Tab 不自动获批，代码投入等待独立 implementation bet。
+- Review、SmartPaper —— 只允许 C4-D / C5-E 定义的 `po-only` / `research` 有界实验，公开候选隐藏；当前实现可作为偏差证据，任何对齐仍需独立 implementation bet。
 - Pro/StoreKit #479、CloudKit #485、Word 导出 #486、付费配额 —— 不属于 Release 1，只是未来候选假设。
-- Multi-Profile —— 产品目标已退休；Draft #868 保持候选实现，等待 Release 1 / Data Contract 后重审。
+- Multi-Profile —— 产品目标已退休；Draft #868 仍为 NO-GO，等待独立 Profile-free Backup Wire / 可崩溃恢复 Data Contract 与 S0 / S1 修复后重审。
 - 公开上架合规队列 —— **不阻塞 TestFlight 内测**（隐私/分析策略见 [`../decisions/ADR-005-analytics-privacy-strategy.md`](../decisions/ADR-005-analytics-privacy-strategy.md)），延到决定公开上架时。
 
 ### 链接

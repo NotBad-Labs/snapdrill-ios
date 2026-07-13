@@ -9,12 +9,44 @@
 //
 
 import Testing
+import SwiftUI
 import SwiftData
 import Foundation
 import UIKit
+import PhotosUI
 @testable import SnapDrillFeatureLibrary
 @testable import SnapDrillData
 @testable import SnapDrillCore
+
+private actor SuspendedLibraryPhotoDataLoader {
+    private let data: Data
+    private var didStart = false
+    private var startWaiter: CheckedContinuation<Void, Never>?
+    private var releaseWaiter: CheckedContinuation<Void, Never>?
+
+    init(data: Data) {
+        self.data = data
+    }
+
+    func load() async -> Data {
+        didStart = true
+        startWaiter?.resume()
+        startWaiter = nil
+        await withCheckedContinuation { releaseWaiter = $0 }
+        return data
+    }
+
+    func waitUntilStarted() async {
+        guard !didStart else { return }
+        await withCheckedContinuation { startWaiter = $0 }
+    }
+
+    func release() {
+        releaseWaiter?.resume()
+        releaseWaiter = nil
+    }
+
+}
 
 @Suite("LibraryEditViewModel 编辑与保存测试", .serialized)
 final class LibraryEditViewModelTests {
@@ -45,21 +77,38 @@ final class LibraryEditViewModelTests {
     private func createVM(
         content: String? = "原始题目",
         imagePath: String? = nil,
-        answerText: String? = "原始答案"
+        answerText: String? = "原始答案",
+        answerImagePath: String? = nil,
+        imageStorage: ImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory),
+        photoDataLoader: @escaping @Sendable (PhotosPickerItem) async throws -> Data? = {
+            try await $0.loadTransferable(type: Data.self)
+        }
     ) throws -> TestContext {
         let item = ArchiveItemModel(
             content: content,
             imagePath: imagePath,
-            answerText: answerText
+            answerText: answerText,
+            answerImagePath: answerImagePath
         )
         repos.archive.insert(item)
 
         let vm = LibraryEditViewModel(
             item: item,
             repositories: repos,
-            ocrService: MockOCRServiceShared()
+            imageStorage: imageStorage,
+            ocrService: MockOCRServiceShared(),
+            photoDataLoader: photoDataLoader
         )
         return TestContext(vm: vm, repos: repos, item: item)
+    }
+
+    private func removeTemporaryDirectory(_ url: URL) {
+        guard FileManager.default.fileExists(atPath: url.path) else { return }
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch {
+            Issue.record("清理测试目录失败: \(error.localizedDescription)")
+        }
     }
 
     // MARK: - init 状态映射
@@ -115,6 +164,21 @@ final class LibraryEditViewModelTests {
         #expect(vm.selectedIds(forDimension: categoryDim.id).contains(value.id))
     }
 
+    @Test("重复 loadData 不覆盖尚未保存的维度选择")
+    func loadData_repeatedCall_preservesPendingDimensionSelection() async throws {
+        repos.dimension.seedDefaultsIfNeeded()
+        let ctx = try createVM()
+        await ctx.vm.loadData()
+        let tagDimension = try #require(ctx.vm.dimensions.first { $0.systemKey == "tag" })
+        ctx.vm.createValue(name: "待保存标签", inDimension: tagDimension.id)
+        let selectedBeforeReload = ctx.vm.selectedIds(forDimension: tagDimension.id)
+        #expect(!selectedBeforeReload.isEmpty)
+
+        await ctx.vm.loadData()
+
+        #expect(ctx.vm.selectedIds(forDimension: tagDimension.id) == selectedBeforeReload)
+    }
+
     // MARK: - 图片操作
 
     @Test("removeAnswerImage 设置清除标志")
@@ -128,16 +192,155 @@ final class LibraryEditViewModelTests {
         #expect(ctx.vm.isAnswerImageCleared == true)
     }
 
-    @Test("handleNewAnswerImage 设置图片并清除 cleared 标志")
-    func handleNewAnswerImage_setsImageAndClearsFlag() throws {
-        let ctx = try createVM()
-        ctx.vm.isAnswerImageCleared = true
-
-        let newImage = createTestImage()
-        ctx.vm.handleNewAnswerImage(newImage)
-
+    @Test("重复 loadData 不会恢复用户已移除的答案图")
+    func loadData_afterRemovingAnswerImage_doesNotRestoreImage() async throws {
+        let storageDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("LibraryEditAnswerReload-\(UUID().uuidString)")
+        defer { removeTemporaryDirectory(storageDirectory) }
+        let storage = ImageStorage(baseDirectory: storageDirectory)
+        let path = try await storage.saveImage(createTestImage())
+        let ctx = try createVM(answerImagePath: path, imageStorage: storage)
+        await ctx.vm.loadData()
         #expect(ctx.vm.answerDisplayedImage != nil)
-        #expect(ctx.vm.isAnswerImageCleared == false)
+
+        ctx.vm.removeAnswerImage()
+        await ctx.vm.loadData()
+
+        #expect(ctx.vm.answerDisplayedImage == nil)
+        #expect(ctx.vm.isAnswerImageCleared)
+    }
+
+    @Test("答案图加载期间保存不会静默漏图")
+    func save_whileAnswerPhotoLoading_doesNotDropImage() async throws {
+        guard let data = createTestImage().jpegData(compressionQuality: 0.8) else {
+            Issue.record("测试图片无法编码")
+            return
+        }
+        let loader = SuspendedLibraryPhotoDataLoader(data: data)
+        let storageDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("LibraryEditPhotoRace-\(UUID().uuidString)")
+        defer { removeTemporaryDirectory(storageDirectory) }
+        let storage = ImageStorage(baseDirectory: storageDirectory)
+        let ctx = try createVM(
+            imageStorage: storage,
+            photoDataLoader: { _ in await loader.load() }
+        )
+
+        let loadTask = try #require(
+            ctx.vm.loadAnswerPhoto(PhotosPickerItem(itemIdentifier: "pending-answer-photo"))
+        )
+        await loader.waitUntilStarted()
+        #expect(ctx.vm.isAnswerPhotoLoading)
+
+        await ctx.vm.save()
+        #expect(!ctx.vm.isSavedNormally)
+        #expect(ctx.item.answerImagePath == nil)
+
+        await loader.release()
+        await loadTask.value
+        #expect(ctx.vm.answerDisplayedImage != nil)
+        #expect(!ctx.vm.isAnswerPhotoLoading)
+        await ctx.vm.save()
+
+        let path = try #require(ctx.item.answerImagePath)
+        let persistedImage = await storage.loadImageAsync(path: path)
+        #expect(persistedImage != nil)
+        try await storage.deleteImage(path: path)
+    }
+
+    @Test("题目图加载期间保存不会忽略待裁剪图片")
+    func save_whileQuestionPhotoLoading_doesNotComplete() async throws {
+        guard let data = createTestImage().pngData() else {
+            Issue.record("测试图片无法编码")
+            return
+        }
+        let loader = SuspendedLibraryPhotoDataLoader(data: data)
+        let ctx = try createVM(photoDataLoader: { _ in await loader.load() })
+        var loadedImage: UIImage?
+
+        let loadTask = try #require(
+            ctx.vm.loadQuestionPhoto(PhotosPickerItem(itemIdentifier: "pending-question-photo")) {
+                loadedImage = $0
+            }
+        )
+        await loader.waitUntilStarted()
+
+        await ctx.vm.save()
+        #expect(!ctx.vm.isSavedNormally)
+        await loader.release()
+        await loadTask.value
+        #expect(loadedImage != nil)
+        #expect(!ctx.vm.isQuestionPhotoLoading)
+    }
+
+    @Test("答案图连续选择时迟到结果不会覆盖最新图片")
+    func loadAnswerPhoto_staleSelectionDoesNotWin() async throws {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        let firstImage = UIGraphicsImageRenderer(
+            size: CGSize(width: 8, height: 8),
+            format: format
+        ).image { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 8, height: 8))
+        }
+        let secondImage = UIGraphicsImageRenderer(
+            size: CGSize(width: 16, height: 8),
+            format: format
+        ).image { context in
+            UIColor.blue.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 16, height: 8))
+        }
+        let firstData = try #require(firstImage.pngData())
+        let secondData = try #require(secondImage.pngData())
+        let firstLoader = SuspendedLibraryPhotoDataLoader(data: firstData)
+        let secondLoader = SuspendedLibraryPhotoDataLoader(data: secondData)
+        let ctx = try createVM(photoDataLoader: { item in
+            if item.itemIdentifier == "first-answer-photo" {
+                return await firstLoader.load()
+            }
+            return await secondLoader.load()
+        })
+
+        let firstTask = try #require(
+            ctx.vm.loadAnswerPhoto(PhotosPickerItem(itemIdentifier: "first-answer-photo"))
+        )
+        await firstLoader.waitUntilStarted()
+        let secondTask = try #require(
+            ctx.vm.loadAnswerPhoto(PhotosPickerItem(itemIdentifier: "second-answer-photo"))
+        )
+        await secondLoader.waitUntilStarted()
+
+        await secondLoader.release()
+        await secondTask.value
+        #expect(ctx.vm.answerDisplayedImage?.size.width == 16)
+        await firstLoader.release()
+        await firstTask.value
+
+        #expect(ctx.vm.answerDisplayedImage?.size.width == 16)
+        #expect(!ctx.vm.isAnswerPhotoLoading)
+    }
+
+    @Test("移除答案图会取消尚未完成的选择")
+    func removeAnswerImage_cancelsPendingSelection() async throws {
+        guard let data = createTestImage().pngData() else {
+            Issue.record("测试图片无法编码")
+            return
+        }
+        let loader = SuspendedLibraryPhotoDataLoader(data: data)
+        let ctx = try createVM(photoDataLoader: { _ in await loader.load() })
+
+        let loadTask = try #require(
+            ctx.vm.loadAnswerPhoto(PhotosPickerItem(itemIdentifier: "answer-photo-to-remove"))
+        )
+        await loader.waitUntilStarted()
+        ctx.vm.removeAnswerImage()
+        await loader.release()
+        await loadTask.value
+
+        #expect(ctx.vm.answerDisplayedImage == nil)
+        #expect(ctx.vm.isAnswerImageCleared)
+        #expect(!ctx.vm.isAnswerPhotoLoading)
     }
 
     @Test("handleNewImage 更新显示图片并触发 OCR")

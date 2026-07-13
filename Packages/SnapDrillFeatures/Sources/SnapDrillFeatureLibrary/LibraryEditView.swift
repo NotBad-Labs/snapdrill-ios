@@ -34,6 +34,7 @@ public struct LibraryEditView: View {
     @State private var pickerSelection: PhotosPickerItem?
     @State private var answerPickerSelection: PhotosPickerItem?
     @State private var cropperItem: CropperItem?
+    @State private var isSaveRequested = false
 
     public init(item: ArchiveItemModel) {
         self.item = item
@@ -67,17 +68,25 @@ public struct LibraryEditView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(L10n.Common.save) {
-                        if let vm = viewModel {
-                            Task {
-                                await vm.save()
-                                // 仅保存成功时关闭页面，失败时留在原地显示错误
-                                if vm.isSavedNormally {
-                                    dismiss()
-                                }
+                        guard let vm = viewModel else { return }
+                        isSaveRequested = true
+                        Task {
+                            await vm.save()
+                            // 仅保存成功时关闭页面，失败时留在原地显示错误
+                            if vm.isSavedNormally {
+                                dismiss()
+                            } else {
+                                isSaveRequested = false
                             }
                         }
                     }
-                    .disabled((viewModel?.isProcessing ?? false) || (viewModel?.isSaving ?? false))
+                    .disabled(
+                        (viewModel?.isProcessing ?? false)
+                            || (viewModel?.isPhotoLoading ?? false)
+                            || (viewModel?.isSaving ?? false)
+                            || isSaveRequested
+                            || cropperItem != nil
+                    )
                 }
             }
             .scrollDismissesKeyboard(.immediately)
@@ -85,7 +94,9 @@ public struct LibraryEditView: View {
                 await loadData()
             }
             .onDisappear {
-                viewModel?.cancelTasks()
+                if cropperItem == nil {
+                    viewModel?.cancelTasks()
+                }
             }
             .alert(L10n.Errors.saveFailed, isPresented: Binding(
                 get: { viewModel?.showErrorAlert ?? false },
@@ -99,14 +110,16 @@ public struct LibraryEditView: View {
         // 图片选择器
         .photosPicker(isPresented: $isPickerPresented, selection: $pickerSelection, matching: .images)
         .onChange(of: pickerSelection) { _, newItem in
-            if let newItem {
-                loadTransferable(from: newItem)
+            guard let newItem, let viewModel else { return }
+            pickerSelection = nil
+            viewModel.loadQuestionPhoto(newItem) { image in
+                cropperItem = CropperItem(image: image)
             }
         }
         .onChange(of: answerPickerSelection) { _, newItem in
-            if let newItem {
-                loadAnswerTransferable(from: newItem)
-            }
+            guard let newItem else { return }
+            answerPickerSelection = nil
+            viewModel?.loadAnswerPhoto(newItem)
         }
         // 裁剪器
         .fullScreenCover(item: $cropperItem) { item in
@@ -162,10 +175,11 @@ public struct LibraryEditView: View {
                 }
                 
                 // 加载遮罩
-                if vm.isProcessing {
+                if vm.isProcessing || vm.isQuestionPhotoLoading {
                     Color.black.opacity(0.3)
                     ProgressView()
                         .tint(.white)
+                        .accessibilityLabel(L10n.Common.loading)
                 }
             }
             .listRowInsets(EdgeInsets())
@@ -177,7 +191,7 @@ public struct LibraryEditView: View {
             }, label: {
                 Label(L10n.Library.changeImage, systemImage: "arrow.triangle.2.circlepath.camera")
             })
-            .disabled(vm.isProcessing)
+            .disabled(vm.isProcessing || vm.isPhotoLoading || vm.isSaving || isSaveRequested || vm.isSavedNormally)
             .accessibilityIdentifier("library.edit.changeImage")
 
             if let image = vm.displayedImage {
@@ -190,7 +204,13 @@ public struct LibraryEditView: View {
                     label: L10n.Accessibility.cropImage,
                     hint: L10n.Accessibility.cropImageHint
                 )
-                .disabled(vm.isProcessing)
+                .disabled(
+                    vm.isProcessing
+                        || vm.isPhotoLoading
+                        || vm.isSaving
+                        || isSaveRequested
+                        || vm.isSavedNormally
+                )
                 .accessibilityIdentifier("library.edit.cropImage")
             }
         }
@@ -206,7 +226,8 @@ public struct LibraryEditView: View {
     }
     
     private func answerSection(vm: LibraryEditViewModel) -> some View {
-        Section(L10n.Library.answerSection) {
+        let isAnswerPhotoLoading = vm.isAnswerPhotoLoading
+        return Section(L10n.Library.answerSection) {
             TextEditor(text: Binding(get: { vm.answer }, set: { vm.answer = $0 }))
                 .frame(minHeight: 100)
                 .focused($isInputFocused)
@@ -229,6 +250,7 @@ public struct LibraryEditView: View {
                 } label: {
                     Label(L10n.Library.removeAnswerImage, systemImage: "trash")
                 }
+                .disabled(vm.isPhotoLoading || vm.isSaving || isSaveRequested || vm.isSavedNormally)
                 .accessibilityIdentifier("library.edit.removeAnswerImage")
             } else if item.answerImagePath != nil && !vm.isAnswerImageCleared {
                 // 有答案图路径但尚未加载完成（排除已删除待保存的情况）
@@ -236,8 +258,16 @@ public struct LibraryEditView: View {
                     .frame(height: 100)
             } else {
                 PhotosPicker(selection: $answerPickerSelection, matching: .images) {
-                    Label(L10n.Library.addAnswerImage, systemImage: "photo.badge.plus")
+                    HStack(spacing: 8) {
+                        Label(L10n.Library.addAnswerImage, systemImage: "photo.badge.plus")
+                        if isAnswerPhotoLoading {
+                            ProgressView()
+                                .controlSize(.small)
+                                .accessibilityLabel(L10n.Common.loading)
+                        }
+                    }
                 }
+                .disabled(vm.isPhotoLoading || vm.isSaving || isSaveRequested || vm.isSavedNormally)
                 .accessibilityIdentifier("library.edit.addAnswerImage")
             }
         }
@@ -256,35 +286,6 @@ public struct LibraryEditView: View {
         }
     }
     
-    private func loadTransferable(from item: PhotosPickerItem) {
-        item.loadTransferable(type: Data.self) { result in
-            switch result {
-            case .success(let data):
-                if let data = data, let uiImage = UIImage(data: data) {
-                    Task { @MainActor in
-                        self.cropperItem = CropperItem(image: uiImage)
-                    }
-                }
-            case .failure(let error):
-                SnapDrillLogger.generic.info("Failed to load image: \(error)")
-            }
-        }
-    }
-
-    private func loadAnswerTransferable(from item: PhotosPickerItem) {
-        item.loadTransferable(type: Data.self) { result in
-            switch result {
-            case .success(let data):
-                if let data = data, let uiImage = UIImage(data: data) {
-                    Task { @MainActor in
-                        self.viewModel?.handleNewAnswerImage(uiImage)
-                    }
-                }
-            case .failure(let error):
-                SnapDrillLogger.generic.info("加载答案图片失败: \(error)")
-            }
-        }
-    }
 }
 
 private struct CropperItem: Identifiable {

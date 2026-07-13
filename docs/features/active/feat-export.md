@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-12
+last_updated: 2026-07-14
 intent_refs:
   - vision:P2
   - vision:P4
@@ -13,7 +13,7 @@ intent_refs:
 
 # Feature: PDF 导出与打印
 
-> **产品重基线（2026-07-12）**：导出 / 打印与永久手动备份属于宪章核心承诺，但 frontmatter 与下文只记录当前实现，具体格式、入口和结果级验收等待 Gate C / Release 1 Product Contract。B6-A 已取消当前 Pro 商业承诺；下文 Word、图片增强、SmartPaper、Profile 和 Pro 分层只作实现 / 历史追溯，不得驱动新工作。
+> **产品重基线（2026-07-14）**：导出 / 打印与永久手动备份属于宪章核心承诺。C2-Core 要求打印作为独立正式终点，并把分享 / 保存视为并列出口；PDF 增强按 C2-Optional 逐 build 冻结，SmartPaper 仅按 C5-E / C5-S1 的非公开实验边界复用管线。frontmatter 与技术章节仍只记录当前实现；旧 Profile / Pro 分层不得驱动新工作。
 
 > 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
@@ -21,16 +21,16 @@ intent_refs:
 
 ## 1. 为什么做 (Why)
 - **痛点 / 价值**：用户归档资料的最终目的之一是把内容输出到纸上或其他工作流——导出 / 打印是产品价值链的终点（采集 → 整理 / 找回 → **导出 / 打印**）。"数据属于用户"不是口号，而是可导出、可打印、可带走；缺失基础导出会把数据锁在 App 中。
-- **定位**：PDF 导出是**日常导出主入口**、基础能力，覆盖「整理一份资料并打印出来用」的核心场景；增强导出（去答案、留白、页眉页码）是价值链增值（Kano Performance/Should），不是付费墙。
+- **定位**：基础多选 PDF 与系统打印是日常导出主入口。增强导出（去答案、留白、页眉页码）是 Candidate optional，默认隐藏；即使 manifest 纳入也不得成为付费墙。
 - **原则归属**：P4 数据属于用户（可导出/可打印/可带走）。任何功能若损害"录入/管理"的简洁性就不该做——导出/打印作为价值链终点服从此铁律。详见 `../../explanations/vision.md`。
 
 ## 2. 需求规则 (What)
 - **PDF 导出（基础，免费）**：资料库过滤后批量导出，含**导出前预览**，支持分享与打印。
-- **PDF 增强（免费）**：
+- **PDF 增强（Candidate optional）**：默认隐藏，只有冻结 manifest 显式纳入并通过 PDF fidelity / 打印门禁才可见：
   - **去答案打印模式**：隐藏答案文字字段，只留题目内容，面向自测 / 回顾（布局层操作）。
   - **留白区**：题目下方留白供用户手写补充。
   - **页眉页码**：打印后纸质资料可翻阅定位。
-- **快速打印（免费）**：面向临时打印一条资料的轻量场景。详情页选中单条直接打印；批量导出 / 打印的版式选择属于当前实现，Release 1 具体选项等待 Gate C。
+- **单条快速打印**：面向临时打印一条资料的轻量场景；属于 C2-Optional，默认隐藏，只有冻结 manifest 显式纳入才可见。基础多选 PDF 与系统打印不得依赖它。
 - **边界 / 不做**：
   - 不做导出水印；不在导出中嵌入广告或 Pro 引导；不嵌入「上传云盘/分享社交网络」类公开传播引导（版权合规：导出/打印面向个人使用）。
   - **本 feature 只覆盖 PDF 导出与打印**。JSON / CSV 结构化数据导出是同级数据导出能力（隐私设置页 / 资料库面板），`.zip` 全量备份 / 恢复是独立 feature；本 spec 不展开。
@@ -41,7 +41,7 @@ intent_refs:
 ## 3. 技术设计 (How)
 - **模块归属**：PDF 渲染/排版管线 `SnapDrillCore/Service/PDFExportService`（统一 PDF 引擎，注入于 `ServiceContainer.pdfExport`）；打印呈现走 `SnapDrillUI/PrintPresenting` adapter（生产默认 `LivePrintPresenter`，内部使用 `UIPrintInteractionController`，iPad 需要有效 anchor）。
   - **实现现状（GAP-R5 已接入，剩余 dogfood）**：`LibraryDetailView` 单题快速打印生成 PDF 后调用 `PrintPresenting.present(...)`；`ExportPreviewView` 的批量打印同样通过 `PrintPresenting`。旧 spec 所称"经 ShareSheet 间接打印、尚未接入 `UIPrintInteractionController`"已过期。剩余真实缺口是无 AirPrint 打印机 / 真机 AirPrint 三态 dogfood 尚未完成。
-- **关键机制 / 数据流**：资料库过滤 / 选中结果集 → 资料快照 → PDFExportService 排版（去答案 / 留白 / 页眉页码为布局选项）→ 生成 PDF → 预览 → 分享 / 保存 / 打印。候选 SmartPaper / Word 若未来回归，应优先复用管线而非重建 PDF 引擎。ShareCard 例外：用 SwiftUI `ImageRenderer`，不走 PDFExport 管线。
+- **关键机制 / 数据流**：资料库过滤 / 选中结果集 → 资料快照 → PDFExportService 排版（去答案 / 留白 / 页眉页码为 Candidate optional）→ 生成 PDF → 预览 → 分享 / 保存 / 打印。C5-E 实验中的 SmartPaper 与未来可能重入的 Word 应优先复用管线而非重建 PDF 引擎。ShareCard 例外：用 SwiftUI `ImageRenderer`，不走 PDFExport 管线。
 - **State & Concurrency**（Swift 6 strict）：导出/打印为只读编排。批量 PDF 渲染**逐页包 `autoreleasepool` 释放**控制峰值内存（防 OOM）；重活不阻塞主线程。PDF 导出预览经 `AppActivityTracker.begin(.exporting) → end(...)` 标记活动；单题快速打印与预览页打印经 `AppActivityTracker.begin(.printing) → end(...)` 标记活动——期间禁止切换 Profile（互斥），UI 显示对应忙碌提示。
   - **实现现状（GAP-R4 已接入，剩余 caveat）**：旧 spec 所称"快速打印未接入 tracker、`.printing` 生产代码零调用"已过期。当前剩余真实缺口是 `LibraryEditViewModel.save()` 仍使用 `.capturing` 标记编辑保存，需后续判断是否改为更准确的活动类型；另外真机 AirPrint dogfood 尚未完成。
 - **设计裁决（仅本模块）**：
@@ -50,20 +50,20 @@ intent_refs:
 
 ## 4. 验证标准 (Verify)
 - **Success path (GWT)**：
-  - Given 唯一资料库中有可导出资料，When 经搜索 / 过滤形成结果集并发起 PDF 导出，Then 系统生成导出前预览；用户确认后生成 PDF 并提供预览、分享、保存（UC5）。
-  - Given 选中单题或多题，When 发起快速打印并选择每页题数（1/2/4），Then 调用系统打印（UC5）。
+  - Given 唯一资料库中有可导出资料，When 选中一条或多条并发起基础 PDF 导出，Then 每条选定资料恰好出现一次、页数符合每页资料数、每条至少有一种可读内容，并提供系统预览、打印、分享与保存（UC5）。
+  - Given manifest 纳入某个 PDF 增强或单条快速打印，When 用户使用该能力，Then 它通过对应 fidelity / printing oracle，且基础多选 PDF 与系统打印不依赖它。
 - **边界 / 异常**：
   - 导出结果集为空 → 不生成空文件，提示"无可导出资料"（UC5 Exception）。
   - 文件写入失败 / 磁盘空间不足 → 不提示导出成功；已生成临时文件必须清理（UC5 Exception / Boundary B07）。
   - 无 AirPrint 打印机 → 停留在打印前状态并给出失败反馈，不得误记为已打印（UC5 Exception）。
 - **数据保证**：
   - PDF 内容必须来自当前过滤结果或当前选择结果，不得夹带遗留容器或资料库外数据。
-  - 去答案模式只影响导出内容，**不改动原题答案数据**。
+  - 若 manifest 纳入去答案模式，它只影响导出内容，**不改动原题答案数据**。
   - 导出与打印是**只读操作**，不得修改题目主数据、复习状态或统计。
 - **NFR**：
-  - PDF 导出 < 5 秒（50 题，点击导出到预览页显示）；快速打印 < 3 秒（4 题，选中到系统打印面板弹出）。
+  - PDF 导出 < 5 秒（50 条资料，点击导出到预览页显示）；快速打印 < 3 秒只在 manifest 纳入该 optional 时适用。
   - PDF 批量导出内存 < 200MB（`autoreleasepool` 逐页释放）。
-  - 导出 CSV 时以 `=+-@` 开头的值前加 tab（CSV 注入防护；属同级数据导出，列此供完整 NFR 参照）。
+  - 若 manifest 纳入 CSV 导出，以 `=+-@` 开头的值前加 tab（CSV 注入防护；属同级数据导出）。
 
 
 ## 5. Contracts（PDF / 分享 / 打印）
@@ -100,6 +100,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P4 用户拥有数据 / P2 简洁） | 导出/打印是价值链一等终点；数据可导出可打印可带走；不损害录入/管理简洁 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Optional / C5-E / C5-S1 / C6-A | 打印必须独立验收；分享 / 保存不能替代；增强项与 SmartPaper 不能顺带扩张；最终 binary 建立结果证据 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | Release 1 免费、无广告、无 IAP；Word / 图片增强只作候选，不作为升级承诺 |
 | 待验证假设 | `../../explanations/assumptions.md` H3（导出/打印是归档后的高价值终点） | 导出/打印使用率验证 H3 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |

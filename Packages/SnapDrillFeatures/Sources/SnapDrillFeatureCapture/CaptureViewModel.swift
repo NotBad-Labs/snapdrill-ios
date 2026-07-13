@@ -124,8 +124,13 @@ public final class CaptureViewModel {
         }
     }
 
-    /// 页面出现时检查是否有未完成草稿，若有则弹出恢复提示
-    public func checkDraftOnAppear() {
+    /// 采集根页面出现时检查是否有未完成草稿，若有则弹出恢复提示
+    public func checkDraftOnAppear(router: CaptureRouter) {
+        guard router.path.isEmpty else { return }
+        if router.shouldSuppressNextDraftPrompt {
+            router.shouldSuppressNextDraftPrompt = false
+            return
+        }
         if let draft = draftService.loadDraft() {
             pendingDraft = draft
             showDraftAlert = true
@@ -134,10 +139,10 @@ public final class CaptureViewModel {
     
     /// 恢复草稿并导航到结果编辑页
     public func startEditingDraft(router: CaptureRouter) {
-        if let draft = pendingDraft {
-            router.push(.scannerResult(content: draft.content, image: draft.image))
-        }
-        clearDraft()
+        guard let draft = pendingDraft else { return }
+        router.shouldSuppressNextDraftPrompt = true
+        router.push(.scannerResult(content: draft.content, image: draft.image))
+        pendingDraft = nil
     }
     
     /// 丢弃当前草稿并清除持久化记录

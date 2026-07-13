@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-12
+last_verified: 2026-07-14
 layer: roadmap
 derived_from:
   - ../explanations/vision.md
@@ -8,7 +8,7 @@ derived_from:
 
 > 本文件只维护跨功能候选、重入边界和投资状态，不定义当前实现，也不充当 Release Product Contract。
 >
-> 当前实现见自动生成的 [feature-status.md](feature-status.md)；单功能行为见 feature spec；Release 1 的 Must outcomes、明确非目标和验收必须由待建立的 Release 1 Product Contract 单独定义。
+> 当前实现见自动生成的 [feature-status.md](feature-status.md)；单功能行为见 feature spec；Release 1 的 Must outcomes、明确非目标和验收由 [Release 1 Product Contract](release-1-contract.md) 单独定义。该合同全部 13 个 Gate C 决策已 ratified，合入 `develop` 后 effective。
 
 ## 当前上游边界
 
@@ -22,16 +22,14 @@ Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在�
 
 任何 roadmap 项都不得覆盖这些边界。改变跨 feature、数据 / wire、公开承诺、商业或平台范围时，必须先有新的 effective 上游 contract。
 
-## Release 1 合同前的投资边界
-
-在 Release 1 Product Contract 生效前：
+## Release 1 投资边界
 
 1. 不把任何已实现功能自动提升为 Release 1 Must。
 2. 不根据旧 MoSCoW、旧 `v2.0` 全景、历史 ADR、issue 数量或 Draft PR 反推产品范围。
-3. Dashboard、Review 与 SmartPaper 的发布分类保持待 PO 裁决；现有可达性只是实现事实。
+3. Dashboard-default 已由 C3 固定，但卡片与五 Tab 未获批准；Review / SmartPaper 只允许 C4-D / C5-E 的非公开实验，现有公开可达性只是实现偏差。
 4. 不新增 Pro、StoreKit、CloudKit、Word、付费配额、iPad 或中国大陆专项发行工作。
 5. 安全、数据完整性、CI 可靠性和不改变产品范围的缺陷修复仍可按 DoR 独立 shaping。
-6. Draft PR #868 作为单资料库候选实现与风险证据保持冻结，等待上游 contract 后重审。
+6. Draft PR #868 作为单资料库候选实现与风险证据保持冻结，等待独立 Profile-free Backup Wire / 可崩溃恢复 Data Contract 与 S0 / S1 修复后重审。
 
 ## 能力簇状态
 
@@ -39,14 +37,14 @@ Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在�
 
 | 能力簇 | 当前产品关系 | 下一裁决 |
 |---|---|---|
-| 采集 | 核心价值链起点 | Release Contract 选择 Must outcomes 与输入边界 |
-| 资料库搜索、整理、找回 | 核心价值链中段 | Release Contract 选择 Must outcomes、字段与批量操作边界 |
-| 导出 / 打印 | 核心价值链终点 | Release Contract 选择格式、打印与取消 / 失败验收 |
-| 手动备份 / 恢复 | 耐久数据所有权承诺 | Release Contract 定义兼容、损坏与恢复结果边界 |
-| Dashboard | 当前实现可达，不是宪章承诺 | Gate C 分类 Must、optional、hidden 或 removed |
-| Review | 可选复用价值 | Gate C 分类及导航位置 |
-| SmartPaper | 可选复用 / 输出工具；旧 Pro 定价已失效 | Gate C 决定可见性、配额和 Release 1 范围 |
-| Multi-Profile | 当前代码已实现，但产品目标已退休 | Product / Release Contract 生效后重审 #868 |
+| 采集 | Release 1 Must；相机 / 文扫、相册、PDF + OCR 辅助 | 实现对齐 M2 / M3 与 C2-Image，optional 输入按 manifest 隐藏 |
+| 资料库搜索、整理、找回 | Release 1 Must | 实现对齐 M4；动态字段、批量和 ShareCard 默认隐藏 |
+| 导出 / 打印 | Release 1 Must | 对齐 M5；打印独立验收，PDF 增强默认隐藏 |
+| 手动备份 / 恢复 | 耐久数据所有权承诺与 Release 1 Must | DATA-1 下独立 Data Contract、实现与 T4 证据 |
+| Dashboard | Release 1 普通启动默认任务枢纽；当前实现只作差距证据 | 独立实现刀隐藏 Profile / Pro / analytics / Review hero，补一步 Capture / Library 与启动 oracle |
+| Review | 仅 `po-only` / `research` 的 Library 单入口实验；公开隐藏 | 先做隐藏 / 负向门禁；实验实现与 cohort 另行授权 |
+| SmartPaper | 仅 `po-only` / `research` 的 Library 单入口实验；公开隐藏、可见即无配额 / Pro | 对齐 C5-S1 无权重不重复 selector；实验实现另行授权 |
+| Multi-Profile | 当前代码已实现，但产品目标已退休 | 独立 Data Contract 与实现切片后重审 #868 |
 | Apple 私有同步 | 候选假设 | 外部证据 + 新 Product / Data / Privacy contract |
 | Word、高级统计、图片增强 | 候选增值方向 | 外部证据 + 新商业裁决，不进入当前 Release 1 |
 | iPad | 已退出当前范围 | 新平台立项、UI / AX / 截图 / 发布证据 |
@@ -72,7 +70,7 @@ Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在�
 |---|---|---|
 | 手写识别增强 | 真实材料任务准确率与人工修正成本 | Apple 平台能力、误识别、离线隐私 |
 | 自动拆分 / 智能标注 | 对核心采集摩擦的可测改善 | 错误可见、可改、可撤销，不阻塞保存 |
-| 图片处理增强 | 端侧质量、体积、速度与隐私证据 | 不上传内容，不把原图真相替换为不可恢复结果 |
+| 图片处理增强 | 端侧质量、体积、速度与隐私证据 | 不上传内容，不破坏 App-managed 可读内容真相或可恢复性 |
 | Apple 私有同步 | 多设备需求与手动备份摩擦证据 | 冲突、兼容、存储、区域和取消 / 降级策略 |
 | iPad / Pencil | iPhone 无法满足的明确任务 | 不以“布局能跑”代替完整平台验收 |
 
@@ -83,7 +81,7 @@ Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在�
 | 文档 | 单一职责 |
 |---|---|
 | [../explanations/vision.md](../explanations/vision.md) | Product Constitution 与最高产品边界 |
-| 待建立的 Release 1 Product Contract | 当前发布范围、非目标和结果级验收 |
+| [release-1-contract.md](release-1-contract.md) | 全部 13 个 Gate C 决策已 ratified；合入 `develop` 后为 current effective Release 1 Contract |
 | [feature-status.md](feature-status.md) | 自动生成的当前实现状态 |
 | [../features/](../features/) | 单功能 Why / What / How / Verify |
 | [../explanations/assumptions.md](../explanations/assumptions.md) | 可证伪假设与推翻信号 |

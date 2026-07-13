@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-12
+last_updated: 2026-07-14
 intent_refs:
   - vision:P2
   - vision:P4
@@ -16,7 +16,7 @@ intent_refs:
 
 # Feature: Onboarding 新手引导
 
-> **产品重基线（2026-07-12）**：frontmatter 与下文记录当前实现，不代表 Release 1 引导内容或信息架构。Onboarding 必须服从 B1-A / B2-A 的首个切口与使命；B5-A 已取消用户可见 Profile，Dashboard、五栏 Tab 和最终首屏等待 Gate C / Release 1 Product Contract。旧流程只作实现 / 规范偏差追溯，不得驱动新工作。
+> **产品重基线（2026-07-14）**：Onboarding 必须服从 B1-A / B2-A 的首个切口与使命；不出现 Profile、Review、SmartPaper、Pro 或其他 optional 功能清单。C3 规定完成或跳过引导后普通启动进入 Dashboard；deep link 与阻塞恢复除外。当前四页流程仍是实现事实，具体页面与视觉调整需要独立授权。
 
 > 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
@@ -28,29 +28,28 @@ intent_refs:
 - **原则归属**：P5 成人生产力工具（中性成熟语气、零学习曲线、不假设用户懂"SM-2"等概念）+ P4 数据属于用户（零注册、纯本地，作为信任建立的开场）+ P2 简洁（不强制首次配置）。详见 `../../explanations/vision.md`。
 
 ## 2. 需求规则 (What)
-- **首次启动引导**：页数、顺序和具体文案等待 Gate C；内容必须解释使命、最低摩擦采集、整理 / 找回、导出 / 打印和 local-first，不得扩张为功能清单。
+- **首次启动引导**：页数、顺序和具体文案由 owning UI slice 在合同边界内维护；内容必须解释使命、最低摩擦采集、整理 / 找回、导出 / 打印和 local-first，不得扩张为功能清单。
 - **快进不配置**：Onboarding **不要求配置任何字段**，不要求填昵称 / 头像 / 学校 / 年级，不要求选学科（Apple HIG: "Avoid asking for setup information up front"）。
 - **可跳过**：提供"开始使用"跳过按钮；语气成熟、面向成年用户，不幼稚不卡通。
 - **单资料库无感就绪**：引导不创建、命名或选择 Profile；唯一资料库由系统内部准备，用户无需理解容器概念。
 - **只展示一次**：完成后不再显示；完成状态为 App 全局状态。
-- **结束动作**：进入 Gate C 决定的 Release 1 首屏；Dashboard 与五栏 Tab 是当前实现，不是本 spec 的产品要求。
-- **字段配置延后**：首次保存后才按需提示更多字段；后续 TipKit 提示不按 Profile 建立用户可见语义。
-- **边界 / 不做**：不弹通知权限请求（仅在用户主动开启提醒开关时才触发系统弹窗）；不在 Onboarding 中索取相机 / 相册权限（point-of-use 请求，进采集时才请求）；不播放视频教程；不做动画过渡特效；角色预设套件等模板入口不进 Onboarding。
+- **结束动作**：进入 C3 规定的 Dashboard；deep link / 阻塞恢复例外及 Dashboard 行为见 Release 1 Contract。五栏 Tab 仍只是当前实现，不是本 spec 的产品要求。
+- **字段配置延后**：只有冻结 manifest 纳入动态字段管理时，首次保存后才可按需提示；未纳入时不显示字段 TipKit。提示不按 Profile 建立用户可见语义。
+- **边界 / 不做**：不请求通知权限，也不介绍 Review / SmartPaper；不在 Onboarding 中索取相机 / 相册权限（point-of-use 请求，进采集时才请求）；不播放视频教程；不做动画过渡特效；角色预设套件等模板入口不进 Onboarding。
 - **前置依赖**：无。唯一资料库的内部初始化归数据 / composition root，不由 Onboarding 建立用户可见 Profile 生命周期。
 - **商业政策**：B6-A 下 Onboarding 不嵌广告、IAP、Pro 引导或“即将推出”承诺。
 
 ## 3. 技术设计 (How)
 - **模块归属**：`OnboardingView`（引导页）+ `OnboardingManager`（完成状态）位于 `SnapDrillUI`。`OnboardingManager` 在架构上是**显式豁免清单**成员（不挂 DI 容器，全局静态状态）。
-- **关键机制 / 数据流**：当前实现为多页滑动引导 → "开始使用"或翻完末页 → `OnboardingManager` 标记完成 → 进入 Dashboard；最终首屏等待 Gate C。完成状态是 App 全局状态。现有 Profile / TipKit 隔离属于 B5-A 待退场实现。
+- **关键机制 / 数据流**：当前实现为多页滑动引导 → "开始使用"或翻完末页 → `OnboardingManager` 标记完成 → 进入 Dashboard，与 C3 目的地一致。完成状态是 App 全局状态。现有 Profile / TipKit 隔离属于 B5-A 待退场实现。
 - **State & Concurrency**（Swift 6 strict）：Onboarding 是纯展示流，无重活、无落库；完成标记走 `OnboardingManager` 全局状态，不经 `DataExecutor`，且不直接持有 `ModelContext`。
 - **设计裁决**：`OnboardingManager` 列入静态 facade 豁免清单（全局静态状态，非 Profile-scoped），与 `TelemetryGate` / `ImageStorage` / `DependencyContainer.shared` 同属架构层显式豁免，不视为违反 DI 注入约定。
 
 ## 4. 验证标准 (Verify)
-- **Success path (GWT)**：Given 用户首次启动 App，When 完成或跳过 Release 1 引导，Then `OnboardingManager` 标记完成并进入 Gate C 规定的首屏；全程不要求注册、Profile 选择、字段配置或提前索取权限。
+- **Success path (GWT)**：Given 用户首次启动 App，When 完成或跳过 Release 1 引导，Then `OnboardingManager` 标记完成并进入 Dashboard；全程不要求注册、Profile 选择、字段配置或提前索取权限。
 - **边界 / 异常**：
   - 完成 Onboarding 后再次启动 → 不重新触发首次引导（完成状态全局）。
-  - 进入采集页才触发相机权限请求；用户拒绝 → 不阻断主流程、不弹空白页，展示降级引导（相册导入 / 文档扫描 / 手动编辑）+「去设置开启」入口（Boundary B14/B16）。
-  - 用户主动开启提醒开关后系统已拒绝通知权限 → 提示权限已被拒绝并引导跳转系统设置（Boundary B21）。
+  - 进入采集页才触发相机权限请求；用户拒绝 → 不阻断主流程、不弹空白页，展示仍可用的相册 / PDF 路径 +「去设置开启」入口；文档扫描同样依赖相机权限，不得伪装成替代路径，手动入口仅在 manifest 纳入时出现（Boundary B14/B16）。
   - 空资料库（Onboarding 后无数据）→ Release 1 首屏显示明确空状态与采集入口，不显示脏数据（Boundary B17）。
 - **数据保证**：Onboarding 完成状态只写一次且全局；流程不创建用户可见 Profile，不写入任何资料 / 图片记录。
 - **NFR**：无（纯展示流，无大图加载 / 无落库 / 无中断恢复要求）。
