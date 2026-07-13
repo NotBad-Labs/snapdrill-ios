@@ -21,7 +21,7 @@ PO 于 2026-07-12 批准 Gate B6-A：
 - 不可购买的升级入口、“即将推出 Pro”文案和价格 / IAP 元数据必须从 Release 1 用户可见面隐藏。
 - 当前商业政策不永久禁止变现。未来商业化必须重新满足本文件的重入条件。
 
-B6-A 不决定 Dashboard、Review 或 SmartPaper 是否进入 Release 1，也不决定 SmartPaper 是否保留免费配额。这些属于 Release 1 Contract；在该 contract 生效前，现有实现只是待核对事实。
+Release 1 Contract C3 固定 Dashboard-default；C4-D / C5-E 只允许 Review 与 SmartPaper 在 `po-only` / `research` build 以受限实验出现，公开候选隐藏；C5-S1 固定 SmartPaper 基础随机选择器。现有配额、Pro、Review 主入口和公开可见性都是实现偏差，不构成商业权威。
 
 ## 免费核心边界
 
@@ -116,4 +116,4 @@ Release 1 没有订阅，本节不是当前功能承诺。若未来订阅获批�
 | [assumptions.md](assumptions.md) | 产品假设 H1-H3、H9-H12 |
 | [competitive-analysis.md](competitive-analysis.md) | 可更新的竞品证据，不定义当前商业政策 |
 | [../decisions/ADR-001-smart-paper-analytics-pricing.md](../decisions/ADR-001-smart-paper-analytics-pricing.md) | 已被 B6-A 取代的历史商业决策 |
-| 待建立的 Release 1 Product Contract | Release 1 功能可见性、非目标与验收 |
+| [Release 1 Product Contract](../reference/release-1-contract.md) | Release 1 功能可见性、非目标与验收；全部 13 个 Gate C 决策已 ratified，合入 `develop` 后 effective |

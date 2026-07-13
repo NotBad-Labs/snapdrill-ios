@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-12
+last_verified: 2026-07-14
 layer: pattern
 freshness:
   max_age_days: 180
@@ -17,12 +17,12 @@ freshness:
 |---|---|---|
 | **App 启动（冷启动）** | < 2 秒到首屏可交互 | Xcode Instruments Time Profiler |
 | **OCR 识别响应** | < 2 秒（印刷体中英文） | 拍照后到文字出现在编辑区 |
-| **资料库列表加载** | < 500ms（200 条） | 从 Tab 切换到列表渲染完成 |
+| **资料库列表加载** | < 500ms（200 条） | 从 Dashboard 进入 Library 到列表渲染完成 |
 | **搜索响应** | < 300ms | 输入关键词到结果更新 |
 | **PDF 导出** | < 5 秒（50 条） | 点击导出到预览页显示 |
-| **快速打印** | < 3 秒（4 条） | 选中资料到系统打印面板弹出 |
+| **快速打印（Candidate optional）** | < 3 秒（4 条）；仅冻结 manifest 纳入后适用 | 选中资料到系统打印面板弹出 |
 | **备份打包** | < 30 秒（500 条 + 图片） | 点击备份到 ShareSheet 弹出 |
-| **CSV 导入** | < 5 秒（1000 行）| 选择文件到资料入库完成 |
+| **CSV 导入（Candidate optional）** | < 5 秒（1000 行）；GAP-R6 修复且冻结 manifest 纳入后才适用 | 选择文件到资料入库完成 |
 | **滚动帧率** | 60fps（无掉帧） | 资料库列表快速滚动 |
 
 ## 内存
@@ -33,7 +33,7 @@ freshness:
 | PDF 批量导出 | < 200MB | autoreleasepool 逐页释放 |
 | 备份/恢复 | < 200MB | 流式 ZIP 写入，不全量加载 |
 | 图片裁剪 | < 300MB | Mantis 内部管理 |
-| CSV 导入（1000 行）| < 80MB | 解析流逐行处理，不全文加载到内存 |
+| CSV 导入（1000 行，Candidate optional）| < 80MB；GAP-R6 修复且冻结 manifest 纳入后才适用 | 解析流逐行处理，不全文加载到内存 |
 
 ## 存储
 
@@ -44,7 +44,7 @@ freshness:
 | **2000 题** | ~400MB |
 | **图片压缩** | 长边限制 2000px，JPEG quality 0.8 |
 | **草稿** | 最近 1 份，7 天过期自动清理 |
-| **缓存** | 临时文件 + OCR 中间产物，用户可手动清理 |
+| **缓存** | 临时文件 + OCR 中间产物；Release 1 用户可见手动清理入口隐藏，内部清理不得触碰 App-managed 主图或资料数据 |
 
 ## 隐私与安全
 
@@ -76,18 +76,17 @@ freshness:
 | 需求 | 标准 |
 |---|---|
 | **VoiceOver** | 全模块所有常见任务可完成 |
-| **Dynamic Type** | 装饰性数字（Dashboard 统计、滑动印章、Session Summary 等）随系统 Dynamic Type 缩放 |
+| **Dynamic Type** | 所有可见文案、操作和可执行本地事实随系统 Dynamic Type 缩放且保持可达；不据此要求保留任何统计表面 |
 | **手势替代** | 滑动操作必须有对应按钮 fallback |
 | **色彩对比度** | 文字与背景对比度 ≥ 4.5:1（WCAG AA） |
 
-### 复习卡片自定义字号（App 独立设置，非 Dynamic Type）
+### Review 实验排版
 
 | 需求 | 标准 |
 |---|---|
-| **正面字号** | 用户在设置中通过滑杆调整（默认 32pt，范围按代码实现） |
-| **反面字号** | 独立设置（默认 16pt，与正面互不影响） |
-| **存储** | 当前实现为 `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)` 的 Per-Profile 隔离；单资料库重基线后按 effective data contract 收敛 |
-| **关系** | **与 Dynamic Type 互不依赖**——复习卡片正反面是阅读体验核心，需用户精细控制；Dynamic Type 仅影响装饰性数字（统计、印章） |
+| **可见范围** | C4-D 只允许非公开实验从 Library 单一入口进入；Settings 中字号 / 对齐等 Review 控件必须隐藏 |
+| **默认可读性** | 正反面内容与全部操作在受支持 Dynamic Type / VoiceOver 矩阵中可读、可达，不依赖用户先配置字号 |
+| **当前实现偏差** | `cardFrontFontSize` / `cardContextFontSize` 的 Per-Profile 设置只作迁移证据，不是 Release 1 产品要求 |
 
 ## 可靠性
 

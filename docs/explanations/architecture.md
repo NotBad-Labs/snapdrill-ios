@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-12
+last_verified: 2026-07-14
 layer: pattern
 freshness:
   max_age_days: 180
@@ -9,7 +9,7 @@ freshness:
 
 > 面向新开发者的架构全景图。
 >
-> **产品重基线边界（2026-07-12）**：本文描述当前代码，不定义产品。Product Constitution v1 已选择一个可见资料库、Release 1 无 IAP，并把 Apple 私有同步 / Pro 降为未来假设；因此下文 Multi-Profile、per-profile 偏好、Pro gating 与 CloudKit 路径只用于刻画待重审实现。不得据此新增功能或反向覆盖 `vision.md`。候选单资料库实现为 Draft #868，仍须等待 Release 1 / Data Contract 后重审。
+> **产品重基线边界（2026-07-14）**：本文描述当前代码，不定义产品。Product Constitution v1 已选择一个可见资料库、Release 1 无 IAP，并把 Apple 私有同步 / Pro 降为未来假设；已 ratify 的 Release 1 Contract 合入 `develop` 后继续约束 Must / hidden 与数据结果。因此下文 Multi-Profile、per-profile 偏好、Pro gating 与 CloudKit 路径只用于刻画待重审实现。不得据此新增功能或反向覆盖 `vision.md` / Release 1 Contract。Draft #868 仍须等待 DATA-1 effective 与独立 Data Contract 后重审。
 
 ---
 
@@ -130,8 +130,8 @@ SwiftData @Model（持久化）
 `Notification.Name.reviewDataDidChange`（定义在 `SnapDrillCore/Support/ReviewDataNotification.swift`）。发布方包括 Repository 层（`ArchiveRepository`、`CategoryDimensionRepository`、`CategoryValueRepository` 等）和部分 Feature 层写操作入口（`CaptureResultViewModel`、`LibraryEditViewModel`、`SettingsViewModel`、`DataSeeder`）。监听方：`DashboardViewModel`、`ReviewViewModel`、`DashboardAnalyticsViewModel`，通过 `for await` 订阅并刷新 UI。
 
 **错误处理策略**：
-- DB save/rollback：原子性保证，失败必须回滚
-- 图片文件 I/O：best-effort，部分失败不回滚数据库（图片丢失不影响题目主记录）
+- DB save/rollback：原子性保证，失败必须回滚。
+- 当前实现的部分图片文件 I/O 仍采用 best-effort，这是待修复偏差，不是 Release 1 结果契约。C2-Image 要求已保存资料保有可读的 App-managed 内容真相；采集保存不得在必需图片不可读时报告成功。DATA-1 要求正式完整备份 all-or-nothing，salvage 必须作为单独路径明确标识。
 
 ---
 

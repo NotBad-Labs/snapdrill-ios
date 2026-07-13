@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-12
+last_verified: 2026-07-14
 layer: pattern
 ---
 # SnapDrill 术语表
@@ -33,7 +33,7 @@ layer: pattern
 |---|---|---|---|
 | **Profile（当前实现遗留）** | Profile / Workspace | 当前代码中的多资料库容器。Product Constitution v1 的产品目标是一个可见资料库，用户文案不得继续引入“资料空间 / Profile / Workspace”；本词只用于 #868 重基线前识别代码、数据和测试风险。 | `Profile` struct (Core), `ProfileManager` (Data) |
 | **基线用户** | Baseline User | 不熟悉专业扫描 / 归档工具的成年用户（假设，待首批用户画像验证，见 `../explanations/assumptions.md` H1）。所有设计决策以此用户能否顺利完成为最低标准 | — |
-| **图片是真相** | Image is Truth | 当 OCR 文本与原图冲突时，以原图为准。原图是资料项的唯一真相源 | `ArchiveItemModel.imagePath` (Data) |
+| **图片是真相** | Image is Truth | 当 OCR 文本与图片冲突时，以用户确认裁剪 / 方向后的 App-managed 可读图片为内容真相；不承诺来源原始字节或完整分辨率 | `ArchiveItemModel.imagePath` (Data) |
 | **.zip 备份** | .zip Backup | App 备份文件格式（ZIP 内含 JSON 数据 + 图片文件）；线格式合同见 `backup-wire-format.md` | `BackupService` (Data) |
 
 ---
@@ -42,7 +42,7 @@ layer: pattern
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **OCR** | Optical Character Recognition | Apple Vision 端上光学字符识别，用于生成搜索索引和可复制文本。原图是真相，OCR 是辅助 | `CaptureViewModel` (Features) |
+| **OCR** | Optical Character Recognition | Apple Vision 端上光学字符识别，用于生成搜索索引和可复制文本。App-managed 可读图片是内容真相，OCR 是辅助 | `CaptureViewModel` (Features) |
 | **SM-2** | SM-2 Algorithm | SuperMemo 2 间隔重复调度算法，计算每个资料项的下次回顾时间 | `ReviewScheduler` (Core) |
 | **字段配置** | Field Configuration | 用户在分类管理中按需开关分类、来源、级别、标签等录入维度。当前 canonical 内置维度 key 为 `category` / `source` / `level` / `tag`；`category` 是主分类维度，不等同于整个 `CategoryDimensionModel` 维度系统；`level` 是通用层级/阶段字段，不默认表达学习年龄段。 | `CategorySystemKey`, `CategoryDimensionModel.defaultCaptureVisibility`, `CategoryValueListViewModel.isVisibleInCapture` |
 | **连续录入** | Continuous Capture | 保存一项资料后自动回到相机界面，支持批量录入不中断 | `CaptureRouter` (Features) |
@@ -64,8 +64,8 @@ PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库”，但
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **Dashboard** | Dashboard | 当前实现中的状态总览界面，展示单一资料库相关统计、回顾快捷入口和用户问候语；是否作为 Release 1 首屏等待 Release Contract | `DashboardView` (Features) |
-| **Onboarding** | Onboarding | 首次启动多页引导流程（3-4 页），介绍核心功能（采集/回顾/导出），完成后不再显示 | `OnboardingView` (UI) |
+| **Dashboard** | Dashboard | Release 1 普通启动默认任务入口；Capture / Library 一步可达，不承担 Profile、Pro、analytics 或 Review hero 叙事。具体卡片和五 Tab 结构未获批准 | `DashboardView` (Features) |
+| **Onboarding** | Onboarding | 首次启动引导，解释采集、整理 / 找回、导出 / 打印与 local-first；不介绍 Review、SmartPaper、Profile 或 Pro，完成后不再显示 | `OnboardingView` (UI) |
 | **回顾卡片** | Review Card | 正反面翻转式卡片，正面展示资料内容（图文），背面展示答案/备注。用户通过滑动或按钮评估掌握程度 | `ReviewCardFront` / `ReviewCardBack` (Features) |
 | **标签** | Tag | 多选资料分类维度（如"重点""考前"），支持过滤和批量操作 | `CategorySystemKey.tag`, `CategoryValueModel` (Data) |
 | **Profile 切换（当前实现遗留）** | Profile Switch | 当前 Multi-Profile 代码路径；不属于已批准的单资料库产品行为，只用于重基线前的实现与测试识别 | `ProfileManager.switchProfile(to:)` (Data) |

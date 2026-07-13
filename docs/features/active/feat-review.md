@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-12
+last_updated: 2026-07-14
 intent_refs:
   - vision:P2
   - vision:P3
@@ -14,7 +14,7 @@ intent_refs:
 
 # Feature: 回顾（SM-2 间隔调度）
 
-> **产品重基线（2026-07-12）**：frontmatter 与下文记录当前实现，不代表 Release 1 范围。Product Constitution v1 将回顾定义为不得抢占核心链路的可选附加值；其可见性、入口和结果级验收等待 Gate C / Release 1 Product Contract。下文 Pro / 高级统计 / SmartPaper 分层只作历史 / 规范偏差追溯，不得驱动新工作。
+> **产品重基线（2026-07-14）**：Product Constitution v1 将回顾定义为不得抢占核心链路的可选附加值；Release 1 Contract C4-D 只允许 `po-only` / `research` build 通过 Library 的单一静态次级入口实验，`public-candidate` 完全隐藏。无主 Tab、Dashboard cue / 计数、Onboarding 介绍、Settings 控件、通知、徽标或隐式恢复入口；达到预登记 cohort 门槛也只触发重新裁决。frontmatter 与技术章节仍记录当前实现，不代表这些偏差获准保留。
 
 > 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
@@ -27,17 +27,17 @@ intent_refs:
 
 ## 2. 需求规则 (What)
 - **SM-2 间隔回顾**：翻卡 + 滑动评估（有印象 / 没印象）。
-- **Dashboard 回顾字段**（当前实现口径；Dashboard 是否进入 Release 1 等待 Gate C）：
+- **Release 1 可见性**：仅 `po-only` / `research` 冻结 build 可从 Library 的一个静态次级入口进入；`public-candidate` 完全隐藏。C4-D 的实验不包含主 Tab、Dashboard cue / 计数、Onboarding、Settings、提醒 / 通知 / 徽标或隐式状态恢复。
+- **Dashboard 回顾字段**（仅当前实现口径，Release 1 Dashboard 不保留 Review hero / cue / 计数）：
   - 资料总数；**待回顾数 = `ArchiveItemModel.nextReviewAt ≤ now` 且资料未软删**；**已回顾数 = 至少 1 次 SM-2 评估**；今日新增；各分类分布。
   - 时间序列 / 高级统计属于未获当前范围授权的候选，见 `../backlog/feat-advanced-stats.md`。
-- **复习卡片外观设置**：正/反面字号独立、对齐三选项（默认左对齐）、实时预览。
-- **提醒**：默认不推送通知；用户可在设置开启频率（选择权交用户）。
+- **复习卡片外观设置与提醒**：当前代码包含字号、对齐和提醒设置；C4-D 的单一 Library 入口实验不包含这些 Settings 表面或通知，Release 1 必须隐藏。
 - **边界 / 不做**：不做打卡、连续天数、成就弹窗；回顾入口在信息架构中不得压过采集与资料库。
-- **前置依赖**：无。Review 是**被依赖方**——`feat-smartpaper`、`feat-advanced-stats` 依赖 Review 产出的 SM-2 数据。
-- **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP。回顾若被 Gate C 纳入 Release 1，不做付费墙；SmartPaper / 高级统计是否存在或商业化等待新 contract。
+- **前置依赖**：无。候选高级统计可以消费 Review 产出的 SM-2 数据；SmartPaper 当前实现中的 SM-2 依赖是遗留偏差，C5-S1 明确禁止 Release 1 实验 selector 使用 Review / SM-2。
+- **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP。非公开实验中的 Review 不做付费墙；公开可见性与任何未来商业化都需要新 contract。
 
 ## 3. 技术设计 (How)
-- **模块归属**：SM-2 引擎 `SnapDrillCore`（`ReviewScheduler` / `SM2State`）；Dashboard 聚合 `SnapDrillFeatureDashboard`。
+- **模块归属**：SM-2 引擎 `SnapDrillCore`（`ReviewScheduler` / `SM2State`）；当前 Dashboard 聚合位于 `SnapDrillFeatureDashboard`，但 C3 / C4-D 的 Release 1 目标不消费 Review cue / 计数。
 - **关键机制 / 数据流**：评估依结果更新该资料的 `easeFactor / interval / nextReviewAt` 并推进下一条；正面 = 原内容（图文，**必须显示图片**，尤其图形资料），背面 = 参考答案/备注；左滑/没印象、右滑/有印象，**手势必有等价按钮**（HIG）；答案缺失仍可翻面评估。
 - **SM-2 数值合同**（`ReviewScheduler` 是 SSOT，测试向量必须同步）：
   - 评分 raw value：`again = 0`、`hard = 2`、`good = 3`、`easy = 5`。
@@ -51,8 +51,9 @@ intent_refs:
 
 ## 4. 验证标准 (Verify)
 - **Success path (GWT)**：Given 有到期资料，When 进入 Review 并对每张卡翻面后评估（有印象/没印象，手势或按钮），Then SM-2 状态更新并推进下一张；全部完成后展示摘要（"N 条有印象，M 条需回看"）并返回。
+- **可见性 (GWT)**：Given `public-candidate` build，When 用户遍历全部入口和系统触发面，Then Review 完全不可达且无调度副作用；Given 获准的 `po-only` / `research` build，Then 只有 Library 的一个静态次级入口可进入 Review。
 - **边界 / 异常**：
-  - 无到期资料 → Dashboard 与 Review 空状态，不进空白卡片流（Boundary B19）。
+  - 无到期资料 → 获准的非公开 Review 实验显示空状态，不进空白卡片流；Dashboard 不显示 Review cue / 计数，`public-candidate` 中 Review 完全不可达（Boundary B19）。
   - 某题缺答案 → 允许翻面进空答案状态，仍可评估。
   - **软删除 × 回顾队列**：资料软删除（5s undo 窗口）→ 立即从到期队列移除；undo 恢复 → 回顾状态一并恢复；过窗口永久删除 → 其 `ArchiveItemModel` 随资料级联清理。
     - **⚠ 实现现状（GAP-R1，代码债）**：当前 `ReviewViewModel.loadDataAsync()` 已在加载队列时排除 `DeletionScheduler.pendingDeletionIDs`；但 `.reviewing` 期仍忽略 `reviewDataDidChange` 通知，进行中会话不会被外部删除即时打断。需求不变（应避免已删除资料继续处理），待后续 ViewModel 契约修复。
@@ -108,6 +109,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P5 成人生产力工具） | 复习是可选留存层、免费附加值；不向 Anki 靠拢、不贩卖焦虑；无障碍是基础质量 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C3 / C4-D | Dashboard 不由 Review 主导；只按指定 audience、单一 Library 入口和预登记证据实验，不自动公开 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | Release 1 免费、无广告、无 IAP；数据驱动候选不构成 Pro 承诺 |
 | 待验证假设 | `../../explanations/assumptions.md` H9（可选回顾提升复用价值但不应拖向复杂记忆工具） | 复习使用率与复杂度验证 H9 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
@@ -119,4 +121,4 @@ intent_refs:
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（复习作用于旅程 2 归档、旅程 5 整理后的题目；本版本未单列复习旅程）
 - 商业政策：`../../explanations/business-model.md`
-- 被依赖：`../backlog/feat-smartpaper.md`、`../backlog/feat-advanced-stats.md`
+- 被依赖：`../backlog/feat-advanced-stats.md`；`../backlog/feat-smartpaper.md` 的当前 SM-2 依赖属于 C5-S1 禁止的遗留实现偏差

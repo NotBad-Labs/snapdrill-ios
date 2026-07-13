@@ -172,6 +172,6 @@ Product Constitution
 | [business-model.md](business-model.md) | 当前商业政策、商业假设与重入条件 |
 | [assumptions.md](assumptions.md) | 可证伪的产品假设及证据方法 |
 | [user-journeys.md](user-journeys.md) | 宪章约束内的代表性工作流 |
-| 待建立的 Release 1 Product Contract | Release 1 范围、非目标和结果级验收 |
+| [Release 1 Product Contract](../reference/release-1-contract.md) | Release 1 范围、非目标和结果级验收；全部 13 个 Gate C 决策已 ratified，合入 `develop` 后 effective |
 | [../features/](../features/) | 单功能 Why / What / How / Verify |
 | [../reference/feature-status.md](../reference/feature-status.md) | 当前实现状态，仅属实证链 |

@@ -4,7 +4,7 @@
 >
 > **维护规则**：后续新决策由 Claude 起草条目，PO 确认，Codex 落盘；路由方式与根 `AGENTS.md` / `CLAUDE.md` 的裁决路由规则一致。更早的奠基性决策（2026-06-09 美国全球版 pivot、零后端、iPhone-only 等）已在 ADR / positioning 固化，不重复收录。
 >
-> **范围**：2026-06-27 至 2026-07-12。初始草案由 Claude 起草，后续裁决由 PO 直接确认、Codex 固化入仓。
+> **范围**：2026-06-27 至 2026-07-14。初始草案由 Claude 起草，后续裁决由 PO 直接确认、Codex 固化入仓。
 
 ## 决策状态
 
@@ -15,9 +15,9 @@
 | 日期 | 决策 | 归属 |
 |---|---|---|
 | 06-30 | 工作序：先合并 → Slice3 → 方向 C（繁体 OCR）→ 方向 D（SmartPaper 免费层）；**跳过方向 A（发布）** | 对话；已由执行结果固化 |
-| 07-01 | SmartPaper 免费配额 = **3 次 / 自然月**；当前为实现 / 历史裁决，Release 1 是否保留等待 Gate C，B6-A 后不得显示 Pro upsell | `docs/features/backlog/feat-smartpaper.md` §3 |
-| 07-01 | 扣费语义 = **导出完成才扣**（预览不扣、同生成多次导出只扣 1）；仅在 Gate C 保留配额时继续适用 | `docs/features/backlog/feat-smartpaper.md` §3 + 测试契约 |
-| 07-01 | SmartPaper 入口：正常浏览态可见、**非 Pro 门**、轻量工具栏动作、保留名称；Release 1 可见性等待 Gate C | `docs/features/backlog/feat-smartpaper.md` §3 |
+| 07-01 | SmartPaper 免费配额 = **3 次 / 自然月**；随 07-14 C5-E 所属权威合入 `develop` 后 superseded，之后只作实现 / 历史裁决 | `docs/features/backlog/feat-smartpaper.md` §3 |
+| 07-01 | 扣费语义 = **导出完成才扣**（预览不扣、同生成多次导出只扣 1）；随 C5-E 的 Release 1 无配额边界合入 `develop` 后 superseded | `docs/features/backlog/feat-smartpaper.md` §3 + 测试契约 |
+| 07-01 | SmartPaper 入口：正常浏览态可见、**非 Pro 门**、轻量工具栏动作、保留名称；公开可见性随 07-14 C5-E 合入 `develop` 后 superseded | `docs/features/backlog/feat-smartpaper.md` §3 |
 | 07-02 | 损坏库恢复 UX = **完整恢复流程**（从备份恢复 / 以空资料库继续），否决静默清空与维持现状 | `docs/features/active/feat-backup.md` 恢复安全规范 + `docs/features/active/feat-profile.md` 降级 / Profile 隔离边界 |
 | 07-03 | B2 恢复页文案 5 条定稿（含“复制副本路径”等） | L10n 实现 + PR #848 |
 | 07-05 | **术语标准 = 资料系**（资料 / 资料库；当时包含资料空间），SmartPaper 域内保留 题 / 试卷 / 组卷；“资料空间”已随 07-12 B5-A 单资料库裁决停用 | `docs/reference/glossary.md`（已固化，含边界表） |
@@ -26,6 +26,8 @@
 | 07-06 | 隐私政策文案校正批准（“学习助手”→“资料整理应用”，清除 pre-pivot 残留） | L10n + Policy 实现；与 `docs/explanations/positioning-and-audience.md` 一致 |
 | 07-11 | **退休 Multi-Profile，重基线为单一本地资料库**；产品行为已由 07-12 B5-A 承接。项目无内测用户，开发期 Profile 数据、偏好和旧多 Profile 备份无需迁移或兼容；该过渡边界仍须由 Release 1 / Data Contract 承接后才能合并实现 | `docs/explanations/vision.md` §数据与身份定位；`docs/reference/audits/2026-07-repository/phases/04b-single-library-brief.md` |
 | 07-12 | **Gate B / Product Constitution v1：B1-A 至 B7-A 全部逐项批准**。首个切口 = 结构化纸张 / PDF 成人工作流；价值承诺 = 可搜索、可整理、可打印资料库；核心链 = 采集 → 整理 / 找回 → 导出 / 打印；local-first / 无 SnapDrill 账户 / 单资料库 / 永久手动备份；Release 1 免费无广告无 IAP；iPhone-only 美国主体全球版、英文 + 简体中文 | `docs/explanations/vision.md`（Product Constitution v1；本权威合入 `develop` 后 effective） |
+| 07-13 | **Gate C / C3 ratified：Release 1 普通启动默认进入 Dashboard**。Dashboard 只承担任务入口与可执行状态概览；不批准当前卡片 / 五 Tab，不允许 Profile / Pro / analytics / Review hero 主导首屏 | `docs/reference/release-1-contract.md` §4 |
+| 07-14 | **Gate C 四包全部批准**：C1-A；C2-Core / Image / Optional / Personalization；C4-D；C5-E / C5-S1；C6-A；DATA-1 / DATA-1-E / DATA-1-R。加上 07-13 的 C3，Release 1 Contract 全部 13 个精确 ID 已 ratified；本权威合入 `develop` 后 effective，且不自动授权实现、上传、开放 TestFlight 或发布 | `docs/reference/release-1-contract.md` |
 
 ## B. 质量门槛
 
@@ -76,7 +78,7 @@
 
 ## 统计
 
-约 **28 组已拍 + 7 项在队**。Gate B 的 7 个关联选项作为一个 Product Constitution v1 决策包计数。
+约 **33 组已拍 + 7 项在队**。计数口径按 PO 批准的决策包：Gate B 的 7 个关联选项计一组；C3 单独计一组；07-14 批准的 Gate C 其余 12 个精确 ID 按四包计四组。
 
 草案中标记“待路由”的 5 项已随本文件入仓路由：
 
