@@ -33,6 +33,8 @@ actor CameraStateActor {
         lastUpdateTime = now
 
         guard let target = target else {
+            smoothedRect = nil
+            lastDetectedRect = nil
             stabilityCounter = 0
             return (nil, false)
         }

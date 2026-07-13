@@ -37,4 +37,19 @@ struct CaptureDogfoodBlockerTests {
 
         controller.capturePhoto()
     }
+
+    @Test("检测目标消失时不保留上一场景的裁剪框")
+    func cameraStateClearsStaleRegionWhenDetectionDisappears() async {
+        let state = CameraStateActor()
+        let detectedRegion = CGRect(x: 0.2, y: 0.3, width: 0.4, height: 0.2)
+
+        let detected = await state.process(target: detectedRegion, now: 1)
+        #expect(detected.0 != nil)
+
+        let missing = await state.process(target: nil, now: 2)
+        let storedRegion = await state.lastDetectedRect
+
+        #expect(missing.0 == nil)
+        #expect(storedRegion == nil)
+    }
 }
