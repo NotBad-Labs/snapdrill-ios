@@ -271,7 +271,7 @@ public final class CaptureResultViewModel {
 
     /// 触发保存并存储 Task 句柄（由 View 调用，替代裸 Task 包裹）
     public func save() {
-        guard !isSaving else { return }
+        guard !isSaving, !isSaved else { return }
         isSaving = true
         saveTask = Task {
             defer { self.isSaving = false }
@@ -334,6 +334,7 @@ public final class CaptureResultViewModel {
     /// 保存成功后的善后：通知、埋点、引导检查
     private func handleSaveSuccess() {
         isSaved = true
+        draftService.clearDraft()
         NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
 
         analyticsService.track(.captureSaved, parameters: [
@@ -354,7 +355,6 @@ public final class CaptureResultViewModel {
 
     /// 保存成功后的导航：短暂延迟让触觉反馈生效，再执行退栈
     private func navigateAfterSave() {
-        draftService.clearDraft()
         navigateTask = Task {
             try? await Task.sleep(for: .milliseconds(300)) // best-effort: 取消即导航，延迟中断不影响正确性
             guard !Task.isCancelled else { return }

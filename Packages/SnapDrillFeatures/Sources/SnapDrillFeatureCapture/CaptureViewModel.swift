@@ -134,10 +134,9 @@ public final class CaptureViewModel {
     
     /// 恢复草稿并导航到结果编辑页
     public func startEditingDraft(router: CaptureRouter) {
-        if let draft = pendingDraft {
-            router.push(.scannerResult(content: draft.content, image: draft.image))
-        }
-        clearDraft()
+        guard let draft = pendingDraft else { return }
+        router.push(.scannerResult(content: draft.content, image: draft.image))
+        pendingDraft = nil
     }
     
     /// 丢弃当前草稿并清除持久化记录

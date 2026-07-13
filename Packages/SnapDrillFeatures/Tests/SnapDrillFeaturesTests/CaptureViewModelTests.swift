@@ -70,12 +70,16 @@ struct CaptureViewModelTests {
         cleanUpDraft()
     }
 
-    @Test("startEditingDraft 推送路由并清除草稿")
-    func testStartEditingDraft_PushesToRouterAndClearsDraft() async {
-        cleanUpDraft()
-        await CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
-
-        let viewModel = CaptureViewModel(ocrService: MockOCRService())
+    @Test("startEditingDraft 推送路由并保留持久草稿")
+    func testStartEditingDraft_PushesToRouterAndRetainsDraft() {
+        let draft = CaptureDraftService.Draft(
+            image: createTestImage(),
+            content: "Draft Content",
+            date: Date(),
+            category: nil
+        )
+        let draftService = CaptureDraftServiceMock(initialDraft: draft)
+        let viewModel = CaptureViewModel(ocrService: MockOCRService(), draftService: draftService)
         viewModel.checkDraftOnAppear()
 
         let router = CaptureRouter()
@@ -93,25 +97,26 @@ struct CaptureViewModelTests {
 
         #expect(pushCalled == true)
         #expect(viewModel.pendingDraft == nil)
-        #expect(CaptureDraftService.shared.hasDraft == false)
-
-        cleanUpDraft()
+        #expect(draftService.hasDraft == true)
     }
 
     @Test("clearDraft 清除草稿")
-    func testClearDraft_RemovesDraft() async {
-        cleanUpDraft()
-        await CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
-
-        let viewModel = CaptureViewModel(ocrService: MockOCRService())
+    func testClearDraft_RemovesDraft() {
+        let draft = CaptureDraftService.Draft(
+            image: createTestImage(),
+            content: "Draft Content",
+            date: Date(),
+            category: nil
+        )
+        let draftService = CaptureDraftServiceMock(initialDraft: draft)
+        let viewModel = CaptureViewModel(ocrService: MockOCRService(), draftService: draftService)
         viewModel.checkDraftOnAppear()
 
         viewModel.clearDraft()
 
         #expect(viewModel.pendingDraft == nil)
-        #expect(CaptureDraftService.shared.hasDraft == false)
-
-        cleanUpDraft()
+        #expect(draftService.hasDraft == false)
+        #expect(draftService.clearCallCount == 1)
     }
 
     // MARK: - OCR 扫描

@@ -47,7 +47,8 @@ final class CaptureResultViewModelTests {
 
     private func createVM(
         content: String = "测试文本",
-        image: UIImage? = nil
+        image: UIImage? = nil,
+        draftService: CaptureDraftServiceProtocol? = nil
     ) -> TestContext {
         let analytics = AnalyticsServiceMock()
         let router = CaptureRouter()
@@ -58,7 +59,8 @@ final class CaptureResultViewModelTests {
             ocrService: MockOCRServiceShared(),
             analyticsService: analytics,
             contentTaggingService: ContentTaggingServiceMock(),
-            router: router
+            router: router,
+            draftService: draftService
         )
         return TestContext(vm: vm, repos: repos, analytics: analytics)
     }
@@ -199,6 +201,45 @@ final class CaptureResultViewModelTests {
         // 验证只保存了一次（不是两次）
         let items = try ctx.repos.archive.fetchAllModels()
         #expect(items.count == 1)
+    }
+
+    @Test("save 成功后再次调用被忽略")
+    func save_afterSuccessIgnored() async throws {
+        let draft = CaptureDraftService.Draft(
+            image: nil,
+            content: "保存前草稿",
+            date: Date(),
+            category: nil
+        )
+        let draftService = CaptureDraftServiceMock(initialDraft: draft)
+        let ctx = createVM(content: "保存后幂等测试", draftService: draftService)
+
+        ctx.vm.save()
+        try await waitUntil("首次保存完成") { ctx.vm.isSaved && !ctx.vm.isSaving }
+
+        ctx.vm.save()
+        try await waitUntil("重复保存调用结束") { !ctx.vm.isSaving }
+
+        #expect(try ctx.repos.archive.totalCount() == 1)
+        #expect(draftService.clearCallCount == 1)
+    }
+
+    @Test("saveResult 正式保存成功后清除持久草稿")
+    func saveResult_successClearsDraft() async throws {
+        let draft = CaptureDraftService.Draft(
+            image: nil,
+            content: "未完成内容",
+            date: Date(),
+            category: nil
+        )
+        let draftService = CaptureDraftServiceMock(initialDraft: draft)
+        let ctx = createVM(content: "正式保存内容", draftService: draftService)
+
+        await ctx.vm.saveResult()
+
+        #expect(ctx.vm.isSaved == true)
+        #expect(draftService.hasDraft == false)
+        #expect(draftService.clearCallCount == 1)
     }
 
     @Test("saveResult 保存失败时设置 showErrorAlert 和 errorMessage")
