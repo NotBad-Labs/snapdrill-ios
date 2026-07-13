@@ -240,26 +240,31 @@ public struct ImageStorage: Sendable {
         let pixelHeight = image.size.height * image.scale
         let longSide = max(pixelWidth, pixelHeight)
 
-        // 无需缩放：直接从 CGImage 编码（剥离 EXIF GPS）
-        guard longSide > maxLongSide else {
+        let needsOrientationTransform = image.imageOrientation != .up
+
+        // 无需缩放且像素已正向：直接从 CGImage 编码（剥离 EXIF GPS）
+        guard longSide > maxLongSide || needsOrientationTransform else {
             return jpegDataStrippingLocation(from: image.cgImage, quality: quality)
         }
 
-        // 需要缩放：先编码为临时 JPEG Data（仅作为 ImageIO 输入，不作最终输出）
+        // 需要缩放或方向变换：先编码为临时 JPEG Data（仅作为 ImageIO 输入，不作最终输出）
         guard let tempData = image.jpegData(compressionQuality: quality),
               let source = CGImageSourceCreateWithData(tempData as CFData, nil) else {
             return nil
         }
 
+        let outputLongSide = min(longSide, maxLongSide)
+
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceCreateThumbnailWithTransform: true,
             kCGImageSourceShouldCacheImmediately: true,
-            kCGImageSourceThumbnailMaxPixelSize: Int(maxLongSide)
+            kCGImageSourceThumbnailMaxPixelSize: max(1, Int(outputLongSide.rounded(.up)))
         ]
 
         guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            // fallback：ImageIO 失败时从原始 CGImage 编码（同样剥离 GPS）
+            // 非正向图片不能回退到原始 CGImage，否则会把错误方向永久写入内容真相。
+            guard !needsOrientationTransform else { return nil }
             return jpegDataStrippingLocation(from: image.cgImage, quality: quality)
         }
 
