@@ -10,6 +10,7 @@
 //
 
 import SwiftUI
+import PhotosUI
 import SnapDrillData
 import SnapDrillCore
 import SnapDrillUI
@@ -45,6 +46,14 @@ public final class LibraryEditViewModel {
     public var isAnswerImageCleared: Bool = false
     /// 是否正在执行 OCR 或图片处理操作
     public var isProcessing = false
+    /// 是否正在加载新选择的题目图片
+    public private(set) var isQuestionPhotoLoading = false
+    /// 是否正在加载新选择的答案图片
+    public private(set) var isAnswerPhotoLoading = false
+    /// 任一相册选择仍在加载时，保存必须等待用户选择落到编辑状态。
+    public var isPhotoLoading: Bool {
+        isQuestionPhotoLoading || isAnswerPhotoLoading
+    }
     /// 是否已正常保存（用于触发返回导航）
     public var isSavedNormally = false
     /// 是否正在保存中（双击防护）
@@ -61,10 +70,21 @@ public final class LibraryEditViewModel {
     private let imageStorage: ImageStorage
     private let ocrService: OCRServiceProtocol
     private let activityTracker: AppActivityTracker
+    private let photoDataLoader: @Sendable (PhotosPickerItem) async throws -> Data?
 
     /// OCR 任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
     @ObservationIgnored
     private var ocrTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var questionPhotoLoadTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var questionPhotoLoadToken = UUID()
+    @ObservationIgnored
+    private var answerPhotoLoadTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var answerPhotoLoadToken = UUID()
+    @ObservationIgnored
+    private var hasLoadedDimensions = false
 
     /// 创建题目编辑 ViewModel
     public init(
@@ -72,13 +92,17 @@ public final class LibraryEditViewModel {
         repositories: RepositoryContainer,
         imageStorage: ImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory),
         ocrService: OCRServiceProtocol = OCRService(),
-        activityTracker: AppActivityTracker? = nil
+        activityTracker: AppActivityTracker? = nil,
+        photoDataLoader: @escaping @Sendable (PhotosPickerItem) async throws -> Data? = {
+            try await $0.loadTransferable(type: Data.self)
+        }
     ) {
         self.item = item
         self.repositories = repositories
         self.imageStorage = imageStorage
         self.ocrService = ocrService
         self.activityTracker = activityTracker ?? AppActivityTracker.shared
+        self.photoDataLoader = photoDataLoader
 
         self.content = item.content ?? ""
         self.answer = item.answerText ?? ""
@@ -97,15 +121,19 @@ public final class LibraryEditViewModel {
     private func loadImagesIfNeeded() async {
         if displayedImage == nil, let path = item.imagePath {
             if let loaded = await imageStorage.loadImageAsync(path: path) {
-                displayedImage = loaded
-            } else {
+                if displayedImage == nil {
+                    displayedImage = loaded
+                }
+            } else if displayedImage == nil {
                 imageLoadFailed = true
             }
         }
-        if answerDisplayedImage == nil, let path = item.answerImagePath {
+        if answerDisplayedImage == nil, !isAnswerImageCleared, let path = item.answerImagePath {
             if let loaded = await imageStorage.loadImageAsync(path: path) {
-                answerDisplayedImage = loaded
-            } else {
+                if answerDisplayedImage == nil, !isAnswerImageCleared {
+                    answerDisplayedImage = loaded
+                }
+            } else if answerDisplayedImage == nil, !isAnswerImageCleared {
                 answerImageLoadFailed = true
             }
         }
@@ -113,6 +141,7 @@ public final class LibraryEditViewModel {
 
     /// 加载维度 + 值，并从 item.categoryValues 初始化选中态（按维度分组）
     private func loadDimensions() {
+        guard !hasLoadedDimensions else { return }
         do {
             dimensions = try repositories.dimension.fetchAllModels()
             let itemValues = item.categoryValues ?? []
@@ -124,6 +153,7 @@ public final class LibraryEditViewModel {
             }
             valuesByDimension = values
             selectedByDimension = selected
+            hasLoadedDimensions = true
         } catch {
             SnapDrillLogger.generic.error("加载维度失败: \(error.localizedDescription)")
         }
@@ -181,18 +211,89 @@ public final class LibraryEditViewModel {
 
     /// 移除答案图片
     public func removeAnswerImage() {
+        cancelAnswerPhotoLoad()
         answerDisplayedImage = nil
         isAnswerImageCleared = true
     }
 
-    /// 设置新的答案图片
-    public func handleNewAnswerImage(_ image: UIImage) {
-        answerDisplayedImage = image
-        isAnswerImageCleared = false
+    /// 加载新选择的题目图片；成功后由 View 呈现裁剪器。
+    @discardableResult
+    public func loadQuestionPhoto(
+        _ item: PhotosPickerItem,
+        onLoaded: @escaping @MainActor (UIImage) -> Void
+    ) -> Task<Void, Never>? {
+        guard !isSaving, !isSavedNormally else { return nil }
+        cancelQuestionPhotoLoad()
+        let loadToken = UUID()
+        questionPhotoLoadToken = loadToken
+        isQuestionPhotoLoading = true
+        let task = Task {
+            defer {
+                if self.questionPhotoLoadToken == loadToken {
+                    self.questionPhotoLoadTask = nil
+                    self.isQuestionPhotoLoading = false
+                }
+            }
+            do {
+                guard let image = try await loadSelectedPhoto(item) else {
+                    guard isCurrentQuestionPhotoLoad(loadToken) else { return }
+                    reportPhotoLoadFailure()
+                    return
+                }
+                guard isCurrentQuestionPhotoLoad(loadToken) else { return }
+                onLoaded(image)
+            } catch is CancellationError {
+                SnapDrillLogger.generic.info("题目图片加载任务已取消。")
+            } catch {
+                guard isCurrentQuestionPhotoLoad(loadToken) else { return }
+                SnapDrillLogger.generic.error("加载题目图片失败: \(error.localizedDescription)")
+                reportPhotoLoadFailure()
+            }
+        }
+        questionPhotoLoadTask = task
+        return task
+    }
+
+    /// 加载新选择的答案图片。
+    @discardableResult
+    public func loadAnswerPhoto(_ item: PhotosPickerItem) -> Task<Void, Never>? {
+        guard !isSaving, !isSavedNormally else { return nil }
+        cancelAnswerPhotoLoad()
+        let loadToken = UUID()
+        answerPhotoLoadToken = loadToken
+        isAnswerPhotoLoading = true
+        let task = Task {
+            defer {
+                if self.answerPhotoLoadToken == loadToken {
+                    self.answerPhotoLoadTask = nil
+                    self.isAnswerPhotoLoading = false
+                }
+            }
+            do {
+                guard let image = try await loadSelectedPhoto(item) else {
+                    guard isCurrentAnswerPhotoLoad(loadToken) else { return }
+                    reportPhotoLoadFailure()
+                    return
+                }
+                guard isCurrentAnswerPhotoLoad(loadToken) else { return }
+                self.answerDisplayedImage = image
+                self.answerImageLoadFailed = false
+                self.isAnswerImageCleared = false
+            } catch is CancellationError {
+                SnapDrillLogger.generic.info("答案图片加载任务已取消。")
+            } catch {
+                guard isCurrentAnswerPhotoLoad(loadToken) else { return }
+                SnapDrillLogger.generic.error("加载答案图片失败: \(error.localizedDescription)")
+                reportPhotoLoadFailure()
+            }
+        }
+        answerPhotoLoadTask = task
+        return task
     }
 
     /// 替换题目图片并触发 OCR 重新识别
     public func handleNewImage(_ image: UIImage) {
+        cancelQuestionPhotoLoad()
         self.displayedImage = image
         self.isProcessing = true
 
@@ -217,6 +318,8 @@ public final class LibraryEditViewModel {
     public func cancelTasks() {
         ocrTask?.cancel()
         ocrTask = nil
+        cancelQuestionPhotoLoad()
+        cancelAnswerPhotoLoad()
     }
 
     /// 保存草稿（预留接口，暂无实现）
@@ -226,7 +329,7 @@ public final class LibraryEditViewModel {
 
     /// 将当前编辑内容持久化到数据库
     public func save() async {
-        guard !isSaving else { return }
+        guard !isSaving, !isPhotoLoading else { return }
         activityTracker.begin(.capturing)
         defer { activityTracker.end(.capturing) }
         isSaving = true
@@ -274,6 +377,38 @@ public final class LibraryEditViewModel {
     }
 
     // MARK: - Private Helpers
+
+    private func loadSelectedPhoto(_ item: PhotosPickerItem) async throws -> UIImage? {
+        guard let data = try await photoDataLoader(item) else { return nil }
+        return UIImage(data: data)
+    }
+
+    private func isCurrentQuestionPhotoLoad(_ token: UUID) -> Bool {
+        !Task.isCancelled && questionPhotoLoadToken == token
+    }
+
+    private func isCurrentAnswerPhotoLoad(_ token: UUID) -> Bool {
+        !Task.isCancelled && answerPhotoLoadToken == token
+    }
+
+    private func cancelQuestionPhotoLoad() {
+        questionPhotoLoadTask?.cancel()
+        questionPhotoLoadTask = nil
+        questionPhotoLoadToken = UUID()
+        isQuestionPhotoLoading = false
+    }
+
+    private func cancelAnswerPhotoLoad() {
+        answerPhotoLoadTask?.cancel()
+        answerPhotoLoadTask = nil
+        answerPhotoLoadToken = UUID()
+        isAnswerPhotoLoading = false
+    }
+
+    private func reportPhotoLoadFailure() {
+        errorMessage = L10n.Errors.imageLoadFailed
+        showErrorAlert = true
+    }
 
     /// 当前所有维度的选中值实例（扁平），写入 ArchiveItemModel.categoryValues
     private var selectedValues: [CategoryValueModel] {
