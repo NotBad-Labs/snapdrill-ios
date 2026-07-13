@@ -49,7 +49,7 @@ exploration -> shaped candidate -> ratified -> effective -> superseded
 
 现有 tracked 规范在被明确 supersede 前持续有效。跨 feature、数据 / wire、公开承诺、商业或平台边界的变更，合并前必须先有上游产品或 release contract；Draft 实验可提前存在，但不得凭实现反向生成产品事实。每次合并仍需 PO 单独明确授权。
 
-当前 Release 1 Product Contract 尚未建立。现有 feature spec / architecture 中的 Multi-Profile、Pro、CloudKit、Word、iPad 和五 Tab 描述属于下游漂移或实现刻画，只能作为下一阶段影响证据；不得据此新增范围、修改公开承诺或合并 #868。
+[Release 1 Product Contract](docs/reference/release-1-contract.md) 承载截至 2026-07-14 已 ratify 的全部 13 个 Gate C 决策 ID；它在分支 / PR 中只是批准候选，合入 `develop` 后才是当前 effective Release 1 基线。现有 feature spec / architecture 中的 Multi-Profile、Pro、CloudKit、Word、iPad、五 Tab 和公开可达 Review / SmartPaper 描述属于下游漂移或实现刻画，只能作为影响证据；不得据此新增范围、修改公开承诺或合并 #868。合同生效也不自动授权代码实现、上传或发布。
 
 私有记忆只是可丢弃缓存，不能覆盖仓库事实或产品意图。Product Constitution 固定入口为 `docs/explanations/vision.md`，当前定位见 `docs/explanations/positioning-and-audience.md`；多 agent 协作边界、Claude planning DRI 与 Codex 本地实证挑战权见 `docs/how-to/parallel-lanes.md`。
 
@@ -114,7 +114,7 @@ View (@Environment 注入) → ViewModel (@Observable) → Repository → DataEx
 | 4 个 SPM Package（Features 含 5 个 feature target） | 编译隔离 + 依赖方向强制 + 模块独立测试 |
 | SwiftData 而非 Core Data | iOS 26+ 原生 Swift 集成 |
 | `defaultIsolation(MainActor)` | xcconfig 全局 + `-default-isolation MainActor`，减少并发标注噪音 |
-| Multi-Profile Vault（当前实现偏差） | 当前代码仍为每 Profile 独立容器；Product Constitution 已选单一资料库，候选替换 #868 待 contract 后重审 |
+| Multi-Profile Vault（当前实现偏差） | 当前代码仍为每 Profile 独立容器；Product Constitution 与 Release 1 Contract 已选单一资料库，#868 须等独立 Profile-free Backup Wire / 可崩溃恢复 Data Contract 与安全修复后重审 |
 | Soft Delete + Undo | `DeletionScheduler` 管理 5 秒撤销窗口 |
 | 零后端行为采集 | Firebase 已删除；生产注入 NoOp analytics，设备诊断使用端侧 MetricKit |
 
@@ -230,7 +230,7 @@ PO 裁决采用 thin pointer：裁决写入其权威文档（vision / positionin
 | `docs/features/active\|backlog/feat-*.md` | 功能规格（一元化，每功能一文件）；backlog 为 `mode: lightweight` |
 | `docs/features/template.md` | 新建 feature spec 模板 |
 | `docs/explanations/` | 为什么：vision = Product Constitution / design-principles 设计原则 / business-model 商业政策 / architecture 架构 / assumptions 待验证假设 / competitive-analysis 竞品 / user-journeys 旅程 / privacy-compliance 隐私合规 |
-| `docs/reference/` | 查阅：feature-status 功能状态(SSOT·自动生成) / intent-traceability 意图追溯索引(自动生成) / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO |
+| `docs/reference/` | 查阅：release-1-contract 当前发布契约 / feature-status 功能状态(SSOT·自动生成) / intent-traceability 意图追溯索引(自动生成) / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO |
 | `docs/how-to/` | 操作：definition-of-ready 开工入口 / shape-up 工作方式 / parallel-lanes 协作边界 / release-and-ci 发布与 CI |
 | `docs/decisions/` | 架构决策 ADR-001~005 |
 

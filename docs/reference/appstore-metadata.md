@@ -1,20 +1,21 @@
 ---
-last_verified: 2026-07-12
+last_verified: 2026-07-14
 layer: snapshot
-current_status: blocked_by_release_contract
+current_status: shaping_after_release_contract_when_effective
+activation: effective_when_release_1_contract_is_on_develop
 freshness:
   max_age_days: 30
   decay_trigger: [release_contract_change, app_store_submission]
-audit_note: BLOCKED — Product Constitution facts are fixed, but feature claims, keywords, screenshots and review notes wait for the effective Release 1 Product Contract
-gap_type: missing_release_contract
-gap_due: gate_c
-gap_owner: product
-gap_evidence_required: effective Release 1 scope + release build/privacy/signing evidence + PO/legal/ASO review
+audit_note: BLOCKED — Product Constitution and Release 1 scope are fixed, but final claims, screenshots and review notes wait for a conforming release build
+gap_type: missing_release_build_evidence
+gap_due: release_candidate
+gap_owner: product-release
+gap_evidence_required: conforming release build + privacy/signing evidence + PO/legal/ASO review
 review_gate: PO / legal / ASO final review required; do not submit this shaping document
 ---
-# App Store 元数据（待 Release 1 Contract）
+# App Store 元数据（待 Release build 实证）
 
-> **不可提交**：本文件只固定 Product Constitution 已批准的公开边界，并给出非最终价值表达。Gate C 尚未决定 Release 1 功能可见性、首页 / 导航、Review、SmartPaper 和验收，因此关键词、完整描述、宣传文本、截图和审核备注都不得提前定稿。
+> **不可提交**：本更新在分支 / PR 中仍等待 Release 1 Contract effective；同一更新合入 `develop` 后，产品范围 blocker 才转为 release-build evidence blocker。届时公开边界为：Dashboard 是默认任务枢纽，optional 默认隐藏，Review / SmartPaper 在 `public-candidate` 完全隐藏。关键词、完整描述、宣传文本、截图和审核备注仍须等待实际候选 build、隐私 / 签名实证与 PO / legal / ASO 复核，不能从合同直接生成发布事实。
 
 ## 已批准的公开边界
 
@@ -54,11 +55,11 @@ review_gate: PO / legal / ASO final review required; do not submit this shaping 
 - 不把当前代码存在、feature-status、历史 ADR 或 Draft PR 当成发布功能证据。
 - 不在未复核发布二进制、Privacy Manifest、entitlements 和网络流量前作绝对隐私声明。
 
-## Release Contract 生效后必须补齐
+## 最终候选 build 必须补齐
 
 1. 副标题、关键词、完整描述与宣传文本。
 2. 真实 Release 1 功能清单，不把 optional / hidden / backlog 写成已提供。
-3. Dashboard、Review 与 SmartPaper 的可见性和对应截图。
+3. Dashboard 与所有 Must / manifest-included 可见能力的真实截图；Review / SmartPaper 只保留 public-candidate 不可达的负向证据，不得出现在公开截图或主张中。
 4. 相机、相册、通知、Share Extension 等权限 / 能力的真实审核备注。
 5. 隐私标签、Privacy Manifest、网络与数据流一致性说明。
 6. iPhone 截图集、Dynamic Type / AX 证据和本地化复核。

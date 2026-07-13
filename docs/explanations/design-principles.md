@@ -51,7 +51,7 @@ SnapDrill 是纯粹的效率工具。全局文案、Onboarding、成功反馈与
 
 ### 学习与成功信号
 
-Product Constitution 不定义虚构 KPI。当前产品假设及推翻信号由 `assumptions.md` 管理；Release 1 的任务完成、质量阈值和 go / no-go 证据由待建立的 Release 1 Product Contract 定义。当前生产不做后端行为采集；不得为了补指标恢复 Firebase 或逐事件用户追踪。
+Product Constitution 不定义虚构 KPI。当前产品假设及推翻信号由 `assumptions.md` 管理；[Release 1 Product Contract](../reference/release-1-contract.md) C4-D / C5-E 只允许预登记形成性 cohort 触发重新裁决，不能按人数门槛自动公开。C6-A 定义 PO 可裁决的风险政策，具体命令、设备和 test ID 属 QA / Release evidence plan。当前生产不做后端行为采集；不得为了补指标恢复 Firebase 或逐事件用户追踪。
 
 ---
 
@@ -59,18 +59,21 @@ Product Constitution 不定义虚构 KPI。当前产品假设及推翻信号由 
 
 ### 导航结构
 
-当前五个同级 Tab（首页 / 资料库 / 采集 / 回顾 / 设置）是实现事实，不是 Product Constitution 承诺。Release 1 Contract 必须根据 B3-A 分类 Dashboard、Review 与 SmartPaper，再决定最终导航。任何方案都必须让采集、资料库和输出路径容易到达，且不得让附加能力主导首屏。
+当前五个同级 Tab（首页 / 资料库 / 采集 / 回顾 / 设置）是实现事实，不是 Product Constitution 或 Release 1 承诺。[Release 1 Contract](../reference/release-1-contract.md) C3 规定普通启动默认进入 Dashboard，但不批准五 Tab 结构或 Review 的导航等级，也不单独授权实现。最终导航必须让采集、资料库和输出路径容易到达，且不得让附加能力主导首屏。
 
 ### Dashboard 设计角色
 
-当前 Dashboard 若在 Release 1 保持可达，其角色只能是**状态总览 + 快捷入口**，不是核心任务的替代入口：
-- 展示单一资料库的中性事实（资料总数、待回顾数、已回顾数、今日新增）
-- 展示待回顾数量和快捷入口
-- 问候语 + 用户昵称（个性化但不过度）
-- 不在 Dashboard 做录入或管理操作——录入走采集 Tab，管理走资料库 Tab
+Release 1 Dashboard 是单一资料库的**任务入口和可执行状态概览**，不是学习 / analytics 门户：
+- Capture 与 Library 一次操作可达；空资料库一次操作开始 Capture
+- 可以显示未完成草稿、最近资料和能直接进入对应内容的本地事实
+- Capture / Library 在视觉和 accessibility 顺序中先于任何 Review 入口
+- 不展示 Profile / Workspace、昵称 / 头像身份入口、Pro / IAP / locked / coming-soon 或 analytics 模块
+- Review 不使用 hero、进度环、连续记录或完成庆祝主导首屏
+
+现有 Review hero、问候 / 头像、四项统计和高级统计锁态是相对 Release 1 Contract 的已知偏差。C2-Personalization 隐藏身份装饰；C4-D / C5-E 只允许 Review / SmartPaper 在非公开实验 build 从 Library 的单一静态次级入口出现。上述目标不单独授权实现，必须进入有界 implementation bet。
 
 **Dashboard 文案防焦虑约束**（承接 vision §不贩卖焦虑）：
-- 数字只显示**中性事实**（资料总数 / 今日新增 N / 待回顾 N）
+- 若保留数字，只显示能直接进入对应内容的**中性本地事实**
 - **不**附带「比昨天少了 / 完成度 X% / 距目标还差 N 题」类比较或进度推送
 - **不**用红色 / 警告色 / 感叹号渲染数字
 - 「今日新增」语义仅是事实计数，不是「打卡」「冲量」隐喻
@@ -79,11 +82,10 @@ Product Constitution 不定义虚构 KPI。当前产品假设及推翻信号由 
 
 **为什么默认按录入时间倒序**：最新录入的题目最可能需要编辑补充（加答案、补字段），倒序让它们最先出现。
 
-**为什么过滤维度走统一动态字段系统**：
-- 分类：最粗粒度的分类，所有用户都用
-- 标签：个性化语义过滤（"易错""考前"），每个用户独特
-- 来源 / 级别 / 自定义字段：用户按自己的资料体系启用，不预设为教育专用维度
-- 不做独立难度星级——难度/级别语义若需要，应作为动态字段或标签表达，避免固定教育结构污染通用存档工具定位
+**为什么当前实现的过滤维度走统一字段系统**：
+- 分类与标签：Release 1 Must 的基础整理能力
+- 来源 / 级别 / 自定义字段：Candidate optional，只有冻结 manifest 纳入时才允许用户启用；不预设为教育专用维度
+- 不做独立难度星级；若未来纳入动态字段，难度 / 级别语义仍应由字段或标签表达，避免固定教育结构污染通用存档工具定位
 
 **搜索基于 OCR 文本**：用户记得题目中的关键词，搜索匹配 OCR 识别出的文字内容。
 

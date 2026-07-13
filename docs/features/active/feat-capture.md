@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-12
+last_updated: 2026-07-14
 intent_refs:
   - vision:P1
   - vision:P2
@@ -16,7 +16,7 @@ intent_refs:
 
 # Feature: 采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）
 
-> **产品重基线（2026-07-12）**：采集属于宪章核心价值链，但 frontmatter 与下文只记录当前实现，不能自行决定 Release 1 必须保留的输入渠道、交互或优先级；这些等待 Gate C / Release 1 Product Contract。B7-A 已将 Release 1 限定为 iPhone-only；下文 iPad、Profile 和 Pro 图片增强描述只作实现 / 历史追溯，不得驱动新工作。
+> **产品重基线（2026-07-14）**：采集属于核心价值链。Release 1 Must 输入是相机 / 文档扫描、相册与 PDF；手动、剪贴板和 Share Extension 属 Candidate optional，默认隐藏。OCR 是可编辑辅助，保存真相是用户确认裁剪 / 方向后的 App-managed 可读图片；不承诺来源原始字节或完整分辨率。frontmatter 与技术章节仍记录当前实现，下文 iPad、Profile 和 Pro 图片增强描述只作实现 / 历史追溯。
 
 > 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
@@ -28,18 +28,18 @@ intent_refs:
 - **原则归属**：P1 录入体验是生命线（最高优先级）+ P2 简洁（录入路径最短）+ P4 数据属于用户（端上 OCR、不上传、隐私）+ P6 原生优先（Vision / VisionKit）。详见 `../../explanations/vision.md`。
 
 ## 2. 需求规则 (What)
-- **当前多入口录入实现（Release 1 取舍等待 Gate C）**：
+- **当前多入口实现与 Release 1 分类**：
   - **摄像头拍照（智能相机，P0）**：实时文字区域检测 + 稳定性指示器 + 自动框选。
   - **相册导入（P0）**：导入已有照片（截图、聊天附件等）。B7-A 的 Release 1 仅覆盖 iPhone，不从当前代码推导 iPad 工作流。
   - **文档扫描（P0）**：系统级文档扫描，自动透视校正、边缘检测、多页扫描。
   - **PDF 导入（P0）**：选择 PDF 后逐页预览、页面选择、裁剪后录入。
-  - **手动编辑（P1）**：兜底方案，用户自行输入文字与图片；允许无图保存纯文本题目。
-  - **剪贴板导入（P1）**：从系统剪贴板粘贴文本到 SnapDrill。
-  - **iOS Share Extension（P1）**：从微信/QQ/浏览器直接分享图片到 SnapDrill，免去保存相册步骤。
-- **OCR（辅助，不阻断保存）**：印刷体中英文识别（Apple Vision 高精度模式），用户可手动修正；识别失败提供手动重试 + 稳定性提示；OCR 结果可复制到剪贴板。**保存按钮可用性只依赖「至少一张图片或一段手动文字」，不依赖 OCR 结果质量**（图片是真相）。
+  - **手动编辑（Candidate optional）**：兜底方案，用户自行输入文字与图片；默认隐藏，只有冻结 manifest 显式纳入才可见。
+  - **剪贴板导入（Candidate optional）**：从系统剪贴板粘贴文本到 SnapDrill；默认隐藏，只有冻结 manifest 显式纳入才可见。
+  - **iOS Share Extension（Candidate optional）**：从其他 App 分享图片到 SnapDrill；默认隐藏，只有冻结 manifest 显式纳入且通过 App Group / GPS / AX 门禁才可见。
+- **OCR（辅助，不阻断保存）**：印刷体中英文识别（Apple Vision 高精度模式），用户可手动修正；识别失败提供手动重试 + 稳定性提示；OCR 结果可复制到剪贴板。**Must 路径的保存按钮只依赖至少一张 App-managed 可读图片，不依赖 OCR 结果质量；纯文本保存只在 manifest 纳入手动录入时可见。**
 - **一图多题**：一图一题（手动裁剪）+ 同一张图连续裁剪多题（不用重新选图）。
 - **连续录入**：保存后默认回到采集界面（摄像头 / 同图再次出现），不回 Dashboard。
-- **元数据填写**：编辑页只展示用户已开启的系统字段；新资料库的内置字段默认不在录入页显示，用户可在分类管理中按需打开「分类 / 来源 / 级别 / 标签」等维度。已开启字段沿用上次选值作为默认。
+- **元数据填写**：Release 1 Must 支持基础分类 / 标签；来源、级别与自定义字段属于动态字段 Candidate optional，只有冻结 manifest 纳入时才出现。当前实现会沿用已开启字段的上次选值，该机制不得让首次采集依赖 optional 配置。
 - **草稿恢复**：采集页退出时自动保存草稿（图片 + OCR 文字，或纯文本）；下次进入采集检测到草稿弹窗提示恢复或放弃；仅保留最近一份，保存新题目后清除，7 天过期自动清理。
 - **边界 / 不做**：
   - 手写体识别增强、AI 辅助拆题、数理化公式识别均为**探索性**（需 PoC 达标才纳入），当前不做（见 How·平台边界）。
@@ -61,11 +61,11 @@ intent_refs:
   - **实现现状（待单资料库重基线）**：当前 OCR 语言配置仍经 Profile 相关偏好表达。B5-A 后不得新增 Profile 语言感知需求；B7-A 的英文 / 简体中文只约束产品 UI 语言，OCR 识别语言集合（含已落地的繁体识别）由 Release Contract 与识别质量证据另行裁定。
 - **EXIF 隐私铁律**：图片入库前必须经 `ImageStorage` 剥离 GPS / 位置信息（保存前清除）。
 - **State & Concurrency**（Swift 6 strict）：采集 View 由 `@Observable` ViewModel（`@MainActor`：`CaptureViewModel` / `CaptureResultViewModel`）驱动；OCR、图片压缩与落库等重活经 Core service / Repository → `DataExecutor`（actor 拥有 `ModelContainer`，`createOffMainActor()` 消除 MainActor+XPC 死锁 #599），不阻塞主线程；保存后通过 `Notification.Name.reviewDataDidChange` 跨模块刷新 Dashboard / Review。采集流程必须 `AppActivityTracker.begin(...)` → ... → `end(...)`；当前用于阻止 Profile 切换，单资料库实现中应继续保护并发数据一致性。
-- **设计现状**：采集当前是标准 Tab；最终导航与首页结构等待 Gate C，不由本 spec 固定。Share Extension 是系统级扩展，不构成主导航承诺。
+- **设计现状**：采集当前是标准 Tab；Release 1 只要求从 Dashboard 一次操作可达，不批准五 Tab 结构。Share Extension 是 Candidate optional 的系统级扩展，不构成主导航承诺。
 - **平台边界**（apple-limits）：Vision OCR 强项是印刷体，**无独立中文手写识别模型**；`RecognizeDocumentsRequest` 适合整页文档结构、**不适合裁剪后的单题图片**；Foundation Models（`ContentTaggingService`）擅长分类/摘要、**不擅长数学推理**（自动标签可用、解题不可）；Math Notes / Smart Script / 原生公式识别（LaTeX/MathML）均无可用公开 API——故手写增强、AI 拆题、公式识别列为探索性。
 
 ## 4. 验证标准 (Verify)
-- **Success path (GWT)**：Given 用户位于采集入口，When 从 Gate C 纳入的任一入口完成裁剪、OCR、元数据填写并保存，Then 系统原子性写入唯一资料库（图片引用、OCR 文本、元数据），给出成功反馈；具体入口和保存后导航由 Release 1 Contract 决定。
+- **Success path (GWT)**：Given 用户从 Dashboard 进入采集，When 使用相机 / 文档扫描、相册或 PDF 完成裁剪、方向确认、OCR 辅助编辑并保存，Then 系统原子性写入唯一资料库（App-managed 可读图片、OCR 文本、元数据）并给出成功反馈；OCR 失败或为空不阻断保存。optional 入口只有冻结 manifest 显式纳入时才进入同一结果 oracle。
 - **边界 / 异常**：
   - Camera 权限拒绝 / 受限 → 不可进入拍照，给出权限说明 + 跳转系统设置入口，不创建空资料（B14）；权限后续被系统撤销 → 再次进入立即提示、不黑屏假死（B15）。
   - Photo Library 权限拒绝/受限 → 提示权限缺失、不静默返回、不生成空白导入任务（B16）。
@@ -88,7 +88,7 @@ intent_refs:
 
 | 状态 | UI 必须给出的可见反馈 |
 |---|---|
-| `idle` | 显示可用入口（相机 / 相册 / 文档扫描 / PDF / 手动 / 剪贴板），无后台忙碌遮罩，入口可点击。 |
+| `idle` | 显示 Must 入口（相机 / 文档扫描、相册、PDF）；手动 / 剪贴板只在冻结 manifest 显式纳入时出现。无后台忙碌遮罩，可见入口可点击。 |
 | `importing` | 展示导入或处理中反馈；触发导入的入口禁用或被系统 picker 接管，不能出现“点了没反应”。 |
 | `ocrProcessing` | 展示识别中反馈；重复识别 / 保存等会造成竞态的操作禁用。 |
 | `ocrSuccessWithContent` | 进入编辑页，识别文本可见且可编辑，图片存在时继续保留。 |

@@ -191,7 +191,7 @@ Claude 维护本文件中的发版检查清单并汇总各方结果：
 ### 技术事故与紧急修复
 
 ```
-1. Claude 依据证据分级：S0 数据不可逆丢失/隐私安全事件；S1 启动崩溃或核心流程完全阻断
+1. Claude 依据证据分级：S0 = 数据不可逆丢失；S1 = 启动崩溃或核心流程完全阻断。隐私 / 安全事件是独立 release blocker，再按实际数据与流程后果映射 S0-S3，不自动等同 S0
 2. Claude 立即停止普通工程集成，创建 hotfix worktree，完成复现、影响范围和技术止损方案
 3. 数据迁移问题必须使用上一已发布版本的数据存档验证升级路径，不以全新数据库测试代替
 4. Codex 复验受影响的 UI/交互；Antigravity 准备必要的用户或审核沟通草案
@@ -214,18 +214,52 @@ PO 离线时，Claude 可以完成分诊、修复、验证和本地 commit，但
 
 ## 发版检查清单
 ---
-# 当前实现 dogfood 清单（Release 1 待 Gate C）
+# Release 1 dogfood 与发布证据计划
 
-> **规范状态（2026-07-12）**：当前 Release 1 Product Contract 尚未建立。下列屏族项目只用于盘点和回归现有 build，不定义 Release 1 范围，也不能单独授权 TestFlight / App Store 发布。Gate C 完成后，必须按 effective Release Contract 重写本清单；未纳入范围的 Dashboard、Review、SmartPaper 或其他入口应隐藏，而不是因为这里有勾选项就保留。
+> **规范状态（2026-07-14）**：[Release 1 Product Contract](../reference/release-1-contract.md) 已承载全部 13 个 ratified Gate C 决策，合入 `develop` 后成为本计划的产品 oracle。下列清单仍不授权实现、上传或发布；未纳入冻结 Capability Manifest 的 optional 能力必须隐藏，Review / SmartPaper 在 `public-candidate` 必须隐藏。
 >
-> **上游依赖**：Product Constitution v1 + 待建立的 Release 1 Product Contract + 本文件 §发布流程。
+> **上游依赖**：Product Constitution v1 + [Release 1 Product Contract](../reference/release-1-contract.md) + 本文件 §发布流程。
 >
-> Gate C 建立 Release Contract 且 PO 授权某个 build 进入 TestFlight 候选后，在真机上走完被纳入范围的项目。
+> Capability Manifest validator 经独立 slice 落地、候选冻结且 PO 授权对应动作后，才在真机上走完被纳入范围的项目。
 > 标注 ❌ 的项目必须修复后才能发版。
 >
 > Checklist structure aligned: 2026-07-12。具体项目仍须在每次待发布 build 上逐项实测。
 
 ---
+
+## Evidence plan（QA / Data / Security / Release DRI）
+
+本节承接 Release 1 Contract C6 的发布政策，但不是产品范围来源。DRI 可以随工具链和实现调整命令、设备、test ID 与 fault-injection 点；不得降低 M1-M10 结果覆盖。每份证据必须记录 candidate ID、audience、source commit、版本、build、ASC build ID、本地 archive hash、上传回执、安装变体身份、环境和附件路径。
+
+| 阶段 | 最低进入条件 | 该阶段不能证明 |
+|---|---|---|
+| PO-only 上传前 | `audience: po-only` manifest 冻结；lint / build / relevant tests；静态隐私 / entitlement；已知 S0 / S1 为零；PO upload 授权 | 市场需求、公开发布质量 |
+| PO-only 安装后 | TestFlight 安装 / 启动；clean + existing-data 核心闭环；主要拒权 / 失败路径；结构化反馈 | 非 PO 用户行为、公开 binary 结果 |
+| Research（条件式） | DATA-1 已 effective；Profile-free Backup Wire / 可崩溃恢复 Data Contract 已冻结且正式 writer-reader round-trip 通过；`audience: research`；PO 已授权本次 non-PO availability；目标成年人资格、完整 cohort 与 TestFlight group / ACL / public-link 状态预登记并存证；开放即触发 / 延续 epoch；相关 optional 的无提示路径与结果 oracle | 自动 include 或公开 go / no-go |
+| Public candidate | `audience: public-candidate`；M1-M10 全覆盖；本地 archive / 上传回执 / TestFlight 安装变体 / App Store submission 映射到同一 ASC build；S0 / S1 为零；S2 PO 接受；PO go / upload / non-PO availability / release 分别授权 | 上线后的市场结果 |
+
+### M1-M10 双向追溯
+
+| Must | 最低结果 oracle | Evidence owner |
+|---|---|---|
+| M1 | clean install 到首次可保存路径，全程无注册、身份或资料空间 gate | QA / Product |
+| M2 | 相机 / 文扫、相册、PDF 分别完成确认、保存和读回；确认后的裁剪 / 方向图片可读且持久化 / backup 图片无 GPS；印刷体中英文分别验证可见可编辑 OCR，人工修正值读回；OCR 失败 / 空结果仍可保存 | Capture / QA |
+| M3 | 首次 / 既有拒权、各输入取消和 OCR failure 均能经替代路径保存，无残留 cover / overlay / 失效导航 | Capture / QA |
+| M4 | 分类 / 标签选择保存并读回；搜索与基础过滤命中正确集合；查看、编辑、删除、撤销及撤销机会结束后的单次硬删除；离页 / 后台结果确定 | Library / Data / QA |
+| M5 | selected set 与 PDF 条目一一对应且顺序稳定；页数符合每页资料数；图片 / 纯文字 / 混合资料均可读且无空白 / 重复；真实 AirPrint 完成并检查输出；系统 share sheet 与“存储到文件”分别覆盖成功 / 取消 / 失败；已明确保存到 App 外的副本保留，无打印机 / 取消 / 失败不误报且清理 App-owned 临时输出 | Export / QA |
+| M6 | 后台 / 终止注入后重启，只出现可完整恢复草稿或明确无草稿 / 丢弃结果，不出现半状态 | Capture / Data / QA |
+| M7 | 正式 writer-reader round-trip 覆盖完整资料库；损坏 / 恶意 / 超限输入在 mutation 前拒绝或进入明确恢复态，原库不变 | Data / Security |
+| M8 | store 打不开、停在裁决页终止、重启、恢复 / 放弃 / 双失败；始终保留 DATA-1 要求的材料且正常 UI 不假空 | Data / QA |
+| M9 | 静态数据流 / entitlement / manifest / policy 对账；禁网运行全部可达 Must + included optional；受控联网覆盖启动 / 后台 / 升级 / Share Extension，区分用户主动外发、Apple 系统流量与意外外发；持久化 / 备份图片 GPS 检查；结论一致 | Privacy / Security / Release |
+| M10 | 中英文、iPhone 17e / 17 / 17 Pro Max、默认 / xxxLarge / Accessibility 5 与 VoiceOver 最低矩阵；覆盖全部 Must、included optional、loading / empty / error / confirmation 和系统面板，旅程可完成且无阻断截断 / 遮挡 / 不可达操作 | UI / AX / QA |
+
+成功标准和产品边界只来自 effective Release Contract；本表定义如何证明。每次候选必须保存一份 M1-M10 -> test / dogfood / attachment 索引，未覆盖项直接阻断 public go / no-go。
+
+---
+
+## 历史 current-build 路由清单（非 C6 oracle）
+
+以下旧清单保留为现有界面盘点。只有某行被映射到上表 Must、effective policy 或该 build manifest 中的 included capability 后，才进入候选证据；否则它不能扩大范围或阻断 optional 隐藏。
 
 ## 启动与首屏
 
@@ -233,7 +267,7 @@ PO 离线时，Claude 可以完成分诊、修复、验证和本地 commit，但
 - [ ] 首次安装：Onboarding 正确显示
 - [ ] Onboarding 翻页有轻触震动，点击「开始使用」有 success 震动
 - [ ] 非首次安装：直接进入主界面
-- [ ] 当前首页数据加载正常（若 Gate C 保留；资料数量不显示错误或 loading 卡死）
+- [ ] 非首次普通启动进入 Dashboard；Capture / Library 一步可达，Profile / Pro / analytics / Review hero 不出现
 
 ## 采集流程（Capture）
 
@@ -261,10 +295,13 @@ PO 离线时，Claude 可以完成分诊、修复、验证和本地 commit，但
 - [ ] 删除资料后列表更新
 - [ ] 过滤后 PDF 导出：预览窗口可见，PDF 可分享
 
-## 回顾（Review）
+## 回顾（Review；仅在候选 Capability Manifest 纳入时）
 
-- [ ] 待回顾数量显示正确
-- [ ] 「开始回顾」进入卡片
+以下项目只验证 C4-D 允许且被 `po-only` / `research` manifest 明确纳入的实验能力；`public-candidate` 必须证明 Review 完全隐藏且无调度副作用。
+
+- [ ] `po-only` / `research` 只有 Library 的一个静态次级入口；无主 Tab、Dashboard cue / 计数、Onboarding、Settings、通知 / 徽标或隐式恢复入口
+- [ ] `public-candidate` 无 Review 入口、可达 AX 元素、通知、状态恢复或后台调度副作用
+- [ ] 从 Library 实验入口进入卡片
 - [ ] 资料正面内容正常显示（文字、图片均测试）
 - [ ] 翻转卡片显示答案
 - [ ] 翻转卡片时有轻触震动反馈
@@ -274,54 +311,47 @@ PO 离线时，Claude 可以完成分诊、修复、验证和本地 commit，但
 - [ ] 点击「撤销/显示答案」按钮有 light 震动反馈
 - [ ] 撤销按钮有效
 - [ ] 所有卡片完成后显示完成界面，并触发 success 震动
-- [ ] 退出回顾后回到首页，进度更新
-- [ ] 回顾卡片外观设置：字号调整生效（正面/背面独立）
+- [ ] 退出回顾后返回 Library，已提交进度正确保留
 - [ ] VoiceOver：翻卡公告、完成摘要公告、操作按钮辅助标签可读
 
 ## 首页（Dashboard）
 
-- [ ] 无资料时显示空状态引导（「还没有任何资料」+「去采集」按钮），不显示伪造数据
-- [ ] 「去采集」按钮可以正确跳转到采集 Tab
-- [ ] 有资料时当前实现正常显示概览；最终卡片组成由 Gate C 决定
-- [ ] 回顾相关数值与实际状态一致
-- [ ] 资料库跳转按钮有效
-- [ ] 分类管理跳转有效
-- [ ] 「今日新增」显示正确数量（纯展示，不可点击跳转）
-- [ ] 有草稿时显示「恢复草稿」提示
-- [ ] 用户资料：昵称显示在问候语中，座右铭显示正确
+- [ ] 完成 Onboarding 后的普通启动进入 Dashboard；显式 deep link 与阻塞性 store 恢复可覆盖默认目的地
+- [ ] Capture 与 Library 均可从 Dashboard 一次操作到达，且在视觉与 AX 内容顺序中先于任何 Review 入口
+- [ ] 无资料时显示真实空状态，并可一次操作进入 Capture；不显示伪造数据
+- [ ] 若显示草稿、最近资料或其他本地事实，每一项都能直接进入对应任务；不展示纯趋势、比较、完成率或行为统计
+- [ ] 不出现 Profile / Workspace、昵称 / 头像身份面、Pro / IAP、locked / coming-soon、analytics 或 Review hero
+- [ ] 当前卡片、指标、问候语、排序和五 Tab 结构不作为验收 oracle
 
 ## 设置（Settings）
 
-- [ ] 字段可配置：设置中可管理分类/来源/级别/标签与自定义属性，录入界面仅显示已开启或已创建的字段
-- [ ] 系统字段选项管理：分类/来源/级别可新增、编辑（含颜色/图标）、删除（使用中的阻止删除）
-- [ ] 用户资料编辑：昵称、座右铭、头像、每日复习目标可修改并保存
-- [ ] 通知设置：提醒时间、声音开关均有效（**不使用角标**，见 ../features/active/feat-settings.md）
+- [ ] 字段 / 动态维度管理仅在冻结 manifest 显式 include 时出现并通过数据完整性与 AX 验证
+- [ ] 不出现 Profile / Workspace、昵称 / 头像 / 座右铭、Review 目标 / 排序 / 外观 / 提醒 / 通知或多个资料库管理入口
 - [ ] 外观模式切换：跟随系统 / 浅色 / 深色 三种模式均可
-- [ ] 语言设置：App 内直选语言（中文/英文），切换后提示重启生效
+- [ ] 语言设置：App 内直选中文 / 英文，切换后界面立即生效且不依赖系统语言
 - [ ] 使用数据设置与当前零后端采集事实一致，不暗示 Firebase 或第三方崩溃上报已启用
-- [ ] 媒体缓存清理：点击后空间释放，不影响资料数据
+- [ ] 媒体缓存清理入口完全隐藏；若底层实现暂留，targeted test 证明只清 `Caches/` 且不影响 App-managed 主图、备份或资料数据
 - [ ] 隐私政策页面可以打开
 - [ ] 服务条款页面可以打开
 - [ ] 开源许可页面可以打开，且列出当前实际依赖（Mantis、ZIPFoundation 等），不再列出 Firebase
-- [ ] 帮助中心：跳转到外部网页 FAQ，链接可打开
-- [ ] 生成测试数据后：资料库和回顾界面均刷新
-- [ ] 清空数据后：资料库和回顾界面均清空
+- [ ] 帮助中心、角色预设、诊断 / 遥测等未获范围授权的 Settings 表面完全隐藏；现有外部链接不构成 Release 1 可见性依据
+- [ ] 生成测试数据、调试清库等开发者表面在候选 build 完全不可达；底层资料变更后的 Library 刷新由 targeted test 验证
 
 ## 单一本地资料库（B5-A）
 
 - [ ] 首启和日常使用均不出现 Profile / Workspace 的创建、切换、删除或命名入口
-- [ ] 采集、资料库、回顾、导出、打印、设置和手动备份直接作用于同一个本地资料库
+- [ ] 采集、资料库、导出、打印、设置、手动备份及清单纳入的可选能力直接作用于同一个本地资料库
 - [ ] 不出现「至少保留一个 Profile」、当前 Profile 头像或切换阻塞等用户可见文案
-- [ ] 不同主题可通过分类、来源、级别、标签和自定义字段整理
-- [ ] 备份 wire、恢复安全与旧 fixture 的最终验收按 Gate C 后的 Data Contract 执行，不从当前 Multi-Profile build 反推
+- [ ] 不同主题可通过搜索、基础分类和标签整理；只有冻结 manifest 纳入动态字段时，才追加验证来源 / 级别 / 自定义字段
+- [ ] 备份 wire、恢复安全与旧 fixture 的最终验收按 DATA-1 下游 Data Contract 执行，不从当前 Multi-Profile build 反推
 
 ## 数据出口（Release 1 不含同步）
 
-- [ ] 备份：点击后创建 .zip 文件，触发系统分享面板
+- [ ] 备份：点击后创建 .zip 文件；进入系统分享面板前明确提示未加密文件可能包含私人文字与图片
 - [ ] 恢复：点击后打开文件选择器，选择备份文件后数据和图片均完整恢复
 - [ ] 恢复期间有进度提示
-- [ ] JSON 导出：隐私设置页触发，文件可打开且含所有字段
-- [ ] CSV 导出：隐私设置页触发，Excel 可打开且格式正确
+- [ ] 若 manifest include JSON 导出：文件可打开且字段声明准确，不冒充完整备份
+- [ ] 若 manifest include CSV 导出：Excel 可打开、格式正确且通过公式注入防护，不冒充完整备份
 - [ ] 不展示 CloudKit、同步、Pro、订阅或“即将推出”入口
 
 ## 引导与提醒
@@ -343,12 +373,12 @@ PO 离线时，Claude 可以完成分诊、修复、验证和本地 commit，但
 - [ ] Build Number 已更新（每次发版 +1，只改 `Configs/Shared.xcconfig`）
 - [ ] 没有 Debug 专用 UI 暴露在外
 - [ ] 没有硬编码的测试账号或假数据
-- [ ] Claude 已核对依赖、实际数据流、Privacy Manifest 与 App Store Privacy 标签的技术事实一致
-- [ ] Codex 已确认 UI、无障碍、本地化布局和商店截图与当前 build 一致
-- [ ] Antigravity 已确认元数据、官网链接与公开政策基于当前产品事实
+- [ ] Data / Security DRI 已核对依赖、实际数据流、Privacy Manifest 与 App Store Privacy 标签的技术事实一致
+- [ ] UI / AX / QA DRI 已确认可达界面、无障碍、本地化布局和商店截图与当前 binary 一致
+- [ ] Release Operations 已确认元数据、官网链接、支持渠道与公开政策基于当前产品事实
 - [ ] PO 已完成真机产品验收并明确授权本次上传/发布
 
 ## 文档健康检查（每次发版必做）
 
-- [ ] Claude Auto Memory 行数合理（超过 150 行则审计剪枝）
-- [ ] 检查是否有新内容同时存在于 Auto Memory、`.claude/skills/` 和 `docs/`（若有，保留公开权威文档或对应 SKILL.md，Memory 改为指针）
+- [ ] tracked SSOT、feature status 与 intent traceability 门禁全绿；首次 capability manifest freeze 前已另刀实现 schema v1 validator，之后每个不可变冻结件校验全绿
+- [ ] 发布事实只引用当前 commit / binary 的仓库证据；私有 agent memory、聊天与本地 skill 不作为发布依据
