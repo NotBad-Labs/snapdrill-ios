@@ -1481,6 +1481,45 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-library-edit-image-03-answer-image")
     }
 
+    func testLibraryEditRemovedAnswerDoesNotReturnAfterCropper() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-seed-image-library"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        app.tabBars.buttons.element(boundBy: 1).tap()
+        waitForAnyElement("library.root", in: app)
+        let imageCell = app.cells.containing(.staticText, identifier: "Library Image Fixture").firstMatch
+        XCTAssertTrue(imageCell.waitForExistence(timeout: 10), "图片 fixture 应可进入详情")
+        imageCell.tap()
+        waitForAnyElement("library.detail.root", in: app)
+        app.buttons["library.detail.editButton"].tap()
+        waitForAnyElement("library.edit.root", in: app)
+
+        let answerImage = app.descendants(matching: .any)["library.edit.answerImage"]
+        let removeAnswer = app.buttons["library.edit.removeAnswerImage"]
+        scrollUntilHittable(removeAnswer, in: app, maxSwipes: 6)
+        XCTAssertTrue(removeAnswer.waitForExistence(timeout: 5), "编辑页应允许移除答案图片")
+        removeAnswer.tap()
+        XCTAssertTrue(app.buttons["library.edit.addAnswerImage"].waitForExistence(timeout: 5))
+        XCTAssertFalse(answerImage.exists, "移除后答案图片应立即消失")
+
+        app.swipeDown()
+        let cropButton = app.buttons["library.edit.cropImage"]
+        XCTAssertTrue(cropButton.waitForExistence(timeout: 5), "题目图裁剪按钮应仍可用")
+        XCTAssertTrue(cropButton.isHittable, "题目图裁剪按钮应可点击")
+        cropButton.tap()
+        waitForMantisCropper(in: app).tap()
+        waitForAnyElement("library.edit.root", in: app)
+
+        app.swipeUp()
+        app.swipeUp()
+        let addAnswerAfterCropper = app.buttons["library.edit.addAnswerImage"]
+        XCTAssertTrue(addAnswerAfterCropper.waitForExistence(timeout: 5))
+        let answerImageAfterCropper = app.descendants(matching: .any)["library.edit.answerImage"]
+        XCTAssertFalse(answerImageAfterCropper.exists, "裁剪器往返后已移除答案图不得复活")
+    }
+
     /// UI-freeze evidence: capture Library filter reset, batch tag, export option, and search states.
     func testUIFreezeLibraryControlStateScreenshots() {
         let app = XCUIApplication()
