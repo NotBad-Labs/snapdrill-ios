@@ -136,6 +136,25 @@ struct ImageStorageTests {
         #expect(abs(longSide - 2000) <= 1)
     }
 
+    @Test("compressedJPEGData 将 UIImage 方向烘焙进存盘像素")
+    func compressedJPEGData_nonUpOrientation_normalizesPixels() throws {
+        let sourceData = try makeJPEGWithOrientation(width: 120, height: 80, orientation: 6)
+        let orientedImage = try #require(UIImage(data: sourceData))
+        #expect(orientedImage.imageOrientation == .right)
+
+        let data = try #require(ImageStorage.compressedJPEGData(
+            from: orientedImage,
+            maxLongSide: 2000,
+            quality: 0.8
+        ))
+        let decoded = try #require(UIImage(data: data))
+        let decodedPixels = try #require(decoded.cgImage)
+
+        #expect(decoded.imageOrientation == .up)
+        #expect(decodedPixels.width == 80)
+        #expect(decodedPixels.height == 120)
+    }
+
     @Test("saveImage 保存后 loadImage 可读回")
     func saveImage_thenLoad_roundTrip() async throws {
         let path = try await storage.saveImage(createTestImage(width: 50, height: 50))
@@ -198,6 +217,20 @@ struct ImageStorageTests {
             kCGImagePropertyGPSLongitudeRef: "W"
         ]
         let properties: [CFString: Any] = [kCGImagePropertyGPSDictionary: gps]
+        CGImageDestinationAddImage(destination, cgImage, properties as CFDictionary)
+        #expect(CGImageDestinationFinalize(destination))
+        return data as Data
+    }
+
+    private func makeJPEGWithOrientation(width: Int, height: Int, orientation: UInt32) throws -> Data {
+        let image = createTestImage(width: CGFloat(width), height: CGFloat(height))
+        let cgImage = try #require(image.cgImage)
+
+        let data = NSMutableData()
+        let destination = try #require(
+            CGImageDestinationCreateWithData(data, "public.jpeg" as CFString, 1, nil)
+        )
+        let properties: [CFString: Any] = [kCGImagePropertyOrientation: orientation]
         CGImageDestinationAddImage(destination, cgImage, properties as CFDictionary)
         #expect(CGImageDestinationFinalize(destination))
         return data as Data
