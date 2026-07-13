@@ -47,7 +47,7 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 | 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a-c` truth；`02d` constitution；`02e` PO workshop；`02f` impact map | reopened; Gate A ratified, authority integration pending |
 | 03 Architecture | package 依赖、DI、并发、共享接缝、废弃代码 | `03a` graph；`03b` runtime flow；`03c` debt | complete |
 | 04 Data safety | SwiftData、repository、单资料库重基线、备份、图片 | `04a` models；`04b` single library；`04c` backup；`04d` images | in progress |
-| 05 Capture | camera、scanner、album/PDF、crop、OCR、save | `05a` input；`05b` processing；`05c` persistence | pending |
+| 05 Capture | camera、scanner、album/PDF、crop、OCR、save | `05a` input；`05b` processing；`05c` persistence | in progress; P1 triage complete |
 | 06 Library/export | library、search、taxonomy、SmartPaper、export/share | `06a` library；`06b` SmartPaper；`06c` export | pending |
 | 07 Other features | review、dashboard、settings、onboarding | `07a` review；`07b` dashboard；`07c` settings/onboarding | pending |
 | 08 UI quality | shell、布局、AX、Dynamic Type、本地化、dogfood | `08a` shell；`08b` AX；`08c` l10n；`08d` visual | pending |
@@ -58,14 +58,14 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 
 ## Recovery
 
-- **current worktree**：`/private/tmp/snapdrill-repository-audit-phase04`
-- **current branch**：`codex/repository-audit-phase04`
+- **current worktree**：`/private/tmp/snapdrill-repository-audit-phase05`
+- **current branch**：`codex/repository-audit-phase05`
 - **方法**：`docs/how-to/repository-audit.md`
 - **报告模板**：`report-template.md`
 - **外部 agent 调用协议**：`agent-invocation-protocol.md`
 - **再基线契约**：`rebaseline-contract.md`
 - **finding ledger**：`findings.md`
-- **当前 checkpoint**：`checkpoints/phase-04-in-progress.md`
+- **当前 checkpoint**：`checkpoints/phase-05-in-progress.md`
 - **00b 结果**：`phases/00b-results.md`
 - **Phase 01 结果**：`phases/01-results.md`
 - **Phase 02 结果**：`phases/02-results.md`
@@ -74,5 +74,6 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **Phase 02f 产品意图影响图 / 复核**：`phases/02f-product-intent-impact-map-candidate.md` / `phases/02f-product-impact-review-results.md`
 - **Phase 03 结果**：`phases/03-results.md`
 - **Phase 04a/04b/04d 结果**：`phases/04a-results.md` / `phases/04b-results.md` / `phases/04d-results.md`
-- **当前产品治理状态**：#867 审计、#869 Gate A 与 #870 中文工作坊已合入；PO 于 2026-07-12 逐项批准 Gate B 的 B1-A 至 B7-A
-- **下一步**：在 `codex/gate-b-product-constitution-v1` 固化并人工复核 Product Constitution v1；单独授权合并后再起草 Release 1 Product Contract。#868 维持 Draft，不进入合并裁决
+- **Phase 05 P1 triage / checkpoint**：`phases/05-p1-triage-results.md` / `checkpoints/phase-05-in-progress.md`
+- **当前产品治理状态**：#867 审计、#869 Gate A、#870 中文工作坊与 #871 Product Constitution v1 已合入；Gate C v2 裁决包待 PO 批准，#868 维持 Draft/NO-GO
+- **下一步**：逐个裁决 #872–#876 的固定 head；按依赖串行合并并复验后，在新基线上继续 Phase 05 候选红测
