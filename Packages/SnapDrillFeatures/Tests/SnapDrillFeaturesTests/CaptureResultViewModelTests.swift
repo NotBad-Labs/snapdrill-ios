@@ -48,7 +48,7 @@ final class CaptureResultViewModelTests {
     private func createVM(
         content: String = "测试文本",
         image: UIImage? = nil,
-        draftService: CaptureDraftServiceProtocol? = nil
+        draftService: CaptureDraftServiceProtocol = CaptureDraftServiceMock()
     ) -> TestContext {
         let analytics = AnalyticsServiceMock()
         let router = CaptureRouter()
@@ -120,37 +120,36 @@ final class CaptureResultViewModelTests {
 
     @Test("generateDraftIfNeeded 未保存且有内容时生成草稿")
     func generateDraftIfNeeded_unsavedWithContent_savesDraft() async throws {
-        CaptureDraftService.shared.clearDraft()
-        let ctx = createVM(content: "草稿内容", image: createTestImage())
+        let draftService = CaptureDraftServiceMock()
+        let ctx = createVM(content: "草稿内容", image: createTestImage(), draftService: draftService)
 
         await ctx.vm.generateDraftIfNeeded()
 
-        #expect(CaptureDraftService.shared.hasDraft == true)
-        CaptureDraftService.shared.clearDraft()
+        #expect(draftService.hasDraft == true)
     }
 
     @Test("generateDraftIfNeeded 已保存时不生成草稿")
     func generateDraftIfNeeded_alreadySaved_noDraft() async throws {
-        CaptureDraftService.shared.clearDraft()
-        let ctx = createVM(content: "已保存", image: createTestImage())
+        let draftService = CaptureDraftServiceMock()
+        let ctx = createVM(content: "已保存", image: createTestImage(), draftService: draftService)
         // 模拟已保存
         ctx.vm.isSaved = true
 
         await ctx.vm.generateDraftIfNeeded()
 
-        #expect(CaptureDraftService.shared.hasDraft == false)
+        #expect(draftService.hasDraft == false)
     }
 
     @Test("generateDraftIfNeeded 无内容且无图片时不生成草稿")
     func generateDraftIfNeeded_emptyContentNoImage_noDraft() async throws {
-        CaptureDraftService.shared.clearDraft()
+        let draftService = CaptureDraftServiceMock()
         // PR #336 放宽草稿条件：image != nil 即保存（不看 content）
         // 因此测试"不保存"须同时去掉图片
-        let ctx = createVM(content: "", image: nil)
+        let ctx = createVM(content: "", image: nil, draftService: draftService)
 
         await ctx.vm.generateDraftIfNeeded()
 
-        #expect(CaptureDraftService.shared.hasDraft == false)
+        #expect(draftService.hasDraft == false)
     }
 
     // MARK: - handleImageCrop
@@ -219,6 +218,24 @@ final class CaptureResultViewModelTests {
 
         ctx.vm.save()
         try await waitUntil("重复保存调用结束") { !ctx.vm.isSaving }
+
+        #expect(try ctx.repos.archive.totalCount() == 1)
+        #expect(draftService.clearCallCount == 1)
+    }
+
+    @Test("saveResult 成功后再次调用被忽略")
+    func saveResult_afterSuccessIgnored() async throws {
+        let draft = CaptureDraftService.Draft(
+            image: nil,
+            content: "保存前草稿",
+            date: Date(),
+            category: nil
+        )
+        let draftService = CaptureDraftServiceMock(initialDraft: draft)
+        let ctx = createVM(content: "直接保存幂等测试", draftService: draftService)
+
+        await ctx.vm.saveResult()
+        await ctx.vm.saveResult()
 
         #expect(try ctx.repos.archive.totalCount() == 1)
         #expect(draftService.clearCallCount == 1)

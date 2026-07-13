@@ -280,7 +280,7 @@ public struct CaptureView: View {
                 }
             }
             .onAppear {
-                viewModel.checkDraftOnAppear()
+                viewModel.checkDraftOnAppear(router: router)
 #if DEBUG
                 openUITestImageResultIfNeeded()
                 openUITestPagePickerIfNeeded()

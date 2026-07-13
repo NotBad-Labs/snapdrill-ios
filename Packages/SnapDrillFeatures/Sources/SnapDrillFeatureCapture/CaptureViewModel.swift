@@ -124,8 +124,9 @@ public final class CaptureViewModel {
         }
     }
 
-    /// 页面出现时检查是否有未完成草稿，若有则弹出恢复提示
-    public func checkDraftOnAppear() {
+    /// 采集根页面出现时检查是否有未完成草稿，若有则弹出恢复提示
+    public func checkDraftOnAppear(router: CaptureRouter) {
+        guard router.path.isEmpty else { return }
         if let draft = draftService.loadDraft() {
             pendingDraft = draft
             showDraftAlert = true

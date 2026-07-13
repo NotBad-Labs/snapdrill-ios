@@ -275,12 +275,19 @@ public final class CaptureResultViewModel {
         isSaving = true
         saveTask = Task {
             defer { self.isSaving = false }
-            await saveResult()
+            await performSave()
         }
     }
 
-    /// 保存正式题目（事务委托给无状态 CaptureSaveCoordinator）
+    /// 保存正式题目；进行中或成功后的重复调用会被忽略
     public func saveResult() async {
+        guard !isSaving, !isSaved else { return }
+        isSaving = true
+        defer { isSaving = false }
+        await performSave()
+    }
+
+    private func performSave() async {
         activityTracker.begin(.capturing)
         defer { activityTracker.end(.capturing) }
 

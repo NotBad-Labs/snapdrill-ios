@@ -46,28 +46,45 @@ final class MockOCRService: OCRServiceProtocol {
 @MainActor
 struct CaptureViewModelTests {
 
-    // MARK: - Helpers
-
-    private func cleanUpDraft() {
-        CaptureDraftService.shared.clearDraft()
-    }
-
     // MARK: - 草稿
 
     @Test("checkDraftOnAppear 有草稿时显示弹窗")
-    func testCheckDraftOnAppear_WithDraft_ShowsAlert() async {
-        cleanUpDraft()
-        await CaptureDraftService.shared.saveDraft(image: createTestImage(), content: "Draft Content")
+    func testCheckDraftOnAppear_WithDraft_ShowsAlert() {
+        let draft = CaptureDraftService.Draft(
+            image: createTestImage(),
+            content: "Draft Content",
+            date: Date(),
+            category: nil
+        )
+        let draftService = CaptureDraftServiceMock(initialDraft: draft)
+        let viewModel = CaptureViewModel(ocrService: MockOCRService(), draftService: draftService)
+        let router = CaptureRouter()
 
-        let viewModel = CaptureViewModel(ocrService: MockOCRService())
-
-        viewModel.checkDraftOnAppear()
+        viewModel.checkDraftOnAppear(router: router)
 
         #expect(viewModel.showDraftAlert == true)
         #expect(viewModel.pendingDraft != nil)
         #expect(viewModel.pendingDraft?.content == "Draft Content")
+    }
 
-        cleanUpDraft()
+    @Test("checkDraftOnAppear 已在恢复编辑页时不重复显示弹窗")
+    func testCheckDraftOnAppear_RestoredRoute_DoesNotShowAlert() {
+        let draft = CaptureDraftService.Draft(
+            image: createTestImage(),
+            content: "Draft Content",
+            date: Date(),
+            category: nil
+        )
+        let draftService = CaptureDraftServiceMock(initialDraft: draft)
+        let viewModel = CaptureViewModel(ocrService: MockOCRService(), draftService: draftService)
+        let router = CaptureRouter()
+        router.restoreDraft(draft)
+
+        viewModel.checkDraftOnAppear(router: router)
+
+        #expect(viewModel.showDraftAlert == false)
+        #expect(viewModel.pendingDraft == nil)
+        #expect(draftService.hasDraft == true)
     }
 
     @Test("startEditingDraft 推送路由并保留持久草稿")
@@ -80,9 +97,8 @@ struct CaptureViewModelTests {
         )
         let draftService = CaptureDraftServiceMock(initialDraft: draft)
         let viewModel = CaptureViewModel(ocrService: MockOCRService(), draftService: draftService)
-        viewModel.checkDraftOnAppear()
-
         let router = CaptureRouter()
+        viewModel.checkDraftOnAppear(router: router)
         var pushCalled = false
         router.onPush = { destination in
             pushCalled = true
@@ -110,7 +126,8 @@ struct CaptureViewModelTests {
         )
         let draftService = CaptureDraftServiceMock(initialDraft: draft)
         let viewModel = CaptureViewModel(ocrService: MockOCRService(), draftService: draftService)
-        viewModel.checkDraftOnAppear()
+        let router = CaptureRouter()
+        viewModel.checkDraftOnAppear(router: router)
 
         viewModel.clearDraft()
 
@@ -153,7 +170,10 @@ struct CaptureViewModelTests {
         let mockOCR = MockOCRService()
         mockOCR.recognizeTextError = NSError(domain: "test", code: -1, userInfo: nil)
 
-        let viewModel = CaptureViewModel(ocrService: mockOCR)
+        let viewModel = CaptureViewModel(
+            ocrService: mockOCR,
+            draftService: CaptureDraftServiceMock()
+        )
         let router = CaptureRouter()
 
         viewModel.processScannedImage(createTestImage(), router: router)
