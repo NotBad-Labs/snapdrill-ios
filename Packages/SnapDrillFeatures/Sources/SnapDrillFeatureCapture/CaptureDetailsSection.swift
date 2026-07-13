@@ -64,9 +64,17 @@ struct CaptureDetailsSection: View {
                 Spacer()
 
                 PhotosPicker(selection: $viewModel.answerPhotoItem, matching: .images) {
-                    Label(L10n.Capture.addAnswerImage, systemImage: "photo.badge.plus")
-                        .font(.subheadline)
+                    HStack(spacing: 8) {
+                        Label(L10n.Capture.addAnswerImage, systemImage: "photo.badge.plus")
+                            .font(.subheadline)
+                        if viewModel.isAnswerPhotoLoading {
+                            ProgressView()
+                                .controlSize(.small)
+                                .accessibilityLabel(L10n.Common.loading)
+                        }
+                    }
                 }
+                .disabled(viewModel.isSaving || viewModel.isSaved)
             }
             .sensoryFeedback(.warning, trigger: viewModel.answerImage) { old, new in
                 old != nil && new == nil
