@@ -126,7 +126,10 @@ struct CaptureViewModelTests {
         let mockOCR = MockOCRService()
         mockOCR.recognizeTextResult = "Recognized Text"
 
-        let viewModel = CaptureViewModel(ocrService: mockOCR)
+        let viewModel = CaptureViewModel(
+            ocrService: mockOCR,
+            draftService: CaptureDraftServiceMock()
+        )
         let router = CaptureRouter()
 
         var pushCalled = false
