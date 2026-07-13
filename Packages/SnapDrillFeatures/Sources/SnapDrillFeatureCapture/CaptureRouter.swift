@@ -56,6 +56,8 @@ public final class CaptureRouter: @MainActor FeatureRouter {
     public var pdfDocument: PDFDocument?
     /// 文档扫描的多页图片（VNDocumentCameraScan 非 Hashable，无法通过 NavigationPath 传递）
     public var scannedPages: [UIImage]?
+    /// 恢复编辑结束后首次回根时不立即重复弹出同一草稿
+    public var shouldSuppressNextDraftPrompt = false
     /// 目标类型别名
     public typealias Destination = CaptureDestination
     
@@ -75,6 +77,7 @@ public final class CaptureRouter: @MainActor FeatureRouter {
 
     /// 恢复草稿（清空已有导航栈，重新推入编辑页）
     public func restoreDraft(_ draft: CaptureDraftService.Draft) {
+        shouldSuppressNextDraftPrompt = true
         path = NavigationPath()
         path.append(CaptureDestination.scannerResult(content: draft.content, image: draft.image))
     }

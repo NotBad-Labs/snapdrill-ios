@@ -79,7 +79,7 @@ public struct CaptureResultView: View {
                             Image(systemName: "checkmark")
                         }
                     }
-                    .disabled(viewModel.isRecognizing || viewModel.isSaving)
+                    .disabled(viewModel.isRecognizing || viewModel.isSaving || viewModel.isSaved)
                     .accessibilityLabel(L10n.Common.save)
                     .accessibilityIdentifier("capture.saveButton")
             }
