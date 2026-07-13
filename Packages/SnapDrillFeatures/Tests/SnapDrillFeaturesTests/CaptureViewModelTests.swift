@@ -85,6 +85,19 @@ struct CaptureViewModelTests {
         #expect(viewModel.showDraftAlert == false)
         #expect(viewModel.pendingDraft == nil)
         #expect(draftService.hasDraft == true)
+        #expect(router.shouldSuppressNextDraftPrompt == true)
+
+        router.path.removeLast()
+        viewModel.checkDraftOnAppear(router: router)
+
+        #expect(viewModel.showDraftAlert == false)
+        #expect(router.shouldSuppressNextDraftPrompt == false)
+        #expect(draftService.hasDraft == true)
+
+        viewModel.checkDraftOnAppear(router: router)
+
+        #expect(viewModel.showDraftAlert == true)
+        #expect(viewModel.pendingDraft?.content == "Draft Content")
     }
 
     @Test("startEditingDraft 推送路由并保留持久草稿")
@@ -114,6 +127,7 @@ struct CaptureViewModelTests {
         #expect(pushCalled == true)
         #expect(viewModel.pendingDraft == nil)
         #expect(draftService.hasDraft == true)
+        #expect(router.shouldSuppressNextDraftPrompt == true)
     }
 
     @Test("clearDraft 清除草稿")
