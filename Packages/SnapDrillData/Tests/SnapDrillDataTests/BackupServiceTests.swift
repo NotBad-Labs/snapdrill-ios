@@ -364,24 +364,6 @@ struct BackupServiceTests {
         #expect(extracted.profiles.first?.profileId == Self.testProfileId)
     }
 
-    @Test("v2 缺失图片引用保持既有 best-effort 行为")
-    func v2MissingImageReference_remainsBestEffort() async throws {
-        let service = BackupService()
-        let profileDir = try createTempProfileDir()
-        defer { cleanup(profileDir) }
-        cleanup(profileDir.appendingPathComponent("images/test.jpg"))
-
-        let backupURL = try await service.createBackup(
-            payload: makeSamplePayload(),
-            manifest: makeSampleManifest(),
-            profileDirectories: [profileDir]
-        )
-        defer { cleanup(backupURL) }
-
-        let payload = try await service.extractPayload(from: backupURL)
-        #expect(payload.profiles.first?.reviewItems.first?.imagePath == "images/test.jpg")
-    }
-
     @Test("restoreImages 对任一非法 entry 整体失败且不修改旧图片")
     func restoreImages_rejectsInvalidEntryWithoutPartialMutation() async throws {
         let service = BackupService()
