@@ -79,6 +79,8 @@ public actor BackupService {
         profileDirectories: [URL],
         onProgress: ProgressHandler? = nil
     ) throws -> URL {
+        try BackupImagePathValidator.validatePayload(payload)
+
         let fileManager = FileManager.default
         let tempDir = fileManager.temporaryDirectory
         let timestamp = ISO8601DateFormatter().string(from: Date())
@@ -141,7 +143,6 @@ public actor BackupService {
         profileDirectories: [URL],
         onProgress: ProgressHandler?
     ) throws {
-        let fileManager = FileManager.default
         var totalImages = 0
         for profileData in payload.profiles {
             for item in profileData.reviewItems {
@@ -165,15 +166,17 @@ public actor BackupService {
 
             let profilePrefix = "profiles/\(profileData.profileId.uuidString)"
             for relativePath in Set(imagePaths) {
-                let absoluteURL = imageBasePath.appendingPathComponent(relativePath)
-                guard fileManager.fileExists(atPath: absoluteURL.path) else {
+                guard let fileURL = try BackupImagePathValidator.readableImageURL(
+                    path: relativePath,
+                    relativeTo: imageBasePath
+                ) else {
                     SnapDrillLogger.generic.warning("备份跳过缺失图片: \(relativePath)")
                     processedImages += 1
                     reportProgress(processedImages, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
                     continue
                 }
 
-                let fileData = try Data(contentsOf: absoluteURL)
+                let fileData = try Data(contentsOf: fileURL)
                 try archive.addEntry(
                     with: "\(profilePrefix)/\(relativePath)",
                     type: .file,
@@ -230,7 +233,9 @@ public actor BackupService {
 
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        return try decoder.decode(BackupPayload.self, from: payloadData)
+        let payload = try decoder.decode(BackupPayload.self, from: payloadData)
+        try BackupImagePathValidator.validateArchivePaths(payload, in: archive)
+        return payload
     }
 
     /// 从备份文件中恢复指定 Profile 的图片
@@ -275,7 +280,7 @@ public actor BackupService {
                 lastReportedPercent: &lastReportedPercent,
                 onProgress: onProgress
             )
-            try commitStagedFiles(stagedFiles, fileManager: fileManager)
+            try commitStagedFiles(stagedFiles, to: imageBasePath, fileManager: fileManager)
         } catch {
             try? fileManager.removeItem(at: stagingDir)
             throw error
@@ -315,16 +320,13 @@ public actor BackupService {
 
         for (index, entry) in context.imageEntries.enumerated() {
             let relativePath = String(entry.path.dropFirst(profilePrefix.count))
-            let pathComponents = relativePath.split(separator: "/")
             let destinationURL = context.imageBasePath.appendingPathComponent(relativePath).standardizedFileURL
             let stagedURL = context.stagingDir.appendingPathComponent(relativePath).standardizedFileURL
 
-            guard !pathComponents.contains(".."),
+            guard ImageStorage.isValidImagePath(relativePath),
                   destinationURL.path.hasPrefix(basePath),
                   stagedURL.path.hasPrefix(stagingBasePath) else {
-                SnapDrillLogger.generic.warning("跳过可疑路径: \(entry.path)")
-                reportProgress(index + 1, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
-                continue
+                throw BackupError.invalidArchive
             }
 
             let restoredBytes = try stageImageEntry(
@@ -397,13 +399,17 @@ public actor BackupService {
         }
     }
 
-    private func commitStagedFiles(_ stagedFiles: [StagedImageFile], fileManager: FileManager) throws {
+    private func commitStagedFiles(
+        _ stagedFiles: [StagedImageFile],
+        to imageBasePath: URL,
+        fileManager: FileManager
+    ) throws {
+        try BackupImagePathValidator.prepareDestination(
+            at: imageBasePath,
+            destinationURLs: stagedFiles.map(\.destinationURL),
+            fileManager: fileManager
+        )
         for file in stagedFiles {
-            let parentDir = file.destinationURL.deletingLastPathComponent()
-            if !fileManager.fileExists(atPath: parentDir.path) {
-                try fileManager.createDirectory(at: parentDir, withIntermediateDirectories: true)
-            }
-
             if fileManager.fileExists(atPath: file.destinationURL.path) {
                 _ = try fileManager.replaceItemAt(
                     file.destinationURL,
