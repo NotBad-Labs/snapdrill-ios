@@ -118,11 +118,16 @@ public struct CaptureResultView: View {
                     }
                 )
                 .ignoresSafeArea()
+                .onDisappear {
+                    // 路由在裁剪器呈现期间移除结果页时，父视图会跳过清理，改由裁剪器收尾。
+                    guard viewModel.isCropping else { return }
+                    cleanUpAfterPageExit()
+                }
             }
         }
         .onDisappear {
-            viewModel.saveDraftOnDisappear()
-            viewModel.cancelTasks()
+            guard !viewModel.isCropping else { return }
+            cleanUpAfterPageExit()
         }
         .sensoryFeedback(.success, trigger: viewModel.isSaved) { _, newValue in
             newValue
@@ -140,6 +145,11 @@ public struct CaptureResultView: View {
         #if canImport(UIKit)
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
         #endif
+    }
+
+    private func cleanUpAfterPageExit() {
+        viewModel.saveDraftOnDisappear()
+        viewModel.cancelTasks()
     }
 }
 

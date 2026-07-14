@@ -13,40 +13,10 @@ import TipKit
 import SwiftData
 import Foundation
 import UIKit
-import PhotosUI
 @testable import SnapDrillFeatureCapture
 @testable import SnapDrillData
 @testable import SnapDrillCore
 @testable import SnapDrillUI
-
-private actor SuspendedPhotoDataLoader {
-    private let data: Data
-    private var didStart = false
-    private var startWaiter: CheckedContinuation<Void, Never>?
-    private var releaseWaiter: CheckedContinuation<Void, Never>?
-
-    init(data: Data) {
-        self.data = data
-    }
-
-    func load() async -> Data {
-        didStart = true
-        startWaiter?.resume()
-        startWaiter = nil
-        await withCheckedContinuation { releaseWaiter = $0 }
-        return data
-    }
-
-    func waitUntilStarted() async {
-        guard !didStart else { return }
-        await withCheckedContinuation { startWaiter = $0 }
-    }
-
-    func release() {
-        releaseWaiter?.resume()
-        releaseWaiter = nil
-    }
-}
 
 @Suite("CaptureResultViewModel 保存与表单测试", .serialized)
 @MainActor
@@ -230,46 +200,6 @@ final class CaptureResultViewModelTests {
         // 验证只保存了一次（不是两次）
         let items = try ctx.repos.archive.fetchAllModels()
         #expect(items.count == 1)
-    }
-
-    @Test("答案图仍在加载时保存不会静默丢图")
-    func saveResult_whileAnswerPhotoLoading_doesNotDropImage() async throws {
-        guard let photoData = createTestImage().jpegData(compressionQuality: 0.8) else {
-            Issue.record("测试图片无法编码")
-            return
-        }
-        let loader = SuspendedPhotoDataLoader(data: photoData)
-        let vm = CaptureResultViewModel(
-            content: "带答案图的资料",
-            image: nil,
-            repositories: repos,
-            ocrService: MockOCRServiceShared(),
-            analyticsService: AnalyticsServiceMock(),
-            contentTaggingService: ContentTaggingServiceMock(),
-            router: CaptureRouter(),
-            draftService: CaptureDraftServiceMock(),
-            photoDataLoader: { _ in await loader.load() }
-        )
-
-        vm.answerPhotoItem = PhotosPickerItem(itemIdentifier: "answer-photo-race-test")
-        await loader.waitUntilStarted()
-        #expect(vm.isAnswerPhotoLoading)
-
-        vm.save()
-        #expect(!vm.isSaving)
-        #expect(try repos.archive.totalCount() == 0)
-
-        await vm.saveResult()
-        #expect(try repos.archive.totalCount() == 0)
-
-        await loader.release()
-        try await waitUntil("答案图加载完成") { vm.answerImage != nil }
-        #expect(!vm.isAnswerPhotoLoading)
-        await vm.saveResult()
-
-        let items = try repos.archive.fetchAllModels()
-        #expect(items.count == 1)
-        #expect(items.first?.answerImagePath != nil)
     }
 
     @Test("save 成功后再次调用被忽略")

@@ -55,7 +55,7 @@ struct CaptureDetailsSection: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
                     Button(role: .destructive) {
-                        viewModel.answerImage = nil
+                        viewModel.removeAnswerImage()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.red)

@@ -161,6 +161,12 @@ public final class CaptureResultViewModel {
         taggingTask = nil
     }
 
+    /// 移除答案图，并取消尚未完成的相册替换任务，避免迟到结果重新写回。
+    public func removeAnswerImage() {
+        answerPhotoItem = nil
+        answerImage = nil
+    }
+
     /// 加载默认表单数据：拉取所有维度及其值，并触发 AI 标注
     public func loadFormData() {
         do {
@@ -383,6 +389,7 @@ public final class CaptureResultViewModel {
 
     private func processSelectedPhoto() {
         photoLoadTask?.cancel()
+        photoLoadTask = nil
         let loadToken = UUID()
         photoLoadToken = loadToken
         guard let item = answerPhotoItem else {
