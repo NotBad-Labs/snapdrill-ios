@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-14
+last_verified: 2026-07-15
 layer: pattern
 freshness:
   max_age_days: 180
@@ -9,7 +9,7 @@ freshness:
 
 > 面向新开发者的架构全景图。
 >
-> **产品重基线边界（2026-07-14）**：本文描述当前代码，不定义产品。Product Constitution v1 已选择一个可见资料库、Release 1 无 IAP，并把 Apple 私有同步 / Pro 降为未来假设；已 ratify 的 Release 1 Contract 合入 `develop` 后继续约束 Must / hidden 与数据结果。因此下文 Multi-Profile、per-profile 偏好、Pro gating 与 CloudKit 路径只用于刻画待重审实现。不得据此新增功能或反向覆盖 `vision.md` / Release 1 Contract。Draft #868 仍须等待 DATA-1 effective 与独立 Data Contract 后重审。
+> **产品重基线边界（2026-07-15）**：本文描述当前代码，不定义产品。Product Constitution v1 已选择一个可见资料库、Release 1 无 IAP，并把 Apple 私有同步 / Pro 降为未来假设；已 ratify 的 Release 1 Contract follow-up decisions 合入 `develop` 后继续约束 Must / hidden 与数据结果。因此下文 Multi-Profile、per-profile 偏好、Profile ZIP v2、Pro gating 与 CloudKit 路径只用于刻画待重审实现。不得据此新增功能或反向覆盖 `vision.md` / Release 1 Contract。Draft #868 须遵守 `../reference/local-library-data-contract.md`，并等待精确 Backup v3 Wire 与安全前置后重审。
 
 ---
 
@@ -160,7 +160,7 @@ SwiftData @Model（持久化）
 | `*Repository.swift` | 数据访问层，封装 ModelContext（推荐 `init(executor:)`，保留 `init(modelContext:)` 向后兼容） |
 | `DataExecutor` | actor 拥有 ModelContainer，`createOffMainActor()` 消除 MainActor+XPC 死锁（#599） |
 | `RepositoryContainer` | Repository 聚合 + Environment 注入 |
-| `BackupService` | .zip 备份/恢复（actor 隔离） |
+| `BackupService` | 当前 Profile ZIP v2 备份/恢复（actor 隔离）；D1-B 的 `.snapdrillbackup` v3 是待独立实现的目标 wire，本地 runtime / generation 边界见 `../reference/local-library-data-contract.md` |
 | `BackupDTO` | 备份数据传输对象 |
 | `ProfileManager` | 多 Profile / Vault 切换（独立数据库 + 图片目录 + per-profile UserDefaults），持有 DataExecutor |
 | `ProfileMigration` | Profile 结构迁移（老版本升级） |

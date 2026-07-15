@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-14
+last_verified: 2026-07-15
 layer: pattern
 freshness:
   max_age_days: 180
@@ -31,7 +31,7 @@ freshness:
 |---|---|---|
 | 资料库浏览（200 条） | < 150MB | 图片按需加载 + 下采样 |
 | PDF 批量导出 | < 200MB | autoreleasepool 逐页释放 |
-| 备份/恢复 | < 200MB | 流式 ZIP 写入，不全量加载 |
+| 备份/恢复 | < 200MB | `.snapdrillbackup` image BLOB 增量读写；不把单图、全库图片或整个数据库物化为一个 `Data` |
 | 图片裁剪 | < 300MB | Mantis 内部管理 |
 | CSV 导入（1000 行，Candidate optional）| < 80MB；GAP-R6 修复且冻结 manifest 纳入后才适用 | 解析流逐行处理，不全文加载到内存 |
 
@@ -64,7 +64,7 @@ freshness:
 | 维度 | 要求 |
 |---|---|
 | **最低 iOS** | 26.0 |
-| **设备** | Release 1 仅支持可运行 iOS 26 的 iPhone；iPad 需新平台裁决 |
+| **设备** | Release 1 仅支持可运行 iOS 26 的 iPhone；退出 Apple Silicon Mac / Apple Vision Pro compatibility distribution；iPad 或兼容平台重入需新裁决 |
 | **屏幕尺寸** | Release 1 iPhone viewport 集合；现有 regular-size 代码不构成 iPad 支持声明 |
 | **方向** | iPhone 竖屏；其他方向须以发布构建和 Release Contract 为准 |
 | **分屏** | 不属于 Release 1；iPad 重入时重新定义 |
@@ -94,8 +94,8 @@ freshness:
 |---|---|
 | **数据持久性** | 保存操作后数据不丢失（saveContext 失败必须 rollback） |
 | **草稿恢复** | 意外退出后可恢复（S0 级防护） |
-| **删除安全** | 5 秒撤销窗口 |
-| **备份完整性** | 恢复前自动备份当前数据（安全网） |
+| **删除安全** | 持久化五秒绝对撤销期限；后台 / 重启不缩短，期限后幂等硬删除 |
+| **备份完整性** | 恢复前按 [Local Library Data Contract](local-library-data-contract.md) 冻结并验证 D3-B prestate；失败时零 active mutation |
 | **崩溃率** | < 0.1%（Xcode Organizer / MetricKit / App Store Connect） |
 
 ## 同步与网络

@@ -1,12 +1,13 @@
 ---
-last_verified: 2026-07-14
+last_verified: 2026-07-15
 layer: release-contract
 release: 1
 ratified_at:
   C3: 2026-07-13
   remaining_12: 2026-07-14
+  follow_up_contract_decisions: 2026-07-15
 activation: effective_when_merged_to_develop
-ratified_decisions: ["C1-A", "C2-Core", "C2-Image", "C2-Optional", "C2-Personalization", "C3", "C4-D", "C5-E", "C5-S1", "C6-A", "DATA-1", "DATA-1-E", "DATA-1-R"]
+ratified_decisions: ["C1-A", "C2-Core", "C2-Image", "C2-Optional", "C2-Personalization", "C3", "C4-D", "C5-E", "C5-S1", "C6-A", "DATA-1", "DATA-1-E", "DATA-1-R", "D1-B", "D2-A", "D3-B", "D4-B", "D5-A", "#932-A", "#891-copy"]
 pending_decisions: []
 upstream:
   - ../explanations/vision.md
@@ -16,7 +17,7 @@ upstream:
 ---
 # Release 1 Product Contract
 
-> PO 于 2026-07-13 ratify C3，并于 2026-07-14 ratify 其余 12 个精确决策 ID；至此下表全部 13 项均已批准。本文在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective Release 1 权威。`RATIFIED` 不授权代码实现、构建上传、开放 TestFlight、发布或合并；每次合并和发布动作仍需 PO 单独明确授权。
+> PO 于 2026-07-13 至 2026-07-15 ratify Gate C 与后续数据、导出、删除和平台边界裁决。本文在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective Release 1 权威。`RATIFIED` 不授权代码实现、构建上传、开放 TestFlight、发布或合并；每次合并和发布动作仍需 PO 单独明确授权。
 
 ## 1. 合同职责
 
@@ -41,6 +42,15 @@ upstream:
 | DATA-1 | RATIFIED | 明确外部兼容 epoch、本机升级与完整备份承诺；wire / journal 技术方案下沉 Data Contract |
 | DATA-1-E | RATIFIED | Release 1 手动备份允许未加密，但分享前明确提示可能包含私人内容 |
 | DATA-1-R | RATIFIED | 损坏 store 或恢复双失败后选择空库继续，事件材料不自动删；仅显式删除或成功“导出并删除”可清理 |
+| D1-B | RATIFIED | Backup v3 采用 purpose-built SQLite `.snapdrillbackup` application document；不以普通 ZIP 工具直接解包为 Release 1 要求 |
+| D2-A | RATIFIED | 基础 PDF 不含封面；物理页数严格为 `ceil(N / itemsPerPage)`，空选择在渲染前失败 |
+| D3-B | RATIFIED | 外部完整备份继续严格；内部恢复快照以显式 inventory 精确表示快照时已经缺失的图片 |
+| D4-B | RATIFIED | 五秒删除撤销采用持久化绝对期限，后台与重启不缩短承诺窗口 |
+| D5-A | RATIFIED | Settings 提供“清空资料库 / Clear Library”，不是 App factory reset |
+| #932-A | RATIFIED | Release 1 同时退出 Apple Silicon Mac 与 Apple Vision Pro 的 iPhone-app compatibility distribution |
+| #891-copy | RATIFIED | 未加密备份的中英文逐次导出提示文案由 `feat-backup.md` 固定 |
+
+后续裁决的 shaping 与 PO ratification 回执保留在 [#882](https://github.com/NotBad-Labs/snapdrill-ios/issues/882)、[#885](https://github.com/NotBad-Labs/snapdrill-ios/issues/885)、[#906](https://github.com/NotBad-Labs/snapdrill-ios/issues/906)、[#907](https://github.com/NotBad-Labs/snapdrill-ios/issues/907)、[#910](https://github.com/NotBad-Labs/snapdrill-ios/issues/910)、[#932](https://github.com/NotBad-Labs/snapdrill-ios/issues/932) 与 [#891](https://github.com/NotBad-Labs/snapdrill-ios/issues/891)。这些 issue 是来源证据；合入 `develop` 后的本文与 owning contract / feature spec 才是规范权威。
 
 ## 2. 目标产物
 
@@ -73,8 +83,8 @@ Release 1 服务处理结构化纸张、照片或 PDF 材料的成年人。考�
 1. 新用户无需注册、创建身份或选择资料空间即可开始使用。
 2. 用户可以从相机 / 文档扫描、相册和 PDF 导入真实资料；内容真相与来源保留政策见 C2-Image。OCR 失败、不准确或不可用时仍可保存和人工修正。
 3. 权限被拒绝、输入取消或 OCR 失败不会形成死路；至少存在一条仍可完成录入的替代路径。
-4. 用户可以在唯一资料库中搜索、查看、编辑、分类和删除资料；不可逆删除前提供清楚、可测试的撤销机会，具体时长由 Library feature spec 维护。
-5. 用户可以选择资料生成 PDF，并独立完成系统预览与打印；分享或保存是并列出口，不能替代打印验收。每条选定资料恰好出现一次，页数符合所选每页资料数，每条资料的主要图片或文字至少有一种可读内容，不得出现空白、遗漏或重复资料。取消或失败不得留下损坏或部分的 App-owned 输出；用户已明确保存到 App 外部的副本不承诺回滚。
+4. 用户可以在唯一资料库中搜索、查看、编辑、分类和删除资料；不可逆删除前提供清楚、可测试的五秒撤销机会。D4-B 要求该机会使用持久化绝对期限，后台与重启不得提前终止。
+5. 用户可以选择资料生成 PDF，并独立完成系统预览与打印；分享或保存是并列出口，不能替代打印验收。D2-A 要求基础 PDF 不含封面，物理页数严格为 `ceil(N / itemsPerPage)`，空选择在渲染前失败。每条选定资料恰好出现一次，每条资料的主要图片或文字至少有一种可读内容，不得出现空白、遗漏或重复资料。取消或失败不得留下损坏或部分的 App-owned 输出；用户已明确保存到 App 外部的副本不承诺回滚。
 6. 未保存采集被中断时，用户可以恢复或明确丢弃草稿；任何取消路径都不会留下不可理解的半成品。
 7. 用户可以创建并恢复完整的手动可携带备份；损坏、超限或恶意备份失败时不崩溃、不穿越文件边界、不静默覆盖现有资料。
 8. 本地 store 无法打开时，用户会看到可理解的恢复选择，可以从备份恢复，或在明确知情后以空资料库继续，而不是进入白屏或假空库。
@@ -157,7 +167,7 @@ Release 1 只有一个用户可见的本地资料库，没有 SnapDrill 账户�
 2. **epoch 触发**：任何渠道首次让非 PO 自然人获得下载资格时触发，包括 research / external TestFlight、Ad Hoc 或交付给非 PO 的开发签名包；仅上传但尚未开放下载不触发。开放动作须先取得 C1 规定的 PO non-PO availability 授权；即使流程违规，实际开放仍触发 epoch。Capability Manifest 固定记录 source commit、渠道 artifact / ASC build identity、渠道、audience、授权、开放时间、Marketing Version、Build 和 Backup Schema。
 3. **epoch 后本机升级**：App 更新必须保留用户已保存资料、主图 / 答案图、用户分类与关联、Review 状态，以及当前版本承诺支持的用户偏好；需要变形时提供内置迁移，不得假装空库或静默丢弃。
 4. **epoch 后备份兼容**：每个正式分发 writer 生成、且符合其当时 effective wire contract 的完整备份，必须能由当前 App 直接恢复；格式转换可以作为 App 内恢复流程的实现细节，不能把 CLI、桌面工具或人工迁移作为普通用户唯一恢复路径。损坏、篡改或超出原格式合同的文件不在兼容承诺内。安全边界若需收紧，必须在 App 内保留旧 reader 或安全转换，不能让旧合法备份失效。
-5. **外部分发前**：外部 backup wire 必须 Profile-free，并由 [backup-wire-format.md](backup-wire-format.md) 在独立 Data Contract 中冻结；旧 Profile v1 / v2 仅属 epoch 前开发格式，可被明确拒绝并给出可理解提示。
+5. **外部分发前**：外部 backup wire 必须 Profile-free；[Local Library Data Contract](local-library-data-contract.md) 冻结 inventory、路径与恢复生命周期，[Backup Wire Format](backup-wire-format.md) 冻结外部 DDL 与兼容规则。旧 Profile v1 / v2 仅属 epoch 前开发格式，可被明确拒绝并给出可理解提示。
 
 “完整备份”包含：已保存资料、主图 / 答案图、用户创建的分类 / 字段及关联、Review 状态，以及解释这些内容所必需的配置。它不包含未保存草稿、缓存、内部损坏-store / restore-journal 材料，也不要求携带设备本地的语言、外观、通知时间或诊断偏好；这些偏好在同设备 App 升级时仍受 DATA-1 第 3 项保护。
 
@@ -165,11 +175,19 @@ Release 1 只有一个用户可见的本地资料库，没有 SnapDrill 账户�
 
 **RATIFIED DATA-1-E（未加密备份）**：Release 1 的用户导出备份可以不设密码，以保持跨设备可恢复和避免密钥丢失；分享前必须明确提示文件可能包含私人文字与图片，由用户通过系统 share sheet / 文件选择器决定保存位置。未来加密格式需新的 privacy / Data Contract，并保留旧正式备份可恢复性。
 
+**RATIFIED D1-B（Backup v3 容器）**：Release 1 的正式外部备份是 purpose-built SQLite `.snapdrillbackup` application document，不是 live SwiftData store、WAL 副本或通用 ZIP。普通 ZIP 工具直接浏览内部图片不属于 Release 1 产品要求；用户仍可把单一文件交给 Files、AirDrop 或系统分享面板。具体 DDL、`application_id`、`user_version`、exact object allowlist、只读 hostile-file 防御、增量 BLOB I/O、digest、容量闭包、fixtures 与兼容转换仍由 Backup Wire Data Contract 冻结，不能从本项获得实现授权。
+
+**RATIFIED D3-B（恢复前内部快照）**：外部完整备份继续严格 all-or-nothing。内部 pre-restore recovery artifact 可以表示当前资料库在快照前已经缺图，但必须使用 recovery-only marker 和闭合 inventory，把每个引用唯一标记为 `present` 或 `missing-at-snapshot`；`present` 图片必须完整读取并校验，已有但不可读的图片使恢复在零 mutation 时中止。外部 Backup reader 永远不得把 recovery-only artifact 当作完整用户备份，普通静默跳过缺图不满足本裁决。
+
 **RATIFIED DATA-1-R（恢复材料保留）**：用户在损坏 store，或恢复的确定性前滚与回滚均无法完成（双失败）时选择“以空资料库继续”后，原始损坏材料、恢复前安全快照和解释失败所需的只读状态默认保留，直到用户在可见管理入口显式删除。用户可以先导出；只有明确选择“导出并删除”且导出成功，才同时终止本机保留。该选择不等于授权后台自动淘汰。未解决事件永不自动删除，正常 UI 也不得把这些材料伪装成可用资料库。
 
 Release 1 必须让产品所支持创建的任意资料库都能生成一个同版可恢复的正式备份；writer 不得报告成功后再被同版 reader 拒绝。若单文件格式无法覆盖受支持规模，Data DRI 必须选择流式、分卷或其他可恢复方案，不能用未公开容量上限撤销永久备份权。
 
-恶意 / 损坏输入、磁盘不足、进程中断、数据库与图片提交不同步或 store 打不开，均不得造成崩溃、越界读写、静默覆盖、假空库或不可理解的半恢复。用户看到的是可崩溃恢复的 all-or-nothing 结果或明确阻塞恢复态；具体 archive grammar、schema / key、资源 / 像素边界、validator / dependency、staging、journal phase、marker、启动协调与 fault injection 属于 Data / Security DRI，在 DATA-1 effective 后写入独立 Data Contract 与 DoR，不能从本节直接获得实现授权。
+恶意 / 损坏输入、磁盘不足、进程中断、数据库与图片提交不同步或 store 打不开，均不得造成崩溃、越界读写、静默覆盖、假空库或不可理解的半恢复。用户看到的是可崩溃恢复的 all-or-nothing 结果或明确阻塞恢复态；具体 inventory、staging、journal phase、marker、启动协调与 fault injection 由 [Local Library Data Contract](local-library-data-contract.md) 承接，外部 archive grammar、schema / key 与 fixtures 由 [Backup Wire Format](backup-wire-format.md) 承接。两者都不能从本节直接获得实现授权。
+
+### 6.1 资料库清除边界
+
+**RATIFIED D5-A**：Release 1 的破坏性 Settings 操作命名为“清空资料库 / Clear Library”，不是“清除所有数据”或 factory reset。它只删除已保存资料、这些资料引用的 App-managed 主图 / 答案图、分类 / 字段 / 关联，以及附着于这些资料的 Review 调度状态。它不静默删除未保存采集草稿、语言 / 外观 / 通知等本机偏好、DATA-1-R 保留的未解决 recovery incident，或用户已经保存到沙盒外的文件。每类排除内容继续由自己的可见生命周期管理；公开隐私说明不得把 Clear Library 描述为完整 App reset。
 
 ## 7. 明确非目标与隐藏能力
 
@@ -180,6 +198,7 @@ Release 1 不包含：
 - CloudKit / Apple 私有同步、开发者可访问的内容后端或第三方行为分析；
 - Word 导出、高级统计、自动解题、答案搜索、课程 / 内容推荐；
 - iPad 发行或中国大陆专项构建、账号、合规和元数据路线。
+- Apple Silicon Mac 或 Apple Vision Pro 的 iPhone-app compatibility distribution；#932-A 要求 source/archive 与 App Store Connect 都退出这两个兼容商店，未来重入须新的平台裁决和对应 dogfood / AX / 发布证据。
 
 简体中文 UI 和成年人管理家庭资料属于全球 iPhone 版支持范围；它们不等于启动中国专项发行，也不授权把产品重新定义为儿童教育 App。
 
@@ -211,9 +230,9 @@ Release 1 不包含：
 
 ## 10. 合同生效与退出条件
 
-1. PO 已于 2026-07-13 批准 C3，并于 2026-07-14 批准其余 12 个精确决策 ID，摘要表全部 13 项均为 ratified。
+1. PO 已于 2026-07-13 至 2026-07-15 批准摘要表列出的 Gate C 与后续精确决策；它们在本权威及 owning feature / Data Contract 同步合入后 effective。
 2. 本文及必要 thin pointers 通过文档门禁和独立语义复核。
 3. PR 合并获得 PO 单独授权并进入 `develop`；合并前仍是 ratified candidate。
-4. 本合同同一 docs-only PR 同步对齐受 13 项裁决直接影响的产品说明、feature spec、结果 oracle、发布 evidence plan、术语与导航索引；这些改动用于移除旧规范冲突并建立追溯，不授权或包含代码、导航、schema / wire 实现。
+4. 本合同 docs-only PR 同步对齐受 Gate C 与后续裁决直接影响的产品说明、feature spec、结果 oracle、发布 evidence plan、术语与导航索引；这些改动用于移除旧规范冲突并建立追溯，不授权或包含代码、导航、schema / wire 实现。
 5. Draft PR #868 只有在 DATA-1 effective、独立 Backup Wire / 单资料库可崩溃恢复 Data Contract 与对应 fixtures 纳入其 diff 或前置 PR 后，才具备重新申请合并的 DoR。
 6. 本合同一经 effective，在新 Release Contract 或明确 supersession 合入前持续有效。

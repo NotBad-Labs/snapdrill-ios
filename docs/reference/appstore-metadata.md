@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-14
+last_verified: 2026-07-15
 layer: snapshot
 current_status: shaping_after_release_contract_when_effective
 activation: effective_when_release_1_contract_is_on_develop
@@ -15,7 +15,7 @@ review_gate: PO / legal / ASO final review required; do not submit this shaping 
 ---
 # App Store 元数据（待 Release build 实证）
 
-> **不可提交**：本更新在分支 / PR 中仍等待 Release 1 Contract effective；同一更新合入 `develop` 后，产品范围 blocker 才转为 release-build evidence blocker。届时公开边界为：Dashboard 是默认任务枢纽，optional 默认隐藏，Review / SmartPaper 在 `public-candidate` 完全隐藏。关键词、完整描述、宣传文本、截图和审核备注仍须等待实际候选 build、隐私 / 签名实证与 PO / legal / ASO 复核，不能从合同直接生成发布事实。
+> **不可提交**：本更新在分支 / PR 中仍等待 Release 1 Contract follow-up decisions effective；同一更新合入 `develop` 后，产品范围 blocker 才转为 release-build evidence blocker。届时公开边界为：Dashboard 是默认任务枢纽，optional 默认隐藏，Review / SmartPaper 在 `public-candidate` 完全隐藏，Apple Silicon Mac 与 Apple Vision Pro compatibility distribution 均退出 Release 1。关键词、完整描述、宣传文本、截图和审核备注仍须等待实际候选 build、隐私 / 签名实证与 PO / legal / ASO 复核，不能从合同直接生成发布事实。
 
 ## 已批准的公开边界
 
@@ -27,7 +27,7 @@ review_gate: PO / legal / ASO final review required; do not submit this shaping 
 | 核心价值 | 把纸张、照片和 PDF 变成可搜索、可整理、可打印的个人资料库 |
 | 核心价值链 | 采集 -> 整理 / 找回 -> 导出 / 打印 |
 | 价格 | Release 1 免费、无广告、无 IAP |
-| 设备 | iPhone-only |
+| 设备 | iPhone-only；不通过 Designed for iPhone compatibility 在 Apple Silicon Mac 或 Apple Vision Pro 分发 |
 | 产品语言 | 英文 + 简体中文 |
 | 发布主体 | NotBad Labs L.L.C.（美国全球版） |
 | 数据姿态 | local-first、无 SnapDrill 账户、永久可携带手动备份；发布前仍须用二进制与网络实证复核 |
@@ -51,7 +51,7 @@ review_gate: PO / legal / ASO final review required; do not submit this shaping 
 - 不把产品描述为儿童教育 App、题库、搜题、解题或内容服务。
 - 不把考试、认证、培训或家庭资料写成已经验证的唯一市场；它们只是首个切口示例。
 - 不宣传 Pro、IAP、价格、Free Trial、Lifetime、CloudKit、Word 或“即将推出”的付费能力。
-- 不声称支持 iPad 或中国大陆专项版本。
+- 不声称支持 iPad、中国大陆专项版本、Apple Silicon Mac 或 Apple Vision Pro；#932-A 要求两个 compatibility store 都明确退出。
 - 不把当前代码存在、feature-status、历史 ADR 或 Draft PR 当成发布功能证据。
 - 不在未复核发布二进制、Privacy Manifest、entitlements 和网络流量前作绝对隐私声明。
 
@@ -65,6 +65,7 @@ review_gate: PO / legal / ASO final review required; do not submit this shaping 
 6. iPhone 截图集、Dynamic Type / AX 证据和本地化复核。
 7. 支持、隐私政策、服务条款 URL 的线上内容与可访问性。
 8. PO、legal、ASO 和 release DRI 的最终 go / no-go。
+9. source build settings、signed archive 与 App Store Connect availability 均证明 Mac / Vision Pro compatibility opt-out；只改其中一层不算完成。
 
 ## 已知公开 URL
 

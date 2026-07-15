@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-14
+last_updated: 2026-07-15
 intent_refs:
   - vision:P1
   - vision:P2
@@ -15,7 +15,7 @@ intent_refs:
 
 # Feature: 资料库管理 + 分享卡片
 
-> **产品重基线（2026-07-14）**：整理 / 找回属于核心价值链，用户可见容器统一为一个“资料库”。C2-Core 将搜索、查看、编辑、分类和可撤销删除列为 Must；动态字段与批量操作按 C2-Optional 成为默认隐藏的 Candidate optional，ShareCard 与按回顾状态排序则须新上游裁决才能重入。C4-D / C5-E 只允许 `po-only` / `research` build 通过 Library 各自一个静态次级入口实验，`public-candidate` 完全隐藏。frontmatter 与下文技术细节仍记录当前实现，旧 Multi-Profile、Pro、SmartPaper 和高级统计分层不得驱动新工作。
+> **产品重基线（2026-07-15）**：整理 / 找回属于核心价值链，用户可见容器统一为一个“资料库”。C2-Core 将搜索、查看、编辑、分类和可撤销删除列为 Must；D4-B 固定五秒绝对撤销期限跨后台与重启继续。动态字段与批量操作按 C2-Optional 成为默认隐藏的 Candidate optional，ShareCard 与按回顾状态排序则须新上游裁决才能重入。C4-D / C5-E 只允许 `po-only` / `research` build 通过 Library 各自一个静态次级入口实验，`public-candidate` 完全隐藏。frontmatter 与下文技术细节仍记录当前实现，旧 Multi-Profile、Pro、SmartPaper 和高级统计分层不得驱动新工作。
 
 > 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
@@ -35,15 +35,15 @@ intent_refs:
 - **编辑**：进入资料详情可看 App-managed 主图、OCR 文字、元数据、答案；Must 编辑覆盖基础分类 / 标签与主内容，可只补答案而不动主内容。动态字段及尚未开启字段的扩展属于 Candidate optional。
 - **字段配置系统（Candidate optional）**：固定字段（内容）永不可关；内置分类 / 来源 / 级别 / 标签默认不在录入页显示，用户按需开启；自定义维度默认可见。系统字段选项列表可增删改；重命名级联更新所有引用该选项的资料；**已被资料使用的选项禁止删除**（数据完整性）。未被 manifest 纳入时零入口、零副作用。
 - **批量操作（Candidate optional）**：编辑按钮进入选择模式 → 勾选多条资料 → 批量打标签（追加目标标签、不移除既有标签）/ 批量删除。批量编辑系统字段不做；未被 manifest 纳入时零入口、零副作用。
-- **删除 + 撤销**：单条删除与可测试撤销机会属于 Must；当前实现的多条删除复用软删除 + 底部 Toast 5 秒撤销窗口，但批量删除本身是 Candidate optional。仅支持最近一次删除的单级撤销；不做回收站、摇一摇撤销或确认弹窗。
+- **删除 + 撤销（D4-B）**：单条删除与五秒撤销机会属于 Must。点击删除时持久化绝对 deadline；后台不提前永久删除，deadline 前回到前台继续显示剩余时间，deadline 过后在前台恢复或下次启动幂等完成。新批次必须先等待上一批收敛，再获得自己的五秒窗口。批量删除本身是 Candidate optional；仅支持最近一次删除的单级撤销，不做回收站、摇一摇撤销或确认弹窗。
 - **分享卡片（ShareCard，hidden）**：当前实现可把单条资料生成图片并走系统 ShareSheet；它不属于 C2-Optional 可由 manifest 纳入的范围，重入需新上游裁决。
-- **边界 / 不做**：不做独立难度字段 / 星级难度筛选；不做回收站 / 多级撤销栈；不做批量编辑系统字段；分享卡片不做社交分享 / 社区 / 推荐算法；不提供题库内容（工具非内容平台）。**PDF / JSON / CSV / `.zip` 导出与打印是同级 / 独立 feature**，本 spec 不展开（见 `feat-export.md`）。
+- **边界 / 不做**：不做独立难度字段 / 星级难度筛选；不做回收站 / 多级撤销栈；不做批量编辑系统字段；分享卡片不做社交分享 / 社区 / 推荐算法；不提供题库内容（工具非内容平台）。**PDF / JSON / CSV / `.snapdrillbackup` 导出与打印是同级 / 独立 feature**，本 spec 不展开（见 `feat-export.md`）。
 - **前置依赖**：无。回顾（`feat-review.md`）与候选 SmartPaper / 高级统计可消费本 feature 的资料、分类和过滤数据；导出（`feat-export.md`）以资料库过滤 / 选中结果集为输入。
 - **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP；资料库 Must 不承担升级转化。SmartPaper 只按 C5-E 的非公开实验边界出现，高级统计隐藏；未来公开可见性或商业化需要新 contract。
 
 ## 3. 技术设计 (How)
 - **模块归属**：`SnapDrillFeatureLibrary`（资料库列表 / 搜索 / 过滤 / 详情 `LibraryDetailView` / 编辑 `LibraryEditViewModel` / `LibraryViewModel`）。`@Model` 类型 `ArchiveItemModel` / `CategoryDimensionModel` / `CategoryValueModel` 定义在 `SnapDrillData`，经 `ArchiveRepository` / `CategoryDimensionRepository` / `CategoryValueRepository` + `RepositoryContainer` 访问。删除窗口由 `DeletionScheduler`（App 级 Service，`SnapDrillCore`）管理。ShareCard 归 `SnapDrillFeatureLibrary/ShareCardView`。注意：备份 wire key `reviewItems` 与开发种子入口 `seedReviewItems` 是刻意保留的外部格式 / 调试入口名称，不代表主领域模型仍叫 `ReviewItem`。
-- **关键机制 / 数据流**：View（`@Environment(\.repositories)` 注入）→ ViewModel → Repository（封装 ModelContext）→ `DataExecutor`（actor）→ SwiftData `@Model`。Repository `insert()` 为纯内存操作，必须显式 `saveContext()` 才持久化；保存失败 `rollbackContext()`。跨模块刷新发 `Notification.Name.reviewDataDidChange`（`LibraryEditViewModel` 等为发布方，Dashboard / Review ViewModel 监听刷新）。软删除：`LibraryViewModel.softDeleteItems()` → `DeletionScheduler.scheduleDeletion(ids:executor:)` 注册 ID 集合 + 删除执行器并启动 5 秒倒计时，从列表临时移除；`undoDeletion()` 恢复、取消倒计时；`commitImmediately()` 在 App 进入后台时立即落删。批量删除复用同一套机制。ShareCard 用 SwiftUI `ImageRenderer`（iOS 16+），**不走 PDFExport 批量管线**（仅渲染单题，单一职责）。
+- **关键机制 / 数据流**：View（`@Environment(\.repositories)` 注入）→ ViewModel → Repository（封装 ModelContext）→ `DataExecutor`（actor）→ SwiftData `@Model`。Repository `insert()` 为纯内存操作，必须显式 `saveContext()` 才持久化；保存失败 `rollbackContext()`。跨模块刷新发 `Notification.Name.reviewDataDidChange`（`LibraryEditViewModel` 等为发布方，Dashboard / Review ViewModel 监听刷新）。当前软删除由 `DeletionScheduler` 仅在内存注册 ID、执行器与倒计时，并在后台调用 `commitImmediately()`；该实现会缩短 D4-B 承诺且无法跨进程恢复，是待独立 schema / code slice 收敛的偏差。目标机制必须让待删状态与资料行同一持久事务，并以绝对 deadline 唯一决定撤销或幂等永久删除。批量删除复用同一语义。ShareCard 用 SwiftUI `ImageRenderer`（iOS 16+），**不走 PDFExport 批量管线**（仅渲染单题，单一职责）。
 - **State & Concurrency**（Swift 6 strict）：资料库 View 由 `@Observable` ViewModel（`@MainActor`）驱动；搜索 / 过滤 / 排序为内存视图操作，不改底层数据；编辑保存、批量打标签、删除等重活与落库经 Repository → `DataExecutor`（actor），不阻塞主线程。列表图片**按需 + 降采样加载**（`loadDownsampledImage`）控制滚动内存。当前 `develop` 的 Per-Profile container / preferences 是 B5-A 待退场实现，不能作为新增行为依据。
 - **设计裁决（仅本模块）**：
   - **过滤维度取动态字段全集**：分类 / 来源 / 级别 / 标签 / 自定义属性走同一维度系统；不再为难度保留独立静态筛选器，避免产品重新滑回教育专用结构。
@@ -54,7 +54,7 @@ intent_refs:
 - **Success path (GWT)**：
   - Given 资料库已有 ≥1 条资料，When 从 Dashboard 进入资料库，Then 可搜索 OCR 文字、按基础分类 / 标签过滤并查看资料（UC2）。
   - Given 选中某条资料，When 编辑基础分类 / 标签 / 答案文字或图片后保存，Then 列表与详情反映更新结果；可只补答案而不动主内容（UC2）。
-  - Given 删除单条资料，When 软删除并弹出撤销机会，Then 窗口内撤销可完整恢复；机会结束后只执行一次永久删除（UC3）。
+  - Given 删除单条资料，When 软删除并弹出撤销机会，Then 从点击时刻起五秒内撤销可完整恢复；切到后台或重启不缩短绝对期限，期限结束后只执行一次永久删除（UC3）。
   - Given manifest 纳入动态字段或批量打标签 / 删除，When 使用对应能力，Then 通过该 optional 的数据完整性、部分失败摘要与 AX oracle；未纳入时零入口、零副作用。
   - Given 任一 Release 1 候选 build，When 遍历 Library 与系统触发面，Then ShareCard 保持隐藏且无副作用；当前 manifest 不得单独纳入，只有新上游裁决才能改变。
 - **边界 / 异常**：
@@ -63,7 +63,7 @@ intent_refs:
   - 编辑保存失败 → 保持旧数据不变，提示失败可重试（UC2 Exception）。
   - 若 manifest 纳入批量打标签 / 删除，部分失败 → 反馈成功 / 失败数量，已成功项保留，失败项不写半状态（Boundary B12 / UC2·UC3 Exception）。
   - 删除请求发起失败 → 不从列表移除、不弹成功 Toast；撤销请求失败 → 提示恢复失败，原题保留软删除状态待重试（UC3 Exception）。
-  - Undo window 内 App 进入后台 / 被杀 → 下次启动 `DeletionScheduler` 在 boot 阶段扫描未过窗口的软删除项自动收敛为"已恢复"或"已永久删除"，不出现幽灵记录 / 重复记录 / 孤儿状态（Boundary B10 / B11）。
+  - Undo window 内 App 进入后台 / 被杀 → deadline 前恢复运行时继续显示剩余时间；deadline 已过则在恢复 / 启动时幂等永久删除。不得因后台而提前提交，也不得把明确删除静默恢复（Boundary B10 / B11）。
   - 若 manifest 纳入动态字段管理，删除已被资料使用的选项 → UI 阻断并提示（UC2 Variant）。
 - **数据保证**：
   - 搜索 / 过滤 / 排序只影响当前展示，不改动底层题目数据。
@@ -104,6 +104,7 @@ intent_refs:
 | 筛选刷新稳定性 | #816 / 后续 ViewModel 快照修复；合入前需针对性模拟器实测 |
 | 详情参考内容默认收起 | UI 状态测试或针对性人工实测 |
 | 导出入口集合语义 | Export 契约与相关测试覆盖 |
+| 五秒绝对撤销期限 | DeletionScheduler/Data 持久化测试 + background/relaunch fault tests + targeted UI test |
 | Library 文案定位 | Capture/Library 范围 grep gate 或 PR review |
 | 共享 L10n key 归属 | 批量 L10n 归属整理 PR |
 
@@ -112,7 +113,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P5 成人生产力工具） | 管理是价值链承上启下环节；过滤维度克制、软删除可撤销、零学习曲线中性成熟 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Optional / C4-D / C5-E | Must 与 optional 不从现有表面反推；Review / SmartPaper 只按 audience 和单一静态入口实验，不自动进入公开候选 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Optional / D4-B / C4-D / C5-E | 五秒绝对撤销期限跨后台 / 重启；Must 与 optional 不从现有表面反推；Review / SmartPaper 只按 audience 和单一静态入口实验，不自动进入公开候选 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | Release 1 免费、无广告、无 IAP；分享卡片走系统 ShareSheet、不引导公开传播 |
 | 待验证假设 | `../../explanations/assumptions.md` H2（管理能力被真实使用，而非仅当一次性扫描器） | 搜索 / 过滤 / 编辑的使用率验证 H2 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |

@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-14
+last_verified: 2026-07-15
 layer: pattern
 ---
 # SnapDrill 术语表
@@ -19,7 +19,7 @@ layer: pattern
 | **录入** | Create / Save | 完成资料项编辑（OCR 文本、答案/备注、分类、标签）并保存到资料库的动作 | `CaptureResultViewModel` 模块 (Features) |
 | **资料库** | Library | 已保存资料项的集合，支持浏览、搜索、过滤、编辑、导出。PO 2026-07-05 裁决：用户可见容器统一称“资料库”；代码与部分内部 spec 仍使用 `Library` 指代同一功能域。 | `SnapDrillFeatureLibrary` 模块 (Features) |
 | **整理 / 找回** | Organize / Retrieve | 核心价值链中间环节：资料库浏览、编辑、分类、标签、搜索和过滤等操作 | `SnapDrillFeatureLibrary` 模块 (Features) |
-| **导出** | Export | 将资料数据从 App 输出为外部格式。资料库导出：PDF/CSV/ZIP/分享卡片；隐私数据导出：JSON（设置→隐私） | `ExportOptionsSheet` (Features)；隐私导出见 `PrivacySettingsView` (Features) |
+| **导出** | Export | 将资料数据从 App 输出为外部格式。资料库导出：PDF/CSV/`.snapdrillbackup`/分享卡片；隐私数据导出：JSON（设置→隐私） | `ExportOptionsSheet` (Features)；隐私导出见 `PrivacySettingsView` (Features) |
 | **打印** | Print | 导出 PDF 后通过系统打印服务输出到纸质 | `ExportPreviewView` (Features) 提供打印入口，依赖 `PDFExportService` (Core) 生成 PDF |
 | **回顾** | Review | 基于 SM-2 间隔重复算法的卡片式回顾会话。代码 target 仍为 `FeatureReview` | `SnapDrillFeatureReview` 模块 (Features) |
 
@@ -34,7 +34,7 @@ layer: pattern
 | **Profile（当前实现遗留）** | Profile / Workspace | 当前代码中的多资料库容器。Product Constitution v1 的产品目标是一个可见资料库，用户文案不得继续引入“资料空间 / Profile / Workspace”；本词只用于 #868 重基线前识别代码、数据和测试风险。 | `Profile` struct (Core), `ProfileManager` (Data) |
 | **基线用户** | Baseline User | 不熟悉专业扫描 / 归档工具的成年用户（假设，待首批用户画像验证，见 `../explanations/assumptions.md` H1）。所有设计决策以此用户能否顺利完成为最低标准 | — |
 | **图片是真相** | Image is Truth | 当 OCR 文本与图片冲突时，以用户确认裁剪 / 方向后的 App-managed 可读图片为内容真相；不承诺来源原始字节或完整分辨率 | `ArchiveItemModel.imagePath` (Data) |
-| **.zip 备份** | .zip Backup | App 备份文件格式（ZIP 内含 JSON 数据 + 图片文件）；线格式合同见 `backup-wire-format.md` | `BackupService` (Data) |
+| **.snapdrillbackup 备份** | .snapdrillbackup Backup | Release 1 的单一 purpose-built SQLite application document；不是 live SwiftData store 或通用 ZIP。Profile ZIP v2 仅为 epoch 前开发 fixture | 目标 wire 见 `backup-wire-format.md`；当前 `BackupService` 仍为待替换 v2 |
 
 ---
 
@@ -46,7 +46,7 @@ layer: pattern
 | **SM-2** | SM-2 Algorithm | SuperMemo 2 间隔重复调度算法，计算每个资料项的下次回顾时间 | `ReviewScheduler` (Core) |
 | **字段配置** | Field Configuration | 用户在分类管理中按需开关分类、来源、级别、标签等录入维度。当前 canonical 内置维度 key 为 `category` / `source` / `level` / `tag`；`category` 是主分类维度，不等同于整个 `CategoryDimensionModel` 维度系统；`level` 是通用层级/阶段字段，不默认表达学习年龄段。 | `CategorySystemKey`, `CategoryDimensionModel.defaultCaptureVisibility`, `CategoryValueListViewModel.isVisibleInCapture` |
 | **连续录入** | Continuous Capture | 保存一项资料后自动回到相机界面，支持批量录入不中断 | `CaptureRouter` (Features) |
-| **软删除** | Soft Delete | 5 秒 Toast 撤销窗口内的临时删除状态，超时后执行真实删除 | `LibraryViewModel.softDeleteItems()` (Features) |
+| **软删除** | Soft Delete | 5 秒绝对期限内的持久待删状态；后台与重启不缩短窗口，期限后幂等执行真实删除 | 当前 `DeletionScheduler` 为待收敛实现 |
 
 ### SmartPaper 域保留词
 

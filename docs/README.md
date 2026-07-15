@@ -12,7 +12,7 @@
   - `backlog/` — 未实现/阻塞功能（`mode: lightweight`，How/Verify 待实现补）
   - `features/template.md` — 新建 feature spec 模板
 - **`explanations/`** — 为什么（vision = Product Constitution / design-principles 设计原则 / business-model 商业政策 / architecture 架构 / assumptions 待验证假设 / competitive-analysis 竞品 / user-journeys 用户旅程 / privacy-compliance 隐私合规）
-- **`reference/`** — 查阅（release-1-contract 当前发布契约 / feature-status 功能状态 SSOT / intent-traceability 意图追溯索引 / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / backup-wire-format 备份线格式 / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO）
+- **`reference/`** — 查阅（release-1-contract 当前发布契约 / local-library-data-contract 本地资料库数据契约 / feature-status 功能状态 SSOT / intent-traceability 意图追溯索引 / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / backup-wire-format 外部备份 wire / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO）
 - **`how-to/`** — 操作指南（definition-of-ready 开工入口 / **shape-up 我们怎么工作·Shape Up 单人版** / parallel-lanes 协作边界与分支生命周期 / release-and-ci 发布与 CI）
 - **`decisions/`** — 决策记录（PO 决策台账 + typed ADR；ADR-001 已被 B6-A 取代，ADR-003 为挂起路线，ADR-004 已被 ADR-005 取代）
 - **`ui-redesign/`** — UI 重设计日志与跨层契约（Codex + PO 决策、真机/模拟器验证、跨层发现）
@@ -32,7 +32,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 - 下游文档必须指出其上游依据。找不到上游依据的需求是孤儿需求，不应直接实现。
 - 每个 feature spec 在 frontmatter 用 `intent_refs` 字段 + 「意图追溯」节显式声明承接的上游 Vision 原则 / 产品政策 / ADR，便于检索与人工核对；文档健康检查会验证引用目标存在，但当前尚无自动语义校验，不得把字段存在误认为追溯已经成立。
 - 代码与测试证明“现在是什么”；Product Constitution、Release Contract 与 spec 约束“应该是什么”。不一致时必须显式记录偏差。
-- [Release 1 Contract](reference/release-1-contract.md) 已承载截至 2026-07-14 ratify 的全部 13 个 Gate C 决策 ID；分支 / PR 副本仍是批准候选，合入 `develop` 后才成为 current effective contract。feature spec 中旧 Multi-Profile、Pro、CloudKit、Word、iPad、五 Tab 或公开可达 Review / SmartPaper 仍属于已知下游漂移 / 实现刻画，不得覆盖合同，也不得在没有独立实现授权时启动投入。
+- [Release 1 Contract](reference/release-1-contract.md) 承载截至 2026-07-15 ratify 的 Gate C 与后续精确裁决；[Local Library Data Contract](reference/local-library-data-contract.md) 承接单一本地资料库的 inventory、路径、generation / journal 与恢复生命周期。分支 / PR 副本仍是批准候选，合入 `develop` 后才 effective。feature spec 中旧 Multi-Profile、Pro、CloudKit、Word、iPad、五 Tab 或公开可达 Review / SmartPaper 仍属于已知下游漂移 / 实现刻画，不得覆盖合同，也不得在没有独立实现授权时启动投入。
 - 私有记忆、历史研究、旧 pitch 和关闭任务不参与当前裁决；需要历史证据（含已删除的 research/ 与历史 pitch）时使用 Git 历史或 GitHub 记录。
 
 ## 私有记忆与文档边界
@@ -51,6 +51,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 |---|---|
 | **人工复核 Product Constitution v1** | `explanations/vision.md` |
 | **人工复核当前 Release 1 Contract** | `reference/release-1-contract.md` |
+| **查单一本地资料库路径、inventory 与恢复状态** | `reference/local-library-data-contract.md` |
 | **看当前生产基线 / 已落地架构事实** | 根 `README.md` + 根 `AGENTS.md` + 当前代码/构建实证 |
 | **看三路 agent 的文件边界与交接方式** | `how-to/parallel-lanes.md` |
 | **看 UI 重设计决策和跨层发现** | `ui-redesign/REDESIGN-LOG.md` + `ui-redesign/flagship-cross-layer-contracts.md` |

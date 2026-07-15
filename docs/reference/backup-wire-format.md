@@ -1,24 +1,23 @@
 ---
-last_verified: 2026-07-14
+last_verified: 2026-07-15
 layer: contract
 freshness:
   max_age_days: 180
-  decay_trigger: [backup_schema_change, dto_change, zipfoundation_update]
+  decay_trigger: [backup_schema_change, dto_change, sqlite_version_change, compatibility_epoch]
 ---
 # Backup Wire Format
 
-> This document is the stable contract for SnapDrill `.zip` backup files. It records the on-disk
-> wire shape, not the current Swift type names. Runtime DTO tests and golden fixtures must fail if
-> this contract drifts unintentionally.
+> This document owns two deliberately separate facts: the immutable Profile ZIP v2 development
+> fixture contract, and the ratified Release 1 Backup v3 container-family boundary. It records
+> on-disk contracts, not current Swift type names.
 >
-> **Product rebaseline (2026-07-14):** this page freezes the currently implemented development
-> wire v2 and its fixtures; it does not authorize a user-visible Profile model or define the final
-> Release 1 wire. Product Constitution v1 requires one visible library, and
-> [Release 1 Product Contract](release-1-contract.md) DATA-1 requires a Profile-free external wire
-> plus an epoch compatibility promise. Do not mutate v2 or implement a replacement format from this
-> document alone. The Data / Security DRI must first replace the exploration below with one reviewed,
-> capacity-closed Data Contract; a separately authorized implementation must update schema, writer,
-> reader and golden fixtures together.
+> **Product rebaseline (2026-07-15):** Profile ZIP v2 remains frozen only so epoch-before rejection
+> and historical fixtures stay explainable. PO-ratified D1-B selects a purpose-built SQLite
+> `.snapdrillbackup` application document for Release 1. This selection is not a DDL or code
+> authorization: the exact v3 schema, defensive opening sequence, fixtures and compatibility rules
+> must be frozen below and separately approved before a writer/reader implementation starts. The
+> Profile-free semantic inventory and recovery lifetime are owned by
+> [Local Library Data Contract](local-library-data-contract.md), not duplicated here.
 
 ## Format Version
 
@@ -27,44 +26,44 @@ freshness:
 - Version `2` is the post-static-difficulty baseline: fixed `difficulty` is removed, and level /
   difficulty-like attributes are represented through dynamic dimensions and `categoryValueIds`.
 
-### Profile-free wire Data Contract scope
+### Release 1 Backup v3: ratified container boundary
 
-DATA-1 does not select ZIP32, ZIP64, a parser or numeric resource limits. Before changing writer,
-reader or fixtures, the Data / Security DRI must freeze:
+**D1-B is ratified**: the user-controlled artifact is one purpose-built SQLite
+`.snapdrillbackup` application document. It is not the live SwiftData store, a copied WAL database,
+or a general ZIP. Ordinary ZIP extraction is not a Release 1 requirement. Files, AirDrop and the
+system share sheet still treat the result as one portable document.
 
-- the Profile-free payload fields and the exact set of content-bearing data included by DATA-1;
-- archive / container grammar, required and optional entries, path grammar, duplicate / unknown
-  policy, encryption declaration and schema evolution rules;
-- writer-reader self-compatibility, ID / reference closure, image decode / privacy handling and
-  actual-byte / pixel / count resource defenses;
-- a capacity proof that every library the product supports creating can be exported and restored;
-- matching golden fixtures, migration / conversion fixtures and adversarial tests in the same slice.
+Before writer, reader, schema or fixture implementation, the Data / Security DRI must shape, obtain
+PO approval for, and make effective all of the following in this document. D1-B did not approve
+these irreversible wire details:
 
-One explored design narrows the future wire to single-disk ZIP32 with an exact regular-file set and independent
-bounded central-directory validation. It is viable only if the capacity proof shows ZIP32 and its
-entry limits can cover every supported library. Otherwise the DRI must select ZIP64, segmentation or
-another bounded format and review that grammar. Current code's 50 MiB single-entry and 1 GiB image
-restore limits are implementation facts, not approved product limits; a total cap that rejects a
-library SnapDrill can create is invalid. Any formal writer success must fully round-trip through the
-matching reader.
+- versioned DDL, a SnapDrill-specific `application_id`, `user_version`, exact allowed objects and
+  migration / rejection rules;
+- a Profile-free inventory containing every DATA-1 record, required relationship and main / answer
+  image BLOB, with unique IDs, non-null ownership, foreign keys and per-record digests;
+- a hostile-file opening sequence that first copies the picked file into a fresh quarantine root,
+  rejects symlink/sidecar smuggling, opens read-only/no-follow, disables trusted schema and executable
+  schema features, reduces runtime/mmap limits, and applies authorizer plus progress deadline before
+  semantic traversal;
+- exact schema allowlisting, integrity/cell/foreign-key checks, duplicate/dangling-reference rejection,
+  image decode/privacy validation and all-or-nothing semantic closure before active-library mutation;
+- incremental `sqlite3_blob` read/write under the <200 MiB process-memory NFR; no image set or whole
+  database may be materialized as one `Data`;
+- writer-reader capacity closure for every library the same product supports creating, bounded by
+  available storage and platform primitives rather than an arbitrary product total cap;
+- transaction/finalization rules proving the exported artifact is exactly one closed file with no
+  required WAL/journal sidecar, plus semantic golden fixtures, adversarial corpus and a documented
+  standard-SQLite extraction recipe.
 
-The narrowed ZIP32 exploration makes a bounded structural validator feasible. ZIPFoundation 0.9.20
-public iteration cannot by itself prove archive completeness: a local probe retained an EOCD count
-of two, corrupted the second central-directory signature, and observed successful archive
-initialization followed by only one public entry. This
-is shaping evidence, not permission to add a custom parser or fork the dependency; that engineering
-choice requires its own reviewed D-A DoR under DATA-1.
+Byte-for-byte SQLite determinism is not required. The schema and semantic fixtures are. D3-B's
+`missing-at-snapshot` state belongs only to an internal recovery-only artifact and must never appear
+as an accepted substitute for a complete external v3 backup.
 
-As verified on 2026-07-13, [0.9.20 remains the latest official release](https://github.com/weichsel/ZIPFoundation/releases/tag/0.9.20),
-and the official [`development` branch iterator](https://github.com/weichsel/ZIPFoundation/blob/development/Sources/ZIPFoundation/Archive.swift)
-retains the same non-throwing early-`nil` behavior. A dependency update invalidates this evidence and
-must trigger a fresh upstream/API review before retaining a custom validator.
+The former general-ZIP / ZIP32 / ZIP64 explorations are superseded by D1-B. ZIPFoundation remains
+only in the epoch-before v2 implementation until a separately authorized retirement slice; its
+presence cannot influence the v3 grammar.
 
-If the Data Contract later selects a narrow validator, ZIPFoundation remains the extraction implementation only after
-preflight. Either parser rejecting, extraction/CRC failing, or the two layers disagreeing on entry
-paths/counts/sizes must reject the whole archive before any library or recovery mutation.
-
-## Zip Entries
+## Development Wire v2: ZIP Entries
 
 Every backup archive contains these fixed top-level entries:
 
