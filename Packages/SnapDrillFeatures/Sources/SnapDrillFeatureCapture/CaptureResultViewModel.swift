@@ -57,6 +57,8 @@ public final class CaptureResultViewModel {
     // UI 状态
     /// 是否正在重新识别 OCR
     public var isRecognizing = false
+    /// 是否正在加载用户选择的答案图片
+    public private(set) var isAnswerPhotoLoading = false
     /// 是否正在显示图片裁剪界面
     public var isCropping = false
     /// 是否已成功保存（用于触发返回导航）
@@ -87,6 +89,8 @@ public final class CaptureResultViewModel {
     private let draftService: CaptureDraftServiceProtocol
     /// 活动追踪器（S-D4-001 起注入，避免静态单例污染测试）
     private let activityTracker: AppActivityTracker
+    /// 相册数据加载入口；注入后可确定性验证选择图片与保存的时序。
+    private let photoDataLoader: @Sendable (PhotosPickerItem) async throws -> Data?
 
     /// 识别任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
     @ObservationIgnored
@@ -96,6 +100,8 @@ public final class CaptureResultViewModel {
     /// 相册图片加载任务句柄（连续切换图片时取消前一个，避免竞态）
     @ObservationIgnored
     private var photoLoadTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var photoLoadToken = UUID()
     /// 保存任务句柄（页面退出时可取消，避免状态不一致）
     @ObservationIgnored
     private var saveTask: Task<Void, Never>?
@@ -119,7 +125,10 @@ public final class CaptureResultViewModel {
         contentTaggingService: ContentTaggingServiceProtocol = ContentTaggingService(),
         router: CaptureRouter,
         draftService: CaptureDraftServiceProtocol? = nil,
-        activityTracker: AppActivityTracker? = nil
+        activityTracker: AppActivityTracker? = nil,
+        photoDataLoader: @escaping @Sendable (PhotosPickerItem) async throws -> Data? = {
+            try await $0.loadTransferable(type: Data.self)
+        }
     ) {
         self.content = content
         self.image = image
@@ -131,6 +140,7 @@ public final class CaptureResultViewModel {
         self.router = router
         self.draftService = draftService ?? CaptureDraftService.shared
         self.activityTracker = activityTracker ?? AppActivityTracker.shared
+        self.photoDataLoader = photoDataLoader
     }
 
     // MARK: - Public API
@@ -141,12 +151,20 @@ public final class CaptureResultViewModel {
         recognitionTask = nil
         photoLoadTask?.cancel()
         photoLoadTask = nil
+        photoLoadToken = UUID()
+        isAnswerPhotoLoading = false
         saveTask?.cancel()
         saveTask = nil
         navigateTask?.cancel()
         navigateTask = nil
         taggingTask?.cancel()
         taggingTask = nil
+    }
+
+    /// 移除答案图，并取消尚未完成的相册替换任务，避免迟到结果重新写回。
+    public func removeAnswerImage() {
+        answerPhotoItem = nil
+        answerImage = nil
     }
 
     /// 加载默认表单数据：拉取所有维度及其值，并触发 AI 标注
@@ -271,7 +289,7 @@ public final class CaptureResultViewModel {
 
     /// 触发保存并存储 Task 句柄（由 View 调用，替代裸 Task 包裹）
     public func save() {
-        guard !isSaving, !isSaved else { return }
+        guard !isSaving, !isSaved, !isAnswerPhotoLoading else { return }
         isSaving = true
         saveTask = Task {
             defer { self.isSaving = false }
@@ -281,7 +299,7 @@ public final class CaptureResultViewModel {
 
     /// 保存正式题目；进行中或成功后的重复调用会被忽略
     public func saveResult() async {
-        guard !isSaving, !isSaved else { return }
+        guard !isSaving, !isSaved, !isAnswerPhotoLoading else { return }
         isSaving = true
         defer { isSaving = false }
         await performSave()
@@ -370,11 +388,23 @@ public final class CaptureResultViewModel {
     }
 
     private func processSelectedPhoto() {
-        guard let item = answerPhotoItem else { return }
         photoLoadTask?.cancel()
+        photoLoadTask = nil
+        let loadToken = UUID()
+        photoLoadToken = loadToken
+        guard let item = answerPhotoItem else {
+            isAnswerPhotoLoading = false
+            return
+        }
+        isAnswerPhotoLoading = true
         photoLoadTask = Task {
+            defer {
+                if self.photoLoadToken == loadToken {
+                    self.isAnswerPhotoLoading = false
+                }
+            }
             do {
-                if let data = try await item.loadTransferable(type: Data.self),
+                if let data = try await photoDataLoader(item),
                    let loadedImage = UIImage(data: data) {
                     guard !Task.isCancelled else { return }
                     self.answerImage = loadedImage
@@ -387,6 +417,7 @@ public final class CaptureResultViewModel {
             } catch is CancellationError {
                 SnapDrillLogger.generic.info("答案图加载任务已取消。")
             } catch {
+                guard !Task.isCancelled else { return }
                 SnapDrillLogger.generic.error("加载图片失败: \(error.localizedDescription)")
                 self.errorMessage = L10n.Errors.imageLoadFailed
                 self.showErrorAlert = true

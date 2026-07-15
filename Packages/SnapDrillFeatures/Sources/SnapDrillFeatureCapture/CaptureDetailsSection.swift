@@ -36,7 +36,8 @@ struct CaptureDetailsSection: View {
     // MARK: - 答案
 
     private var answerSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        let isAnswerPhotoLoading = viewModel.isAnswerPhotoLoading
+        return VStack(alignment: .leading, spacing: 12) {
             Text(L10n.Capture.answer)
             TextEditor(text: $viewModel.answerText)
                 .frame(minHeight: 80)
@@ -54,7 +55,7 @@ struct CaptureDetailsSection: View {
                         .clipShape(RoundedRectangle(cornerRadius: 8))
 
                     Button(role: .destructive) {
-                        viewModel.answerImage = nil
+                        viewModel.removeAnswerImage()
                     } label: {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundStyle(.red)
@@ -64,9 +65,17 @@ struct CaptureDetailsSection: View {
                 Spacer()
 
                 PhotosPicker(selection: $viewModel.answerPhotoItem, matching: .images) {
-                    Label(L10n.Capture.addAnswerImage, systemImage: "photo.badge.plus")
-                        .font(.subheadline)
+                    HStack(spacing: 8) {
+                        Label(L10n.Capture.addAnswerImage, systemImage: "photo.badge.plus")
+                            .font(.subheadline)
+                        if isAnswerPhotoLoading {
+                            ProgressView()
+                                .controlSize(.small)
+                                .accessibilityLabel(L10n.Common.loading)
+                        }
+                    }
                 }
+                .disabled(viewModel.isSaving || viewModel.isSaved)
             }
             .sensoryFeedback(.warning, trigger: viewModel.answerImage) { old, new in
                 old != nil && new == nil
