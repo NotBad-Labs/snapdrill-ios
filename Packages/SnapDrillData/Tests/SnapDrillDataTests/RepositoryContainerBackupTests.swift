@@ -206,6 +206,94 @@ final class RepositoryContainerBackupTests {
         #expect(names == ["易错", "高频", "考前"].sorted())
     }
 
+    @Test("restoreFromProfileData 在 recovery 与 mutation 前拒绝非法图片路径")
+    func restoreRejectsInvalidImagePathsWithoutChangingMetadata() async throws {
+        let value = try seedCategoryValue(dimensionName: "原分类", valueName: "原值")
+        let itemID = UUID()
+        let createdAt = Date(timeIntervalSinceReferenceDate: 710_000_000)
+        let lastReviewedAt = Date(timeIntervalSinceReferenceDate: 710_100_000)
+        let nextReviewAt = Date(timeIntervalSinceReferenceDate: 710_200_000)
+        let original = ArchiveItemModel(
+            id: itemID,
+            content: "原资料",
+            imagePath: "images/original-name.jpg",
+            createdAt: createdAt,
+            lastReviewedAt: lastReviewedAt,
+            nextReviewAt: nextReviewAt,
+            answerText: "原答案",
+            answerImagePath: "images/original-answer.jpg",
+            easeFactor: 2.8,
+            interval: 9,
+            repetitions: 4
+        )
+        original.categoryValues = [value]
+        repos.archive.insert(original)
+        try repos.archive.saveContext()
+
+        let invalidPaths = [
+            "default.store", "images", "/tmp/evil.jpg", #"images\evil.jpg"#,
+            "images/../default.store", "images/evil.png"
+        ]
+        let maliciousItems = invalidPaths.enumerated().map { index, path in
+            ArchiveItemBackupDTO(
+                id: UUID(), content: "恶意资料",
+                imagePath: index.isMultiple(of: 2) ? path : nil,
+                createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
+                answerText: nil, answerImagePath: index.isMultiple(of: 2) ? nil : path,
+                easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: []
+            )
+        }
+        let profileData = ProfileBackupData(
+            profileName: "恶意",
+            profileId: UUID(),
+            reviewItems: maliciousItems,
+            dimensions: [],
+            categoryValues: []
+        )
+
+        await #expect(throws: BackupError.self) {
+            try await repos.restoreFromProfileData(profileData)
+        }
+
+        let items = try repos.archive.fetchAllModels()
+        let preserved = try #require(items.first)
+        #expect(items.count == 1)
+        #expect(preserved.id == itemID)
+        #expect(preserved.content == "原资料")
+        #expect(preserved.createdAt == createdAt)
+        #expect(preserved.lastReviewedAt == lastReviewedAt)
+        #expect(preserved.nextReviewAt == nextReviewAt)
+        #expect(preserved.answerText == "原答案")
+        #expect(preserved.easeFactor == 2.8)
+        #expect(preserved.interval == 9)
+        #expect(preserved.repetitions == 4)
+        #expect(preserved.categoryValues?.first?.name == "原值")
+    }
+
+    @Test("restoreFromProfileData 保留合法的非 UUID jpg 路径")
+    func restoreAcceptsCanonicalCustomImageNames() async throws {
+        let profileData = ProfileBackupData(
+            profileName: "合法",
+            profileId: UUID(),
+            reviewItems: [
+                ArchiveItemBackupDTO(
+                    id: UUID(), content: "合法资料", imagePath: "images/custom-name.jpg",
+                    createdAt: Date(), lastReviewedAt: .distantPast, nextReviewAt: .distantPast,
+                    answerText: nil, answerImagePath: "images/answer name.jpg",
+                    easeFactor: 2.5, interval: 0, repetitions: 0, categoryValueIds: []
+                )
+            ],
+            dimensions: [],
+            categoryValues: []
+        )
+
+        try await repos.restoreFromProfileData(profileData)
+
+        let restored = try #require(repos.archive.fetchAllModels().first)
+        #expect(restored.imagePath == "images/custom-name.jpg")
+        #expect(restored.answerImagePath == "images/answer name.jpg")
+    }
+
     @Test("restoreFromProfileData 逐字段 round-trip：维度 flag + 值样式存活（非默认值重建）")
     func restorePreservesAllFields() async throws {
         // 多值维度 + 全非默认字段——区分「正确恢复」与「init 默认值重建」

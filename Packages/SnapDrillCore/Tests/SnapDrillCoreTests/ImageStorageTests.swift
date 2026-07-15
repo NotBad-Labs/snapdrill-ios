@@ -21,6 +21,147 @@ struct ImageStorageTests {
         .appendingPathComponent("ImageStorageTests_\(UUID().uuidString)")
     private var storage: ImageStorage { ImageStorage(baseDirectory: testDir) }
 
+    // MARK: - Path Policy
+
+    @Test("图片路径策略仅接受 images 下的单层 jpg 文件")
+    func imagePathPolicy_acceptsOnlyCanonicalJPGPaths() {
+        #expect(ImageStorage.isValidImagePath("images/custom-name.jpg"))
+        #expect(ImageStorage.isValidImagePath("images/name with spaces.jpg"))
+
+        let invalidPaths = [
+            "",
+            "default.store",
+            "images",
+            "/tmp/evil.jpg",
+            #"images\evil.jpg"#,
+            "./images/evil.jpg",
+            "images/./evil.jpg",
+            "images/../default.store",
+            "images//evil.jpg",
+            "images/nested/evil.jpg",
+            "images/.jpg",
+            "images/evil.png",
+            "images/evil.JPG",
+            "images/evil\0.jpg"
+        ]
+
+        for path in invalidPaths {
+            #expect(!ImageStorage.isValidImagePath(path), "应拒绝路径: \(path)")
+        }
+    }
+
+    @Test("所有图片 sink 拒绝真实 sibling 且合法自定义 jpg 保持可用")
+    func imageSinks_rejectExistingSiblingsAndPreserveCanonicalFile() async throws {
+        let fileManager = FileManager.default
+        let imagesDir = testDir.appendingPathComponent("images", isDirectory: true)
+        let validURL = imagesDir.appendingPathComponent("custom-photo.jpg")
+        let siblingStoreURL = testDir.appendingPathComponent("default.store")
+        let directoryURL = imagesDir.appendingPathComponent("directory.jpg", isDirectory: true)
+        let symlinkURL = imagesDir.appendingPathComponent("symlink.jpg")
+        try fileManager.createDirectory(at: imagesDir, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: directoryURL, withIntermediateDirectories: true)
+        defer { try? fileManager.removeItem(at: testDir) }
+
+        let imageData = try #require(ImageStorage.compressedJPEGData(
+            from: createTestImage(width: 20, height: 20),
+            maxLongSide: 20,
+            quality: 0.8
+        ))
+        try imageData.write(to: validURL)
+        try imageData.write(to: siblingStoreURL)
+        try fileManager.createSymbolicLink(at: symlinkURL, withDestinationURL: siblingStoreURL)
+
+        let invalidPaths = [
+            "default.store", "images", siblingStoreURL.path,
+            "images/directory.jpg", "images/symlink.jpg"
+        ]
+        for path in invalidPaths {
+            #expect(storage.loadImage(path: path) == nil)
+            #expect(await storage.loadImageAsync(path: path) == nil)
+            #expect(storage.loadDownsampledImage(path: path) == nil)
+            #expect(storage.imageFileURL(path: path) == nil)
+            try await storage.deleteImage(path: path)
+        }
+
+        #expect(fileManager.fileExists(atPath: siblingStoreURL.path))
+        #expect(fileManager.fileExists(atPath: directoryURL.path))
+        #expect(fileManager.fileExists(atPath: symlinkURL.path))
+        #expect(fileManager.fileExists(atPath: validURL.path))
+        #expect(storage.loadImage(path: "images/custom-photo.jpg") != nil)
+        #expect(storage.loadDownsampledImage(path: "images/custom-photo.jpg") != nil)
+        #expect(storage.imageFileURL(path: "images/custom-photo.jpg") == validURL)
+
+        try await storage.deleteImage(path: "images/custom-photo.jpg")
+        #expect(!fileManager.fileExists(atPath: validURL.path))
+    }
+
+    @Test("images 父目录为符号链接时所有读写 sink 均 fail closed")
+    func imageSinks_rejectSymlinkedImagesDirectory() async throws {
+        let fileManager = FileManager.default
+        let root = fileManager.temporaryDirectory
+            .appendingPathComponent("ImageStorageSymlinkTests_\(UUID().uuidString)")
+        let base = root.appendingPathComponent("profile", isDirectory: true)
+        let sibling = root.appendingPathComponent("sibling", isDirectory: true)
+        let victimURL = sibling.appendingPathComponent("victim.jpg")
+        try fileManager.createDirectory(at: base, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: sibling, withIntermediateDirectories: true)
+        defer { try? fileManager.removeItem(at: root) }
+
+        let imageData = try #require(ImageStorage.compressedJPEGData(
+            from: createTestImage(width: 20, height: 20),
+            maxLongSide: 20,
+            quality: 0.8
+        ))
+        try imageData.write(to: victimURL)
+        try fileManager.createSymbolicLink(
+            at: base.appendingPathComponent("images"),
+            withDestinationURL: sibling
+        )
+
+        let symlinkedStorage = ImageStorage(baseDirectory: base)
+        #expect(symlinkedStorage.loadImage(path: "images/victim.jpg") == nil)
+        #expect(symlinkedStorage.loadDownsampledImage(path: "images/victim.jpg") == nil)
+        #expect(symlinkedStorage.imageFileURL(path: "images/victim.jpg") == nil)
+        #expect(await symlinkedStorage.imageDirectorySize() == 0)
+        try await symlinkedStorage.deleteImage(path: "images/victim.jpg")
+        await #expect(throws: ImageStorageError.self) {
+            _ = try await symlinkedStorage.saveImage(createTestImage(width: 20, height: 20))
+        }
+        #expect(fileManager.fileExists(atPath: victimURL.path))
+
+        let targetBase = root.appendingPathComponent("target-profile", isDirectory: true)
+        let targetImages = targetBase.appendingPathComponent("images", isDirectory: true)
+        let linkedBase = root.appendingPathComponent("linked-profile", isDirectory: true)
+        try fileManager.createDirectory(at: targetImages, withIntermediateDirectories: true)
+        try imageData.write(to: targetImages.appendingPathComponent("existing.jpg"))
+        try fileManager.createSymbolicLink(at: linkedBase, withDestinationURL: targetBase)
+        let linkedBaseStorage = ImageStorage(baseDirectory: linkedBase)
+        let filesBefore = try fileManager.contentsOfDirectory(atPath: targetImages.path)
+        #expect(linkedBaseStorage.loadImage(path: "images/existing.jpg") == nil)
+        await #expect(throws: ImageStorageError.self) {
+            _ = try await linkedBaseStorage.saveImage(createTestImage(width: 20, height: 20))
+        }
+        #expect(try fileManager.contentsOfDirectory(atPath: targetImages.path) == filesBefore)
+    }
+
+    @Test("并发首次保存可幂等创建 images 目录")
+    func concurrentInitialSaves_createImagesDirectoryIdempotently() async throws {
+        let fileManager = FileManager.default
+        let base = fileManager.temporaryDirectory
+            .appendingPathComponent("ImageStorageConcurrentSaveTests_\(UUID().uuidString)")
+        let concurrentStorage = ImageStorage(baseDirectory: base)
+        defer { try? fileManager.removeItem(at: base) }
+
+        async let firstPath = concurrentStorage.saveImage(createTestImage(width: 20, height: 20))
+        async let secondPath = concurrentStorage.saveImage(createTestImage(width: 20, height: 20))
+        let paths = try await [firstPath, secondPath]
+
+        #expect(Set(paths).count == 2)
+        for path in paths {
+            #expect(concurrentStorage.loadImage(path: path) != nil)
+        }
+    }
+
     // MARK: - deleteImage
 
     @Test("deleteImage 删除已存在的文件")

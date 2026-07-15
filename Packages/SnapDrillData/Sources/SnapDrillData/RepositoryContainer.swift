@@ -145,6 +145,8 @@ public final class RepositoryContainer {
     ///
     /// - Parameter profileData: 单个 Profile 的备份数据
     public func restoreFromProfileData(_ profileData: ProfileBackupData) async throws {
+        try validateImagePaths(in: profileData)
+
         // 0. 强制安全网备份：写入持久 Recovery 目录，失败直接拒绝恢复
         let recoveryURL = try saveRecoveryBackup()
 
@@ -246,6 +248,17 @@ public final class RepositoryContainer {
     }
 
     // MARK: - Private Helpers
+
+    private func validateImagePaths(in profileData: ProfileBackupData) throws {
+        for item in profileData.reviewItems {
+            if let path = item.imagePath, !ImageStorage.isValidImagePath(path) {
+                throw BackupError.invalidArchive
+            }
+            if let path = item.answerImagePath, !ImageStorage.isValidImagePath(path) {
+                throw BackupError.invalidArchive
+            }
+        }
+    }
 
     /// 纯内存操作：标记所有分类数据待删除，不 save。
     private func deleteAllTaxonomyInMemory() throws {
