@@ -1,52 +1,201 @@
-#!/bin/bash
-#
-#  ci-local.sh
-#  SnapDrill
-#
-#  在本地模拟 CI 流水线，推送前执行以发现问题。
-#  用法：bash Scripts/ci-local.sh
-#
+#!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-SCHEME="SnapDrill"
-DESTINATION="platform=iOS Simulator,name=iPhone 17"
-SIGNING_FLAGS="CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="
+die() {
+  printf 'error: %s\n' "$*" >&2
+  exit 1
+}
 
-echo "▶ [1/3] Lint（--strict）"
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || die "required command not found: $1"
+}
+
+script_path="${BASH_SOURCE[0]}"
+[[ "$script_path" == */* ]] || script_path="./$script_path"
+script_dir="$(cd "${script_path%/*}" && pwd -P)"
+require_command git
+repo_root="$(git -C "$script_dir" rev-parse --show-toplevel)"
+cd "$repo_root"
+
+toolchain_file="$repo_root/Configs/Toolchain.env"
+[[ -f "$toolchain_file" ]] || die "missing toolchain identity: Configs/Toolchain.env"
+# shellcheck source=../Configs/Toolchain.env
+source "$toolchain_file"
+
+for variable in XCODE_VERSION XCODE_BUILD_VERSION SWIFTLINT_VERSION; do
+  [[ -n "${!variable:-}" ]] || die "missing $variable in Configs/Toolchain.env"
+done
+
+require_command xcodebuild
+require_command swiftlint
+require_command python3
+require_command grep
+require_command find
+require_command mktemp
+
+checkout_sha="$(git rev-parse HEAD)"
+worktree_state="$(git status --porcelain --untracked-files=all)"
+if [[ -n "$worktree_state" ]]; then
+  printf '%s\n' "$worktree_state" >&2
+  die "canonical source gate requires a clean committed checkout"
+fi
+
+expected_xcode_output="$(printf 'Xcode %s\nBuild version %s' "$XCODE_VERSION" "$XCODE_BUILD_VERSION")"
+actual_xcode_output="$(xcodebuild -version)"
+[[ "$actual_xcode_output" == "$expected_xcode_output" ]] || {
+  printf 'error: Xcode identity mismatch\nexpected:\n%s\nactual:\n%s\n' \
+    "$expected_xcode_output" "$actual_xcode_output" >&2
+  exit 1
+}
+
+actual_swiftlint_version="$(swiftlint version)"
+[[ "$actual_swiftlint_version" == "$SWIFTLINT_VERSION" ]] || {
+  printf 'error: SwiftLint identity mismatch; expected %s, actual %s\n' \
+    "$SWIFTLINT_VERSION" "$actual_swiftlint_version" >&2
+  exit 1
+}
+
+destination="platform=iOS Simulator,name=iPhone 17"
+test_plan="SnapDrill.xcodeproj/xcshareddata/xctestplans/AllTests.xctestplan"
+
+printf 'Source identity: %s (clean)\n' "$checkout_sha"
+printf 'Xcode identity:\n%s\n' "$actual_xcode_output"
+printf 'SwiftLint identity: %s\n' "$actual_swiftlint_version"
+printf 'Requested destination: %s\n' "$destination"
+
+printf '\n[1/6] SwiftLint strict\n'
 swiftlint --strict
 
-echo ""
-echo "▶ [2/3] Build"
-xcodebuild build \
-    -scheme "$SCHEME" \
-    -destination "$DESTINATION" \
-    CODE_SIGNING_ALLOWED=NO \
-    CODE_SIGNING_REQUIRED=NO \
-    CODE_SIGN_IDENTITY="" \
-    | xcpretty || xcodebuild build \
-        -scheme "$SCHEME" \
-        -destination "$DESTINATION" \
-        CODE_SIGNING_ALLOWED=NO \
-        CODE_SIGNING_REQUIRED=NO \
-        CODE_SIGN_IDENTITY=""
+printf '\n[2/6] Script and documentation gates\n'
+python3 -m unittest discover -s Scripts/tests
+python3 Scripts/generate_feature_status.py --check
+python3 Scripts/generate_intent_traceability.py --check
+python3 Scripts/test_doc_generators.py
+python3 Scripts/validate_docs.py --check
+python3 Scripts/validate_capture_contract.py --check
 
-echo ""
-echo "▶ [3/3] Test（跳过 UITests）"
-xcodebuild test \
-    -scheme "$SCHEME" \
-    -destination "$DESTINATION" \
-    -skip-testing:SnapDrillUITests \
-    CODE_SIGNING_ALLOWED=NO \
-    CODE_SIGNING_REQUIRED=NO \
-    CODE_SIGN_IDENTITY="" \
-    | xcpretty || xcodebuild test \
-        -scheme "$SCHEME" \
-        -destination "$DESTINATION" \
-        -skip-testing:SnapDrillUITests \
-        CODE_SIGNING_ALLOWED=NO \
-        CODE_SIGNING_REQUIRED=NO \
-        CODE_SIGN_IDENTITY=""
+check_forbidden_imports() {
+  local root="$1"
+  local pattern="$2"
+  local message="$3"
+  local matches
+  local status
 
-echo ""
-echo "✅ 本地 CI 全部通过，可以推送。"
+  [[ -d "$root" ]] || die "missing dependency scan root: $root"
+  if matches="$(grep -R -n -E --include='*.swift' "$pattern" "$root")"; then
+    printf '%s\n' "$matches" >&2
+    die "$message"
+  else
+    status=$?
+    [[ "$status" -eq 1 ]] || die "dependency scan failed for $root with status $status"
+  fi
+}
+
+printf '\n[3/6] Dependency direction checks\n'
+# Keep these predicates byte-for-byte equivalent in meaning to the current CI grep rules.
+# #922 may replace both copies with one shared validator after this slice is effective.
+check_forbidden_imports \
+  "Packages/SnapDrillCore/Sources" \
+  'import (SnapDrillData|SnapDrillUI|SnapDrillFeatures)' \
+  "Core must not import downstream packages"
+check_forbidden_imports \
+  "Packages/SnapDrillData/Sources" \
+  'import (SnapDrillUI|SnapDrillFeatures)' \
+  "Data must only import Core"
+check_forbidden_imports \
+  "Packages/SnapDrillUI/Sources" \
+  'import (SnapDrillData|SnapDrillFeatures)' \
+  "UI must only import Core"
+check_forbidden_imports \
+  "SnapDrillShare" \
+  '^import SnapDrill' \
+  "Share Extension must not import SnapDrill packages"
+
+printf '\n[4/6] AllTests plan contract\n'
+python3 -c '
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    plan = json.load(handle)
+configurations = [item.get("name") for item in plan.get("configurations", [])]
+if configurations.count("CI") != 1:
+    raise SystemExit("AllTests plan must contain exactly one CI configuration")
+if not plan.get("testTargets"):
+    raise SystemExit("AllTests plan must contain at least one test target")
+' "$test_plan"
+
+tmp_parent="${TMPDIR:-/tmp}"
+[[ -d "$tmp_parent" ]] || die "temporary directory does not exist: $tmp_parent"
+run_root="$(mktemp -d "${tmp_parent%/}/snapdrill-ci-local.XXXXXX")"
+[[ "$run_root" == "${tmp_parent%/}"/snapdrill-ci-local.* ]] || \
+  die "mktemp returned an unexpected path: $run_root"
+derived_data="$run_root/DerivedData"
+build_results="$run_root/BuildResults.xcresult"
+test_results="$run_root/TestResults.xcresult"
+
+cleanup_artifacts() {
+  local status=$?
+  if [[ "$status" -eq 0 ]]; then
+    rm -rf -- "$run_root"
+  else
+    printf 'Source-gate artifacts preserved at: %s\n' "$run_root" >&2
+  fi
+}
+trap cleanup_artifacts EXIT
+
+printf '\n[5/6] AllTests build-for-testing\n'
+xcodebuild build-for-testing \
+  -scheme AllTests \
+  -testPlan AllTests \
+  -destination "$destination" \
+  -derivedDataPath "$derived_data" \
+  -resultBundlePath "$build_results" \
+  CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGNING_REQUIRED=NO \
+  CODE_SIGN_IDENTITY=""
+
+xctestrun_list="$run_root/xctestrun-paths"
+if ! find "$derived_data/Build/Products" \
+  -type f -name 'AllTests_*.xctestrun' -print0 > "$xctestrun_list"; then
+  die "failed to inspect generated AllTests xctestrun files"
+fi
+
+xctestrun_paths=()
+while IFS= read -r -d '' candidate; do
+  xctestrun_paths[${#xctestrun_paths[@]}]="$candidate"
+done < "$xctestrun_list"
+
+if [[ "${#xctestrun_paths[@]}" -ne 1 ]]; then
+  printf 'error: expected exactly one AllTests_*.xctestrun, found %s\n' \
+    "${#xctestrun_paths[@]}" >&2
+  if [[ "${#xctestrun_paths[@]}" -gt 0 ]]; then
+    printf '  %s\n' "${xctestrun_paths[@]}" >&2
+  fi
+  exit 1
+fi
+xctestrun_path="${xctestrun_paths[0]}"
+
+printf '\n[6/6] AllTests CI test-without-building\n'
+xcodebuild test-without-building \
+  -xctestrun "$xctestrun_path" \
+  -only-test-configuration CI \
+  -destination "$destination" \
+  -parallel-testing-enabled NO \
+  -resultBundlePath "$test_results" \
+  CODE_SIGNING_ALLOWED=NO \
+  CODE_SIGNING_REQUIRED=NO \
+  CODE_SIGN_IDENTITY=""
+
+[[ "$(git rev-parse HEAD)" == "$checkout_sha" ]] || die "checkout HEAD changed during validation"
+final_worktree_state="$(git status --porcelain --untracked-files=all)"
+[[ -z "$final_worktree_state" ]] || {
+  printf '%s\n' "$final_worktree_state" >&2
+  die "validation changed the checkout"
+}
+
+printf '\nSource gate PASSED for %s\n' "$checkout_sha"
+printf 'Evaluated: exact tools, SwiftLint, docs/static gates, AllTests CI build and tests.\n'
+printf 'NOT evaluated: exact simulator identity/allocation; app UI/XCUITest or AX; archive/install; privacy/network; candidate conformance.\n'
+printf 'This result does not authorize merge, upload, TestFlight, go/no-go, or release.\n'

@@ -73,6 +73,32 @@ class ValidateCaptureContractTests(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_nested_capture_swift_string_literal_is_scanned(self) -> None:
+        with self.temp_repo() as repo:
+            path = (
+                repo
+                / "Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/Nested/ChildView.swift"
+            )
+            path.parent.mkdir(parents=True)
+            path.write_text('Text("拍作业")\n', encoding="utf-8")
+
+            errors = validate_capture_contract.run_checks(repo)
+
+        self.assertTrue(any("Nested/ChildView.swift" in error for error in errors))
+
+    def test_missing_capture_source_directory_fails_closed(self) -> None:
+        with self.temp_repo() as repo:
+            capture_dir = repo / validate_capture_contract.CAPTURE_SWIFT_DIR
+            shutil.rmtree(capture_dir)
+
+            errors = validate_capture_contract.run_checks(repo)
+
+        self.assertIn(
+            "missing required scan path: "
+            "Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture",
+            errors,
+        )
+
     def temp_repo(self):
         return TemporaryCaptureRepo()
 
@@ -91,6 +117,9 @@ class TemporaryCaptureRepo:
         for relative_path in validate_capture_contract.required_paths(REPO_ROOT):
             source = relative_path
             destination = self.root / source.relative_to(REPO_ROOT)
+            if source.is_dir():
+                destination.mkdir(parents=True, exist_ok=True)
+                continue
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(source, destination)
 

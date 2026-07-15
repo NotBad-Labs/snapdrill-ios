@@ -35,6 +35,18 @@ Configs/Shared.xcconfig
 
 ## CI/CD
 
+### 本地 canonical source gate
+
+代码 PR 在 clean committed head 达到 merge-ready 前运行：
+
+```bash
+bash Scripts/ci-local.sh
+```
+
+该入口 fail closed，并把一次绿色结果绑定到 exact checkout SHA、[`Configs/Toolchain.env`](../../Configs/Toolchain.env) 中的 Xcode / SwiftLint 身份和请求的 simulator destination。它按 routine source gate 的语义顺序执行 SwiftLint、脚本 / 文档生成与校验、依赖方向、`AllTests.xctestplan` CI configuration、唯一 `.xctestrun` 的 `build-for-testing` + `test-without-building`。Apple 的测试 action 同样采用 [build-for-testing 后接 test-without-building](https://developer.apple.com/documentation/xcode/configuring-your-xcode-cloud-workflow-s-actions) 的两阶段模型。
+
+该脚本只记录 name-based requested destination，不擦除用户 simulator，也不证明实际 UDID / runtime 或多 worktree 分配；这些分别属于 #922/#933。绿色只证明当前 source/package 层；不证明 app XCUITest / AX、signed archive、已安装 runtime、隐私 / 网络、Release candidate conformance，也不授权 merge、upload、TestFlight、go/no-go 或 release。`SnapshotRecord` 不在默认路径，任何重录必须限定具体测试并人工审查 baseline diff。
+
 ### GitHub Actions
 
 ```yaml
