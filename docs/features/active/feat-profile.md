@@ -5,7 +5,7 @@ status: in-progress # 实证链：develop 仍是 Multi-Profile，Draft PR #868 �
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-14
+last_updated: 2026-07-15
 intent_refs:
   - vision:P2
   - vision:P4
@@ -17,7 +17,7 @@ intent_refs:
 
 > **产品重基线（2026-07-14）**：Product Constitution v1 的 B5-A 已批准用户只看到一个资料库，并在无外部证据前不规划 Workspace / Profile。frontmatter `status: in-progress` 表示当前 `develop` 仍有 Multi-Profile 实现、Draft PR #868 是待重审候选；它不代表该 PR 已获合并授权。
 >
-> Release 1 Contract DATA-1 已固定过渡边界：仅 PO 的 epoch 前开发数据 / v1-v2 备份无需迁移；任何非 PO 下载资格触发兼容 epoch；对外 wire 必须 Profile-free。具体 archive grammar、恢复 journal、容量与迁移机制仍须由独立 Data Contract 冻结，合同生效不授权 #868 或代码实现。
+> Release 1 Contract DATA-1 已固定过渡边界：仅 PO 的 epoch 前开发数据 / v1-v2 备份无需迁移；任何非 PO 下载资格触发兼容 epoch；对外 wire 必须 Profile-free。[Local Library Data Contract](../../reference/local-library-data-contract.md) 固定路径、inventory、恢复 journal 与 Profile-free runtime 边界；外部 DDL 仍由 Backup Wire Contract 单独获批。合同生效不授权 #868 或代码实现。
 
 ## 1. 为什么做 (Why)
 
@@ -32,14 +32,14 @@ intent_refs:
 - **内容靠基础整理能力组织**：多个主题通过资料库内的搜索、基础分类和标签表达，不通过顶层容器分割；动态字段只有在冻结 manifest 纳入时才可见。
 - **无 SnapDrill 账户**：单资料库不引入注册、身份、权限或儿童账户模型。
 - **数据权利不退化**：B4-A 的手动备份 / 恢复、导出、删除与数据可携带承诺保持有效，不能因移除 Profile 而削弱。
-- **迁移边界**：仅 PO 的 epoch 前开发数据、偏好及 v1 / v2 备份可以重置或明确拒绝；一旦非 PO 获得 build 下载资格，本机升级与正式备份兼容承诺立即生效。对外 wire 必须 Profile-free，现有 backup wire、golden fixture 与恢复安全边界由独立 Data Contract 收敛。
+- **迁移边界**：仅 PO 的 epoch 前开发数据、偏好及 v1 / v2 备份可以重置或明确拒绝；一旦非 PO 获得 build 下载资格，本机升级与正式备份兼容承诺立即生效。对外 wire 必须 Profile-free；本地生命周期与恢复安全边界以 [Local Library Data Contract](../../reference/local-library-data-contract.md) 为准，wire / golden fixture 以 Backup Wire Contract 为准。
 - **实现中立**：是否保留内部 scope 类型、如何简化目录或 UserDefaults、是否迁移备份 schema，均属于工程设计，不能改变上述用户可见行为。
 
 ## 3. 当前实现与候选 (How)
 
 - 当前 `develop` 仍由 `ProfileManager` 管理多个 SwiftData container、图片目录和 per-profile preferences；Profile 创建 / 切换 / 删除入口仍存在。这些是实证事实，也是待移除的复杂度，不是产品依据。
 - Draft PR #868 是单资料库实现候选。Product Constitution 合入后仍须依据 Release 1 Product Contract 和 Data Contract 重新审查其 scope、wire 兼容、安全测试与 UI 清理，运维窗口只有在 PO 单独授权后才能合并。
-- 在独立 Data Contract 与实现授权前，不应为了迎合 #868 而修改 backup schema、golden fixtures、MigrationPlan 或恢复安全保证。
+- 在上述两个 Data Contract 与实现授权前，不应为了迎合 #868 而修改 backup schema、golden fixtures、MigrationPlan 或恢复安全保证。
 
 ## 4. 验证标准 (Verify)
 
@@ -49,7 +49,7 @@ Release 1 的产品验收如下；备份 / 恢复技术 oracle 由 DATA-1 下游
 - 采集、资料库、搜索、整理、导出、打印、设置和手动备份均直接作用于同一个本地资料库；被 manifest 纳入的 Review / SmartPaper 实验也只能读取该资料库。
 - 不存在“至少保留一个 Profile”、当前 Profile 头像、跨 Profile 切换阻塞等用户可见文案或交互。
 - 不同主题仍可在一个资料库内通过字段与搜索区分；移除 Profile 不得删除核心分类 / 标签能力。
-- 手动备份 / 恢复继续可用；恢复失败保持原数据不变。wire 兼容范围按后续 Data Contract 验证，不在本 spec 猜测。
+- 手动备份 / 恢复继续可用；恢复失败保持原数据不变。路径、generation 与 D3-B oracle 由 Local Library Data Contract 验证；wire 兼容范围由 Backup Wire Contract 验证，不在本 spec 复制。
 - 代码、UI 测试和 AX 审计不得把内部遗留标识符误当成用户可见产品概念；是否保留程序标识符由实现 slice 决定。
 
 ## 5. Contracts（退场边界）
@@ -62,7 +62,7 @@ Release 1 的产品验收如下；备份 / 恢复技术 oracle 由 DATA-1 下游
 ### B. 数据安全
 
 - “无生产 / 内测用户需要迁移”只免除用户数据迁移需求，不免除备份恢复、路径安全、原子性和失败回滚验证。
-- backup wire、schemaVersion、golden fixtures 和 MigrationPlan 的任何变化必须由独立 Data Contract 明确授权。
+- backup wire、schemaVersion、golden fixtures 和 MigrationPlan 的任何变化必须由 owning Data Contract 明确授权；单资料库实现不得绕过 `local-library-data-contract.md` 的 generation / incident 状态。
 
 ### C. Enforcement
 
@@ -81,7 +81,8 @@ Release 1 的产品验收如下；备份 / 恢复技术 oracle 由 DATA-1 下游
 | 定位 | `../../explanations/positioning-and-audience.md` | 通用成人效率工具，不建立儿童 / 家庭成员账户体系 |
 | 待验证假设 | `../../explanations/assumptions.md` H12 | 单资料库能否覆盖首个切口；以 TestFlight / dogfood 证据重新评估 |
 | Release 1 Contract | `../../reference/release-1-contract.md` DATA-1 / DATA-1-E / DATA-1-R | epoch、Profile-free 外部 wire、完整备份与恢复材料保留边界 |
-| 验收证据 | §4 产品验收 + DATA-1 下游 Data Contract | 不把当前代码或 Draft PR 当成产品 oracle |
+| Data Contract | `../../reference/local-library-data-contract.md` | 单一 runtime、路径 / inventory、generation / journal、incident 与 D3-B oracle |
+| 验收证据 | §4 产品验收 + owning Data Contracts | 不把当前代码或 Draft PR 当成产品 oracle |
 
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
@@ -92,3 +93,4 @@ Release 1 的产品验收如下；备份 / 恢复技术 oracle 由 DATA-1 下游
 - 代表旅程：`../../explanations/user-journeys.md`（旅程 4：单资料库管理多个主题）
 - 候选实现：Draft PR #868（等待 contract 重审与 PO 单独合并授权）
 - 数据出口：`feat-backup.md`、`feat-export.md`
+- 本地数据契约：`../../reference/local-library-data-contract.md`

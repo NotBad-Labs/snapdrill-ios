@@ -5,7 +5,7 @@ status: backlog
 tier: undecided
 blocked_by: []
 mode: lightweight
-last_updated: 2026-07-12
+last_updated: 2026-07-15
 intent_refs:
   - vision:P4
   - vision:P6
@@ -62,5 +62,5 @@ intent_refs:
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 商业假设：`../../explanations/business-model.md`
 - 历史决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`、`../../decisions/ADR-003-dual-region-release.md`（均非当前实现授权）
-- 免费迁移出口（互补）：`../active/feat-backup.md`（`.zip` 手动备份/恢复）
+- 免费迁移出口（互补）：`../active/feat-backup.md`（`.snapdrillbackup` 手动备份/恢复）
 - 产品边界：`../active/feat-profile.md`（一个可见资料库）

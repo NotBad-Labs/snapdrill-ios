@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-14
+last_verified: 2026-07-15
 layer: pattern
 ---
 # SnapDrill Analytics 事件字典
@@ -73,7 +73,7 @@ layer: pattern
 | 事件名 | 触发条件 | 参数 | 用途 |
 |---|---|---|---|
 | `pdf_exported` | PDF 导出完成 | `item_count`, `options`（with_answer/without_answer/with_lines/page_numbers） | 价值链完成率 |
-| `data_exported` | JSON/CSV/.zip 备份导出 | `format`（json/csv/zip） | 数据可携带权使用率 |
+| `data_exported` | JSON/CSV/`.snapdrillbackup` 备份导出 | `format`（json/csv/snapdrillbackup） | 数据可携带权使用率；生产 NoOp，不构成后端采集授权 |
 
 ### 屏幕浏览
 
