@@ -1,6 +1,6 @@
 # External Agent Invocation Protocol
 
-> Validated 2026-07-10 for the repository audit. This file records the exact local CLI contracts used by Codex C1; it does not grant any external agent write, merge or release authority.
+> Validated 2026-07-16 for the repository audit. This file records the exact local CLI contracts used by Codex C1; it does not grant any external agent write, merge or release authority.
 
 ## Sources
 
@@ -16,13 +16,17 @@ The installed binary's `--help` remains the final compatibility check for the pi
 
 ## Common Rules
 
-1. Run `--version` and the model-list command before the first slice of a phase.
-2. Pin the product base and working directory explicitly; do not let a CLI search parent folders for the repository.
-3. Use a new, non-resumed session for each blind slice. Disable memory, subagents, plugins/MCP and web access where the CLI exposes such controls.
-4. Give reviewers read-only tools only. A natural-language “do not edit” instruction is not a substitute for a tool/sandbox restriction.
-5. External output is candidate evidence. C1 reopens every cited path and reproduces the claim before it enters `findings.md`.
-6. Raw transcript/debug/brain artifacts stay temporary and are removed after normalization. Never retain auth/debug logs: they may contain credentials.
-7. After every external run, confirm the audit worktree and main checkout have no new tracked or untracked changes attributable to the reviewer.
+1. Before transmitting private repository material, record explicit PO authorization for the vendor and
+   smallest required payload. Subscription access is not data-export authorization.
+2. Build a minimal auditable input directory. Exclude secrets, user data, signing material, auth/debug logs
+   and unrelated source or evidence.
+3. Run `--version` and the model-list command before the first slice of a phase.
+4. Pin the product base and working directory explicitly; do not let a CLI search parent folders for the repository.
+5. Use a new, non-resumed session for each blind slice. Disable memory, subagents, plugins/MCP and web access where the CLI exposes such controls.
+6. Give reviewers read-only tools only. A natural-language “do not edit” instruction is not a substitute for a tool/sandbox restriction.
+7. External output is candidate evidence. C1 reopens every cited path and reproduces the claim before it enters `findings.md`.
+8. Raw transcript/debug/brain artifacts stay temporary and are removed after normalization. Never retain auth/debug logs: they may contain credentials.
+9. After every external run, confirm the audit worktree and main checkout have no new tracked or untracked changes attributable to the reviewer.
 
 ## Claude Code 2.1.206
 
@@ -46,9 +50,13 @@ claude \
 - `--no-session-persistence` prevents the print-mode conversation from becoming resumable local state.
 - Smoke result: with the audit worktree as cwd, the command read `AGENTS.md` and returned its exact first heading without creating files.
 
-## Antigravity 1.1.1
+## Antigravity 1.1.2
 
-Antigravity uses project/workspace scoping. Running from an unregistered `/private/tmp` worktree caused it to search unrelated parent/user directories. Use a fresh project plus an explicit directory, and run against the main checkout only after T0 proves that checkout equals the fixed product base.
+Antigravity uses project/workspace scoping. Running from an unregistered `/private/tmp` worktree once caused
+it to search unrelated parent/user directories. Use a fresh project plus an explicit minimal directory:
+an isolated supplied-doc directory for narrow review, or a dedicated clean fixed-base worktree for a repository
+audit. Never use the dirty main checkout merely to satisfy project discovery; discard any run that leaves the
+explicit directory.
 
 ```bash
 AGY_CLI_DISABLE_AUTO_UPDATE=true agy \
@@ -63,11 +71,11 @@ AGY_CLI_DISABLE_AUTO_UPDATE=true agy \
 
 - Put all flags before `--print`; in this CLI version `--print` consumes the following argument as the prompt. Placing `--mode` after it caused the agent to answer a question about `--mode` instead of running the audit.
 - `--new-project` avoids resuming prior project conversation context; `--add-dir` fixes the readable workspace.
-- `--mode plan` and `--sandbox` are the available hard controls in 1.1.1. The prompt must also prohibit network access and artifact creation; any generated Antigravity brain artifact is temporary output, not repository evidence.
+- `--mode plan` and `--sandbox` are the available hard controls in 1.1.2. The prompt must also prohibit network access and artifact creation; any generated Antigravity brain artifact is temporary output, not repository evidence.
 - `AGY_CLI_DISABLE_AUTO_UPDATE=true` follows the official troubleshooting guidance and prevents a background updater from changing the tool during a scripted phase.
 - Smoke result: from `develop@d62fead8`, the command read `AGENTS.md` and returned its exact first heading without repository changes.
 
-## Grok CLI 0.2.93
+## Grok CLI 0.2.101
 
 ```bash
 grok \
@@ -75,6 +83,7 @@ grok \
   --cwd "$AUDIT_WORKTREE" \
   --model grok-4.5 \
   --reasoning-effort high \
+  --permission-mode plan \
   --tools Read,Grep,Glob \
   --no-memory \
   --no-subagents \
@@ -84,7 +93,9 @@ grok \
   -p "$PROMPT"
 ```
 
-- Do not add `--permission-mode plan` to this pinned version: one smoke run emitted a transient “preferred model not available” warning during early model discovery. Restricting the tool list already removes edit/shell tools.
+- `--permission-mode plan` and the read-only tool list provide separate controls. An authenticated 0.2.101
+  smoke with fixed `grok-4.5` returned the requested sentinel without tool use; the temporary session was
+  deleted afterward.
 - `grok models` must show `grok-4.5` before the phase. A one-time debug smoke confirmed `currentModelId=grok-4.5`, high reasoning effort and response metadata `modelId=grok-4.5`; the debug file was then deleted because debug logs can include auth material.
 - `--no-auto-update` is the official headless recommendation; `--no-memory`, `--no-subagents` and `--disable-web-search` make the independent reviewer boundary explicit.
 - The current repository is larger than Grok's 50 MiB automatic bundle limit because of UI evidence. `bundle_create_failed` is non-fatal for local Read/Grep/Glob, but must be reported if it accompanies an incomplete audit.

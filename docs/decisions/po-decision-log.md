@@ -2,9 +2,12 @@
 
 > **性质**：PO 决策的时间序索引。本文采用 thin-pointer：每条决策只保留一行，指向其权威归属文档；归属仍只存在于对话 / 外部报告中的，本文件即其归属。
 >
-> **维护规则**：后续新决策由 Claude 起草条目，PO 确认，Codex 落盘；路由方式与根 `AGENTS.md` / `CLAUDE.md` 的裁决路由规则一致。更早的奠基性决策（2026-06-09 美国全球版 pivot、零后端、iPhone-only 等）已在 ADR / positioning 固化，不重复收录。
+> **维护规则**：当前 orchestrator 起草 thin-pointer，PO 确认，owning lane 落盘；路由方式与根
+> `AGENTS.md` 的裁决规则一致。更早的奠基性决策（2026-06-09 美国全球版 pivot、零后端、
+> iPhone-only 等）已在 ADR / positioning 固化，不重复收录。
 >
-> **范围**：2026-06-27 至 2026-07-14。初始草案由 Claude 起草，后续裁决由 PO 直接确认、Codex 固化入仓。
+> **范围**：2026-06-27 至 2026-07-16。初始草案由 Claude 起草；后续裁决由 PO 直接确认，
+> owning lane 固化入仓。
 
 ## 决策状态
 
@@ -53,12 +56,13 @@
 | 日期 | 决策 | 归属 |
 |---|---|---|
 | 06-27 | **记忆最小化、真相入仓**：agent 私有记忆只是可丢弃缓存 | `AGENTS.md` + `docs/how-to/parallel-lanes.md` |
-| 06-30 | 协作模型：Claude shape → Codex 执行（可挑战）→ Claude 只读复核 → PO 合并 | `docs/how-to/parallel-lanes.md` §3 |
+| 06-30 | 协作模型：Claude shape → Codex 执行（可挑战）→ Claude 只读复核 → PO 合并；已被 07-16 的角色制协作模型 supersede | 历史记录；当前权威见 `docs/how-to/parallel-lanes.md` |
 | 07-01~04 | 三次纠正“不可能 / 必须人工”论 → Codex 可 dogfood、可绕系统面板、坐标点击破墙 | Claude 记忆（no-premature-impossibility）；过程记录在 checkpoint |
 | 07-02 | **规划 freshness 对账成为习惯**并固化入仓 | `docs/how-to/parallel-lanes.md` §3（PR #849） |
 | 07-06 | **多窗口并行模式采用**（主刀 / 副刀 / 运维 / QA；write ≤ 2；合并串行） | `docs/how-to/parallel-lanes.md` 多窗口小节（PR #855） |
 | 07-06 | 老窗口退役；PO 转发降级为提醒信号（Claude 自查仓库为准） | 本台账 |
-| 07-11 | **产品决策五态 + 旧规范显式 supersede + contract-first**（effective）；Draft 实验可先存在，但跨 feature / 数据 wire / 公开 / 商业 / 平台变更必须先有上游契约，每次合并仍需 PO 单独授权 | `AGENTS.md` §意图与事实的裁决规则 + `docs/how-to/definition-of-ready.md` |
+| 07-11 | **产品决策五态 + 旧规范显式 supersede + contract-first**（effective）；Draft 实验可先存在，但跨 feature / 数据 wire / 公开 / 商业 / 平台变更必须先有上游契约，每次合并仍需 PO 单独授权 | `AGENTS.md` §1 + `docs/how-to/definition-of-ready.md` |
+| 07-16 | **Agent 控制面改为角色制**：Codex C1 默认统筹；模型不永久拥有文件；Claude / Gemini / Grok 默认只读复核，只有 PO / shaping 显式分配时进入独立 write lane；write WIP ≤ 2，合并串行且逐次授权 | `AGENTS.md` + `docs/how-to/parallel-lanes.md` |
 
 ## E. 处置类
 

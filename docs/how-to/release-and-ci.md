@@ -9,7 +9,8 @@ freshness:
 
 > App Store 发布流程、版本管理、CI/CD、监控。
 > DevOps 详细 checklist 见下文 §发版检查清单（已合并入本文件）。
-> Claude 是发布就绪协调 DRI；PO 保留 TestFlight/App Store 上传、审核提交和正式发布授权。
+> Release DRI 由当次 task brief / candidate manifest 指定；未指定时由当前 orchestrator
+> （默认 Codex C1）汇总。PO 保留 TestFlight / App Store 上传、审核提交和正式发布授权。
 
 ---
 
@@ -127,14 +128,15 @@ export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-gi
 
 ### 发布就绪责任
 
-Claude 维护本文件中的发版检查清单并汇总各方结果：
+Release DRI 维护本文件中的发版检查清单并汇总各方结果：
 
-- Engineering / 数据完整性 / 隐私技术事实：Claude
-- UI / 无障碍 / 本地化最终呈现 / 截图真实性：Codex
-- 元数据 / 官网 / ASO / 公开政策：Antigravity
+- Engineering / 数据完整性 / 隐私技术事实：当次 owning Engineering / Data / Security lane
+- UI / 无障碍 / 本地化最终呈现 / 截图真实性：当次 owning UI / QA lane
+- 元数据 / 官网 / ASO / 公开政策：当次 owning Copy / Compliance lane
 - 真机产品验收与最终 go/no-go：PO
 
-任何一方发现未满足项都应记录证据；Claude负责分诊与追踪，但无权代替 PO 发布，也无权改变 Codex 已确定的视觉方案。
+任何一方发现未满足项都应记录证据；Release DRI 负责分诊与追踪，但无权代替 PO 发布，
+也无权覆盖 owning UI DRI 与 PO 已确定的视觉方案。
 
 ### 当前发布实证快照（2026-06-21）
 
@@ -192,34 +194,41 @@ Claude 维护本文件中的发版检查清单并汇总各方结果：
 
 - 生产基线为 `com.snapdrill.global`，注入 `NoOpAnalyticsService`；Firebase 与 `SnapDrillInfrastructure` 已在 #803 删除
 - 崩溃与设备性能使用 Apple 原生 **Xcode Organizer / MetricKit**；产品趋势使用 App Store Connect 聚合数据
-- Claude 是技术监控 DRI：每次外部 TestFlight 后、每次正式发布后检查崩溃、watchdog、启动、内存和能耗异常；出现 S0/S1 信号立即分诊
+- 当次技术监控 DRI 在每次外部 TestFlight 后、每次正式发布后检查崩溃、watchdog、启动、
+  内存和能耗异常；出现 S0 / S1 信号立即分诊
 - 零正式用户阶段不设置“每日监控”仪式；有真实用户后按实际风险调整检查频率
 
 ### 用户反馈闭环
 
-1. Antigravity 汇总支持渠道、TestFlight 和 App Store 反馈，去重并标注事实、复现条件和用户影响
+1. owning Feedback / Copy lane 汇总支持渠道、TestFlight 和 App Store 反馈，去重并标注事实、
+   复现条件和用户影响
 2. PO 判断产品含义和优先级
-3. Claude负责工程/数据/性能分析，Codex负责 UI/交互分析
-4. 对应 lane 实现后，由原体验责任方复验，Claude确认跨层工程闭环
+3. owning Engineering / Data / Performance lane 负责技术分析，owning UI / UX lane 负责交互分析
+4. 对应 lane 实现后，由原验收责任方复验，Release DRI 确认跨层工程闭环
 
 原始反馈不是需求；未经 PO 判断，不得直接改变产品默认行为或路线。
 
 ### 隐私一致性检查
 
-每次发布前由 Claude 核对：实际数据流、第三方依赖、Privacy Manifest 和 App Store Privacy 标签所依据的技术事实。Antigravity 使用该事实维护官网与政策文案；PO 在必要时结合律师意见作最终风险签署。发现不一致时先阻止发布，再决定修代码或修声明。
+每次发布前由 designated Data / Security DRI 核对实际数据流、第三方依赖、Privacy Manifest
+和 App Store Privacy 标签所依据的技术事实。owning Copy / Compliance lane 使用该事实维护
+官网与政策文案；PO 在必要时结合律师意见作最终风险签署。发现不一致时先阻止发布，再决定
+修代码或修声明。
 
 ### 技术事故与紧急修复
 
 ```
-1. Claude 依据证据分级：S0 = 数据不可逆丢失；S1 = 启动崩溃或核心流程完全阻断。隐私 / 安全事件是独立 release blocker，再按实际数据与流程后果映射 S0-S3，不自动等同 S0
-2. Claude 立即停止普通工程集成，创建 hotfix worktree，完成复现、影响范围和技术止损方案
+1. Incident DRI 依据证据分级：S0 = 数据不可逆丢失；S1 = 启动崩溃或核心流程完全阻断。
+   隐私 / 安全事件是独立 release blocker，再按实际数据与流程后果映射 S0-S3，不自动等同 S0
+2. Incident DRI 立即停止普通工程集成，创建 hotfix worktree，完成复现、影响范围和技术止损方案
 3. 数据迁移问题必须使用上一已发布版本的数据存档验证升级路径，不以全新数据库测试代替
-4. Codex 复验受影响的 UI/交互；Antigravity 准备必要的用户或审核沟通草案
+4. owning UI / UX lane 复验受影响交互；owning Copy / Compliance lane 准备必要沟通草案
 5. PO 决定上传、暂停分阶段发布、下架、对外通知或申请加急审核
 6. iOS 已安装版本不能真正回滚：技术处理是回到已知良好代码、递增 build/version 并前滚发布修复版
 ```
 
-PO 离线时，Claude 可以完成分诊、修复、验证和本地 commit，但不得自行上传或发布。安全/隐私事件的对外处置由 PO 决定，必要时咨询律师。
+PO 离线时，Incident DRI 可以完成分诊、修复、验证和本地 commit，但不得自行上传或发布。
+安全 / 隐私事件的对外处置由 PO 决定，必要时咨询律师。
 
 ---
 

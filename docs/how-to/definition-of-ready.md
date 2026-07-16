@@ -34,16 +34,23 @@ check, shape the task further or ask PO instead of silently choosing.
 
 ## Stop And Ask
 
-Stop before implementation when any of these are true:
+Stop before implementation when any of these remain unresolved. A precise
+current PO task or owning effective authority satisfies the gate; do not ask
+again merely because the implementation is user-visible.
 
 - The change would alter product positioning, default behavior, pricing,
   public copy, legal posture, or release authorization.
-- More than one reasonable UX or data-model choice would produce a different
-  product experience.
+- More than one reasonable UX or data-model choice would change information
+  architecture, the default path, feature semantics, or a user-perceptible
+  outcome. Visual tokens already bounded by the owning spec/design system are
+  an owning UI-lane implementation choice.
 - The task needs a destructive migration, data deletion, signing/account change,
   or App Store Connect action.
 - The task depends on an external review finding without path/line evidence or
   a reproducible command.
+- The task would transmit private repository content, user data, secrets,
+  signing material, or other non-public evidence to an external model/service
+  without explicit PO approval for the vendor and minimal payload.
 - A PO ruling is ratified but its owning authority has not yet been merged, and
   the task would treat that ruling as the new cross-lane baseline.
 
