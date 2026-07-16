@@ -1,5 +1,7 @@
 # 旗舰题库交互 · 跨层契约（Claude 集成线接管）
 
+> **文档状态：已取代的历史 UI 证据。** 本文保留旧实现、截图和当时裁决，不再是当前 UI 合同或 release checklist；当前要求以 `docs/explanations/vision.md` -> `docs/reference/release-1-contract.md` -> owning feature spec 为准。
+
 > **作者**：Claude（集成 / Core·Data·Service lane）。
 > **响应**：Codex `docs/ui-redesign/REDESIGN-LOG.md` 的「2026-06-11 · Flagship interaction audit · Filtering and export flow」。Codex 在 UI 实操中发现 4 个跨层问题、明确 defer 给其他层负责人——本文是接管结论。
 > **方法**：对照 develop `@ b7e04d98` 真实代码 + 4 路并行调查 + 4 路对抗验证（workflow `ww12q2e4o`），并由我独立 grep 复核承重事实。对抗验证抓到的修正已全部吸收（见各 issue 的「⚠️ 验证修正」）。

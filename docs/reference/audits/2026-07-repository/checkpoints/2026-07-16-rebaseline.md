@@ -16,6 +16,33 @@
 This checkpoint supersedes the recovery instructions in `phase-04-in-progress.md` and
 `phase-05-in-progress.md`. It does not rewrite those fixed-base reports.
 
+## Document Control Closure Addendum
+
+This branch also closes the repository-wide Markdown control gap identified after the Agent control
+plane review. The addendum stayed on Draft PR #938 because #938 and the independent data-safety
+Draft PR #939 already occupy the `write WIP <= 2` allowance; no third write branch was opened.
+
+At validation time, the registry covers 126 repository Markdown paths exactly once: 2 aliases point
+to an existing body, while the remaining 124 bodies are classified as authority, operations,
+evidence, generated output or template, each with an explicit lifecycle. The high-risk inactive
+sets are visible and machine enforced:
+
+- 43 fixed-base audit documents are `evidence/frozen`;
+- 6 former UI contracts are `evidence/superseded`;
+- ADR-001 and ADR-004 are `authority/superseded`;
+- ADR-003 is `authority/suspended`.
+
+[`document-control.md`](../../../document-control.md) explains the model and
+[`document-control.json`](../../../document-control.json) is the machine registry. The validator
+fails when a Markdown file is unclassified, matches multiple rules, uses an invalid role/lifecycle,
+omits a required historical marker, contains an unsupported wiki link, or points to a missing local
+file / heading. `validate_docs.py` now excludes frozen, superseded and suspended material from
+current semantic scans without deleting its historical evidence.
+
+The same slice aligns the release-readiness skill, GitHub templates, root/package/DocC navigation
+and generated feature indexes. `implemented` now means only that a live code path exists; it no
+longer claims Release 1 conformance, public reachability or release readiness.
+
 ## Effective Authority
 
 The normative chain is now effective in `develop`:

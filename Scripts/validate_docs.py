@@ -14,6 +14,11 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
+try:
+    from Scripts import validate_document_control
+except ModuleNotFoundError:
+    import validate_document_control
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_ROOT = REPO_ROOT / "docs"
 PACKAGES_ROOT = REPO_ROOT / "Packages"
@@ -177,20 +182,39 @@ def is_under(path: Path, directory: Path) -> bool:
     return True
 
 
+def document_rule(path: Path) -> dict[str, object] | None:
+    relative_path = rel(path)
+    registry = validate_document_control.load_registry()
+    matches = [
+        rule
+        for rule in registry.get("rules", [])
+        if isinstance(rule, dict)
+        and validate_document_control.matches_rule(relative_path, rule)
+    ]
+    return matches[0] if len(matches) == 1 else None
+
+
+def is_inactive_historical_doc(path: Path) -> bool:
+    rule = document_rule(path)
+    return rule is not None and rule.get("lifecycle") in {
+        "frozen",
+        "superseded",
+        "suspended",
+    }
+
+
 def should_skip_positioning_term_scan(path: Path) -> bool:
     return (
-        path in HISTORICAL_ADRS
+        is_inactive_historical_doc(path)
         or path in GENERATED_DOCS
         or path in POSITIONING_POLICY_DOCS
-        or is_under(path, DOCS_ROOT / "ui-redesign")
     )
 
 
 def should_skip_taxonomy_canonical_scan(path: Path) -> bool:
     return (
-        path in HISTORICAL_ADRS
+        is_inactive_historical_doc(path)
         or path in GENERATED_DOCS
-        or is_under(path, DOCS_ROOT / "ui-redesign")
     )
 
 
@@ -344,7 +368,7 @@ def validate_historical_adrs(errors: list[str]) -> None:
 
 def validate_stale_claims(errors: list[str]) -> None:
     for path in sorted(DOCS_ROOT.rglob("*.md")):
-        if path in STALE_ALLOWED:
+        if path in STALE_ALLOWED or is_inactive_historical_doc(path):
             continue
         text = read(path)
         for phrase in STALE_CURRENT_CLAIMS:
@@ -354,7 +378,7 @@ def validate_stale_claims(errors: list[str]) -> None:
 
 def validate_positioning_resets(errors: list[str]) -> None:
     for path in sorted(DOCS_ROOT.rglob("*.md")):
-        if path in STALE_ALLOWED:
+        if path in STALE_ALLOWED or is_inactive_historical_doc(path):
             continue
         text = read(path)
         for phrase in POSITIONING_RESET_CLAIMS:

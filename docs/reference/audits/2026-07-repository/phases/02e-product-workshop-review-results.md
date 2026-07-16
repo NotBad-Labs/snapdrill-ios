@@ -1,5 +1,7 @@
 # Phase 02e Results: Product Workshop Candidate Review
 
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+
 ## Outcome
 
 The first candidate was useful shaping input but not PO-ready as written. Codex, Claude Fable 5, Antigravity Gemini 3.5 Flash (High) and Grok 4.5 converged that several “recommended” cells could harden current implementation or an unmerged simplification into product truth before evidence. The candidate was revised; it remains explicitly non-normative.

@@ -65,6 +65,7 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **恢复方式**：从最新 `origin/develop` 新建独立 worktree / 分支；不要依赖本文件中的历史临时
   worktree、私有记忆或旧 fixed-base head
 - **方法**：`docs/how-to/repository-audit.md`
+- **文档角色与生命周期**：`../../document-control.md`
 - **报告模板**：`report-template.md`
 - **外部 agent 调用协议**：`agent-invocation-protocol.md`
 - **再基线契约**：`rebaseline-contract.md`

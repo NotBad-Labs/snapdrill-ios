@@ -1,5 +1,7 @@
 # UI Redesign Log
 
+> **文档状态：已取代的历史 UI 证据。** 本文保留旧实现、截图和当时裁决，不再是当前 UI 合同或 release checklist；当前要求以 `docs/explanations/vision.md` -> `docs/reference/release-1-contract.md` -> owning feature spec 为准。
+
 > Purpose: record durable UI design decisions, PO decisions, cross-layer findings, changed files, validation status, and unresolved questions. Private agent memory is not a design source of truth.
 
 ## 2026-06-23 - Static difficulty-star evidence retired

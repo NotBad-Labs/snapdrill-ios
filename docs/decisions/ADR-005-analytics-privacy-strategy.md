@@ -7,7 +7,7 @@ freshness:
 ---
 # ADR-005: 全球版分析与隐私遥测策略（端侧聚合 + Apple 免费层，不上后端行为采集）
 
-> 状态：**已决策** | 日期：2026-06-10 | 决策者：PO | 关联：[[ADR-004]]（Firebase-free）/ [[ADR-002]]（ATT 移除）/ [[ADR-003]]（双区域，美国全球版为当前生产基线）
+> 状态：**已决策** | 日期：2026-06-10 | 决策者：PO | 关联：[ADR-004](ADR-004-china-build-firebase-free.md)（Firebase-free）/ [ADR-002](ADR-002-remove-att-authorization.md)（ATT 移除）/ [ADR-003](ADR-003-dual-region-release.md)（双区域历史路线）
 
 ## 背景
 
@@ -47,14 +47,14 @@ PO 一直在纠结一件未完全想清的事：本人倾向不侵犯用户隐�
 
 ## 后果
 
-- **工程（Claude 工程层，已 green-lit）**：① Firebase 编译层剔除（RC-1/2/6：移除 `SnapDrillInfrastructure/Package.swift` 的 firebase-ios-sdk 依赖，二进制不再链接）② MetricKit 接入（RC-4）③ 本地账本扩展。**破坏性重构在零用户阶段直接重定基线**（[[no_legacy_baggage]]）。
-- **UI（Codex 协同）**：自愿快照 UI + 端侧"我的使用"展示属 UI 层，归 UI 重设计线。
-- **合规文案（Antigravity 线，方向已定）**：官网 + in-app 隐私文案对齐方向 = **"零采集 / 本地优先"**（删除 Firebase 采集 / ATT / 美国服务器存储等失实陈述）。正文定稿仍 legal-gated（儿童条款须律师）。
+- **工程实现**：Firebase 编译层剔除与 MetricKit 已按后续实现实证落地；本地账本 / 自愿快照仍是未来候选，不属于 Release 1 默认范围。任何破坏性重基线继续服从当前 Product / Data Contract 与独立授权，不能引用本历史“零用户”背景跳过 gate。
+- **UI 候选**：自愿快照 UI + 端侧"我的使用"展示只有在未来产品 contract 重新纳入后，才由当次 shaping 指定的 UI lane 实现。
+- **合规文案**：官网 + in-app 隐私文案方向 = **"零采集 / 本地优先"**（删除 Firebase 采集 / ATT / 美国服务器存储等失实陈述）。正文定稿仍 legal-gated。
 - **ASC 隐私问卷**：照"零采集"如实填（manifest 已一致）。
 - **可逆性**：零用户阶段，若将来 PMF 需要逼出 Layer B，本决策可逆（decay_trigger: backend_analytics_added）。
 
 ## 关联
 
-- [[ADR-004]] 国内 Firebase-free —— 本 ADR 将其"Firebase-free / 端侧或不做分析"逻辑从国内 build 推广到全球版生产基线。
-- [[ADR-002]] ATT 移除 —— 零追踪前提一致。
+- [ADR-004](ADR-004-china-build-firebase-free.md) 国内 Firebase-free —— 本 ADR 将其"Firebase-free / 端侧或不做分析"逻辑从国内 build 推广到全球版生产基线。
+- [ADR-002](ADR-002-remove-att-authorization.md) ATT 移除 —— 零追踪前提一致。
 - PMF instrumentation（"本地账本 + 自愿快照"路径，跟踪见 live GitHub issue / 已接受的 pitch）—— Layer 0 + 自愿快照即该路径；D6=A 锁定其隐私 fork。

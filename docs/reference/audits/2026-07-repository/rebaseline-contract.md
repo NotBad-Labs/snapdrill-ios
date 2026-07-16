@@ -1,5 +1,7 @@
 # 2026-07-10 Repository Rebaseline Contract
 
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+
 ## 目的
 
 本次再基线对仓库、产品和配套工具作系统性清理，但不以代码清零、历史改写或一次性全仓重写作为目标。审计先固定事实和契约，修复再按独立 slice 落地；每个 slice 都必须能与 `develop@d62fead87fb103708652ac5378eda8e2c03f8257` 比较，并能通过 Git 回退。

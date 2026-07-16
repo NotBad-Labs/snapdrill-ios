@@ -14,6 +14,10 @@ assignees: ""
 
 <!-- 为什么需要做这个 -->
 
+## 权威 / 当前操作 owner
+
+<!-- 指向 owning how-to、ADR、contract、script test 或 current evidence；不要仅引用历史审计。 -->
+
 ## Severity
 
 - [ ] S0（数据不可逆丢失）/ [ ] S1（流程完全阻断）/ [ ] S2（能完成但有摩擦）/ [ ] S3（更好但不紧急）
@@ -29,6 +33,15 @@ assignees: ""
 ## No-Go（不做什么）
 
 -
+
+## 验证等级
+
+- [ ] T0 / [ ] T1 / [ ] T2 / [ ] T3 / [ ] T4
+- 计划命令 / evidence：
+
+## PO / legal / fact gates
+
+<!-- 没有则写“无”。 -->
 
 ## 影响范围
 

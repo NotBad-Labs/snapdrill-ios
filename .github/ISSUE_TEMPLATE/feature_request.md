@@ -12,11 +12,20 @@ assignees: ""
 
 ## 用户场景
 
-<!-- 这个功能解决什么问题？对应 docs/product/product-journeys.md 中的哪个旅程（旅程 0-7）？ -->
+<!-- 这个功能解决什么问题？可引用 docs/explanations/user-journeys.md，但历史旅程不是需求授权。 -->
 
-## MoSCoW
+## 权威与决策状态
 
-- [ ] Must / [ ] Should / [ ] Could
+- Product Constitution principle：
+- Release Product Contract disposition：
+- Owning feature spec / policy / typed decision：
+- Lifecycle：exploration / shaped candidate / ratified / effective / superseded
+
+<!-- 未经 effective authority 不要把建议自行标成 Release Must。 -->
+
+## Repo-visible Outcome
+
+<!-- 完成后用户或仓库中可观察到什么结果？ -->
 
 ## Appetite
 
@@ -45,7 +54,16 @@ assignees: ""
 
 ## 影响范围（涉及文件预估）
 
-<!-- 涉及哪些模块？Core / Data / UI / Features / Infrastructure / App -->
+<!-- 涉及哪些模块？Core / Data / UI / Features / App / Scripts / docs -->
+
+## 验证等级
+
+- [ ] T0 / [ ] T1 / [ ] T2 / [ ] T3 / [ ] T4
+- 计划命令 / fixture / screenshot / device evidence：
+
+## PO / legal / fact gates
+
+<!-- 尚未裁决的产品、公开文案、法律、平台、数据/wire 或发布问题。没有则写“无”。 -->
 
 ## 验收标准（Given-When-Then）
 

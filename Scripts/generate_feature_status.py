@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""扫描 docs/features/**/feat-*.md 的 YAML frontmatter，自动生成 docs/reference/feature-status.md。
+"""扫描 docs/features/**/feat-*.md 的 YAML frontmatter，自动生成实现状态索引。
 
-B 方案（状态自动单写）：各 feature spec 的 frontmatter 是功能状态的唯一真理源；
-本脚本把它们汇总成只读看板，禁止手改生成物，消灭手动双向同步导致的漂移。
+B 方案（状态自动单写）：各 feature spec 的 frontmatter 是实现状态的唯一来源；
+本脚本把它们汇总成只读看板。实现存在不等于 Release 1 合同符合、公开可达或发布就绪。
 
 用法：
     python3 Scripts/generate_feature_status.py            # 生成 / 覆盖看板
@@ -22,7 +22,7 @@ FEATURES_DIR = REPO_ROOT / "docs" / "features"
 OUTPUT = REPO_ROOT / "docs" / "reference" / "feature-status.md"
 
 STATUS_LABEL = {
-    "implemented": "✅ 已实现",
+    "implemented": "🧩 实现存在",
     "in-progress": "🛠 进行中",
     "blocked": "⛔ 阻塞",
     "poc-needed": "🔬 需 PoC",
@@ -86,13 +86,14 @@ def collect() -> list[dict]:
 def render(specs: list[dict]) -> str:
     specs = sorted(specs, key=lambda s: (STATUS_ORDER.get(s["status"], 9), s["id"]))
     lines = [
-        "# 功能状态总表（SSOT · 自动生成）",
+        "# 功能实现状态总表（自动生成）",
         "",
         "> ⚠️ 本文件由 `Scripts/generate_feature_status.py` 自动生成，**禁止手动编辑**。",
-        "> 状态唯一真理源 = 各 `docs/features/**/feat-*.md` 的 frontmatter（B 方案 · 自动单写）。",
+        "> 实现状态唯一来源 = 各 `docs/features/**/feat-*.md` 的 frontmatter（B 方案 · 自动单写）。",
+        "> `实现存在` 只表示 live code 已有对应路径；不表示符合 Release 1 Contract、公开可达或发布就绪。",
         "> 改状态 = 改对应 spec 的 frontmatter 后重跑脚本（pre-commit 自动校验是否最新）。",
         "",
-        "| 功能 | 状态 | 层级 | 阻塞 | 模式 | 最后更新 |",
+        "| 功能 | 实现状态 | 层级 | 阻塞 | 模式 | 最后更新 |",
         "|---|---|---|---|---|---|",
     ]
     for s in specs:
@@ -110,7 +111,7 @@ def render(specs: list[dict]) -> str:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="生成功能状态总表（B 方案 · 自动单写）")
+    ap = argparse.ArgumentParser(description="生成功能实现状态索引（自动单写）")
     ap.add_argument("--check", action="store_true", help="只校验看板是否最新，不写（CI / pre-commit 用）")
     args = ap.parse_args()
 

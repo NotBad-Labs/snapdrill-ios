@@ -227,6 +227,20 @@ class ValidateDocsTests(unittest.TestCase):
         self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(redesign_path))
         self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(generated_path))
 
+    def test_frozen_audit_evidence_is_excluded_from_current_term_scan(self) -> None:
+        frozen_path = (
+            validate_docs.DOCS_ROOT
+            / "reference"
+            / "audits"
+            / "2026-07-repository"
+            / "phases"
+            / "02-results.md"
+        )
+
+        self.assertTrue(validate_docs.is_inactive_historical_doc(frozen_path))
+        self.assertTrue(validate_docs.should_skip_positioning_term_scan(frozen_path))
+        self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(frozen_path))
+
     def test_repo_owned_package_docs_are_scanned_for_taxonomy_contracts(self) -> None:
         owned = validate_docs.PACKAGES_ROOT / "SnapDrillData" / "README.md"
         third_party = (

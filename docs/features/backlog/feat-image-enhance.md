@@ -13,7 +13,7 @@ intent_refs:
 
 # Feature: 图片处理增强（去手写 / 去批改痕迹 / 试卷还原）
 
-> 人读摘要：🧪 待实现 / 需 PoC，产品范围与商业分层未定。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要：🧪 待实现 / 需 PoC，产品范围与商业分层未定。派生自上方 frontmatter；frontmatter 仅是本功能候选实现状态的单一来源，不构成产品批准或发布承诺。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business 聚合（docs 重组 B）。
 > `mode: lightweight`：尚未实现且需第三方端上方案 PoC，How / Verify 待 PoC 落地后补，**不为未实现功能编造假设计**。

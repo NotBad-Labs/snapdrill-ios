@@ -1,13 +1,15 @@
 # ``SnapDrillFeatureCapture``
 
-题目采集功能模块，提供拍照识题、文档扫描和 OCR 结果确认流程。
+> 当前实现 API 参考；用户可见范围以 Capture feature spec 与 Release Contract 为准。
+
+资料采集功能模块，提供拍照、文档扫描和 OCR 结果确认流程。
 
 ## 概述
 
-`SnapDrillFeatureCapture` 负责将现实中的题目转化为数字卡片。
+`SnapDrillFeatureCapture` 负责将纸张、照片和 PDF 中的资料转化为可整理条目。
 支持多种采集方式：相机拍照、文档扫描、相册导入、PDF 导入和纯文本手动录入。
-Vision OCR 自动提取题目文字，用户确认后保存至题库。
-意外退出时自动保存草稿（由 `CaptureDraftService` 管理），支持连续裁剪一图多题。
+Vision OCR 自动提取资料文字，用户确认后保存至资料库。
+意外退出时自动保存草稿（由 `CaptureDraftService` 管理），支持从同一图片连续裁剪多份资料。
 
 依赖：`SnapDrillCore` · `SnapDrillData` · `SnapDrillUI`
 
@@ -16,7 +18,7 @@ Vision OCR 自动提取题目文字，用户确认后保存至题库。
 ### 视图
 
 - ``CaptureView`` — 采集入口，整合相机、相册、PDF、剪贴板文本、手动录入等多种采集方式
-- ``CaptureResultView`` — OCR 结果确认与编辑，保存题目至题库
+- ``CaptureResultView`` — OCR 结果确认与编辑，保存资料至资料库
 
 ### 视图模型
 

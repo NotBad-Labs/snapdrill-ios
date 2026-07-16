@@ -1,5 +1,7 @@
 # ``SnapDrillUI``
 
+> 当前实现 API 参考。共享组件、Tab 枚举和 Review 辅助类型不定义 Release 1 导航或公开能力。
+
 共享设计系统，提供可复用的 SwiftUI 组件和无障碍工具。
 
 ## 概述
@@ -16,7 +18,7 @@
 
 ### 交互组件
 
-- ``FlipView`` — 翻转动画视图（复习卡片正反面切换）
+- ``FlipView`` — 翻转动画视图（回顾卡片正反面切换）
 - ``TagInputView`` — 标签输入框，支持补全建议
 - ``SnapDrillButton`` — 统一样式的主操作按钮
 - ``ImageCropperView`` — 基于 Mantis 的图片裁剪视图（`UIViewControllerRepresentable`）
@@ -41,6 +43,6 @@
 
 - `View.accessible(label:hint:value:)` — 统一设置无障碍标签
 - `View.accessibleButton(label:hint:)` — 标记为无障碍按钮
-- ``AccessibilityHelper`` — 生成复习项、进度、日期的无障碍文本
+- ``AccessibilityHelper`` — 生成回顾项、进度、日期的无障碍文本
 - ``AccessibilityAnnouncement`` — 发送 VoiceOver 公告
 - ``AccessibilityNotificationPriority`` — 控制通知优先级

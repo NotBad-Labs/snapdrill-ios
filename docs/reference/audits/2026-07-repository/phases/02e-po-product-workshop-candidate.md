@@ -1,5 +1,7 @@
 # 阶段 02e 候选：PO 产品宪章（Product Constitution）与 Release 1 工作坊
 
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+
 > **非规范性塑形输入（NON-NORMATIVE SHAPING INPUT）** — 本文件只列证据、选项、推荐与影响。
 > 它不是 Product Constitution、Release Contract、路线图（roadmap）或 PO 决策。
 > 任何选项只有经过 02d Gate A 生命周期、PO 明确批准并合入权威文档后才生效。

@@ -1,5 +1,7 @@
 # Phase 02e Review Brief: Challenge the PO Workshop Candidate
 
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+
 ## Inputs
 
 - candidate packet:

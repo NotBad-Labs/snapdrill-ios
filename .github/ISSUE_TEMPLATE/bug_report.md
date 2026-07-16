@@ -24,6 +24,10 @@ assignees: ""
 
 <!-- 实际发生了什么 -->
 
+## 权威 / Oracle
+
+<!-- 期望来自哪一条 Release Contract、feature/data/privacy contract、平台规范或回归测试？ -->
+
 ## Severity
 
 - [ ] S0（数据不可逆丢失）/ [ ] S1（流程完全阻断）/ [ ] S2（能完成但有摩擦）/ [ ] S3（更好但不紧急）
@@ -39,6 +43,15 @@ assignees: ""
 ## No-Go（不做什么）
 
 -
+
+## 验证等级
+
+- [ ] T0 / [ ] T1 / [ ] T2 / [ ] T3 / [ ] T4
+- 最小复现 / fixture / targeted test：
+
+## PO / legal / fact gates
+
+<!-- 修复是否会改变产品语义、公开文案、数据/wire、签名或发布边界？ -->
 
 ## 环境
 

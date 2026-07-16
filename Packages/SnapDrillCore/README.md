@@ -1,5 +1,8 @@
 # SnapDrillCore
 
+> **文档角色：当前实现参考。** 类型存在不代表该能力属于 Release 1；产品范围与数据边界以
+> Product Constitution、Release Contract 和 owning contract 为准。
+
 **核心逻辑层 (Core Logic Layer)**
 
 `SnapDrillCore` 包含应用共享的业务模型、基础服务、算法引擎和通用工具。不依赖任何本地包。部分服务因处理图片/颜色而 import UIKit/SwiftUI。
@@ -7,7 +10,7 @@
 ## 组成部分
 
 ### 1. Model (业务模型)
-- `Profile`: 用户 Profile 值类型（Multi-Profile 支持）
+- `Profile`: 当前 Multi-Profile 实现遗留的值类型；单资料库收敛前用于识别 live 依赖
 
 ### 2. Engine (算法引擎)
 - `ReviewScheduler`: SM-2 间隔重复调度器

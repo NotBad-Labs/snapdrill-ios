@@ -1,5 +1,7 @@
 # Phase 04b Brief: Profile Isolation and Migration (Superseded)
 
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+
 > Superseded by `04b-single-library-brief.md` after the PO retired Multi-Profile
 > on 2026-07-11. No review run against this brief is valid evidence for the
 > current product. The file remains only to preserve the audit trail.

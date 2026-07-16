@@ -18,7 +18,7 @@ intent_refs:
 
 > **产品重基线（2026-07-14）**：Onboarding 必须服从 B1-A / B2-A 的首个切口与使命；不出现 Profile、Review、SmartPaper、Pro 或其他 optional 功能清单。C3 规定完成或跳过引导后普通启动进入 Dashboard；deep link 与阻塞恢复除外。当前四页流程仍是实现事实，具体页面与视觉调整需要独立授权。
 
-> 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / journeys / onboarding 聚合（docs 重组 B）。
 

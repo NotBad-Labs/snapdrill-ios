@@ -15,7 +15,7 @@ intent_refs:
 # Feature: SmartPaper（候选，商业分层未定）
 
 > 人读摘要：🛠 当前代码已接通基础组卷，并保留按 Profile 的月配额与不可达 Pro 分支；这些是实现偏差。C5-E / C5-S1 只允许 `po-only` / `research` build 从 Library 单一入口开放，可见时不限次且无 Pro，并使用无权重、不重复的基础随机选择器；`public-candidate` 完全隐藏。
-> 派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 派生自上方 frontmatter；frontmatter 仅是本功能候选实现状态的单一来源，不构成产品批准或发布承诺。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / architecture 聚合（docs 重组 B）。
 > `mode: lightweight`：How / Verify 同时标明 Release 1 实验边界与当前实现偏差，不把实验自动提升为公开发布规格。

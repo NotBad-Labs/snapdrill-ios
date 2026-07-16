@@ -1,5 +1,7 @@
 # Phase 00b Results: Control-Plane Blind Review
 
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+
 ## Outcome
 
 Claude、Antigravity、Grok 在同一 `develop@d62fead8` 上独立审阅。首次 launcher 试跑暴露两项编排错误：Grok 的 plan 模式不执行读取；Antigravity 会忽略 cwd 并回到已有 project。两者修正启动参数后重新运行，首次无效输出未参与结论。

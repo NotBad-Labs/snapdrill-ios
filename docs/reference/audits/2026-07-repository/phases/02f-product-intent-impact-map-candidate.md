@@ -1,5 +1,7 @@
 # Phase 02f Candidate: Product Intent Dependency and Change-Budget Map
 
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+
 > **NON-NORMATIVE AUDIT ARTIFACT** — 本图只说明候选裁决会影响什么、按什么顺序验证和合并。
 > 它不批准 Gate A/B/C，不改变 feature status，不授权修改、合并或发布。
 

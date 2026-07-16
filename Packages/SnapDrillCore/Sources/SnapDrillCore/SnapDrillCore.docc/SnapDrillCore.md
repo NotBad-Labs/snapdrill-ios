@@ -1,5 +1,8 @@
 # ``SnapDrillCore``
 
+> 当前实现 API 参考，不定义 Release 1 可见能力。`Profile` 与 Review 类型仍在 live code 中，
+> 但单资料库和公开能力边界由上游产品 / 数据合同决定。
+
 核心逻辑层，提供 SM-2 调度算法、OCR 服务、图片存储、采集草稿、日志和通用工具。
 
 ## 概述
@@ -13,12 +16,12 @@
 
 ### 业务模型
 
-- ``Profile`` — 用户 Profile 值类型（Multi-Profile 支持）
+- ``Profile`` — 当前 Multi-Profile 实现遗留的值类型
 
-### 复习调度引擎
+### 回顾调度引擎
 
 - ``ReviewScheduler`` — SM-2 间隔重复算法的核心实现
-- ``SM2State`` — 封装单道题目的复习状态（ease factor、interval、repetitions）
+- ``SM2State`` — 封装单份资料的回顾调度状态（ease factor、interval、repetitions）
 - ``ReviewRating`` — 用户评价（Again / Hard / Good / Easy）
 
 ### 采集能力（`Capture/` 子目录）
