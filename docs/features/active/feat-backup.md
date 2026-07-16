@@ -8,6 +8,11 @@ mode: full
 last_updated: 2026-07-15
 intent_refs:
   - vision:P4
+release_refs:
+  - release-1:C2-Optional
+  - release-1:DATA-1
+  - release-1:DATA-1-E
+  - release-1:DATA-1-R
 ---
 
 # Feature: 备份与 CSV 导入导出
@@ -117,7 +122,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P4 用户拥有数据·数据安全子条款） | `.snapdrillbackup` 是免费换机迁移出口；恢复前校验、失败不破坏现有数据、结果透明 |
-| Release 1 Contract | `../../reference/release-1-contract.md` DATA-1 / DATA-1-E / DATA-1-R / D1-B / D3-B | epoch、SQLite application document、完整备份、未加密提示、degraded internal snapshot 与恢复材料保留已固定；现有 v2 / best-effort / 自动清理不构成目标 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Optional / DATA-1 / DATA-1-E / DATA-1-R | CSV 可携带性辅助默认隐藏；epoch、完整备份、未加密提示与恢复材料保留已固定；现有 v2 / best-effort / 自动清理不构成目标 |
 | Local Library Data Contract | `../../reference/local-library-data-contract.md` | Profile-free inventory、generation / journal、D3-B prestate 与 incident 生命周期 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | 手动备份 / 恢复永久免费；Apple 私有同步只是候选假设 |
 | 待验证假设 | `../../explanations/assumptions.md` H10（用户仅保存有权处理的个人资料） | 备份 / 导出边界与版权提示 |

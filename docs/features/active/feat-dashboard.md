@@ -10,6 +10,10 @@ intent_refs:
   - vision:P1
   - vision:P2
   - vision:P5
+release_refs:
+  - release-1:C2-Personalization
+  - release-1:C3
+  - release-1:C4-D
 ---
 
 # Feature: 首页概览（Dashboard）

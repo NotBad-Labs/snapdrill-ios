@@ -11,6 +11,10 @@ intent_refs:
   - vision:P4
   - vision:P5
   - ADR-005
+release_refs:
+  - release-1:C2-Personalization
+  - release-1:C3
+  - release-1:C4-D
 ---
 
 # Feature: 设置与个性化
@@ -99,7 +103,7 @@ intent_refs:
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P2 简洁 / P4 用户拥有数据·零注册 / P5 成人生产力工具） | 设置服务控制权与信任；偏好纯本地不外传；中性成熟 |
 | Product Constitution | `../../explanations/vision.md` B5-A / B6-A（effective） | 用户可见面不呈现 Profile / Workspace；Settings 不展示不可用升级入口 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Personalization / C3 / C4-D / D5-A | Dashboard 不呈现身份装饰；Settings 隐藏身份字段与全部 Review 设置 / 调度入口；Clear Library 不冒充 factory reset |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Personalization / C3 / C4-D | Dashboard 不呈现身份装饰；Settings 隐藏身份字段与全部 Review 设置 / 调度入口 |
 | 产品政策 / ADR | `../../decisions/ADR-005-analytics-privacy-strategy.md`（全球零后端行为采集，遥测开关本地化、生产 NoOp） | 匿名遥测开关不发送逐事件行为；端侧 MetricKit 独立于该开关 |
 | 待验证假设 | 无（承载容器层，所托管功能各自验证假设） | — |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |

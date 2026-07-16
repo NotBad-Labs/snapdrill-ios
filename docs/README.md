@@ -30,7 +30,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 - `vision.md` 是 Product Constitution 的固定路径，也是仓库内最高产品权威；PO ratify 后仍须合入该归属权威才 effective。
 - Release Contract 定义一次发布的 Must outcomes、非目标与结果级验收；feature-status 不能替代它。
 - 下游文档必须指出其上游依据。找不到上游依据的需求是孤儿需求，不应直接实现。
-- 每个 feature spec 在 frontmatter 用 `intent_refs` 字段 + 「意图追溯」节显式声明承接的上游 Vision 原则 / 产品政策 / ADR，便于检索与人工核对；文档健康检查会验证引用目标存在，但当前尚无自动语义校验，不得把字段存在误认为追溯已经成立。
+- 每个 feature spec 在 frontmatter 用 `intent_refs` 声明耐久 Vision / 产品政策 / ADR 归属，并用 `release_refs` 声明当前 Release Contract 归属；生成器校验精确 ID 与受限 §7 引用，但字段存在仍不证明语义正确、实现符合或候选纳入。
 - 代码与测试证明“现在是什么”；Product Constitution、Release Contract 与 spec 约束“应该是什么”。不一致时必须显式记录偏差。
 - [Release 1 Contract](reference/release-1-contract.md) 承载截至 2026-07-15 ratify 的 Gate C 与后续精确裁决；[Local Library Data Contract](reference/local-library-data-contract.md) 承接单一本地资料库的 inventory、路径、generation / journal 与恢复生命周期。分支 / PR 副本仍是批准候选，合入 `develop` 后才 effective。feature spec 中旧 Multi-Profile、Pro、CloudKit、Word、iPad、五 Tab 或公开可达 Review / SmartPaper 仍属于已知下游漂移 / 实现刻画，不得覆盖合同，也不得在没有独立实现授权时启动投入。
 - 私有记忆、历史研究、旧 pitch 和关闭任务不参与当前裁决；需要历史证据（含已删除的 research/ 与历史 pitch）时使用 Git 历史或 GitHub 记录。
@@ -84,8 +84,8 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 未裁决候选必须用 `undecided`。`reference/feature-status.md` 由
 `Scripts/generate_feature_status.py` 扫描 frontmatter **自动生成**。
 
-意图追溯写在各 feature spec 的 frontmatter `intent_refs`；`reference/intent-traceability.md` 由 `Scripts/generate_intent_traceability.py` 扫描 frontmatter **自动生成**。它证明“已声明上游依据”，不替代人工语义 review。
+意图追溯写在各 feature spec 的 frontmatter `intent_refs` / `release_refs`；`reference/intent-traceability.md` 由 `Scripts/generate_intent_traceability.py` 扫描 frontmatter **自动生成**。Release 精确 ID 从 effective contract 的 `ratified_decisions` 读取；索引只证明“已声明规范归属”，不替代人工语义 review、实现实证或候选 inclusion。
 
 改状态 = 改对应 spec 的 frontmatter → 重跑 `python3 Scripts/generate_feature_status.py`（pre-commit 自动校验是否最新）。
 
-改意图引用 = 改对应 spec 的 `intent_refs` → 重跑 `python3 Scripts/generate_intent_traceability.py`（pre-commit 自动校验是否最新）。
+改意图引用 = 改对应 spec 的 `intent_refs` / `release_refs` → 重跑 `python3 Scripts/generate_intent_traceability.py`（pre-commit 自动校验是否最新）。

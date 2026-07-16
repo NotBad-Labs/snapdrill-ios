@@ -3,7 +3,8 @@
 
 These tests use a temporary mini-doc tree instead of the real repository docs.
 They lock the failure modes that matter for CI gates: missing intent references,
-unknown upstream references, and stale generated output.
+invalid Release Contract references, unknown upstream references, and stale
+generated output.
 """
 from __future__ import annotations
 
@@ -39,6 +40,7 @@ class IntentTraceabilityTests(unittest.TestCase):
         (self.docs / "explanations").mkdir(parents=True)
         (self.docs / "decisions").mkdir()
         (self.docs / "features" / "active").mkdir(parents=True)
+        (self.docs / "features" / "backlog").mkdir()
         (self.docs / "reference").mkdir()
 
         (self.docs / "explanations" / "vision.md").write_text(
@@ -59,6 +61,7 @@ current_authority: docs/decisions/ADR-001-local-first.md
 """,
             encoding="utf-8",
         )
+        self.write_release_contract()
 
         self.module = load_script("generate_intent_traceability")
         self.module.REPO_ROOT = self.root
@@ -69,10 +72,43 @@ current_authority: docs/decisions/ADR-001-local-first.md
     def tearDown(self) -> None:
         self.tmp.cleanup()
 
-    def write_feature(self, body: str) -> Path:
-        path = self.docs / "features" / "active" / "feat-capture.md"
+    def write_release_contract(
+        self,
+        frontmatter: str = (
+            'ratified_decisions: ["C1-A", "C2-Core", "C6-A"]\n'
+            'pending_decisions: ["C9-Pending"]\n'
+        ),
+        *,
+        include_section_7: bool = True,
+    ) -> Path:
+        section_7 = "\n## 7. 明确非目标与隐藏能力\n" if include_section_7 else ""
+        path = self.docs / "reference" / "release-1-contract.md"
+        path.write_text(
+            f"---\n{frontmatter}---\n# Release 1 Product Contract\n{section_7}",
+            encoding="utf-8",
+        )
+        return path
+
+    def write_feature(
+        self,
+        body: str,
+        *,
+        directory: str = "active",
+        name: str = "feat-capture.md",
+    ) -> Path:
+        path = self.docs / "features" / directory / name
         path.write_text(body, encoding="utf-8")
         return path
+
+    def collect_traceability(self) -> tuple[dict, dict, list[dict]]:
+        known_refs = self.module.collect_known_refs()
+        known_release_refs, pending_release_refs = self.module.collect_release_refs()
+        features = self.module.collect_features(
+            known_refs,
+            known_release_refs,
+            pending_release_refs,
+        )
+        return known_refs, known_release_refs, features
 
     def test_generates_feature_to_intent_index(self) -> None:
         self.write_feature(
@@ -83,15 +119,16 @@ tier: free
 intent_refs:
   - vision:P1
   - ADR-001
+release_refs:
+  - release-1:C2-Core
 ---
 
 # Feature: Capture
 """
         )
 
-        refs = self.module.collect_known_refs()
-        features = self.module.collect_features(refs)
-        content = self.module.render(features, refs)
+        refs, release_refs, features = self.collect_traceability()
+        content = self.module.render(features, refs, release_refs)
 
         self.assertIn("vision:P1", content)
         self.assertIn("ADR-001", content)
@@ -114,14 +151,16 @@ status: backlog
 tier: undecided
 intent_refs:
   - vision:P1
+release_refs:
+  - release-1:C2-Core
 ---
 
 # Feature: Candidate
 """
         )
 
-        refs = self.module.collect_known_refs()
-        content = self.module.render(self.module.collect_features(refs), refs)
+        refs, release_refs, features = self.collect_traceability()
+        content = self.module.render(features, refs, release_refs)
 
         self.assertIn("| 未定 |", content)
 
@@ -133,14 +172,16 @@ status: implemented
 tier: free
 intent_refs:
   - vision:P1
+release_refs:
+  - release-1:C2-Core
 ---
 
 # Feature: Capture
 """
         )
 
-        refs = self.module.collect_known_refs()
-        content = self.module.render(self.module.collect_features(refs), refs)
+        refs, release_refs, features = self.collect_traceability()
+        content = self.module.render(features, refs, release_refs)
 
         self.assertIn("🧩 实现存在", content)
         self.assertIn("不证明 Release 1 合同符合", content)
@@ -152,6 +193,8 @@ intent_refs:
 title: Capture
 status: implemented
 tier: free
+release_refs:
+  - release-1:C2-Core
 ---
 
 # Feature: Capture
@@ -159,9 +202,14 @@ tier: free
         )
 
         refs = self.module.collect_known_refs()
+        release_refs, pending_release_refs = self.module.collect_release_refs()
         with redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit) as raised:
-                self.module.collect_features(refs)
+                self.module.collect_features(
+                    refs,
+                    release_refs,
+                    pending_release_refs,
+                )
 
         self.assertEqual(raised.exception.code, 1)
 
@@ -173,6 +221,8 @@ status: implemented
 tier: free
 intent_refs:
   - vision:P999
+release_refs:
+  - release-1:C2-Core
 ---
 
 # Feature: Capture
@@ -180,9 +230,14 @@ intent_refs:
         )
 
         refs = self.module.collect_known_refs()
+        release_refs, pending_release_refs = self.module.collect_release_refs()
         with redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit) as raised:
-                self.module.collect_features(refs)
+                self.module.collect_features(
+                    refs,
+                    release_refs,
+                    pending_release_refs,
+                )
 
         self.assertEqual(raised.exception.code, 1)
 
@@ -194,6 +249,8 @@ status: implemented
 tier: free
 intent_refs:
   - vision:P1
+release_refs:
+  - release-1:C2-Core
 ---
 
 # Feature: Capture
@@ -207,6 +264,255 @@ intent_refs:
                     self.module.main()
 
         self.assertEqual(raised.exception.code, 1)
+
+    def test_collects_release_refs_from_effective_contract(self) -> None:
+        known_release_refs, pending_release_refs = self.module.collect_release_refs()
+
+        self.assertEqual(
+            list(known_release_refs),
+            [
+                "release-1:C1-A",
+                "release-1:C2-Core",
+                "release-1:C6-A",
+                "release-1:section-7",
+            ],
+        )
+        self.assertEqual(pending_release_refs, {"release-1:C9-Pending"})
+
+    def test_rejects_invalid_release_ref_shapes_and_values(self) -> None:
+        cases = {
+            "non-list": "release_refs: release-1:C2-Core\n",
+            "empty": "release_refs: []\n",
+            "non-string": "release_refs:\n  - 42\n",
+            "duplicate": (
+                "release_refs:\n"
+                "  - release-1:C2-Core\n"
+                "  - release-1:C2-Core\n"
+            ),
+            "unknown": "release_refs:\n  - release-1:C9-Unknown\n",
+            "pending": "release_refs:\n  - release-1:C9-Pending\n",
+        }
+
+        for name, release_refs in cases.items():
+            with self.subTest(name=name):
+                self.write_feature(
+                    f"""---
+id: feat-capture
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+{release_refs}---
+
+# Feature: Capture
+"""
+                )
+                known_refs = self.module.collect_known_refs()
+                known_release_refs, pending_release_refs = self.module.collect_release_refs()
+                with redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as raised:
+                        self.module.collect_features(
+                            known_refs,
+                            known_release_refs,
+                            pending_release_refs,
+                        )
+
+                self.assertEqual(raised.exception.code, 1)
+
+    def test_active_feature_requires_exact_release_ref(self) -> None:
+        self.write_feature(
+            """---
+id: feat-capture
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:section-7
+---
+
+# Feature: Capture
+"""
+        )
+
+        known_refs = self.module.collect_known_refs()
+        known_release_refs, pending_release_refs = self.module.collect_release_refs()
+        with redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_features(
+                    known_refs,
+                    known_release_refs,
+                    pending_release_refs,
+                )
+
+        self.assertEqual(raised.exception.code, 1)
+
+    def test_section_7_only_allows_named_backlog_features(self) -> None:
+        self.write_feature(
+            """---
+id: feat-advanced-stats
+title: Advanced Stats
+status: backlog
+tier: undecided
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:section-7
+---
+
+# Feature: Advanced Stats
+""",
+            directory="backlog",
+            name="feat-advanced-stats.md",
+        )
+
+        known_refs = self.module.collect_known_refs()
+        known_release_refs, pending_release_refs = self.module.collect_release_refs()
+        features = self.module.collect_features(
+            known_refs,
+            known_release_refs,
+            pending_release_refs,
+        )
+        self.assertEqual(features[0]["id"], "feat-advanced-stats")
+
+        self.write_feature(
+            """---
+id: feat-image-enhance
+title: Image Enhance
+status: backlog
+tier: undecided
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:section-7
+---
+
+# Feature: Image Enhance
+""",
+            directory="backlog",
+            name="feat-image-enhance.md",
+        )
+        with redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_features(
+                    known_refs,
+                    known_release_refs,
+                    pending_release_refs,
+                )
+
+        self.assertEqual(raised.exception.code, 1)
+
+    def test_release_operations_are_not_fabricated_as_feature_owners(self) -> None:
+        self.write_feature(
+            """---
+id: feat-capture
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:C2-Core
+---
+
+# Feature: Capture
+"""
+        )
+
+        known_refs = self.module.collect_known_refs()
+        known_release_refs, pending_release_refs = self.module.collect_release_refs()
+        features = self.module.collect_features(
+            known_refs,
+            known_release_refs,
+            pending_release_refs,
+        )
+        content = self.module.render(features, known_refs, known_release_refs)
+
+        self.assertIn(
+            "| [`release-1:C1-A`](release-1-contract.md) | `release-operations` |",
+            content,
+        )
+        self.assertIn(
+            "| [`release-1:C6-A`](release-1-contract.md) | `release-operations` |",
+            content,
+        )
+
+        self.write_feature(
+            """---
+id: feat-capture
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:C6-A
+---
+
+# Feature: Capture
+"""
+        )
+        with redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_features(
+                    known_refs,
+                    known_release_refs,
+                    pending_release_refs,
+                )
+
+        self.assertEqual(raised.exception.code, 1)
+
+    def test_release_index_is_deterministic_and_disclaims_conformance(self) -> None:
+        self.write_feature(
+            """---
+id: feat-capture
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:C2-Core
+---
+
+# Feature: Capture
+"""
+        )
+        self.write_feature(
+            """---
+id: feat-word-export
+title: Word Export
+status: backlog
+tier: undecided
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:section-7
+---
+
+# Feature: Word Export
+""",
+            directory="backlog",
+            name="feat-word-export.md",
+        )
+
+        known_refs = self.module.collect_known_refs()
+        known_release_refs, pending_release_refs = self.module.collect_release_refs()
+        features = self.module.collect_features(
+            known_refs,
+            known_release_refs,
+            pending_release_refs,
+        )
+        first = self.module.render(features, known_refs, known_release_refs)
+        second = self.module.render(features, known_refs, known_release_refs)
+
+        self.assertEqual(first, second)
+        self.assertIn("## Feature -> Release 1", first)
+        self.assertIn("## Release 1 -> Feature / Operations", first)
+        self.assertIn("不证明语义正确、实现符合或候选纳入", first)
+        self.assertIn("不证明 M1-M10 已有证据", first)
 
 
 class FeatureStatusTests(unittest.TestCase):

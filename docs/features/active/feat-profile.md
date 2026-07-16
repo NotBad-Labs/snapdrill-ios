@@ -11,6 +11,10 @@ intent_refs:
   - vision:P4
   - vision:P5
   - positioning-and-audience
+release_refs:
+  - release-1:DATA-1
+  - release-1:DATA-1-E
+  - release-1:DATA-1-R
 ---
 
 # Feature: 单一本地资料库（Multi-Profile 退场）

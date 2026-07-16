@@ -12,6 +12,10 @@ intent_refs:
   - vision:P4
   - vision:P6
   - ADR-005
+release_refs:
+  - release-1:C2-Core
+  - release-1:C2-Image
+  - release-1:C2-Optional
 ---
 
 # Feature: 采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）
@@ -138,6 +142,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P6 Apple 原生优先） | 采集是价值链第一环；主路径图片、OCR 辅助不阻塞保存；端上 OCR 不上传；Apple Vision / VisionKit 原生 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Image / C2-Optional | Must 输入、确认裁剪后的 App-managed 图片真相，以及手动 / 剪贴板 / Share Extension 的默认隐藏边界 |
 | 产品政策 / ADR | `../../decisions/ADR-005-analytics-privacy-strategy.md`（全球零后端行为采集） | 采集不产生任何后端行为上报；图片入库前剥离 EXIF GPS / 位置信息 |
 | 待验证假设 | `../../explanations/assumptions.md` H1（首次能完成采集与保存）/ H2（管理需求成立） | 采集首次达成的成败直接验证 H1 |
 | 验收证据 | §4 验证标准 GWT + AllTests + 真机录入 | 见本 spec Verify 节 |

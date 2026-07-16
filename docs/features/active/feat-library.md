@@ -11,6 +11,11 @@ intent_refs:
   - vision:P2
   - vision:P4
   - vision:P5
+release_refs:
+  - release-1:C2-Core
+  - release-1:C2-Optional
+  - release-1:C4-D
+  - release-1:C5-E
 ---
 
 # Feature: 资料库管理 + 分享卡片
@@ -113,7 +118,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P5 成人生产力工具） | 管理是价值链承上启下环节；过滤维度克制、软删除可撤销、零学习曲线中性成熟 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Optional / D4-B / C4-D / C5-E | 五秒绝对撤销期限跨后台 / 重启；Must 与 optional 不从现有表面反推；Review / SmartPaper 只按 audience 和单一静态入口实验，不自动进入公开候选 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Optional / C4-D / C5-E | Must 与 optional 不从现有表面反推；Review / SmartPaper 只按 audience 和单一静态入口实验，不自动进入公开候选 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | Release 1 免费、无广告、无 IAP；分享卡片走系统 ShareSheet、不引导公开传播 |
 | 待验证假设 | `../../explanations/assumptions.md` H2（管理能力被真实使用，而非仅当一次性扫描器） | 搜索 / 过滤 / 编辑的使用率验证 H2 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |

@@ -8,6 +8,8 @@ mode: full               # full（四段全填）| lightweight（backlog，仅 W
 last_updated: YYYY-MM-DD
 intent_refs:              # 至少一项 Vision / 产品政策 / ADR 引用
   - vision:P1
+release_refs:             # 当前 effective Release Contract 的精确归属；非目标仅按受限 section-7 规则
+  - release-1:C2-Core
 ---
 
 # Feature: [功能名称]
@@ -17,6 +19,7 @@ intent_refs:              # 至少一项 Vision / 产品政策 / ADR 引用
 > 本 spec 高内聚承载该功能 Why / What / How / Verify，不拆散到多文件（docs 重组 B）。
 > `mode: lightweight`（backlog 用）时，How / Verify 可只写"待实现补"，仅 Why + What 必填——避免给未实现功能写"假设计"。
 > `tier: undecided` 表示商业归属尚未裁决；候选功能不得为了填字段而默认归入 Pro。
+> `release_refs` 只表示规范归属，不证明实现符合、候选纳入、公开可达或发布就绪。
 
 ## 1. 为什么做 (Why) — 纯 why，不混实现/UI 细节
 - **痛点 / 价值**：用户的什么痛点，本功能带来什么价值。

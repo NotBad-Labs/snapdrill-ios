@@ -9,6 +9,8 @@ last_updated: 2026-07-12
 intent_refs:
   - vision:P3
   - vision:P4
+release_refs:
+  - release-1:C2-Optional
 ---
 
 # Feature: 图片处理增强（去手写 / 去批改痕迹 / 试卷还原）
@@ -59,6 +61,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P3 免费层完成核心闭环 / P4 用户拥有数据·隐私） | 增值能力不锁基础；端上处理、图片不上传服务端 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Optional | §3.2 将图片增强列为 hidden / out of scope；不得伪引 §7，也不表示当前候选获准纳入 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | 当前无有效 Pro、配额或 upsell；与布局层去答案保持独立 |
 | 待验证假设 | `../../explanations/business-model.md` H8 | 先以 PoC + 外部使用证据验证价值，不预设转化 |
 | 验收证据 | 等待端上 PoC、外部价值证据与新 contract（backlog lightweight） | 见本 spec Verify 节 |

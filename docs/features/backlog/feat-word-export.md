@@ -9,6 +9,8 @@ last_updated: 2026-07-12
 intent_refs:
   - vision:P3
   - vision:P4
+release_refs:
+  - release-1:section-7
 ---
 
 # Feature: Word 导出（候选，商业分层未定）
@@ -45,6 +47,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P3 免费层完成核心闭环 / P4 用户拥有数据） | Word 若回归只能是可选格式，不能削弱基础导出与数据权利 |
+| Release 1 Contract | `../../reference/release-1-contract.md` §7 (`release-1:section-7`) | Word 导出是 Release 1 明确非目标；该引用只固定隐藏边界，不表示候选纳入 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | 当前无有效 Pro 层、价格或订阅降级规则 |
 | 待验证假设 | 无（承接 H3 导出/打印是高价值终点） | — |
 | 验收证据 | 等待外部价值证据、PoC 与新 contract（backlog lightweight） | 见本 spec Verify 节 |
