@@ -71,9 +71,11 @@
 
 ## 环境要求
 
-- **Xcode**: 26.5+
+- **Xcode**: 26.6 (`17F113`)
 - **iOS**: 26.0+
-- **SwiftLint**: 必需 (用于代码风格检查) `brew install swiftlint`
+- **SwiftLint**: 0.63.2
+
+routine source gate 的精确工具身份只维护在 [`Configs/Toolchain.env`](Configs/Toolchain.env)；本段是便于阅读的当前快照。
 
 ## 快速开始
 
@@ -84,15 +86,14 @@
 
 ## 测试
 
-- **Xcode**: `Cmd+U`
-- **命令行 AllTests 两步法**（禁止单步 `xcodebuild test`）：
+在 clean committed checkout 上运行 canonical local source gate：
 
 ```bash
-xcodebuild build-for-testing -scheme AllTests \
-  -destination 'platform=iOS Simulator,name=iPhone 17' \
-  -testPlan AllTests
-
-xcodebuild test-without-building -scheme AllTests \
-  -destination 'platform=iOS Simulator,name=iPhone 17' \
-  -testPlan AllTests
+bash Scripts/ci-local.sh
 ```
+
+该入口固定工具身份，依次执行 SwiftLint、脚本与文档门禁、依赖方向检查、`AllTests` CI configuration 的 `build-for-testing` 和 `test-without-building`，并要求唯一 `.xctestrun`。它不运行 app XCUITest / AX，也不证明 archive、安装、隐私 / 网络或候选发布状态；高风险改动仍按 [`docs/how-to/parallel-lanes.md`](docs/how-to/parallel-lanes.md) 补对应证据。
+
+### 快照重录
+
+`SnapshotRecord` 只用于明确选择的 snapshot test，不属于默认测试路径。重录前必须限定具体测试，重录后人工审查每一处 baseline diff；禁止用全量重录让当前实现反向改写测试 oracle。

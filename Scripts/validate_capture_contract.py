@@ -91,8 +91,10 @@ def required_paths(repo_root: Path) -> Iterable[Path]:
     yield repo_root / ACCESSIBILITY_L10N_SWIFT
     yield from (repo_root / item for item in LOCALIZABLE_FILES)
     yield from (repo_root / item for item in INFOPLIST_FILES)
-    if (repo_root / CAPTURE_SWIFT_DIR).exists():
-        yield from sorted((repo_root / CAPTURE_SWIFT_DIR).glob("*.swift"))
+    capture_dir = repo_root / CAPTURE_SWIFT_DIR
+    yield capture_dir
+    if capture_dir.exists():
+        yield from sorted(capture_dir.rglob("*.swift"))
 
 
 def run_checks(repo_root: Path = REPO_ROOT) -> list[str]:
@@ -119,7 +121,7 @@ def run_checks(repo_root: Path = REPO_ROOT) -> list[str]:
         )
 
     capture_dir = repo_root / CAPTURE_SWIFT_DIR
-    for swift_file in sorted(capture_dir.glob("*.swift")):
+    for swift_file in sorted(capture_dir.rglob("*.swift")):
         errors.extend(scan_swift_strings(swift_file, repo_root=repo_root))
 
     return errors

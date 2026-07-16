@@ -56,20 +56,22 @@ exploration -> shaped candidate -> ratified -> effective -> superseded
 ## 构建命令
 
 ```bash
-# Test build（编译 app/test bundles；CI 随后运行 test-without-building）
+# Canonical local source gate（clean committed checkout）
+bash Scripts/ci-local.sh
+
+# 仅需单独确认 test bundles 可编译时使用；这不是完整 source gate
 xcodebuild build-for-testing \
   -scheme AllTests \
   -destination 'platform=iOS Simulator,name=iPhone 17' \
   -testPlan AllTests
-
-# Linting（CI 门禁；0 violations）
-swiftlint --strict
 ```
 
 **重要**：
 - `swift test` 不可用（SPM 仅声明 iOS 平台，macOS 跑会 SIGTRAP）
 - `SnapDrill` scheme 不含 SPM 包测试；必须用 `AllTests` scheme + `AllTests` testPlan
-- Xcode 26.5，真机 iPhone 17
+- 本地 canonical source gate 的精确工具身份由 `Configs/Toolchain.env` 固定：Xcode 26.6 (`17F113`) + SwiftLint 0.63.2；GitHub 消费同一身份属于 #922
+- `ci-local.sh` 跑 lint、docs/static gates、AllTests 的 CI build 与实际 tests；不覆盖 app XCUITest / AX、archive / install、隐私 / 网络或候选发布证据
+- 当前真机为 iPhone 17
 - 版本号单一来源：`Configs/Shared.xcconfig`（`MARKETING_VERSION` + `CURRENT_PROJECT_VERSION`）
 
 ## 架构
@@ -201,15 +203,13 @@ SnapDrill 曾规划“一个产品 + 两区域发行版”；该路线已挂起�
 
 开工前先过 [`docs/how-to/definition-of-ready.md`](docs/how-to/definition-of-ready.md)：目标、scope、红线、验收标准、验证等级和 PO/legal/fact gate 必须清楚；不清楚就先 shape 或问 PO。
 
-每次 commit / PR 前至少跑这两个本地门禁；0 errors 才能继续。失败立刻修，不留 TODO。
+每次 commit 前由 tracked pre-commit 跑 lint、docs/static gates；代码 PR 在 clean committed head 达到 merge-ready 前必须再跑 canonical local source gate。0 errors 才能继续，失败立刻修，不留 TODO。
 
 ```bash
-swiftlint --strict     # SwiftLint 规则见 .swiftlint.yml；force_unwrapping=error / file_length=600
-xcodebuild build-for-testing -scheme AllTests \
-  -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests
+bash Scripts/ci-local.sh
 ```
 
-`build-for-testing` 只证明 app 与测试 bundle 能编译，不等于测试已运行。凡是 T2+ 代码行为、用户可见交互、Core/Data/ViewModel/SM-2/存储/导出/隐私或跨层契约改动，完成声明必须包含相关 targeted test / contract test 的本地运行结果，或明确等待 CI 的 `test-without-building` 运行测试结果；不能把绿色编译说成绿色测试。
+`ci-local.sh` 的 AllTests green 不等于 app UI / AX 或候选发布 green。凡是 T2+ 代码行为、用户可见交互、Core/Data/ViewModel/SM-2/存储/导出/隐私或跨层契约改动，完成声明还必须包含受影响的 targeted test / contract / UI / AX 证据；不能用较低层绿色替代较高层验收。
 
 低风险文档/流程与开发者可见小修的验证重量按 `docs/how-to/parallel-lanes.md` §7 的 T0–T4 分级执行；涉及代码行为、用户可见文案或跨层契约时不得降级。
 
