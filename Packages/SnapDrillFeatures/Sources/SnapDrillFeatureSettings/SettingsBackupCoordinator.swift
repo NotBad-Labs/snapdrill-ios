@@ -138,7 +138,7 @@ struct SettingsBackupCoordinator {
         onStatus(L10n.Settings.restoreAutoBackup)
 
         // 2. 恢复前自动备份当前数据（安全网）
-        let autoBackupURL = await createAutoBackupBeforeRestore()
+        let autoBackupURL = try await createAutoBackupBeforeRestore()
 
         onStatus(L10n.Settings.restoreReadingData)
 
@@ -323,15 +323,15 @@ struct SettingsBackupCoordinator {
         return RepositoryContainer(executor: executor, scope: scope, profileDirectory: vault.profileDirectory(for: profileData.profileId))
     }
 
-    /// 恢复前自动备份当前数据到临时目录（best-effort，不中断恢复流程）
+    /// 恢复前自动备份当前数据到临时目录。任何不完整或写入失败都在 mutation 前中止恢复。
     ///
-    /// - Returns: 自动备份文件 URL（恢复成功后应清理），备份失败或无数据时返回 nil
-    private func createAutoBackupBeforeRestore() async -> URL? {
+    /// - Returns: 自动备份文件 URL（恢复成功后应清理）；仅当前资料库完全为空时返回 nil
+    private func createAutoBackupBeforeRestore() async throws -> URL? {
         do {
             // 全 Profile 安全网：备份所有 Profile（非仅活跃），使多 Profile 还原中途失败时
             // 可回滚被覆盖的非活跃 Profile，彻底闭环 #4。
             let (payload, totalItemCount) = try await collectAllProfileBackupData()
-            guard totalItemCount > 0 else { return nil }
+            guard Self.hasRestorableContent(payload) else { return nil }
 
             let manifest = makeManifest(payload: payload, totalItemCount: totalItemCount)
             let url = try await backupService.createBackup(
@@ -342,9 +342,14 @@ struct SettingsBackupCoordinator {
             SnapDrillLogger.generic.info("恢复前自动备份已保存（\(payload.profiles.count) 个 Profile）: \(url.lastPathComponent)")
             return url
         } catch {
-            // 自动备份失败不中断恢复流程，仅记录日志
-            SnapDrillLogger.generic.warning("恢复前自动备份失败（不影响恢复操作）: \(error)")
-            return nil
+            SnapDrillLogger.generic.error("恢复前安全快照失败，恢复已在 mutation 前中止: \(error)")
+            throw error
+        }
+    }
+
+    private static func hasRestorableContent(_ payload: BackupPayload) -> Bool {
+        payload.profiles.contains {
+            !$0.reviewItems.isEmpty || !$0.dimensions.isEmpty || !$0.categoryValues.isEmpty
         }
     }
 
