@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-15
+last_verified: 2026-07-16
 layer: pattern
 freshness:
   max_age_days: 60
@@ -45,7 +45,7 @@ bash Scripts/ci-local.sh
 
 该入口 fail closed，并把一次绿色结果绑定到 exact checkout SHA、[`Configs/Toolchain.env`](../../Configs/Toolchain.env) 中的 Xcode / SwiftLint 身份和请求的 simulator destination。它按 routine source gate 的语义顺序执行 SwiftLint、脚本 / 文档生成与校验、依赖方向、`AllTests.xctestplan` CI configuration、唯一 `.xctestrun` 的 `build-for-testing` + `test-without-building`。Apple 的测试 action 同样采用 [build-for-testing 后接 test-without-building](https://developer.apple.com/documentation/xcode/configuring-your-xcode-cloud-workflow-s-actions) 的两阶段模型。
 
-该脚本只记录 name-based requested destination，不擦除用户 simulator，也不证明实际 UDID / runtime 或多 worktree 分配；这些分别属于 #922/#933。绿色只证明当前 source/package 层；不证明 app XCUITest / AX、signed archive、已安装 runtime、隐私 / 网络、Release candidate conformance，也不授权 merge、upload、TestFlight、go/no-go 或 release。`SnapshotRecord` 不在默认路径，任何重录必须限定具体测试并人工审查 baseline diff。
+该脚本只记录 name-based requested destination，不擦除用户 simulator，也不证明实际 UDID / runtime 或多 worktree 分配；GitHub Actions 另行绑定 exact simulator，local 多 worktree 分配属于 #933。绿色只证明当前 source/package 层；不证明 app XCUITest / AX、signed archive、已安装 runtime、隐私 / 网络、Release candidate conformance，也不授权 merge、upload、TestFlight、go/no-go 或 release。`SnapshotRecord` 不在默认路径，任何重录必须限定具体测试并人工审查 baseline diff。
 
 ### GitHub Actions
 
@@ -57,39 +57,47 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
   - `ui-tests`（UI Tests，timeout 45min）：仅 develop push（合并）或手动触发，且 `needs: build`。
 
 【build job 步骤】
-  1. Checkout（actions/checkout@v5）
-  2. Select Xcode（优先 Xcode_26.4.app；要求 Xcode 26.4+ / Swift 6.3）
-  3. Check SwiftLint（缺失则 brew install）
-  4. Lint：swiftlint --strict
-  5. Check Package Dependencies（包依赖方向 + Share Extension import 约束）
-  6. Clean Simulator（erase iPhone 17，避免 SwiftData schema 残留死锁）
-  7. Validate AllTests.xctestplan JSON
-  8. xcodebuild build-for-testing -scheme AllTests -testPlan AllTests
+  1. Checkout（actions/checkout v5 固定完整 SHA；contents:read；不保留凭据）并验证 HEAD == GITHUB_SHA
+  2. 从 Configs/Toolchain.env 精确校验 Xcode 版本/build、SwiftLint 与预期 simulator runtime；缺失或不匹配 fail closed
+  3. Lint、脚本/文档门禁与依赖方向检查
+  4. 从 simctl JSON 在 pinned runtime 内按名称 + device type 唯一选择 exact iPhone 17，记录 UDID/runtime；零个或多个均失败
+  5. 用该 UDID clean/boot，并校验 AllTests.xctestplan JSON
+  6. 单次 resolve package dependencies（失败不自动重试）
+  7. xcodebuild build-for-testing -scheme AllTests -testPlan AllTests
      -derivedDataPath $GITHUB_WORKSPACE/DerivedData
-     -destination 'platform=iOS Simulator,name=iPhone 17'
+     -destination 'platform=iOS Simulator,id=<selected UDID>'
      CODE_SIGNING_ALLOWED=NO
-  9. xcodebuild test-without-building
-     -xctestrun $(find ... AllTests_*.xctestrun)
+  8. 唯一解析 AllTests_*.xctestrun；零个或多个均失败
+  9. xcodebuild test-without-building（单次执行）
+     -xctestrun <exact path>
      -only-test-configuration CI
+     -destination 'platform=iOS Simulator,id=<same selected UDID>'
      -parallel-testing-enabled NO
      -resultBundlePath TestResults.xcresult
 
 【ui-tests job 步骤】（app 级 XCUITest，慢且对模拟器生命周期敏感，故隔离出门禁）
-  1-2. Checkout / Select Xcode
-  3. Clean Simulator（同上）
-  4. Validate UITests.xctestplan JSON
-  5. xcodebuild build-for-testing -scheme SnapDrill -testPlan UITests
+  1. 同样验证 checkout 与精确工具身份
+  2. 独立结构化选择唯一 exact iPhone 17，并用同一 UDID clean/boot/build/test
+  3. Validate UITests.xctestplan JSON；单次 resolve package dependencies
+  4. xcodebuild build-for-testing -scheme SnapDrill -testPlan UITests
      -derivedDataPath $GITHUB_WORKSPACE/DerivedDataUI
-  6. xcodebuild test-without-building
-     -xctestrun $(find ... SnapDrill_UITests_*.xctestrun)   # 产物名=<scheme>_<plan>_*
+     -destination 'platform=iOS Simulator,id=<selected UDID>'
+  5. 唯一解析 SnapDrill_UITests_*.xctestrun
+  6. xcodebuild test-without-building（单次执行；不做 generic whole-suite retry）
+     -xctestrun <exact path>
      -only-test-configuration CI -parallel-testing-enabled NO
+     -destination 'platform=iOS Simulator,id=<same selected UDID>'
      -resultBundlePath UITestResults.xcresult
 ```
 
 注：
 - **门禁 build job** 跑 `AllTests.xctestplan` 的 CI configuration，含 5 个 test target（SnapDrillCoreTests / SnapDrillDataTests / SnapDrillFeaturesTests / SnapDrillShareTests + 包级 SnapDrillUITests 单元烟雾测试）。
-- **ui-tests job** 跑独立 `UITests.xctestplan`，含 app 级 `SnapDrillUITests`（驱动真 app UI 的 7 个端到端 XCUITest）。**刻意不进每-PR 门禁**——UI 测试慢（约 +5min）且对模拟器 boot/erase 生命周期敏感，单 self-hosted runner 上更易抖动；仅 develop 合并或手动 `workflow_dispatch` 时跑，`needs: build` 保证 lint/单测先过。两个 app 级 target 同名 `SnapDrillUITests`（包级 vs app 级），xctestplan 按 container+identifier 唯一区分、互不冲突。
-- `test-without-building` 复用 `build-for-testing` 产出的 DerivedData，避免重复编译。**失败诊断**：self-hosted runner 本地已留存 DerivedData / TestResults.xcresult，直接 ssh 到 runner 查看，不上传回 GitHub（曾耗尽 0.5GB Actions 存储配额）。`SnapshotRecord` configuration 仅本地用（`SNAPSHOT_TESTING_RECORD=all` 重录 baseline），不参与 CI。
+- **ui-tests job** 跑独立 `UITests.xctestplan` 的完整 app 级 `SnapDrillUITests`。它刻意不进每-PR 门禁；2026-07-16 的 [develop run 29464280148](https://github.com/NotBad-Labs/snapdrill-ios/actions/runs/29464280148) 与 [manual run 29466417966](https://github.com/NotBad-Labs/snapdrill-ios/actions/runs/29466417966) 分别约 28.5 / 29 分钟，仅 develop 合并或手动 `workflow_dispatch` 时跑，`needs: build` 保证 source gate 先过。更细的 targeted/nightly/candidate cadence 由 #933 定义。
+- 两个 job 各自选择并绑定本 job 的唯一 simulator；这不声称在未来多 runner 环境中跨 job 使用同一设备。结构化 helper 记录 runtime identifier，但 Release candidate 的 runtime/device matrix 仍由候选证据门禁负责。
+- `pull_request` 事件中的 `GITHUB_SHA` 是 GitHub 生成的 `refs/pull/<n>/merge` 临时 merge commit，不是 PR head；push / manual dispatch 则是触发 ref 的 commit。日志中的 checkout identity 只按对应事件语义解释，临时 merge SHA 不能代替长期候选证据。
+- `test-without-building` 复用本 job 的 `build-for-testing` 产物。generic UI retry 已删除：任何产品断言、crash 或基础设施失败都保持红色，不会被后续成功覆盖。
+- **当前残留**：DerivedData / xcresult 仍位于 checkout，后续 job 或 run 可能清理，不能称为 durable failure evidence；#922-B 负责 checkout 外 run/job/attempt 路径、保留窗口和安全清理。GitHub artifact 上传仍停用，避免再次耗尽 Actions 存储配额。
+- `SnapshotRecord` configuration 仅本地显式重录 baseline 使用，不参与 CI。
 
 ### GitHub Token 配置
 
