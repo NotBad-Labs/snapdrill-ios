@@ -234,5 +234,5 @@ Release 1 不包含：
 2. 本文及必要 thin pointers 通过文档门禁和独立语义复核。
 3. PR 合并获得 PO 单独授权并进入 `develop`；合并前仍是 ratified candidate。
 4. 本合同 docs-only PR 同步对齐受 Gate C 与后续裁决直接影响的产品说明、feature spec、结果 oracle、发布 evidence plan、术语与导航索引；这些改动用于移除旧规范冲突并建立追溯，不授权或包含代码、导航、schema / wire 实现。
-5. Draft PR #868 只有在 DATA-1 effective、独立 Backup Wire / 单资料库可崩溃恢复 Data Contract 与对应 fixtures 纳入其 diff 或前置 PR 后，才具备重新申请合并的 DoR。
+5. PR #868 已关闭且不再是实现路径，只保留为历史影响证据。单资料库生产收敛必须从最新 `develop` 按独立切片重新 shaping；精确 Backup Wire、可崩溃恢复和对应 fixtures 仍须由 owning contract 与单独授权约束。
 6. 本合同一经 effective，在新 Release Contract 或明确 supersession 合入前持续有效。

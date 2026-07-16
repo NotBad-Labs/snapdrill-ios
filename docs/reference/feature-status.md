@@ -14,7 +14,7 @@
 | [回顾（SM-2 间隔调度）](../features/active/feat-review.md) | ✅ 已实现 | 免费 | — | full | 2026-07-14 |
 | [设置与个性化](../features/active/feat-settings.md) | ✅ 已实现 | 免费 | — | full | 2026-07-15 |
 | [首页概览（Dashboard）](../features/active/feat-dashboard.md) | 🛠 进行中 | 免费 | — | full | 2026-07-14 |
-| [单一本地资料库（Multi-Profile 退场）](../features/active/feat-profile.md) | 🛠 进行中 | 免费 | — | full | 2026-07-15 |
+| [单一本地资料库（Multi-Profile 退场）](../features/active/feat-profile.md) | 🛠 进行中 | 免费 | — | full | 2026-07-16 |
 | [SmartPaper（候选，商业分层未定）](../features/backlog/feat-smartpaper.md) | 🛠 进行中 | 未定 | — | lightweight | 2026-07-14 |
 | [高级统计（候选，商业分层未定）](../features/backlog/feat-advanced-stats.md) | 📋 Backlog | 未定 | — | lightweight | 2026-07-12 |
 | [Apple 私有同步（候选，商业分层未定）](../features/backlog/feat-icloud-sync.md) | 📋 Backlog | 未定 | — | lightweight | 2026-07-15 |

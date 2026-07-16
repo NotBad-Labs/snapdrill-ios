@@ -1,5 +1,8 @@
 # Phase 05 In-Progress Checkpoint
 
+> Superseded by [`2026-07-16-rebaseline.md`](2026-07-16-rebaseline.md). This file preserves the
+> fixed-base state before #872-#876 merged and must not be used as the current recovery pointer.
+
 ## T0
 
 - base: `origin/develop@5358cfacfc6d74de82b765a8e99865ea674fcf98`
