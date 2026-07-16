@@ -144,39 +144,73 @@ struct DataExecutorTests {
         #expect(count == 1)
     }
 
-    @Test("损坏 store 隔离目录最多保留最近三份")
-    func corruptStoreIsolationRetainsNewestThreeArchives() async throws {
+    @Test("损坏 store 隔离不会删除未解决恢复材料")
+    func corruptStoreIsolationPreservesAllUnresolvedIncidents() async throws {
+        let fileManager = FileManager.default
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("DataExecutorStoreRetention_\(UUID().uuidString)")
         let storeURL = root.appendingPathComponent("default.store")
+        let walURL = URL(fileURLWithPath: storeURL.path + "-wal")
+        let shmURL = URL(fileURLWithPath: storeURL.path + "-shm")
         let corruptedRoot = ProfileVault.corruptedStoresDirectory(forProfileDirectory: root)
-        defer { try? FileManager.default.removeItem(at: root) }
+        let unrelatedFileURL = root.appendingPathComponent("unrelated.txt")
+        let unrelatedDirectoryURL = root.appendingPathComponent("unrelated", isDirectory: true)
+        let unrelatedNestedFileURL = unrelatedDirectoryURL.appendingPathComponent("sentinel.bin")
+        defer { try? fileManager.removeItem(at: root) }
 
-        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
-        for name in [
+        try fileManager.createDirectory(at: root, withIntermediateDirectories: true)
+        let existingIncidentNames = [
             "2026-01-01T00-00-00.000Z",
             "2026-02-01T00-00-00.000Z",
             "2026-03-01T00-00-00.000Z"
-        ] {
-            try FileManager.default.createDirectory(
-                at: corruptedRoot.appendingPathComponent(name, isDirectory: true),
-                withIntermediateDirectories: true
-            )
-        }
-        try Data("broken".utf8).write(to: storeURL)
+        ]
+        let expectedIncidentFiles = try createIncidentFixtures(
+            in: corruptedRoot,
+            names: existingIncidentNames,
+            fileManager: fileManager
+        )
+
+        let newStoreData = Data("new broken store".utf8)
+        let newWALData = Data("new broken wal".utf8)
+        let newSHMData = Data("new broken shm".utf8)
+        try newStoreData.write(to: storeURL)
+        try newWALData.write(to: walURL)
+        try newSHMData.write(to: shmURL)
+
+        let unrelatedFileData = Data("unrelated file".utf8)
+        let unrelatedNestedData = Data("unrelated nested file".utf8)
+        try unrelatedFileData.write(to: unrelatedFileURL)
+        try fileManager.createDirectory(at: unrelatedDirectoryURL, withIntermediateDirectories: true)
+        try unrelatedNestedData.write(to: unrelatedNestedFileURL)
 
         let executor = DataExecutor(storeURL: storeURL)
         let event = try #require(await executor.storeRecoveryEvent)
-        let retained = try FileManager.default.contentsOfDirectory(
+        let retained = try fileManager.contentsOfDirectory(
             at: corruptedRoot,
             includingPropertiesForKeys: nil
         )
         .map(\.lastPathComponent)
-        .sorted()
 
-        #expect(retained.count == 3)
+        #expect(retained.count == 4)
         #expect(retained.contains(event.isolationDirectoryURL.lastPathComponent))
-        #expect(!retained.contains("2026-01-01T00-00-00.000Z"))
+        for name in existingIncidentNames {
+            #expect(retained.contains(name))
+        }
+        for expected in expectedIncidentFiles {
+            #expect(try Data(contentsOf: expected.url) == expected.data)
+        }
+
+        #expect(try Data(
+            contentsOf: event.isolationDirectoryURL.appendingPathComponent("default.store")
+        ) == newStoreData)
+        #expect(try Data(
+            contentsOf: event.isolationDirectoryURL.appendingPathComponent("default.store-wal")
+        ) == newWALData)
+        #expect(try Data(
+            contentsOf: event.isolationDirectoryURL.appendingPathComponent("default.store-shm")
+        ) == newSHMData)
+        #expect(try Data(contentsOf: unrelatedFileURL) == unrelatedFileData)
+        #expect(try Data(contentsOf: unrelatedNestedFileURL) == unrelatedNestedData)
     }
 
     @Test("健康磁盘 store 打开不创建隔离目录也不上报恢复事件")
@@ -207,5 +241,24 @@ struct DataExecutorTests {
         repos.archive.insert(ArchiveItemModel.mock(content: "container via executor"))
         try repos.archive.saveContext()
         #expect(try repos.archive.totalCount() == 1)
+    }
+
+    private func createIncidentFixtures(
+        in corruptedRoot: URL,
+        names: [String],
+        fileManager: FileManager
+    ) throws -> [(url: URL, data: Data)] {
+        var expectedFiles: [(url: URL, data: Data)] = []
+        for (incidentIndex, name) in names.enumerated() {
+            let incidentDirectory = corruptedRoot.appendingPathComponent(name, isDirectory: true)
+            try fileManager.createDirectory(at: incidentDirectory, withIntermediateDirectories: true)
+            for fileName in ["default.store", "default.store-wal", "default.store-shm"] {
+                let data = Data("incident-\(incidentIndex)-\(fileName)".utf8)
+                let fileURL = incidentDirectory.appendingPathComponent(fileName)
+                try data.write(to: fileURL)
+                expectedFiles.append((fileURL, data))
+            }
+        }
+        return expectedFiles
     }
 }
