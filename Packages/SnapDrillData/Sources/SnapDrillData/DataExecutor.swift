@@ -196,7 +196,6 @@ public actor DataExecutor {
             try manager.moveItem(at: url, to: isolationDirectory.appendingPathComponent(url.lastPathComponent))
         }
 
-        pruneCorruptedStoreArchives(in: isolationDirectory.deletingLastPathComponent(), fileManager: manager)
         return isolationDirectory
     }
 
@@ -209,29 +208,6 @@ public actor DataExecutor {
             suffix += 1
         }
         return candidate
-    }
-
-    private static func pruneCorruptedStoreArchives(in corruptedRoot: URL, fileManager: FileManager) {
-        do {
-            let directories = try fileManager.contentsOfDirectory(
-                at: corruptedRoot,
-                includingPropertiesForKeys: [.isDirectoryKey],
-                options: [.skipsHiddenFiles]
-            )
-            .filter { url in
-                (try? url.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true
-            }
-            .sorted { $0.lastPathComponent > $1.lastPathComponent }
-
-            for staleDirectory in directories.dropFirst(3) {
-                try fileManager.removeItem(at: staleDirectory)
-                SnapDrillLogger.data.warning(
-                    "⚠️ DataExecutor: 已清理旧损坏 store 隔离目录: \(staleDirectory.path)"
-                )
-            }
-        } catch {
-            SnapDrillLogger.data.error("DataExecutor: 清理损坏 store 隔离目录失败: \(error.localizedDescription)")
-        }
     }
 
     private static func storeIsolationTimestamp(date: Date = Date()) -> String {
