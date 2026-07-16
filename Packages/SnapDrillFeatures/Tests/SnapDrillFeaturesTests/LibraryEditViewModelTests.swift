@@ -225,6 +225,7 @@ final class LibraryEditViewModelTests {
             imageStorage: storage,
             photoDataLoader: { _ in await loader.load() }
         )
+        await ctx.vm.loadData()
 
         let loadTask = try #require(
             ctx.vm.loadAnswerPhoto(PhotosPickerItem(itemIdentifier: "pending-answer-photo"))
@@ -257,6 +258,7 @@ final class LibraryEditViewModelTests {
         let loader = SuspendedLibraryPhotoDataLoader(data: data)
         let ctx = try createVM(photoDataLoader: { _ in await loader.load() })
         var loadedImage: UIImage?
+        await ctx.vm.loadData()
 
         let loadTask = try #require(
             ctx.vm.loadQuestionPhoto(PhotosPickerItem(itemIdentifier: "pending-question-photo")) {
@@ -366,6 +368,7 @@ final class LibraryEditViewModelTests {
     @Test("save 更新 @Model 文本与答案属性")
     func save_updatesModelProperties() async throws {
         let ctx = try createVM()
+        await ctx.vm.loadData()
 
         ctx.vm.content = "修改后的内容"
         ctx.vm.answer = "修改后的答案"
@@ -396,6 +399,7 @@ final class LibraryEditViewModelTests {
     @Test("save 空内容且无图片时不保存")
     func save_emptyContentNoImage_noOp() async throws {
         let ctx = try createVM(content: "原始内容")
+        await ctx.vm.loadData()
         ctx.vm.content = ""
         ctx.vm.displayedImage = nil
 
@@ -407,6 +411,7 @@ final class LibraryEditViewModelTests {
     @Test("save 发送 reviewDataDidChange 通知")
     func save_postsNotification() async throws {
         let ctx = try createVM()
+        await ctx.vm.loadData()
         ctx.vm.content = "更新内容"
 
         var notificationReceived = false

@@ -44,17 +44,7 @@ public struct LibraryEditView: View {
     
     public var body: some View {
         NavigationStack {
-            Form {
-                if let vm = viewModel {
-                    imageSection(vm: vm)
-                    contentSection(vm: vm)
-                    answerSection(vm: vm)
-                    metadataSection(vm: vm)
-                } else {
-                    ProgressView()
-                }
-            }
-            .accessibilityIdentifier("library.edit.root")
+            editContent
             .navigationTitle(L10n.Library.editTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -81,12 +71,14 @@ public struct LibraryEditView: View {
                         }
                     }
                     .disabled(
-                        (viewModel?.isProcessing ?? false)
+                        viewModel?.metadataLoadState != .ready
+                            || (viewModel?.isProcessing ?? false)
                             || (viewModel?.isPhotoLoading ?? false)
                             || (viewModel?.isSaving ?? false)
                             || isSaveRequested
                             || cropperItem != nil
                     )
+                    .accessibilityIdentifier("library.edit.save")
                 }
             }
             .scrollDismissesKeyboard(.immediately)
@@ -134,6 +126,42 @@ public struct LibraryEditView: View {
                 }
             )
             .ignoresSafeArea()
+        }
+    }
+
+    @ViewBuilder
+    private var editContent: some View {
+        if let viewModel {
+            switch viewModel.metadataLoadState {
+            case .loading:
+                ProgressView(L10n.Common.loading)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityIdentifier("library.edit.metadataLoading")
+            case .failed:
+                ContentUnavailableView {
+                    Label(L10n.Errors.loadFailed, systemImage: "exclamationmark.triangle")
+                } description: {
+                    Text(L10n.Errors.tryAgainLater)
+                } actions: {
+                    Button(L10n.Common.retry) {
+                        Task { await viewModel.loadData() }
+                    }
+                    .accessibilityIdentifier("library.edit.metadataRetry")
+                }
+                .accessibilityIdentifier("library.edit.metadataError")
+            case .ready:
+                Form {
+                    imageSection(vm: viewModel)
+                    contentSection(vm: viewModel)
+                    answerSection(vm: viewModel)
+                    metadataSection(vm: viewModel)
+                }
+                .accessibilityIdentifier("library.edit.root")
+            }
+        } else {
+            ProgressView(L10n.Common.loading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityIdentifier("library.edit.metadataLoading")
         }
     }
     

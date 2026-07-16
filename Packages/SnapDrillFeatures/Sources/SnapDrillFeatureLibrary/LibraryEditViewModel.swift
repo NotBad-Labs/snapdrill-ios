@@ -21,6 +21,8 @@ public final class LibraryEditViewModel {
 
     // MARK: - State
 
+    enum MetadataLoadState: Equatable { case loading, ready, failed }
+
     /// 题目正文（`nil` 表示纯图片题）
     public var content: String
     /// 答案文本
@@ -33,6 +35,7 @@ public final class LibraryEditViewModel {
     public private(set) var valuesByDimension: [UUID: [CategoryValueModel]] = [:]
     /// 每维度的选中值（dimensionId → selected valueIds；编辑时从 item.categoryValues 初始化）
     public private(set) var selectedByDimension: [UUID: Set<UUID>] = [:]
+    private(set) var metadataLoadState: MetadataLoadState = .loading
 
     /// 当前显示的题目图片（新选择或原始图片）
     public var displayedImage: UIImage?
@@ -84,7 +87,9 @@ public final class LibraryEditViewModel {
     @ObservationIgnored
     private var answerPhotoLoadToken = UUID()
     @ObservationIgnored
-    private var hasLoadedDimensions = false
+    var metadataLoader: () throws -> [CategoryDimensionModel]
+    @ObservationIgnored
+    var initialImageLoader: (String) async -> UIImage?
 
     /// 创建题目编辑 ViewModel
     public init(
@@ -103,6 +108,8 @@ public final class LibraryEditViewModel {
         self.ocrService = ocrService
         self.activityTracker = activityTracker ?? AppActivityTracker.shared
         self.photoDataLoader = photoDataLoader
+        self.metadataLoader = { try repositories.dimension.fetchAllModels() }
+        self.initialImageLoader = { await imageStorage.loadImageAsync(path: $0) }
 
         self.content = item.content ?? ""
         self.answer = item.answerText ?? ""
@@ -111,16 +118,37 @@ public final class LibraryEditViewModel {
 
     // MARK: - Public API
 
-    /// 加载图片和维度元数据
+    /// 先原子加载维度元数据，再异步加载图片。
     public func loadData() async {
+        guard metadataLoadState != .ready else { return }
+        metadataLoadState = .loading
+        do {
+            let loadedDimensions = try metadataLoader()
+            let itemValues = item.categoryValues ?? []
+            var values: [UUID: [CategoryValueModel]] = [:]
+            var selected: [UUID: Set<UUID>] = [:]
+            for dimension in loadedDimensions {
+                values[dimension.id] = repositories.categoryValue.fetchAllModels(in: dimension)
+                selected[dimension.id] = Set(
+                    itemValues.filter { $0.dimension?.id == dimension.id }.map(\.id)
+                )
+            }
+            dimensions = loadedDimensions
+            valuesByDimension = values
+            selectedByDimension = selected
+            metadataLoadState = .ready
+        } catch {
+            metadataLoadState = .failed
+            SnapDrillLogger.generic.error("加载维度失败: \(error.localizedDescription)")
+            return
+        }
         await loadImagesIfNeeded()
-        loadDimensions()
     }
 
     /// 异步加载题目/答案图片（避免同步 I/O 阻塞主线程）
     private func loadImagesIfNeeded() async {
         if displayedImage == nil, let path = item.imagePath {
-            if let loaded = await imageStorage.loadImageAsync(path: path) {
+            if let loaded = await initialImageLoader(path) {
                 if displayedImage == nil {
                     displayedImage = loaded
                 }
@@ -129,33 +157,13 @@ public final class LibraryEditViewModel {
             }
         }
         if answerDisplayedImage == nil, !isAnswerImageCleared, let path = item.answerImagePath {
-            if let loaded = await imageStorage.loadImageAsync(path: path) {
+            if let loaded = await initialImageLoader(path) {
                 if answerDisplayedImage == nil, !isAnswerImageCleared {
                     answerDisplayedImage = loaded
                 }
             } else if answerDisplayedImage == nil, !isAnswerImageCleared {
                 answerImageLoadFailed = true
             }
-        }
-    }
-
-    /// 加载维度 + 值，并从 item.categoryValues 初始化选中态（按维度分组）
-    private func loadDimensions() {
-        guard !hasLoadedDimensions else { return }
-        do {
-            dimensions = try repositories.dimension.fetchAllModels()
-            let itemValues = item.categoryValues ?? []
-            var values: [UUID: [CategoryValueModel]] = [:]
-            var selected: [UUID: Set<UUID>] = [:]
-            for dim in dimensions {
-                values[dim.id] = repositories.categoryValue.fetchAllModels(in: dim)
-                selected[dim.id] = Set(itemValues.filter { $0.dimension?.id == dim.id }.map { $0.id })
-            }
-            valuesByDimension = values
-            selectedByDimension = selected
-            hasLoadedDimensions = true
-        } catch {
-            SnapDrillLogger.generic.error("加载维度失败: \(error.localizedDescription)")
         }
     }
 
@@ -329,6 +337,10 @@ public final class LibraryEditViewModel {
 
     /// 将当前编辑内容持久化到数据库
     public func save() async {
+        guard metadataLoadState == .ready else {
+            SnapDrillLogger.generic.warning("跳过元数据尚未就绪的资料保存。")
+            return
+        }
         guard !isSaving, !isPhotoLoading else { return }
         activityTracker.begin(.capturing)
         defer { activityTracker.end(.capturing) }
