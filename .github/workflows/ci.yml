@@ -7,6 +7,9 @@ on:
     branches: [ "develop", "main" ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   # PR pushes cancel stale same-ref runs; develop/main push and manual dispatch preserve signal.
   # This keeps the self-hosted queue short without hiding post-merge signal.
@@ -21,31 +24,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          persist-credentials: false
 
-      - name: Select Xcode
-        # Swift 6.3 toolchain 需要 Xcode 26.4+
+      - name: Verify checkout identity
         run: |
-          if [ -d "/Applications/Xcode_26.4.app" ]; then
-            sudo xcode-select -s /Applications/Xcode_26.4.app
-          fi
-          XCODE_VER=$(xcodebuild -version | head -1 | awk '{print $2}')
-          XCODE_MAJOR=$(echo "$XCODE_VER" | cut -d. -f1)
-          XCODE_MINOR=$(echo "$XCODE_VER" | cut -d. -f2)
-          if [ "$XCODE_MAJOR" -lt 26 ] || { [ "$XCODE_MAJOR" -eq 26 ] && [ "$XCODE_MINOR" -lt 4 ]; }; then
-            echo "ERROR: Xcode 26.4+ required（Swift 6.3 toolchain），当前 = $XCODE_VER"
+          if [ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]; then
+            echo "::error::Checkout HEAD does not match GITHUB_SHA"
             exit 1
           fi
-          xcodebuild -version
+          echo "Checkout identity: $GITHUB_SHA"
 
-      - name: Check SwiftLint
+      - name: Validate exact toolchain
         run: |
-          echo "$HOME/bin" >> $GITHUB_PATH
           export PATH="$HOME/bin:$PATH"
-          if ! which swiftlint > /dev/null; then
-            brew install swiftlint
-          fi
-          swiftlint version
+          printf '%s\n' "$HOME/bin" >> "$GITHUB_PATH"
+          python3 Scripts/ci_github.py toolchain \
+            --config Configs/Toolchain.env \
+            --github-env "$GITHUB_ENV"
 
       - name: Lint
         run: swiftlint --strict
@@ -87,74 +84,76 @@ jobs:
           fi
           echo "All package dependency directions are correct"
 
-      - name: Clean Simulator
-        # 清理模拟器残留 SwiftData schema，避免 ModelContainer 初始化死锁
+      - name: Resolve exact simulator
+        id: simulator
         run: |
-          DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone 17" | head -1 | grep -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}')
-          if [ -n "$DEVICE_ID" ]; then
-            xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
-            xcrun simctl erase "$DEVICE_ID"
-            echo "Simulator $DEVICE_ID erased"
-          fi
+          INVENTORY="$RUNNER_TEMP/snapdrill-simctl-${GITHUB_RUN_ID}-${GITHUB_JOB}.json"
+          xcrun simctl list devices available -j > "$INVENTORY"
+          python3 Scripts/ci_github.py simulator \
+            --inventory "$INVENTORY" \
+            --name "iPhone 17" \
+            --device-type "com.apple.CoreSimulator.SimDeviceType.iPhone-17" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Clean and boot exact simulator
+        env:
+          DEVICE_ID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
+          xcrun simctl erase "$DEVICE_ID"
+          xcrun simctl boot "$DEVICE_ID"
+          xcrun simctl bootstatus "$DEVICE_ID" -b
 
       - name: Validate test plan JSON
         run: |
           PLAN=SnapDrill.xcodeproj/xcshareddata/xctestplans/AllTests.xctestplan
           python3 -c "import json, sys; json.load(open('$PLAN'))" && echo "xctestplan JSON OK"
 
-      - name: Prime SPM cache (resilient)
-        # 大型 C++ 子模块（abseil / protobuf，经 Firebase 间接拉）clone 易断流/挂起：
-        # 短低速超时让 stall 快速 abort，重试解析灌入 workspace 外持久缓存（成功一次后跨 run 复用）
+      - name: Resolve package dependencies
         run: |
-          git config --global http.postBuffer 524288000
-          git config --global http.lowSpeedLimit 1000
-          git config --global http.lowSpeedTime 60
-          for i in 1 2 3 4 5 6; do
-            xcodebuild -resolvePackageDependencies \
-              -scheme AllTests \
-              -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill" && break
-            echo "::warning::SPM resolve attempt $i failed, retrying in 15s..."
-            sleep 15
-          done
-          # 最终校验：仍失败则整步失败，避免带半缓存进 build
           xcodebuild -resolvePackageDependencies \
             -scheme AllTests \
             -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill"
 
       - name: Build for testing
+        env:
+          DEVICE_ID: ${{ steps.simulator.outputs.udid }}
         run: |
           xcodebuild build-for-testing \
             -scheme AllTests \
             -testPlan AllTests \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -derivedDataPath "$GITHUB_WORKSPACE/DerivedData" \
             -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
 
-      - name: Test without building
+      - name: Resolve unique AllTests xctestrun
+        id: xctestrun
         run: |
-          rm -rf TestResults.xcresult
-          XCTESTRUN_PATH=$(find "$GITHUB_WORKSPACE/DerivedData/Build/Products" -name "AllTests_*.xctestrun" | head -1)
-          if [ -z "$XCTESTRUN_PATH" ] || [ ! -f "$XCTESTRUN_PATH" ]; then
-            echo "::error::xctestrun not found under DerivedData/Build/Products/AllTests_*.xctestrun"
-            ls -la "$GITHUB_WORKSPACE/DerivedData/Build/Products" || true
-            exit 1
-          fi
-          echo "Using xctestrun: $XCTESTRUN_PATH"
+          python3 Scripts/ci_github.py xctestrun \
+            --root "$GITHUB_WORKSPACE/DerivedData/Build/Products" \
+            --pattern 'AllTests_*.xctestrun' \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Test without building
+        env:
+          DEVICE_ID: ${{ steps.simulator.outputs.udid }}
+          XCTESTRUN_PATH: ${{ steps.xctestrun.outputs.path }}
+        run: |
+          rm -rf -- "$GITHUB_WORKSPACE/TestResults.xcresult"
           xcodebuild test-without-building \
             -xctestrun "$XCTESTRUN_PATH" \
             -only-test-configuration CI \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -parallel-testing-enabled NO \
-            -resultBundlePath TestResults.xcresult \
+            -resultBundlePath "$GITHUB_WORKSPACE/TestResults.xcresult" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
 
-      # 失败诊断：self-hosted runner 本地 DerivedData/TestResults.xcresult 已留存
-      # 直接 ssh 到 runner 查看即可，无需上传回 GitHub（曾耗尽 0.5GB Actions 存储配额）
+      # #922-B will move attempt evidence outside the checkout before later jobs/runs can clean it.
 
   ui-tests:
     name: UI Tests (develop only)
@@ -167,100 +166,91 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          persist-credentials: false
 
-      - name: Select Xcode
+      - name: Verify checkout identity
         run: |
-          if [ -d "/Applications/Xcode_26.4.app" ]; then
-            sudo xcode-select -s /Applications/Xcode_26.4.app
-          fi
-          xcodebuild -version
-
-      - name: Clean & boot simulator
-        # 清理残留 SwiftData schema + 预启动并等 SpringBoard 就绪：
-        # 单 runner 上 build job 刚跑完模拟器会话，紧接 UI 测试常撞 CoreSimulator "Busy"
-        # （FBSOpenApplicationErrorDomain Code=6 preflight 失败）→ 显式 boot + bootstatus -b
-        # 阻塞到设备完全就绪，消除 XCUITest runner 冷启动竞态；DEVICE_ID 传后续步骤复用
-        run: |
-          DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone 17" | head -1 | grep -oE '[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}')
-          if [ -z "$DEVICE_ID" ]; then
-            echo "::error::No available iPhone 17 simulator found"
+          if [ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]; then
+            echo "::error::Checkout HEAD does not match GITHUB_SHA"
             exit 1
           fi
+          echo "Checkout identity: $GITHUB_SHA"
+
+      - name: Validate exact toolchain
+        run: |
+          export PATH="$HOME/bin:$PATH"
+          printf '%s\n' "$HOME/bin" >> "$GITHUB_PATH"
+          python3 Scripts/ci_github.py toolchain \
+            --config Configs/Toolchain.env \
+            --github-env "$GITHUB_ENV"
+
+      - name: Resolve exact simulator
+        id: simulator
+        run: |
+          INVENTORY="$RUNNER_TEMP/snapdrill-simctl-${GITHUB_RUN_ID}-${GITHUB_JOB}.json"
+          xcrun simctl list devices available -j > "$INVENTORY"
+          python3 Scripts/ci_github.py simulator \
+            --inventory "$INVENTORY" \
+            --name "iPhone 17" \
+            --device-type "com.apple.CoreSimulator.SimDeviceType.iPhone-17" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Clean and boot exact simulator
+        env:
+          DEVICE_ID: ${{ steps.simulator.outputs.udid }}
+        run: |
           xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
           xcrun simctl erase "$DEVICE_ID"
-          echo "Simulator $DEVICE_ID erased; booting and waiting for ready..."
-          xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
+          xcrun simctl boot "$DEVICE_ID"
           xcrun simctl bootstatus "$DEVICE_ID" -b
-          echo "DEVICE_ID=$DEVICE_ID" >> "$GITHUB_ENV"
-          echo "Simulator $DEVICE_ID booted and ready"
 
       - name: Validate UI test plan JSON
         run: |
           PLAN=SnapDrill.xcodeproj/xcshareddata/xctestplans/UITests.xctestplan
           python3 -c "import json, sys; json.load(open('$PLAN'))" && echo "UITests xctestplan JSON OK"
 
-      - name: Prime SPM cache (resilient)
+      - name: Resolve package dependencies
         run: |
-          git config --global http.postBuffer 524288000
-          git config --global http.lowSpeedLimit 1000
-          git config --global http.lowSpeedTime 60
-          for i in 1 2 3 4 5 6; do
-            xcodebuild -resolvePackageDependencies \
-              -scheme SnapDrill \
-              -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill" && break
-            echo "::warning::SPM resolve attempt $i failed, retrying in 15s..."
-            sleep 15
-          done
           xcodebuild -resolvePackageDependencies \
             -scheme SnapDrill \
             -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill"
 
       - name: Build for testing (UI)
+        env:
+          DEVICE_ID: ${{ steps.simulator.outputs.udid }}
         run: |
           xcodebuild build-for-testing \
             -scheme SnapDrill \
             -testPlan UITests \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -derivedDataPath "$GITHUB_WORKSPACE/DerivedDataUI" \
             -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY=""
 
-      - name: Test without building (UI)
+      - name: Resolve unique UI xctestrun
+        id: xctestrun
         run: |
-          # 产物命名 = <scheme>_<testPlan>_*.xctestrun（实证：SnapDrill_UITests_*）
-          XCTESTRUN_PATH=$(find "$GITHUB_WORKSPACE/DerivedDataUI/Build/Products" -name "SnapDrill_UITests_*.xctestrun" | head -1)
-          if [ -z "$XCTESTRUN_PATH" ] || [ ! -f "$XCTESTRUN_PATH" ]; then
-            echo "::error::UI xctestrun not found under DerivedDataUI/Build/Products/SnapDrill_UITests_*.xctestrun"
-            ls -la "$GITHUB_WORKSPACE/DerivedDataUI/Build/Products" || true
-            exit 1
-          fi
-          echo "Using xctestrun: $XCTESTRUN_PATH on device $DEVICE_ID"
-          # XCUITest runner 启动偶发撞模拟器 "Busy"（preflight 失败）= 基建 flake 非测试失败；
-          # 重试最多 3 次，每次失败后重启模拟器并等就绪，吸收瞬态启动竞态
-          attempt=1
-          max=3
-          while :; do
-            rm -rf UITestResults.xcresult
-            xcodebuild test-without-building \
-              -xctestrun "$XCTESTRUN_PATH" \
-              -only-test-configuration CI \
-              -destination "platform=iOS Simulator,id=$DEVICE_ID" \
-              -parallel-testing-enabled NO \
-              -resultBundlePath UITestResults.xcresult \
-              CODE_SIGNING_ALLOWED=NO \
-              CODE_SIGNING_REQUIRED=NO \
-              CODE_SIGN_IDENTITY="" && break
-            if [ "$attempt" -ge "$max" ]; then
-              echo "::error::UI tests failed after $max attempts"
-              exit 65
-            fi
-            echo "::warning::UI test attempt $attempt failed (likely simulator launch flake), rebooting simulator and retrying..."
-            xcrun simctl shutdown "$DEVICE_ID" 2>/dev/null || true
-            xcrun simctl boot "$DEVICE_ID" 2>/dev/null || true
-            xcrun simctl bootstatus "$DEVICE_ID" -b || true
-            sleep 10
-            attempt=$((attempt+1))
-          done
+          python3 Scripts/ci_github.py xctestrun \
+            --root "$GITHUB_WORKSPACE/DerivedDataUI/Build/Products" \
+            --pattern 'SnapDrill_UITests_*.xctestrun' \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Test without building (UI)
+        env:
+          DEVICE_ID: ${{ steps.simulator.outputs.udid }}
+          XCTESTRUN_PATH: ${{ steps.xctestrun.outputs.path }}
+        run: |
+          rm -rf -- "$GITHUB_WORKSPACE/UITestResults.xcresult"
+          xcodebuild test-without-building \
+            -xctestrun "$XCTESTRUN_PATH" \
+            -only-test-configuration CI \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
+            -parallel-testing-enabled NO \
+            -resultBundlePath "$GITHUB_WORKSPACE/UITestResults.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
