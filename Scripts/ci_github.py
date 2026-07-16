@@ -17,11 +17,15 @@ TOOLCHAIN_KEYS = {
     "XCODE_VERSION",
     "XCODE_BUILD_VERSION",
     "SWIFTLINT_VERSION",
+    "SIMULATOR_RUNTIME_IDENTIFIER",
 }
 UUID_PATTERN = re.compile(
     r"[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}"
 )
 RUNTIME_PREFIX = "com.apple.CoreSimulator.SimRuntime."
+IOS_RUNTIME_PATTERN = re.compile(
+    rf"{re.escape(RUNTIME_PREFIX)}iOS-\d+(?:-\d+)+"
+)
 
 
 class ContractError(ValueError):
@@ -33,6 +37,7 @@ class Toolchain:
     xcode_version: str
     xcode_build_version: str
     swiftlint_version: str
+    simulator_runtime_identifier: str
 
 
 @dataclass(frozen=True)
@@ -75,11 +80,16 @@ def parse_toolchain(text: str) -> Toolchain:
         raise ContractError("XCODE_BUILD_VERSION must be alphanumeric")
     if re.fullmatch(r"\d+\.\d+\.\d+", values["SWIFTLINT_VERSION"]) is None:
         raise ContractError("SWIFTLINT_VERSION must be a semantic version")
+    if IOS_RUNTIME_PATTERN.fullmatch(values["SIMULATOR_RUNTIME_IDENTIFIER"]) is None:
+        raise ContractError(
+            "SIMULATOR_RUNTIME_IDENTIFIER must be a full iOS runtime identifier"
+        )
 
     return Toolchain(
         xcode_version=values["XCODE_VERSION"],
         xcode_build_version=values["XCODE_BUILD_VERSION"],
         swiftlint_version=values["SWIFTLINT_VERSION"],
+        simulator_runtime_identifier=values["SIMULATOR_RUNTIME_IDENTIFIER"],
     )
 
 
@@ -143,14 +153,19 @@ def select_simulator(
     *,
     exact_name: str,
     device_type_identifier: str,
+    runtime_identifier: str,
 ) -> Simulator:
     if not isinstance(inventory, dict) or not isinstance(inventory.get("devices"), dict):
         raise ContractError("simctl inventory must contain a devices object")
+    if IOS_RUNTIME_PATTERN.fullmatch(runtime_identifier) is None:
+        raise ContractError("expected simulator runtime must be a full iOS identifier")
 
     matches: list[Simulator] = []
-    for runtime_identifier, devices in inventory["devices"].items():
-        if not isinstance(runtime_identifier, str) or not isinstance(devices, list):
+    for candidate_runtime, devices in inventory["devices"].items():
+        if not isinstance(candidate_runtime, str) or not isinstance(devices, list):
             raise ContractError("simctl runtime entries must map identifiers to device arrays")
+        if candidate_runtime != runtime_identifier:
+            continue
         for device in devices:
             if not isinstance(device, dict):
                 raise ContractError("simctl device entries must be objects")
@@ -165,15 +180,13 @@ def select_simulator(
             state = device.get("state")
             if not isinstance(udid, str) or UUID_PATTERN.fullmatch(udid) is None:
                 raise ContractError(f"exact simulator {exact_name!r} has an invalid UDID")
-            if not runtime_identifier.startswith(RUNTIME_PREFIX):
-                raise ContractError(f"exact simulator {exact_name!r} has an invalid runtime")
             if not isinstance(state, str) or not state or "\n" in state:
                 raise ContractError(f"exact simulator {exact_name!r} has an invalid state")
             matches.append(
                 Simulator(
                     name=exact_name,
                     udid=udid,
-                    runtime_identifier=runtime_identifier,
+                    runtime_identifier=candidate_runtime,
                     device_type_identifier=device_type_identifier,
                     state=state,
                 )
@@ -181,7 +194,8 @@ def select_simulator(
 
     if len(matches) != 1:
         raise ContractError(
-            f"expected exactly one available {exact_name!r} ({device_type_identifier}), "
+            f"expected exactly one available {exact_name!r} ({device_type_identifier}) "
+            f"on {runtime_identifier}, "
             f"found {len(matches)}"
         )
     return matches[0]
@@ -216,9 +230,16 @@ def append_github_values(path: Path, values: Mapping[str, str]) -> None:
 
 def command_toolchain(arguments: argparse.Namespace) -> None:
     expected, developer_dir = validate_installed_toolchain(arguments.config)
-    append_github_values(arguments.github_env, {"DEVELOPER_DIR": developer_dir})
+    append_github_values(
+        arguments.github_env,
+        {
+            "DEVELOPER_DIR": developer_dir,
+            "SIMULATOR_RUNTIME_IDENTIFIER": expected.simulator_runtime_identifier,
+        },
+    )
     print(f"Xcode {expected.xcode_version} ({expected.xcode_build_version})")
     print(f"SwiftLint {expected.swiftlint_version}")
+    print(f"Simulator runtime: {expected.simulator_runtime_identifier}")
     print(f"Developer directory: {developer_dir}")
 
 
@@ -229,6 +250,7 @@ def command_simulator(arguments: argparse.Namespace) -> None:
         inventory,
         exact_name=arguments.name,
         device_type_identifier=arguments.device_type,
+        runtime_identifier=arguments.runtime,
     )
     append_github_values(
         arguments.github_output,
@@ -267,6 +289,7 @@ def build_parser() -> argparse.ArgumentParser:
     simulator.add_argument("--inventory", type=Path, required=True)
     simulator.add_argument("--name", required=True)
     simulator.add_argument("--device-type", required=True)
+    simulator.add_argument("--runtime", required=True)
     simulator.add_argument("--github-output", type=Path, required=True)
     simulator.set_defaults(handler=command_simulator)
 

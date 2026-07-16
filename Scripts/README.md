@@ -8,7 +8,7 @@
 |---|---|
 | `lint.sh` | 调用 SwiftLint strict；工具缺失时 fail closed |
 | `ci-local.sh` | canonical local source gate：精确工具身份 + lint/docs/static + AllTests CI build/test；要求 clean committed checkout |
-| `ci_github.py` | GitHub Actions fail-closed helper：精确工具身份、结构化 exact simulator 选择与唯一 `.xctestrun` |
+| `ci_github.py` | GitHub Actions fail-closed helper：精确工具 / runtime 身份、结构化 exact simulator 选择与唯一 `.xctestrun` |
 | `setup.sh` | 新开发者入职的一键环境配置（待完善） |
 | `pre-commit` | Git pre-commit hook（提交前自动检查） |
 | `generate_feature_status.py` | 由各 feature spec frontmatter 生成 `docs/reference/feature-status.md`（功能状态 SSOT；校验必填字段、枚举、日期格式与阻塞 issue；产物勿手改，pre-commit/CI 校验） |
@@ -27,4 +27,4 @@
 
 此目录不包含任何生产环境代码。
 
-`ci-local.sh` 与 GitHub Actions 的两个 job 均读取 [`../Configs/Toolchain.env`](../Configs/Toolchain.env) 的 Xcode / SwiftLint 身份。GitHub job 额外由 `ci_github.py` 要求唯一 exact iPhone 17（名称 + device type）和唯一 `.xctestrun`；本地 gate 仍只记录 name-based requested destination。两者均不覆盖 archive / install、隐私 / 网络或 Release candidate 证据。
+`ci-local.sh` 与 GitHub Actions 的两个 job 均读取 [`../Configs/Toolchain.env`](../Configs/Toolchain.env) 的 Xcode / SwiftLint 身份。GitHub job 额外消费 pinned simulator runtime，并由 `ci_github.py` 要求该 runtime 下唯一 exact iPhone 17（名称 + device type）和唯一 `.xctestrun`；本地 gate 仍只记录 name-based requested destination。两者均不覆盖 archive / install、隐私 / 网络或 Release candidate 证据。

@@ -23,7 +23,10 @@ WORKFLOW = REPO_ROOT / ".github/workflows/ci.yml"
 TOOLCHAIN = REPO_ROOT / "Configs/Toolchain.env"
 DEVICE_TYPE = "com.apple.CoreSimulator.SimDeviceType.iPhone-17"
 RUNTIME = "com.apple.CoreSimulator.SimRuntime.iOS-26-5"
+OTHER_RUNTIME = "com.apple.CoreSimulator.SimRuntime.iOS-26-4"
 EXACT_UDID = "11111111-2222-3333-4444-555555555555"
+TOOLCHAIN_TEXT = TOOLCHAIN.read_text(encoding="utf-8")
+EXPECTED_TOOLCHAIN = ci_github.parse_toolchain(TOOLCHAIN_TEXT)
 
 
 def simulator_device(
@@ -73,34 +76,40 @@ def simulator_inventory() -> dict[str, object]:
 
 class ToolchainContractTests(unittest.TestCase):
     def test_repository_toolchain_parses(self) -> None:
-        parsed = ci_github.parse_toolchain(TOOLCHAIN.read_text(encoding="utf-8"))
+        parsed = EXPECTED_TOOLCHAIN
 
         self.assertEqual(parsed.xcode_version, "26.6")
         self.assertEqual(parsed.xcode_build_version, "17F113")
         self.assertEqual(parsed.swiftlint_version, "0.63.2")
+        self.assertEqual(parsed.simulator_runtime_identifier, RUNTIME)
 
     def test_toolchain_parser_rejects_unknown_duplicate_and_shell_values(self) -> None:
         invalid_inputs = (
-            "XCODE_VERSION=26.6\nXCODE_BUILD_VERSION=17F113\n"
-            "SWIFTLINT_VERSION=0.63.2\nEXTRA=value\n",
-            "XCODE_VERSION=26.6\nXCODE_VERSION=26.5\n"
-            "XCODE_BUILD_VERSION=17F113\nSWIFTLINT_VERSION=0.63.2\n",
-            "XCODE_VERSION=$(whoami)\nXCODE_BUILD_VERSION=17F113\n"
-            "SWIFTLINT_VERSION=0.63.2\n",
+            TOOLCHAIN_TEXT + "EXTRA=value\n",
+            TOOLCHAIN_TEXT + "XCODE_VERSION=26.5\n",
+            TOOLCHAIN_TEXT.replace(
+                f"XCODE_VERSION={EXPECTED_TOOLCHAIN.xcode_version}",
+                "XCODE_VERSION=$(whoami)",
+            ),
+            TOOLCHAIN_TEXT.replace(RUNTIME, "com.apple.CoreSimulator.SimRuntime.latest"),
         )
         for text in invalid_inputs:
             with self.subTest(text=text), self.assertRaises(ci_github.ContractError):
                 ci_github.parse_toolchain(text)
 
     def test_toolchain_identity_requires_exact_two_line_xcode_and_swiftlint(self) -> None:
-        expected = ci_github.Toolchain("26.6", "17F113", "0.63.2")
-        ci_github.validate_toolchain(expected, "Xcode 26.6\nBuild version 17F113", "0.63.2")
+        expected = EXPECTED_TOOLCHAIN
+        exact_xcode = (
+            f"Xcode {expected.xcode_version}\n"
+            f"Build version {expected.xcode_build_version}"
+        )
+        ci_github.validate_toolchain(expected, exact_xcode, expected.swiftlint_version)
 
         invalid = (
-            ("Xcode 26.5\nBuild version 17F113", "0.63.2"),
-            ("Xcode 26.6\nBuild version WRONG", "0.63.2"),
-            ("Xcode 26.6\nBuild version 17F113\nextra", "0.63.2"),
-            ("Xcode 26.6\nBuild version 17F113", "0.64.0"),
+            ("Xcode 26.5\nBuild version 17F113", expected.swiftlint_version),
+            (f"Xcode {expected.xcode_version}\nBuild version WRONG", expected.swiftlint_version),
+            (exact_xcode + "\nextra", expected.swiftlint_version),
+            (exact_xcode, "0.64.0"),
         )
         for xcode_output, swiftlint_output in invalid:
             with self.subTest(
@@ -124,17 +133,17 @@ class ToolchainContractTests(unittest.TestCase):
             )
             self.write_executable(
                 bin_dir / "xcodebuild",
-                """
+                f"""
                 #!/bin/sh
                 [ "$DEVELOPER_DIR" = "/Applications/Xcode.app/Contents/Developer" ] || exit 9
-                printf 'Xcode 26.6\nBuild version 17F113\n'
+                printf 'Xcode {EXPECTED_TOOLCHAIN.xcode_version}\nBuild version {EXPECTED_TOOLCHAIN.xcode_build_version}\n'
                 """,
             )
             self.write_executable(
                 bin_dir / "swiftlint",
-                """
+                f"""
                 #!/bin/sh
-                printf '%s\n' '0.63.2'
+                printf '%s\n' '{EXPECTED_TOOLCHAIN.swiftlint_version}'
                 """,
             )
             github_env = root / "github-env"
@@ -158,10 +167,16 @@ class ToolchainContractTests(unittest.TestCase):
             )
 
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertIn("Xcode 26.6 (17F113)", result.stdout)
+            self.assertIn(
+                f"Xcode {EXPECTED_TOOLCHAIN.xcode_version} "
+                f"({EXPECTED_TOOLCHAIN.xcode_build_version})",
+                result.stdout,
+            )
+            self.assertIn(f"Simulator runtime: {RUNTIME}", result.stdout)
             self.assertEqual(
                 github_env.read_text(encoding="utf-8"),
-                "DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer\n",
+                "DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer\n"
+                f"SIMULATOR_RUNTIME_IDENTIFIER={RUNTIME}\n",
             )
 
     def test_toolchain_cli_fails_when_required_tool_is_missing(self) -> None:
@@ -175,7 +190,9 @@ class ToolchainContractTests(unittest.TestCase):
             )
             self.write_executable(
                 bin_dir / "xcodebuild",
-                "#!/bin/sh\nprintf 'Xcode 26.6\\nBuild version 17F113\\n'\n",
+                "#!/bin/sh\n"
+                f"printf 'Xcode {EXPECTED_TOOLCHAIN.xcode_version}\\n"
+                f"Build version {EXPECTED_TOOLCHAIN.xcode_build_version}\\n'\n",
             )
             environment = os.environ.copy()
             environment["PATH"] = str(bin_dir)
@@ -206,11 +223,25 @@ class ToolchainContractTests(unittest.TestCase):
 
 
 class SimulatorContractTests(unittest.TestCase):
-    def test_exact_device_wins_even_when_variants_are_listed_first(self) -> None:
+    def test_exact_device_and_runtime_win_when_variants_and_other_runtime_precede(self) -> None:
+        expected_runtime_devices = simulator_inventory()["devices"][RUNTIME]  # type: ignore[index]
+        inventory = {
+            "devices": {
+                OTHER_RUNTIME: [
+                    simulator_device(
+                        "iPhone 17",
+                        "22222222-3333-4444-5555-666666666666",
+                        device_type=DEVICE_TYPE,
+                    )
+                ],
+                RUNTIME: expected_runtime_devices,
+            }
+        }
         selected = ci_github.select_simulator(
-            simulator_inventory(),
+            inventory,
             exact_name="iPhone 17",
             device_type_identifier=DEVICE_TYPE,
+            runtime_identifier=RUNTIME,
         )
 
         self.assertEqual(selected.udid, EXACT_UDID)
@@ -225,13 +256,13 @@ class SimulatorContractTests(unittest.TestCase):
         cases["missing"] = missing
 
         duplicate = simulator_inventory()
-        duplicate["devices"]["com.apple.CoreSimulator.SimRuntime.iOS-26-4"] = [  # type: ignore[index]
+        duplicate["devices"][RUNTIME].append(  # type: ignore[index]
             simulator_device(
                 "iPhone 17",
                 "22222222-3333-4444-5555-666666666666",
                 device_type=DEVICE_TYPE,
             )
-        ]
+        )
         cases["duplicate"] = duplicate
 
         wrong_type = simulator_inventory()
@@ -250,6 +281,7 @@ class SimulatorContractTests(unittest.TestCase):
                     inventory,
                     exact_name="iPhone 17",
                     device_type_identifier=DEVICE_TYPE,
+                    runtime_identifier=RUNTIME,
                 )
 
     def test_malformed_inventory_and_exact_device_fields_fail_closed(self) -> None:
@@ -268,7 +300,16 @@ class SimulatorContractTests(unittest.TestCase):
                     inventory,
                     exact_name="iPhone 17",
                     device_type_identifier=DEVICE_TYPE,
+                    runtime_identifier=RUNTIME,
                 )
+
+        with self.assertRaises(ci_github.ContractError):
+            ci_github.select_simulator(
+                simulator_inventory(),
+                exact_name="iPhone 17",
+                device_type_identifier=DEVICE_TYPE,
+                runtime_identifier="iOS latest",
+            )
 
     def test_simulator_cli_writes_step_scoped_outputs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -288,6 +329,8 @@ class SimulatorContractTests(unittest.TestCase):
                     "iPhone 17",
                     "--device-type",
                     DEVICE_TYPE,
+                    "--runtime",
+                    RUNTIME,
                     "--github-output",
                     str(output),
                 ],
@@ -338,6 +381,12 @@ class WorkflowContractTests(unittest.TestCase):
         jobs = self.workflow.split("  build:\n", maxsplit=1)[1]
         self.build, self.ui = jobs.split("  ui-tests:\n", maxsplit=1)
 
+    @staticmethod
+    def step_body(job: str, name: str) -> str:
+        marker = f"      - name: {name}\n"
+        body = job.split(marker, maxsplit=1)[1]
+        return body.split("\n      - name: ", maxsplit=1)[0]
+
     def test_checkout_is_pinned_read_only_and_drops_credentials(self) -> None:
         checkout = "actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd"
         checkout_count = self.workflow.count("uses: actions/checkout@")
@@ -360,6 +409,7 @@ class WorkflowContractTests(unittest.TestCase):
                     'xcrun simctl list devices available -j > "$INVENTORY"',
                     job,
                 )
+                self.assertIn('--runtime "$SIMULATOR_RUNTIME_IDENTIFIER"', job)
                 self.assertIn("id: simulator", job)
                 self.assertGreaterEqual(
                     job.count("DEVICE_ID: ${{ steps.simulator.outputs.udid }}"),
@@ -368,12 +418,20 @@ class WorkflowContractTests(unittest.TestCase):
                 self.assertIn('platform=iOS Simulator,id=$DEVICE_ID', job)
 
     def test_workflow_has_one_resolve_and_one_test_per_job_without_generic_retry(self) -> None:
-        for job in (self.build, self.ui):
-            with self.subTest(job=job[:30]):
+        jobs = (
+            (self.build, "Test without building"),
+            (self.ui, "Test without building (UI)"),
+        )
+        for job, step_name in jobs:
+            with self.subTest(job=step_name):
                 self.assertEqual(job.count("-resolvePackageDependencies"), 1)
                 self.assertEqual(job.count("test-without-building"), 1)
                 self.assertIn("python3 Scripts/ci_github.py xctestrun", job)
                 self.assertIn("steps.xctestrun.outputs.path", job)
+                test_step = self.step_body(job, step_name)
+                self.assertNotRegex(test_step, r"(?m)^\s*(?:for|while|until)\b")
+                self.assertNotIn("&& break", test_step)
+                self.assertNotIn("sleep ", test_step)
 
         forbidden = (
             "head -1",
@@ -385,6 +443,7 @@ class WorkflowContractTests(unittest.TestCase):
             "UI test attempt",
             "likely simulator launch flake",
             "xcpretty",
+            "continue-on-error",
         )
         for text in forbidden:
             with self.subTest(text=text):

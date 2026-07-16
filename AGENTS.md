@@ -69,7 +69,7 @@ xcodebuild build-for-testing \
 **重要**：
 - `swift test` 不可用（SPM 仅声明 iOS 平台，macOS 跑会 SIGTRAP）
 - `SnapDrill` scheme 不含 SPM 包测试；必须用 `AllTests` scheme + `AllTests` testPlan
-- 本地 canonical source gate 与 GitHub Actions 两个 job 均消费 `Configs/Toolchain.env` 固定的精确工具身份：Xcode 26.6 (`17F113`) + SwiftLint 0.63.2
+- 本地 canonical source gate 与 GitHub Actions 两个 job 均消费 `Configs/Toolchain.env` 固定的精确工具身份：Xcode 26.6 (`17F113`) + SwiftLint 0.63.2；GitHub job 另固定 simulator runtime iOS 26.5
 - `ci-local.sh` 跑 lint、docs/static gates、AllTests 的 CI build 与实际 tests；不覆盖 app XCUITest / AX、archive / install、隐私 / 网络或候选发布证据
 - 当前真机为 iPhone 17
 - 版本号单一来源：`Configs/Shared.xcconfig`（`MARKETING_VERSION` + `CURRENT_PROJECT_VERSION`）

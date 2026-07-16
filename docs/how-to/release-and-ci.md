@@ -58,9 +58,9 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
 
 【build job 步骤】
   1. Checkout（actions/checkout v5 固定完整 SHA；contents:read；不保留凭据）并验证 HEAD == GITHUB_SHA
-  2. 从 Configs/Toolchain.env 精确校验 Xcode 版本/build 与 SwiftLint；缺失或不匹配 fail closed
+  2. 从 Configs/Toolchain.env 精确校验 Xcode 版本/build、SwiftLint 与预期 simulator runtime；缺失或不匹配 fail closed
   3. Lint、脚本/文档门禁与依赖方向检查
-  4. 从 simctl JSON 按名称 + device type 唯一选择 exact iPhone 17，记录 UDID/runtime；零个或多个均失败
+  4. 从 simctl JSON 在 pinned runtime 内按名称 + device type 唯一选择 exact iPhone 17，记录 UDID/runtime；零个或多个均失败
   5. 用该 UDID clean/boot，并校验 AllTests.xctestplan JSON
   6. 单次 resolve package dependencies（失败不自动重试）
   7. xcodebuild build-for-testing -scheme AllTests -testPlan AllTests
@@ -92,8 +92,9 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
 
 注：
 - **门禁 build job** 跑 `AllTests.xctestplan` 的 CI configuration，含 5 个 test target（SnapDrillCoreTests / SnapDrillDataTests / SnapDrillFeaturesTests / SnapDrillShareTests + 包级 SnapDrillUITests 单元烟雾测试）。
-- **ui-tests job** 跑独立 `UITests.xctestplan` 的完整 app 级 `SnapDrillUITests`。它刻意不进每-PR 门禁；当前实测约 28 分钟，仅 develop 合并或手动 `workflow_dispatch` 时跑，`needs: build` 保证 source gate 先过。更细的 targeted/nightly/candidate cadence 由 #933 定义。
+- **ui-tests job** 跑独立 `UITests.xctestplan` 的完整 app 级 `SnapDrillUITests`。它刻意不进每-PR 门禁；2026-07-16 的 [develop run 29464280148](https://github.com/NotBad-Labs/snapdrill-ios/actions/runs/29464280148) 与 [manual run 29466417966](https://github.com/NotBad-Labs/snapdrill-ios/actions/runs/29466417966) 分别约 28.5 / 29 分钟，仅 develop 合并或手动 `workflow_dispatch` 时跑，`needs: build` 保证 source gate 先过。更细的 targeted/nightly/candidate cadence 由 #933 定义。
 - 两个 job 各自选择并绑定本 job 的唯一 simulator；这不声称在未来多 runner 环境中跨 job 使用同一设备。结构化 helper 记录 runtime identifier，但 Release candidate 的 runtime/device matrix 仍由候选证据门禁负责。
+- `pull_request` 事件中的 `GITHUB_SHA` 是 GitHub 生成的 `refs/pull/<n>/merge` 临时 merge commit，不是 PR head；push / manual dispatch 则是触发 ref 的 commit。日志中的 checkout identity 只按对应事件语义解释，临时 merge SHA 不能代替长期候选证据。
 - `test-without-building` 复用本 job 的 `build-for-testing` 产物。generic UI retry 已删除：任何产品断言、crash 或基础设施失败都保持红色，不会被后续成功覆盖。
 - **当前残留**：DerivedData / xcresult 仍位于 checkout，后续 job 或 run 可能清理，不能称为 durable failure evidence；#922-B 负责 checkout 外 run/job/attempt 路径、保留窗口和安全清理。GitHub artifact 上传仍停用，避免再次耗尽 Actions 存储配额。
 - `SnapshotRecord` configuration 仅本地显式重录 baseline 使用，不参与 CI。
