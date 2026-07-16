@@ -1,11 +1,11 @@
 ---
 id: feat-profile
 title: 单一本地资料库（Multi-Profile 退场）
-status: in-progress # 实证链：develop 仍是 Multi-Profile，Draft PR #868 尚未获合并授权
+status: in-progress # 实证链：develop 仍是 Multi-Profile；#868 已关闭，需从最新 develop 分片收敛
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-15
+last_updated: 2026-07-16
 intent_refs:
   - vision:P2
   - vision:P4
@@ -15,9 +15,9 @@ intent_refs:
 
 # Feature: 单一本地资料库（Multi-Profile 退场）
 
-> **产品重基线（2026-07-14）**：Product Constitution v1 的 B5-A 已批准用户只看到一个资料库，并在无外部证据前不规划 Workspace / Profile。frontmatter `status: in-progress` 表示当前 `develop` 仍有 Multi-Profile 实现、Draft PR #868 是待重审候选；它不代表该 PR 已获合并授权。
+> **产品重基线（2026-07-14）**：Product Constitution v1 的 B5-A 已批准用户只看到一个资料库，并在无外部证据前不规划 Workspace / Profile。frontmatter `status: in-progress` 表示当前 `develop` 仍有 Multi-Profile 实现；已关闭的 #868 只保留为历史实现与风险证据，不是恢复、重开或合并路径。
 >
-> Release 1 Contract DATA-1 已固定过渡边界：仅 PO 的 epoch 前开发数据 / v1-v2 备份无需迁移；任何非 PO 下载资格触发兼容 epoch；对外 wire 必须 Profile-free。[Local Library Data Contract](../../reference/local-library-data-contract.md) 固定路径、inventory、恢复 journal 与 Profile-free runtime 边界；外部 DDL 仍由 Backup Wire Contract 单独获批。合同生效不授权 #868 或代码实现。
+> Release 1 Contract DATA-1 已固定过渡边界：仅 PO 的 epoch 前开发数据 / v1-v2 备份无需迁移；任何非 PO 下载资格触发兼容 epoch；对外 wire 必须 Profile-free。[Local Library Data Contract](../../reference/local-library-data-contract.md) 固定路径、inventory、恢复 journal 与 Profile-free runtime 边界；外部 DDL 仍由 Backup Wire Contract 单独获批。合同生效不自动授权任何代码实现或合并。
 
 ## 1. 为什么做 (Why)
 
@@ -38,8 +38,8 @@ intent_refs:
 ## 3. 当前实现与候选 (How)
 
 - 当前 `develop` 仍由 `ProfileManager` 管理多个 SwiftData container、图片目录和 per-profile preferences；Profile 创建 / 切换 / 删除入口仍存在。这些是实证事实，也是待移除的复杂度，不是产品依据。
-- Draft PR #868 是单资料库实现候选。Product Constitution 合入后仍须依据 Release 1 Product Contract 和 Data Contract 重新审查其 scope、wire 兼容、安全测试与 UI 清理，运维窗口只有在 PO 单独授权后才能合并。
-- 在上述两个 Data Contract 与实现授权前，不应为了迎合 #868 而修改 backup schema、golden fixtures、MigrationPlan 或恢复安全保证。
+- #868 已关闭且与当前基线冲突，只保留为影响分析和测试思路的历史证据。生产收敛必须从最新 `develop` 出发，按当前 Product / Release / Data Contract 拆成可验证的小切片。
+- 在精确 Backup Wire Contract 与对应实现授权前，不应从 #868 搬运 backup schema、golden fixtures、MigrationPlan 或恢复策略。
 
 ## 4. 验证标准 (Verify)
 
@@ -91,6 +91,6 @@ Release 1 的产品验收如下；备份 / 恢复技术 oracle 由 DATA-1 下游
 - Product Constitution：`../../explanations/vision.md`
 - 当前实现状态：`../../reference/feature-status.md`
 - 代表旅程：`../../explanations/user-journeys.md`（旅程 4：单资料库管理多个主题）
-- 候选实现：Draft PR #868（等待 contract 重审与 PO 单独合并授权）
+- 历史实现证据：已关闭 PR #868（不得重开、rebase 或合并）
 - 数据出口：`feat-backup.md`、`feat-export.md`
 - 本地数据契约：`../../reference/local-library-data-contract.md`

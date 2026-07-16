@@ -17,7 +17,7 @@ intent_refs:
 
 > **产品重基线（2026-07-15）**：Release 1 用户可见面隐藏 Profile 管理、昵称、头像、座右铭以及 Review 目标、排序、外观和提醒 / 通知；同时隐藏 Pro、CloudKit、Word 等不可用升级界面。语言与 App 外观是真实通用设置。D5-A 将主要破坏性操作固定为“清空资料库 / Clear Library”，不是 App factory reset。frontmatter 与技术章节仍记录当前实现，不能把已有身份或 Review 设置反推为获准范围。
 
-> 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / 技术文档聚合（docs 重组 B）。
 

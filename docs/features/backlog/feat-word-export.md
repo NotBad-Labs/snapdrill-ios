@@ -13,7 +13,7 @@ intent_refs:
 
 # Feature: Word 导出（候选，商业分层未定）
 
-> 人读摘要：📋 候选 backlog，产品范围与商业分层未定；旧 #486 不能自行授权实现。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要：📋 候选 backlog，产品范围与商业分层未定；旧 #486 不能自行授权实现。派生自上方 frontmatter；frontmatter 仅是本功能候选实现状态的单一来源，不构成产品批准或发布承诺。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 requirements / business 聚合（docs 重组 B）。`mode: lightweight`（backlog）——仅 Why + What 必填，How / Verify 待实现补，不为未实现功能编造假设计。
 >

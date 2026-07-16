@@ -29,7 +29,7 @@ Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在�
 3. Dashboard-default 已由 C3 固定，但卡片与五 Tab 未获批准；Review / SmartPaper 只允许 C4-D / C5-E 的非公开实验，现有公开可达性只是实现偏差。
 4. 不新增 Pro、StoreKit、CloudKit、Word、付费配额、iPad 或中国大陆专项发行工作。
 5. 安全、数据完整性、CI 可靠性和不改变产品范围的缺陷修复仍可按 DoR 独立 shaping。
-6. Draft PR #868 作为单资料库候选实现与风险证据保持冻结；它须遵守 [Local Library Data Contract](local-library-data-contract.md)，并等待精确 Backup v3 Wire 与 S0 / S1 前置后重审。
+6. 已关闭的 PR #868 只保留为单资料库影响与风险证据，不再重开、rebase 或合并；生产收敛从最新 `develop` 按 [Local Library Data Contract](local-library-data-contract.md)、精确 Backup v3 Wire 与 S0 / S1 优先级拆分。
 
 ## 能力簇状态
 
@@ -44,7 +44,7 @@ Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在�
 | Dashboard | Release 1 普通启动默认任务枢纽；当前实现只作差距证据 | 独立实现刀隐藏 Profile / Pro / analytics / Review hero，补一步 Capture / Library 与启动 oracle |
 | Review | 仅 `po-only` / `research` 的 Library 单入口实验；公开隐藏 | 先做隐藏 / 负向门禁；实验实现与 cohort 另行授权 |
 | SmartPaper | 仅 `po-only` / `research` 的 Library 单入口实验；公开隐藏、可见即无配额 / Pro | 对齐 C5-S1 无权重不重复 selector；实验实现另行授权 |
-| Multi-Profile | 当前代码已实现，但产品目标已退休 | 按 Local Library Data Contract 与精确 wire 前置重审 #868 |
+| Multi-Profile | 当前代码已实现，但产品目标已退休 | 按 Local Library Data Contract、精确 wire 和当前风险顺序从最新 `develop` 分片退场 |
 | Apple 私有同步 | 候选假设 | 外部证据 + 新 Product / Data / Privacy contract |
 | Word、高级统计、图片增强 | 候选增值方向 | 外部证据 + 新商业裁决，不进入当前 Release 1 |
 | iPad | 已退出当前范围 | 新平台立项、UI / AX / 截图 / 发布证据 |

@@ -72,6 +72,7 @@ python3 -m unittest discover -s Scripts/tests
 python3 Scripts/generate_feature_status.py --check
 python3 Scripts/generate_intent_traceability.py --check
 python3 Scripts/test_doc_generators.py
+python3 Scripts/validate_document_control.py --check
 python3 Scripts/validate_docs.py --check
 python3 Scripts/validate_capture_contract.py --check
 

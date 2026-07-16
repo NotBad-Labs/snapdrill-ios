@@ -105,6 +105,7 @@ bash Scripts/ci-local.sh
 验证重量服从 `parallel-lanes.md` 的 T0-T4。最低要求：
 
 - T0 文档：`git diff --check`；涉及 docs 时运行
+  `python3 Scripts/validate_document_control.py --check` 与
   `python3 Scripts/validate_docs.py --check`；生成索引按 owner generator `--check`。
 - 进入编译产物的任何改动至少 T2；用户交互至少 T3；Core / Data / 存储 / 隐私 / wire /
   migration / release 至少 T4。
@@ -127,7 +128,7 @@ bash Scripts/ci-local.sh
 | CI、签名、TestFlight 与发布 | `docs/how-to/release-and-ci.md` + `Configs/Toolchain.env` |
 | 本地 hooks 与脚本行为 | tracked `Scripts/pre-commit` + `Scripts/hooks/pre-push` + owning script tests |
 | 隐私、平台与 NFR | `docs/explanations/privacy-compliance.md` + `docs/reference/apple-platform-limits.md` + `docs/reference/non-functional-requirements.md` |
-| 文档结构、生成状态和意图索引 | `docs/README.md` |
+| 文档角色 / 生命周期、生成状态和意图索引 | `docs/reference/document-control.md` + `docs/README.md` |
 
 私有记忆只是可丢弃缓存。项目 Skill 只封装重复工作流，运行时必须读取 live SSOT；不得复制
 产品基线、架构快照、角色品牌或发布状态。Agent 控制面若改变权威、PO gate、数据安全、

@@ -1,47 +1,46 @@
 ---
 name: snapdrill-release-readiness
-description: SnapDrill 发布就绪检查的薄执行层。当用户要求"发版前检查"、"发布就绪"、"release readiness"、"能不能发版"、"TestFlight 前检查"、"隐私一致性核对"、"跑一遍发版检查清单"、"发布前验证"时触发。执行工程门禁验证、隐私技术事实核对与发布就绪状态汇总，输出五态结果（通过/失败/未验证/外部阻塞/需要 PO 裁决）。只检查与报告，不执行 push、merge、TestFlight 上传、提交审核或发布。法律充分性与政策措辞问题不在本 skill 范围（路由 notbad-legal-counsel / Antigravity / PO）。
+description: SnapDrill 发布就绪检查的薄执行层。当用户要求"发版前检查"、"发布就绪"、"release readiness"、"能不能发版"、"TestFlight 前检查"、"隐私一致性核对"、"跑一遍发版检查清单"、"发布前验证"时触发。执行工程门禁验证、隐私技术事实核对与发布就绪状态汇总，输出五态结果（通过/失败/未验证/外部阻塞/需要 PO 裁决）。只检查与报告，不执行 push、merge、TestFlight 上传、提交审核或发布。法律充分性与政策措辞问题不在本 skill 范围，路由 PO / legal owner。
 ---
 
 # SnapDrill 发布就绪检查（薄执行层）
 
-## 唯一事实源
+## 权威与执行入口
 
-`docs/how-to/release-and-ci.md` 是发布流程、发版检查清单、监控与责任分工的唯一事实源。本 skill 只是它的执行层，不是第二份发布文档：
+`docs/how-to/release-and-ci.md` 是当前发布操作流程的 owner。本 skill 只是薄执行层，不是产品
+权威、发布状态快照或第二份检查清单：
 
-1. **每次运行的第一步**：完整读取 live checkout 的 `docs/how-to/release-and-ci.md`（含其中的发版检查清单与文档健康检查），以当次读取的内容为准执行。
+1. **每次运行的第一步**：完整读取 live checkout 的 `AGENTS.md`、
+   `docs/reference/document-control.md` 和 `docs/how-to/release-and-ci.md`。
 2. 本文件**不记载任何易变事实**：版本号、Build 号、Team ID、Bundle ID、依赖清单、服务数量、检查清单条目、当前发布状态，一律以当次读取的文档与 live 代码实证为准。
-3. 冲突裁决优先级（高 → 低）：**PO 最新明确决策 > live 代码、构建与运行实证 > `README.md` / `AGENTS.md` / `docs/how-to/parallel-lanes.md` > `release-and-ci.md` > 本 skill / 私有 Memory**。`release-and-ci.md` 是发布流程与检查清单**内容**的事实源（查流程读它），但在冲突裁决中**不得覆盖 AGENTS.md 的工程铁律**。发现任何冲突：按上述优先级执行，并在报告中提出修正低位文档或本 skill。
+3. **规范链**回答“应该发布什么”：effective Product Constitution -> Release Product Contract ->
+   owning feature / data / privacy contract。**实证链**回答“当前构建是什么”：live code、测试、
+   archive、设备与 ASC 证据。两条链不一致时标记 release gap；不得用当前代码反向改写产品规范。
+4. `AGENTS.md` 与本 skill 属于 `operations/current`，只路由执行。私有 Memory、历史审计和旧
+   UI 合同不能覆盖 live authority。
 
 ## 执行流程
 
 ### 第 0 步：对齐基线
 
 - 读 `docs/how-to/release-and-ci.md` 全文。
-- 读 `AGENTS.md` §构建命令 与 §改代码后的 DoD（用于命令比对；冲突按 §唯一事实源 的优先级裁决——AGENTS.md 工程铁律高于 release-and-ci.md）。
+- 按 `AGENTS.md` §3 和 `docs/how-to/parallel-lanes.md` 做 T0，并核对 document registry 中所读
+  文件的角色 / 生命周期。
 - 记录 git 基线：HEAD、当前分支、与 `origin/develop` 的 ahead/behind、工作树是否 clean。
 - 从 `Configs/Shared.xcconfig` 读取当前 `MARKETING_VERSION` 与 `CURRENT_PROJECT_VERSION`，只读取上报；目标版本号是否正确递增属于"需要 PO 裁决"，除非 PO 已在本次会话给出目标。
 
 ### 第 1 步：工程门禁（本地可实证）
 
-下列命令是 `AGENTS.md` DoD 的转录；与当次读取的文档不一致时按 §唯一事实源 的优先级裁决，并在报告中提出修正本文件：
+对 clean committed candidate 运行 canonical local source gate：
 
 ```bash
-swiftlint --strict
-xcodebuild build-for-testing -scheme AllTests \
-  -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests
+bash Scripts/ci-local.sh
 ```
 
-环境允许时继续跑单测——具体命令以当次读取的 `release-and-ci.md` §CI/CD（build job 的 `test-without-building` 步骤）为准，不在本文件转录。
-
-另跑文档/状态校验：
-
-```bash
-python3 Scripts/generate_feature_status.py --check
-git diff --check
-```
-
-任一失败即整体"失败"并立即如实上报；修复属于另一项工作（见边界节），不带病汇总。
+该 gate 已包含 SwiftLint、文档 / 脚本门禁、依赖检查、AllTests build 与 test-without-building。
+若 checkout 不满足其 clean committed 前提，不得把局部命令冒充完整 source gate；应标“未验证”
+并说明可复现条件。UI / AX、archive、安装、网络 / 隐私与 ASC 证据继续按 release guide 补齐。
+任一必需 gate 失败即整体“失败”；修复属于另一项工作，不带病汇总。
 
 ### 第 2 步：隐私技术事实核对（live 实证，不凭记忆）
 
@@ -56,7 +55,7 @@ git diff --check
 
 发现声明与代码行为不一致：**一律先阻止发布**，再按性质分流——
 
-- **纯技术事实类**（依赖清单漂移、Privacy Manifest 与实际 API 使用不符、陈旧工程文档、声明落后于代码的事实错误）：Claude 作为隐私技术事实 DRI **自主修正或提出工程修复**，按 `parallel-lanes.md` worktree 纪律另行进行，不在本次检查运行内改；报告中记录修复项与去向。
+- **纯技术事实类**（依赖清单漂移、Privacy Manifest 与实际 API 使用不符、陈旧工程文档、声明落后于代码的事实错误）：记录可复现证据，交由当次 shaping 指定的 owning lane 另开 bounded fix；本次检查不顺手修改。
 - **产品语义 / 法律风险取舍 / 公开政策策略类**（是否对外声明某数据流、政策口径的取向、披露策略）：标"需要 PO 裁决"。
 
 ### 第 3 步：清单分诊
@@ -65,7 +64,8 @@ git diff --check
 
 - **本地可验证**：立即执行并记录证据；无法执行的标"未验证"并写明原因。
 - **需真机/人工操作**：标"未验证"，写明执行人与所需环境。
-- **归属其他 lane 或 PO**：标"外部阻塞"，写明等待谁、等待什么。归属判定按当次读取的 `release-and-ci.md` §发布就绪责任 与 `docs/how-to/parallel-lanes.md` §3，本文件不转录分工表。
+- **归属其他 lane 或 PO**：标"外部阻塞"，写明等待的角色、证据或裁决。模型品牌不永久拥有
+  结果，归属以当次 shaping 与 `parallel-lanes.md` 为准。
 
 ### 第 4 步：汇总报告
 
@@ -76,7 +76,7 @@ git diff --check
 | 通过 | 本次实际执行且有证据 |
 | 失败 | 本次实际执行且不满足，附失败输出与影响 |
 | 未验证 | 本次未执行（写明原因与执行条件），不得冒充通过 |
-| 外部阻塞 | 等待 Codex / Antigravity / 外部系统，写明等待对象 |
+| 外部阻塞 | 等待 owning lane、外部系统或缺失环境，写明等待对象 |
 | 需要 PO 裁决 | 产品语义、风险取舍、版本目标、声明 vs 代码的取向 |
 
 结尾固定给出单行总结论：**当前是否发布就绪 + 最短阻塞路径**。

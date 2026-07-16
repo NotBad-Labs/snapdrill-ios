@@ -1,5 +1,7 @@
 # Phase 01 Results: History, CI and Rework
 
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+
 ## Outcome
 
 Phase 01 在固定 `develop@d62fead8` 上冻结 GitHub 与 Git 历史，分别审查 issue / PR 生命周期、Actions 失败和文件 churn。Claude Fable 执行 6 个独立 evidence slice；Antigravity 与 Grok 作异构挑战；Codex C1 重新计算关键数字并抽查 GitHub job / failed log。

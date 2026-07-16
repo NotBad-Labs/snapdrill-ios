@@ -21,7 +21,7 @@ FEATURES_DIR = DOCS_ROOT / "features"
 OUTPUT = DOCS_ROOT / "reference" / "intent-traceability.md"
 
 STATUS_LABEL = {
-    "implemented": "✅ 已实现",
+    "implemented": "🧩 实现存在",
     "in-progress": "🛠 进行中",
     "blocked": "⛔ 阻塞",
     "poc-needed": "🔬 需 PoC",
@@ -167,7 +167,7 @@ def render_feature_table(features: list[dict], known_refs: dict[str, dict[str, s
     lines = [
         "## Feature -> Intent",
         "",
-        "| Feature | 状态 | 层级 | 上游意图 |",
+        "| Feature | 实现状态 | 层级 | 上游意图 |",
         "|---|---|---|---|",
     ]
     for feature in features:
@@ -213,6 +213,7 @@ def render(features: list[dict], known_refs: dict[str, dict[str, str]]) -> str:
         "",
         "> ⚠️ 本文件由 `Scripts/generate_intent_traceability.py` 自动生成，**禁止手动编辑**。",
         "> 来源 = 各 `docs/features/**/feat-*.md` frontmatter 的 `intent_refs`。",
+        "> 实现状态只描述代码路径，不证明 Release 1 合同符合、公开可达或发布就绪。",
         "> 本索引证明“已声明上游引用”，不证明语义完全正确；语义仍需人工 review 和代码/测试实证。",
         "",
     ]

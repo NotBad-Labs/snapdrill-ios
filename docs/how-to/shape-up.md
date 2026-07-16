@@ -51,7 +51,9 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 - 没有被接受的 live issue/PR 或具名范围文档时，先回到 shaping——别凭过期计划、文件名顺序或 agent 私有记忆开工。
 - 任何 Agent 的全局架构 / 生命周期规划都只作为 shaping input；它不能自动变成 roadmap、
   当前 bet 或并行状态 SSOT，仍需 orchestrator 的 live repo 实证审查与 PO 拍板。
-- 逐功能权威状态以 [`../reference/feature-status.md`](../reference/feature-status.md)（SSOT，自动生成）为准，不在本文件重复罗列。
+- 逐功能**实现状态**以 [`../reference/feature-status.md`](../reference/feature-status.md)（自动生成）
+  为准，不在本文件重复罗列；Release disposition 与合同符合性仍由 Release Contract、owning
+  feature spec 和验证证据裁决。
 
 ### Parked（明确不赌、停止投入，但代码留着 · 取舍的牙齿）
 
@@ -60,7 +62,7 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 - Dashboard —— 默认首屏由 C3 固定；当前卡片 / 五 Tab 不自动获批，代码投入等待独立 implementation bet。
 - Review、SmartPaper —— 只允许 C4-D / C5-E 定义的 `po-only` / `research` 有界实验，公开候选隐藏；当前实现可作为偏差证据，任何对齐仍需独立 implementation bet。
 - Pro/StoreKit #479、CloudKit #485、Word 导出 #486、付费配额 —— 不属于 Release 1，只是未来候选假设。
-- Multi-Profile —— 产品目标已退休；Draft #868 仍为 NO-GO，等待独立 Profile-free Backup Wire / 可崩溃恢复 Data Contract 与 S0 / S1 修复后重审。
+- Multi-Profile —— 产品目标已退休；#868 已关闭且不得作为恢复路径。后续从最新 `develop` 按 Profile-free Backup Wire、可崩溃恢复 Data Contract 与 S0 / S1 优先级独立 shaping。
 - 公开上架合规队列 —— **不阻塞 TestFlight 内测**（隐私/分析策略见 [`../decisions/ADR-005-analytics-privacy-strategy.md`](../decisions/ADR-005-analytics-privacy-strategy.md)），延到决定公开上架时。
 
 ### 链接

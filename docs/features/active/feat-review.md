@@ -16,7 +16,7 @@ intent_refs:
 
 > **产品重基线（2026-07-14）**：Product Constitution v1 将回顾定义为不得抢占核心链路的可选附加值；Release 1 Contract C4-D 只允许 `po-only` / `research` build 通过 Library 的单一静态次级入口实验，`public-candidate` 完全隐藏。无主 Tab、Dashboard cue / 计数、Onboarding 介绍、Settings 控件、通知、徽标或隐式恢复入口；达到预登记 cohort 门槛也只触发重新裁决。frontmatter 与技术章节仍记录当前实现，不代表这些偏差获准保留。
 
-> 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business 聚合（docs 重组 B）。
 

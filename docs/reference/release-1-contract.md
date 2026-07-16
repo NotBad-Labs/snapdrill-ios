@@ -149,7 +149,10 @@ Review 不得占据 Dashboard hero，不得把“今日完成”、连续记录�
 
 **RATIFIED C5-E**：SmartPaper 只在 `po-only` 或 `research` 实验 build 通过 Library 内一个静态次级工具入口开放。Release 1 内只要可见，就不限次数，且无配额状态、entitlement、Pro、升级或 coming-soon 文案；这不承诺 Release 1 之后永久免费。公开候选默认完全不可达。
 
-这项推荐不同于工作坊最初的 C5-B（完全隐藏）：[02g 非规范市场证据](audits/2026-07-repository/phases/02g-dashboard-market-evidence.md)和 Dashboard 任务枢纽裁决提高了“选择多份资料 -> 编排 -> 打印”作为成年人管理家庭资料场景的可用性验证价值，但不构成需求或教育定位证据。
+这项推荐不同于工作坊最初的 C5-B（完全隐藏）：后续 Dashboard 任务枢纽裁决提高了
+“选择多份资料 -> 编排 -> 打印”作为成年人管理家庭资料场景的可用性验证价值。Gate C
+shaping 曾参考未入仓的非规范市场调研，但该材料不是 tracked evidence，不能单独构成需求或
+教育定位证据。
 
 **RATIFIED C5-S1**：基础 selector 只接受数量和可选的基础分类范围，从未删除的合格资料中无权重、不重复随机抽取 `min(N, eligible)`；禁止使用 Review / SM-2、难度、时间、内容或其他衍生排序。去答案、留白、页眉页码等 PDF 增强仍是独立 Candidate optional，不能由 SmartPaper include 顺带授权。
 
@@ -234,5 +237,5 @@ Release 1 不包含：
 2. 本文及必要 thin pointers 通过文档门禁和独立语义复核。
 3. PR 合并获得 PO 单独授权并进入 `develop`；合并前仍是 ratified candidate。
 4. 本合同 docs-only PR 同步对齐受 Gate C 与后续裁决直接影响的产品说明、feature spec、结果 oracle、发布 evidence plan、术语与导航索引；这些改动用于移除旧规范冲突并建立追溯，不授权或包含代码、导航、schema / wire 实现。
-5. Draft PR #868 只有在 DATA-1 effective、独立 Backup Wire / 单资料库可崩溃恢复 Data Contract 与对应 fixtures 纳入其 diff 或前置 PR 后，才具备重新申请合并的 DoR。
+5. PR #868 已关闭且不再是实现路径，只保留为历史影响证据。单资料库生产收敛必须从最新 `develop` 按独立切片重新 shaping；精确 Backup Wire、可崩溃恢复和对应 fixtures 仍须由 owning contract 与单独授权约束。
 6. 本合同一经 effective，在新 Release Contract 或明确 supersession 合入前持续有效。

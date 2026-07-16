@@ -11,9 +11,10 @@
 | `ci_github.py` | GitHub Actions fail-closed helper：精确工具 / runtime 身份、结构化 exact simulator 选择与唯一 `.xctestrun` |
 | `setup.sh` | 新开发者入职的一键环境配置（待完善） |
 | `pre-commit` | Git pre-commit hook（提交前自动检查） |
-| `generate_feature_status.py` | 由各 feature spec frontmatter 生成 `docs/reference/feature-status.md`（功能状态 SSOT；校验必填字段、枚举、日期格式与阻塞 issue；产物勿手改，pre-commit/CI 校验） |
+| `generate_feature_status.py` | 由各 feature spec frontmatter 生成 `docs/reference/feature-status.md`（实现状态单写；不表示 Release 合同符合；产物勿手改，pre-commit/CI 校验） |
 | `generate_intent_traceability.py` | 由各 feature spec `intent_refs` 生成 `docs/reference/intent-traceability.md`（意图追溯索引；产物勿手改，pre-commit/CI 校验） |
 | `test_doc_generators.py` | 文档生成器单元测试（覆盖意图追溯索引与功能状态看板的成功与失败路径，pre-commit/CI 校验） |
+| `validate_document_control.py` | 检查所有 repository Markdown 的角色 / 生命周期唯一归属、历史降级标识、本地链接 / anchor 与 alias |
 | `validate_docs.py` | 检查高风险文档漂移：历史 ADR 状态、过时 Firebase 路线陈述、产品定位回退、feature spec 意图追溯、`intent_refs` 目标存在性与验收证据行 |
 | `validate_capture_contract.py` | 递归检查 Capture 契约文案边界：Capture 暴露 L10n、权限用途串和 Capture View 用户可见字符串，避免回退到旧错题本 / 儿童教育定位 |
 | `tests/` | 脚本回归测试；覆盖文档 / Capture、local/GitHub CI failure oracles、workflow contract 和弱 lint 入口 |

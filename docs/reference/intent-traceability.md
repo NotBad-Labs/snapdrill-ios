@@ -2,6 +2,7 @@
 
 > ⚠️ 本文件由 `Scripts/generate_intent_traceability.py` 自动生成，**禁止手动编辑**。
 > 来源 = 各 `docs/features/**/feat-*.md` frontmatter 的 `intent_refs`。
+> 实现状态只描述代码路径，不证明 Release 1 合同符合、公开可达或发布就绪。
 > 本索引证明“已声明上游引用”，不证明语义完全正确；语义仍需人工 review 和代码/测试实证。
 
 ## 可引用上游
@@ -23,17 +24,17 @@
 
 ## Feature -> Intent
 
-| Feature | 状态 | 层级 | 上游意图 |
+| Feature | 实现状态 | 层级 | 上游意图 |
 |---|---|---|---|
-| [备份与 CSV 导入导出](../features/active/feat-backup.md) | ✅ 已实现 | 免费 | [`vision:P4`](../explanations/vision.md) |
-| [采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）](../features/active/feat-capture.md) | ✅ 已实现 | 免费 | [`vision:P1`](../explanations/vision.md) / [`vision:P2`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`vision:P6`](../explanations/vision.md) / [`ADR-005`](../decisions/ADR-005-analytics-privacy-strategy.md) |
+| [备份与 CSV 导入导出](../features/active/feat-backup.md) | 🧩 实现存在 | 免费 | [`vision:P4`](../explanations/vision.md) |
+| [采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）](../features/active/feat-capture.md) | 🧩 实现存在 | 免费 | [`vision:P1`](../explanations/vision.md) / [`vision:P2`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`vision:P6`](../explanations/vision.md) / [`ADR-005`](../decisions/ADR-005-analytics-privacy-strategy.md) |
 | [首页概览（Dashboard）](../features/active/feat-dashboard.md) | 🛠 进行中 | 免费 | [`vision:P1`](../explanations/vision.md) / [`vision:P2`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) |
-| [PDF 导出与打印](../features/active/feat-export.md) | ✅ 已实现 | 免费 | [`vision:P2`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) |
-| [资料库管理 + 分享卡片](../features/active/feat-library.md) | ✅ 已实现 | 免费 | [`vision:P1`](../explanations/vision.md) / [`vision:P2`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) |
-| [Onboarding 新手引导](../features/active/feat-onboarding.md) | ✅ 已实现 | 免费 | [`vision:P2`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) / [`ADR-002`](../decisions/ADR-002-remove-att-authorization.md) / [`positioning-and-audience`](../explanations/positioning-and-audience.md) |
+| [PDF 导出与打印](../features/active/feat-export.md) | 🧩 实现存在 | 免费 | [`vision:P2`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) |
+| [资料库管理 + 分享卡片](../features/active/feat-library.md) | 🧩 实现存在 | 免费 | [`vision:P1`](../explanations/vision.md) / [`vision:P2`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) |
+| [Onboarding 新手引导](../features/active/feat-onboarding.md) | 🧩 实现存在 | 免费 | [`vision:P2`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) / [`ADR-002`](../decisions/ADR-002-remove-att-authorization.md) / [`positioning-and-audience`](../explanations/positioning-and-audience.md) |
 | [单一本地资料库（Multi-Profile 退场）](../features/active/feat-profile.md) | 🛠 进行中 | 免费 | [`vision:P2`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) / [`positioning-and-audience`](../explanations/positioning-and-audience.md) |
-| [回顾（SM-2 间隔调度）](../features/active/feat-review.md) | ✅ 已实现 | 免费 | [`vision:P2`](../explanations/vision.md) / [`vision:P3`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) |
-| [设置与个性化](../features/active/feat-settings.md) | ✅ 已实现 | 免费 | [`vision:P2`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) / [`ADR-005`](../decisions/ADR-005-analytics-privacy-strategy.md) |
+| [回顾（SM-2 间隔调度）](../features/active/feat-review.md) | 🧩 实现存在 | 免费 | [`vision:P2`](../explanations/vision.md) / [`vision:P3`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) |
+| [设置与个性化](../features/active/feat-settings.md) | 🧩 实现存在 | 免费 | [`vision:P2`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) / [`ADR-005`](../decisions/ADR-005-analytics-privacy-strategy.md) |
 | [高级统计（候选，商业分层未定）](../features/backlog/feat-advanced-stats.md) | 📋 Backlog | 未定 | [`vision:P3`](../explanations/vision.md) / [`vision:P5`](../explanations/vision.md) |
 | [Apple 私有同步（候选，商业分层未定）](../features/backlog/feat-icloud-sync.md) | 📋 Backlog | 未定 | [`vision:P4`](../explanations/vision.md) / [`vision:P6`](../explanations/vision.md) |
 | [图片处理增强（去手写 / 去批改痕迹 / 试卷还原）](../features/backlog/feat-image-enhance.md) | 📋 Backlog | 未定 | [`vision:P3`](../explanations/vision.md) / [`vision:P4`](../explanations/vision.md) |

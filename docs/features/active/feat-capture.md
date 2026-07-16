@@ -18,7 +18,7 @@ intent_refs:
 
 > **产品重基线（2026-07-14）**：采集属于核心价值链。Release 1 Must 输入是相机 / 文档扫描、相册与 PDF；手动、剪贴板和 Share Extension 属 Candidate optional，默认隐藏。OCR 是可编辑辅助，保存真相是用户确认裁剪 / 方向后的 App-managed 可读图片；不承诺来源原始字节或完整分辨率。frontmatter 与技术章节仍记录当前实现，下文 iPad、Profile 和 Pro 图片增强描述只作实现 / 历史追溯。
 
-> 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / tech 聚合（docs 重组 B）。
 

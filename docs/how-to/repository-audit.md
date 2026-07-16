@@ -26,26 +26,30 @@
 
 ## 3. 独立审阅
 
-同一 slice 的 Codex、Claude、Antigravity 和 Grok 使用同一份中性 brief，彼此看不到先前结论。模型多数票不是事实；任何结论进入仓库前都由 C1 在 live base 上重跑命令并核对 `file:line`。私有仓库内容外发前还必须按
+同一 slice 中每个获授权的独立 reviewer 使用同一份中性 brief，彼此看不到先前结论。模型多数票
+不是事实；任何结论进入仓库前都由 orchestrator 在 live base 上重跑命令并核对 `file:line`。
+私有仓库内容外发前还必须按
 [`agent-invocation-protocol.md`](../reference/audits/2026-07-repository/agent-invocation-protocol.md)
 取得 PO 对 vendor 与最小 payload 的明确授权。
 
-当前模型约束：
+角色约束：
 
-| Lane | 固定入口 | 约束 |
+| Role | 约束 |
 |---|---|---|
-| Codex | 当前 C1 | 统筹、独立审阅、现场复核和归并；不把自身判断当裁决 |
-| Claude | `claude-fable-5[1m]` | `--safe-mode` + `--permission-mode plan` + 显式 read tools；跨 worktree 证据显式 `--add-dir`；禁用私有记忆和自定义 skill |
-| Antigravity | `Gemini 3.5 Flash (High)` | 必须显式指定；禁止 3.1 Pro 和默认模型回退 |
-| Grok | `grok-4.5` | `--no-memory --no-subagents`，read-only，禁用 web search；terminal schema 不可用时降为 `Read,Grep,Glob` inference challenge，不伪装成数据执行 |
+| Orchestrator | 固定 base、分配文件集、复核每条证据、归一化 finding；不把自身判断当 PO 裁决 |
+| Independent reviewer | 新会话、最小 payload、只读工具、关闭记忆 / subagent / web；输出候选证据 |
+| Fact verifier | 在 live base 重跑命令、重开路径并记录接受 / 拒绝理由；不能仅转述 reviewer |
 
-外部 agent 的最终报告由编排器保存到仓库外：
+当前可用 vendor、精确模型、CLI 参数和已验证版本只在 invocation protocol 维护，不能从本流程
+文件推断。外部 agent 的最终报告由编排器保存到仓库外：
 
 ```text
 /private/tmp/snapdrill-repository-audit-raw/<base_sha>/<phase>/<agent>.md
 ```
 
-原始 transcript、模型缓存和重复分析不入仓。若 Antigravity 把 artifact 写入 `brain/`，或 Grok 建立 session / upload queue，编排器取证后必须删除本轮临时状态。Claude 达到 `max-turns` 时可续接同一 session，追加“停止取样并仅汇总”的最多 4 turns；不得重启后重新消费证据。仓库只保留 brief、可复现命令、归一化 finding、拒绝理由和 checkpoint。
+原始 transcript、模型缓存、auth/debug log、brain artifact、session/upload queue 和重复分析不入仓。
+编排器取证后删除临时状态；超时或不完整 run 标为无效，不通过重启会话伪装成连续独立审阅。
+仓库只保留 brief、可复现命令、归一化 finding、拒绝理由和 checkpoint。
 
 ## 4. Finding 生命周期
 

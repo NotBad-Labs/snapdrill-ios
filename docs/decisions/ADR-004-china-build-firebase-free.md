@@ -10,13 +10,13 @@ freshness:
 ---
 # ADR-004: 国内版 Firebase-Free（中国大陆 build 不含 Firebase）
 
-> 状态：**已被 [[ADR-005]] 取代（保留为决策史，勿据此恢复 Firebase）** | 原决策日期：2026-05-28 | 决策者：PO | 关联：[[ADR-003]]（挂起的区域路线）
+> 状态：**已被 [ADR-005](ADR-005-analytics-privacy-strategy.md) 取代（保留为决策史，勿据此恢复 Firebase）** | 原决策日期：2026-05-28 | 决策者：PO | 关联：[ADR-003](ADR-003-dual-region-release.md)（挂起的区域路线）
 >
-> **2026-06-11 状态说明（取代记录）**：本 ADR 的“中国 build 分流”是挂起路线的历史决策，**已被 [[ADR-005]] 取代**，不代表当前生产架构——后者把“Firebase-free / 端侧或不做分析”从国内 build 推广到全球生产基线。#803 已从整个项目删除 `SnapDrillInfrastructure` 与 Firebase SDK，全球生产基线同样 Firebase-free。**下文关于“海外版保留 Firebase”“编译层待剔除”均为已失效的历史表述，不是当前架构**，仅保留决策演进记录。当前现行策略见 [[ADR-005]] 与根 `README.md`。
+> **2026-06-11 状态说明（取代记录）**：本 ADR 的“中国 build 分流”是挂起路线的历史决策，**已被 [ADR-005](ADR-005-analytics-privacy-strategy.md) 取代**，不代表当前生产架构——后者把“Firebase-free / 端侧或不做分析”从国内 build 推广到全球生产基线。#803 已从整个项目删除 `SnapDrillInfrastructure` 与 Firebase SDK，全球生产基线同样 Firebase-free。**下文关于“海外版保留 Firebase”“编译层待剔除”均为已失效的历史表述，不是当前架构**，仅保留决策演进记录。当前现行策略见 [ADR-005](ADR-005-analytics-privacy-strategy.md) 与根 `README.md`。
 
 ## 背景
 
-[[ADR-003]] 定了"国内版无 Firebase"的方向。本 ADR 将其落实为可执行决策，并记录 2026-05-28 的实证现状（多源 PIPL 复核 + 律师简报 v2 驱动）。
+[ADR-003](ADR-003-dual-region-release.md) 定了"国内版无 Firebase"的方向。本 ADR 将其落实为可执行决策，并记录 2026-05-28 的实证现状（多源 PIPL 复核 + 律师简报 v2 驱动）。
 
 ### 当前实证状态（2026-05-28 核查，重要）
 
@@ -44,9 +44,9 @@ app 当前**捆绑** Firebase（Analytics + Crashlytics，隔离在 `SnapDrillIn
 
 ### 海外版（未来，美国 LLC）
 
-> ⚠️ **已失效的历史表述（被 [[ADR-005]] 取代）**：本节当时设想海外版**保留 Firebase**。该设想已不成立——全球生产基线（美国 NotBad Labs / `com.snapdrill.global`）同样 Firebase-free，注入 `NoOpAnalyticsService`（见 [[ADR-005]]）。保留本段仅为记录决策演进，**不得据此恢复 Firebase**。
+> ⚠️ **已失效的历史表述（被 [ADR-005](ADR-005-analytics-privacy-strategy.md) 取代）**：本节当时设想海外版**保留 Firebase**。该设想已不成立——全球生产基线（美国 NotBad Labs / `com.snapdrill.global`）同样 Firebase-free，注入 `NoOpAnalyticsService`（见 [ADR-005](ADR-005-analytics-privacy-strategy.md)）。保留本段仅为记录决策演进，**不得据此恢复 Firebase**。
 
-~~**保留 Firebase**，受 GDPR/CCPA 管辖，opt-in 披露。即 [[ADR-003]] 的区域差异。~~
+~~**保留 Firebase**，受 GDPR/CCPA 管辖，opt-in 披露。即 [ADR-003](ADR-003-dual-region-release.md) 的区域差异。~~
 
 ## 实现
 

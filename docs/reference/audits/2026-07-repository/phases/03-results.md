@@ -1,5 +1,7 @@
 # Phase 03 Results: Architecture and Runtime Boundaries
 
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+
 ## Outcome
 
 Phase 03 在固定 `develop@d62fead8` 上冻结 4 个 SPM package、8 个 production package target、4 个 package test target、4 个 native Xcode target，并审查 compile graph、composition root、DI 实例流、Profile 生命周期、静态 facade、coordinator 与历史 Domain/UseCase 简化。

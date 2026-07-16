@@ -1,13 +1,15 @@
 # PO 决策台账
 
-> **性质**：PO 决策的时间序索引。本文采用 thin-pointer：每条决策只保留一行，指向其权威归属文档；归属仍只存在于对话 / 外部报告中的，本文件即其归属。
+> **文档角色：当前证据索引，不是规范权威。** 本文按时间记录 PO 回执并尽量用 thin-pointer
+> 指向 owning authority。只有归属权威合入 `develop` 后，裁决才对其他 lane effective。
+> 仍只存在于对话、私有报告或“本台账”中的条目属于未路由历史证据，不能驱动新实现。
 >
 > **维护规则**：当前 orchestrator 起草 thin-pointer，PO 确认，owning lane 落盘；路由方式与根
 > `AGENTS.md` 的裁决规则一致。更早的奠基性决策（2026-06-09 美国全球版 pivot、零后端、
 > iPhone-only 等）已在 ADR / positioning 固化，不重复收录。
 >
-> **范围**：2026-06-27 至 2026-07-16。初始草案由 Claude 起草；后续裁决由 PO 直接确认，
-> owning lane 固化入仓。
+> **范围**：2026-06-27 至 2026-07-16 的历史回执，加上此后具名 authority pointer；模型品牌
+> 不拥有决策或文件。
 
 ## 决策状态
 
@@ -72,7 +74,10 @@
 | 07-06 | 10 + 1 个旧分支（含 6 个含独有工作的）全部删除 | 已执行；C3 报告 |
 | 07-06 | pbxproj 584 行 Firebase 死引用：先丢弃、后专刀正式清理 | PR（pbxproj-firebase-deadrefs） |
 
-## F. 已挂号、尚未拍板
+## F. 2026-07-07 历史队列快照（不得据此排期）
+
+以下列表只解释当时尚未处理的事项。当前优先级、issue 状态与 Release 1 disposition 必须从
+live GitHub、Release Contract、owning feature spec 和当前审计入口重新核对。
 
 - **N2：Mac mini 网络**（固化直连 vs 还原修 OpenClash）——最急，443 已成每日税
 - 公开上架合规时点（legal）/ China 挂起资源续费处置（约 2027-01）
@@ -80,7 +85,7 @@
 - **P2 加固队列（四方审计浮现，6 类，TestFlight 后按 Tier 开刀）**：Tier-A ① Share Extension GPS 剥离 / 测试 ② DataExecutor / ProfileManager fatalError → 错误弹窗 ③ 日志 Profile 名 PII；Tier-B ④ CSV 导入大文件 OOM ⑤ 含图备份恢复 round-trip 测试缺口 ⑥ LiveServiceContainer 默认 mock → NoOp
 - TestFlight 执行：~~ASC 建记录（07-07 已完成，Apple ID 6788202421）~~ → 真机 P1-P6 → Organizer 首传（§E，约 1-2 小时）
 
-## 统计
+## 历史统计
 
 约 **33 组已拍 + 7 项在队**。计数口径按 PO 批准的决策包：Gate B 的 7 个关联选项计一组；C3 单独计一组；07-14 批准的 Gate C 其余 12 个精确 ID 按四包计四组。
 

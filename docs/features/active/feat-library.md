@@ -17,7 +17,7 @@ intent_refs:
 
 > **产品重基线（2026-07-15）**：整理 / 找回属于核心价值链，用户可见容器统一为一个“资料库”。C2-Core 将搜索、查看、编辑、分类和可撤销删除列为 Must；D4-B 固定五秒绝对撤销期限跨后台与重启继续。动态字段与批量操作按 C2-Optional 成为默认隐藏的 Candidate optional，ShareCard 与按回顾状态排序则须新上游裁决才能重入。C4-D / C5-E 只允许 `po-only` / `research` build 通过 Library 各自一个静态次级入口实验，`public-candidate` 完全隐藏。frontmatter 与下文技术细节仍记录当前实现，旧 Multi-Profile、Pro、SmartPaper 和高级统计分层不得驱动新工作。
 
-> 人读摘要：✅ 已实现（免费）。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys + tech architecture / NFR 聚合（docs 重组 B）。
 

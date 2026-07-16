@@ -12,7 +12,7 @@ intent_refs:              # 至少一项 Vision / 产品政策 / ADR 引用
 
 # Feature: [功能名称]
 
-> 人读摘要派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示产品批准、Release Contract 符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 扫描各 spec 的 frontmatter **自动生成**，禁止手改（pre-commit 校验）。
 > 本 spec 高内聚承载该功能 Why / What / How / Verify，不拆散到多文件（docs 重组 B）。
 > `mode: lightweight`（backlog 用）时，How / Verify 可只写"待实现补"，仅 Why + What 必填——避免给未实现功能写"假设计"。

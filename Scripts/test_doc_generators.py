@@ -125,6 +125,27 @@ intent_refs:
 
         self.assertIn("| 未定 |", content)
 
+    def test_intent_index_does_not_claim_release_conformance(self) -> None:
+        self.write_feature(
+            """---
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+---
+
+# Feature: Capture
+"""
+        )
+
+        refs = self.module.collect_known_refs()
+        content = self.module.render(self.module.collect_features(refs), refs)
+
+        self.assertIn("🧩 实现存在", content)
+        self.assertIn("不证明 Release 1 合同符合", content)
+        self.assertNotIn("✅ 已实现", content)
+
     def test_rejects_missing_intent_refs(self) -> None:
         self.write_feature(
             """---
@@ -260,6 +281,24 @@ last_updated: 2026-07-12
         content = self.module.render(self.module.collect())
 
         self.assertIn("| 未定 |", content)
+
+    def test_implemented_label_does_not_claim_release_conformance(self) -> None:
+        self.write_feature(
+            """id: feat-capture
+title: Capture
+status: implemented
+tier: free
+blocked_by: []
+mode: full
+last_updated: 2026-07-16
+"""
+        )
+
+        content = self.module.render(self.module.collect())
+
+        self.assertIn("🧩 实现存在", content)
+        self.assertIn("不表示符合 Release 1 Contract", content)
+        self.assertNotIn("✅ 已实现", content)
 
     def test_rejects_invalid_blocked_by_type(self) -> None:
         self.write_feature(

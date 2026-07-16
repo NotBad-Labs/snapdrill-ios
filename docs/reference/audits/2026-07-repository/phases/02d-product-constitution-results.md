@@ -1,5 +1,7 @@
 # Phase 02d Results: Product Constitution and Release Contract
 
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+
 ## Outcome
 
 SnapDrill 已有可用的规范骨架，但尚未形成一个足以让新团队脱离聊天记录实施的稳定产品契约。`vision.md` 已保存使命、定位、价值链和原则；feature frontmatter、生成状态与 intent index 也能表达功能现状和显式引用。缺口集中在四个结构问题：PO 对话何时从探索变成规范没有生效规则；当前发布没有有界产品契约；下游 roadmap / feature / ADR 仍可创造跨功能产品不变量；当前 bet 与长期产品状态没有彻底分开。

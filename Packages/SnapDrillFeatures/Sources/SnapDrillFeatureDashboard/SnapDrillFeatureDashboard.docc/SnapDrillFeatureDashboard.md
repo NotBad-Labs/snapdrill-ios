@@ -1,12 +1,15 @@
 # ``SnapDrillFeatureDashboard``
 
+> 当前实现 API 参考。Dashboard 是 Release 1 默认首屏，但当前 Review hero、统计卡片和五 Tab
+> 接线不能据此成为公开承诺。
+
 首页看板模块，展示资料概览并提供快速操作入口。
 
 ## 概述
 
 `SnapDrillFeatureDashboard` 是用户进入应用后看到的第一个界面：
-以 Bento Grid 布局展示今日待回顾数量、资料总数和近期分类趋势，
-检测并恢复意外退出时的采集草稿，快速跳转至回顾或采集流程。
+当前实现以 Bento Grid 展示待回顾数量、资料总数和分类趋势，
+并检测采集草稿、提供跨模块入口。最终可见卡片以 Dashboard feature spec 为准。
 
 > 分类管理视图（分类/来源/阶段）已迁入 `SnapDrillFeatureLibrary`，
 > Dashboard 仅通过依赖 Library 弹出 `CategoryManagerView`。

@@ -25,7 +25,8 @@
 | Actions runs | 1,881 | 1,305 success / 506 failure / 70 cancelled |
 | Failure share | 26.9% | 只表示 run 结论；需按根因、重跑和当时目标分类后才能判断浪费 |
 
-工具和真实模型握手：
+工具和真实模型握手（2026-07-10 固定审计快照；当前调用参数以
+[`agent-invocation-protocol.md`](agent-invocation-protocol.md) 为准）：
 
 | Lane | CLI | 已验证模型 |
 |---|---|---|
@@ -44,28 +45,31 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 |---|---|---|---|
 | 00 Control plane | T0、工具链、模型、报告协议、恢复演练 | `00a` 基线；`00b` 小范围盲审 | complete |
 | 01 History | issue/PR 生命周期、CI 失败分类、返工热点 | `01a` lifecycle；`01b` CI；`01c` churn；`01d-f` 证伪 | complete |
-| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a-c` truth；`02d` constitution；`02e` PO workshop；`02f` impact map | reopened; Gate A ratified, authority integration pending |
+| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a-c` truth；`02d` constitution；`02e` PO workshop；`02f` impact map | complete; 三层 SSOT、Release 1 follow-up 与 Agent control plane 已 effective |
 | 03 Architecture | package 依赖、DI、并发、共享接缝、废弃代码 | `03a` graph；`03b` runtime flow；`03c` debt | complete |
-| 04 Data safety | SwiftData、repository、单资料库重基线、备份、图片 | `04a` models；`04b` single library；`04c` backup；`04d` images | in progress |
-| 05 Capture | camera、scanner、album/PDF、crop、OCR、save | `05a` input；`05b` processing；`05c` persistence | in progress; P1 triage complete |
+| 04 Data safety | SwiftData、repository、单资料库重基线、备份、图片 | `04a` models；`04b` single library；`04c` backup；`04d` images | in progress; contracts effective，#919/#880/#889 与 Backup v3 wire/实现待收敛 |
+| 05 Capture | camera、scanner、album/PDF、crop、OCR、save | `05a` input；`05b` processing；`05c` persistence | in progress; 5 个 P1 已修，6 个 candidate oracle 待执行 |
 | 06 Library/export | library、search、taxonomy、SmartPaper、export/share | `06a` library；`06b` SmartPaper；`06c` export | pending |
 | 07 Other features | review、dashboard、settings、onboarding | `07a` review；`07b` dashboard；`07c` settings/onboarding | pending |
 | 08 UI quality | shell、布局、AX、Dynamic Type、本地化、dogfood | `08a` shell；`08b` AX；`08c` l10n；`08d` visual | pending |
-| 09 Test/CI | test plan、oracle、flakiness、覆盖、缓存与耗时 | `09a` topology；`09b` oracle；`09c` run taxonomy | pending |
+| 09 Test/CI | test plan、oracle、flakiness、覆盖、缓存与耗时 | `09a` topology；`09b` oracle；`09c` run taxonomy | in progress; 09A 与 09B-A 已落地，09B-B / 09C 待完成 |
 | 10 Security/privacy | secret、路径、归档、依赖、manifest、数据流 | `10a` appsec；`10b` privacy；`10c` supply chain | pending |
 | 11 Release | signing、capability、metadata、support、性能与诊断 | `11a` build/sign；`11b` listing/legal；`11c` runtime | pending |
 | 12 Synthesis | 去重、风险排序、投入解释、发布差距与 PO 队列 | `12a` cluster；`12b` decision packet；`12c` go/no-go | pending |
 
 ## Recovery
 
-- **current worktree**：`/private/tmp/snapdrill-repository-audit-phase05`
-- **current branch**：`codex/repository-audit-phase05`
+- **当前恢复基线**：`develop@41a389583a5edeb4304d751e8894cf9843238d83`
+  （#937 merge commit；恢复时仍须先 fetch 并核对 live `origin/develop`）
+- **当前 checkpoint**：[`checkpoints/2026-07-16-rebaseline.md`](checkpoints/2026-07-16-rebaseline.md)
+- **恢复方式**：从最新 `origin/develop` 新建独立 worktree / 分支；不要依赖本文件中的历史临时
+  worktree、私有记忆或旧 fixed-base head
 - **方法**：`docs/how-to/repository-audit.md`
+- **文档角色与生命周期**：`../../document-control.md`
 - **报告模板**：`report-template.md`
 - **外部 agent 调用协议**：`agent-invocation-protocol.md`
 - **再基线契约**：`rebaseline-contract.md`
 - **finding ledger**：`findings.md`
-- **当前 checkpoint**：`checkpoints/phase-05-in-progress.md`
 - **00b 结果**：`phases/00b-results.md`
 - **Phase 01 结果**：`phases/01-results.md`
 - **Phase 02 结果**：`phases/02-results.md`
@@ -74,6 +78,14 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **Phase 02f 产品意图影响图 / 复核**：`phases/02f-product-intent-impact-map-candidate.md` / `phases/02f-product-impact-review-results.md`
 - **Phase 03 结果**：`phases/03-results.md`
 - **Phase 04a/04b/04d 结果**：`phases/04a-results.md` / `phases/04b-results.md` / `phases/04d-results.md`
-- **Phase 05 P1 triage / checkpoint**：`phases/05-p1-triage-results.md` / `checkpoints/phase-05-in-progress.md`
-- **当前产品治理状态**：#867 审计、#869 Gate A、#870 中文工作坊与 #871 Product Constitution v1 已合入；Gate C v2 裁决包待 PO 批准，#868 维持 Draft/NO-GO
-- **下一步**：逐个裁决 #872–#876 的固定 head；按依赖串行合并并复验后，在新基线上继续 Phase 05 候选红测
+- **Phase 05 P1 triage（历史 fixed-base 结果）**：`phases/05-p1-triage-results.md`；
+  旧 `checkpoints/phase-05-in-progress.md` 已由当前 checkpoint supersede
+- **当前产品治理状态**：Product Constitution、Release 1 Product Contract、Local Library Data
+  Contract 与 Agent control plane 已在 `develop` effective；#868 已关闭且不得复活，后续单资料库
+  实现必须从当前合同和最新 `develop` 重新 shaping
+- **下一步**：先落地 #919 的两文件 S0 no-prune 止损；随后按文件与契约边界串行处理 #880、
+  #889，并单独冻结 Backup v3 精确 SQLite wire。Phase 05 的 6 个 candidate oracle 保留为可并行
+  只读/测试输入，不得阻塞数据安全止损
+
+历史 phase 结果保持其 fixed-base 原文。报告中的“未合并”“待授权”“当前 worktree”等语句只描述
+当时状态；恢复和排期一律以本节当前 checkpoint、live Git/GitHub 与 effective SSOT 为准。

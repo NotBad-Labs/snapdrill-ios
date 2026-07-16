@@ -139,7 +139,7 @@ xcodebuild <canonical arguments> -derivedDataPath /tmp/snapdrill-derived-<lane>
 
 | 等级 | 适用改动 | 本地验证 | PR / CI 策略 |
 |---|---|---|---|
-| T0 | 纯文档、注释、Markdown 指针，不进入编译产物 | `git diff --check`；涉及 docs 跑 `python3 Scripts/validate_docs.py --check`；生成索引跑 owner generator `--check` | 可先开 PR，不要求 iOS build |
+| T0 | 纯文档、注释、Markdown 指针，不进入编译产物 | `git diff --check`；涉及 docs 跑 `python3 Scripts/validate_document_control.py --check` + `python3 Scripts/validate_docs.py --check`；生成索引跑 owner generator `--check` | 可先开 PR，不要求 iOS build |
 | T1 | 开发者可见但不影响编译结果的 Swift 注释、`#Preview` 名称 | scoped 或完整 `swiftlint --strict`；必要时 `git diff --check` | 报告未跑 build 的理由 |
 | T2 | 进入编译产物的代码、常量、L10n 值、资源、测试或配置 | `swiftlint --strict` + `AllTests` build-for-testing | 合并前本地或 CI build 绿 |
 | T3 | 用户交互、状态、导航、导出 / 打印、权限、错误态、ViewModel 消费 | T2 + targeted test / UI / AX / 手动路径；必要时截图、录屏、真机 | 等对应 CI；列已验与未验路径 |

@@ -13,7 +13,7 @@ intent_refs:
 
 # Feature: 高级统计（候选，商业分层未定）
 
-> 人读摘要：📋 候选 backlog，产品范围与商业分层未定；旧 #479 不再是产品重入条件。派生自上方 frontmatter；**全局状态以 frontmatter 为唯一真理源（B 方案）**。
+> 人读摘要：📋 候选 backlog，产品范围与商业分层未定；旧 #479 不再是产品重入条件。派生自上方 frontmatter；frontmatter 仅是本功能候选实现状态的单一来源，不构成产品批准或发布承诺。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / ADR-001 / architecture 聚合（docs 重组 B）。
 > `mode: lightweight`（backlog）：How / Verify 仅承载当前已确认事实，未实现/未定的不编造。

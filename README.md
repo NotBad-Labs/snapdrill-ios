@@ -9,19 +9,19 @@
 | [文档总导航](docs/README.md) | 完整文档索引（Diátaxis 分层）|
 | [功能规格](docs/features/) | 各功能 Why/What/How/Verify（一元化，每功能一文件）|
 | [设计解释](docs/explanations/) | 愿景、设计原则、架构、商业化、待验证假设、竞品、用户旅程、隐私合规 |
-| [查阅参考](docs/reference/) | 功能状态(SSOT)、术语、埋点、平台边界、NFR、范围路线、ASO |
+| [查阅参考](docs/reference/) | Release Contract、实现状态、文档控制、术语、平台边界、NFR、范围路线、ASO |
 | [操作指南](docs/how-to/) | 发布与 CI |
 | [架构决策](docs/decisions/) | ADR-001~005 |
 | [AGENTS.md](AGENTS.md) | Agent 最小启动契约：权威路由、执行边界与完成证据（CLAUDE.md 软链至此）|
 | [DocC API 文档](Packages/) | Xcode: Product > Build Documentation |
 
-## 当前状态（2026-07-12）
+## 当前状态（动态实证入口）
 
 > 当前生产与发布事实的入口。历史区域路线见 [ADR-003](docs/decisions/ADR-003-dual-region-release.md) / [ADR-004](docs/decisions/ADR-004-china-build-firebase-free.md)；现行分析与隐私策略见 [ADR-005](docs/decisions/ADR-005-analytics-privacy-strategy.md)。实现状态以当前代码、构建、签名和发布实证为准。
 
 - **阶段**：美国 NotBad Labs L.L.C.（Team `J58U72W335`）全球版，工程标识为 `com.snapdrill.global`。Release 1 为 iPhone-only、英文 + 简体中文、免费、无广告、无 IAP；iPad 与中国大陆专项发行只有新裁决后才能重入。
 - **产品定位**（PO 2026-07-12 Gate B）：通用受众的成人效率工具；当前首个切口是结构化纸张 / PDF 的采集、整理 / 找回、导出 / 打印。SSOT 见 [Product Constitution v1](docs/explanations/vision.md) 与 [positioning-and-audience.md](docs/explanations/positioning-and-audience.md)。
-- **分析 / 隐私**（ADR-005 D6=A）：**零采集 / 本地优先**——Apple ASC 聚合 + 端侧 MetricKit（#799 已合，`ServiceContainer` 14 服务），无后端、无 Firebase。
+- **分析 / 隐私**（ADR-005 D6=A）：**零采集 / 本地优先**——Apple ASC 聚合 + 端侧 MetricKit，无后端、无 Firebase；精确装配以 live Composition Root 为准。
 - **发布就绪**：流程与检查项见 [release-and-ci.md](docs/how-to/release-and-ci.md)；是否可发布必须以当次代码、依赖、签名、隐私清单、构建和 App Store Connect 实证重新判定，不使用固定 RC 快照替代实时检查。
 - **决策 · 商业**：Release 1 不接 StoreKit，所有 Pro、CloudKit、Word、价格与 IAP 只是未来候选；不可用入口必须隐藏，不保留“敬请期待”承诺。
 - **决策 · Firebase**：**已编译层彻底剔除（#803）**——删除整个 `SnapDrillInfrastructure` 包 + 切断 pbxproj 引用 + 清理 GoogleService 示例，二进制不再链接任何 Firebase SDK；生产端零采集（注入 `NoOpAnalyticsService`、ATT 已移除）。同步根治了 SwiftPM protobuf 子模块 clone 卡顿。
@@ -59,15 +59,18 @@
 
 - **[SnapDrillFeatures](Packages/SnapDrillFeatures/README.md)**:
   - **SnapDrillFeatureCapture**: 智能扫描与 OCR。
-  - **SnapDrillFeatureLibrary**: 题库管理、编辑与分类管理（学科/来源/年级）。
+  - **SnapDrillFeatureLibrary**: 资料库管理、编辑与动态分类。
   - **SnapDrillFeatureDashboard**: 数据概览。
-  - **SnapDrillFeatureReview**: 复习流程。
+  - **SnapDrillFeatureReview**: 当前实现中的回顾流程（Release 1 公开隐藏）。
   - **SnapDrillFeatureSettings**: 设置与关于。
 
 ### 其他
 
 - **Scripts**: 自动化脚本与开发者工具。
 - **SnapDrill/App**: 薄壳组合根（DependencyContainer + AppRouter）。
+
+本节描述当前模块与类型，不定义 Release 1 的用户可见范围。Multi-Profile、五 Tab、公开 Review /
+SmartPaper 与 Pro 路径仍可能存在于 live code，但只能作为待收敛实现事实。
 
 ## 环境要求
 

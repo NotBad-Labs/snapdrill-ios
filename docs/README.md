@@ -8,14 +8,14 @@
 ## 结构
 
 - **`features/`** — 功能规格（一元化，每功能一文件，承载 Why/What/How/Verify）
-  - `active/` — 已实现功能
+  - `active/` — live 实现或当前收敛中的功能；不等于 Release 1 已符合或公开可达
   - `backlog/` — 未实现/阻塞功能（`mode: lightweight`，How/Verify 待实现补）
   - `features/template.md` — 新建 feature spec 模板
 - **`explanations/`** — 为什么（vision = Product Constitution / design-principles 设计原则 / business-model 商业政策 / architecture 架构 / assumptions 待验证假设 / competitive-analysis 竞品 / user-journeys 用户旅程 / privacy-compliance 隐私合规）
-- **`reference/`** — 查阅（release-1-contract 当前发布契约 / local-library-data-contract 本地资料库数据契约 / feature-status 功能状态 SSOT / intent-traceability 意图追溯索引 / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / backup-wire-format 外部备份 wire / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO）
+- **`reference/`** — 查阅（release-1-contract 当前发布契约 / local-library-data-contract 本地资料库数据契约 / feature-status 实现状态索引 / document-control 文档角色与生命周期 / intent-traceability 意图追溯索引 / glossary 术语 / analytics-events 埋点 / apple-platform-limits 平台边界 / non-functional-requirements NFR / backup-wire-format 外部备份 wire / scope-and-roadmap 范围路线 / api-pitfalls / appstore-metadata ASO）
 - **`how-to/`** — 操作指南（definition-of-ready 开工入口 / **shape-up 我们怎么工作·Shape Up 单人版** / parallel-lanes 协作边界与分支生命周期 / release-and-ci 发布与 CI）
 - **`decisions/`** — 决策记录（PO 决策台账 + typed ADR；ADR-001 已被 B6-A 取代，ADR-003 为挂起路线，ADR-004 已被 ADR-005 取代）
-- **`ui-redesign/`** — UI 重设计日志与跨层契约（Codex + PO 决策、真机/模拟器验证、跨层发现）
+- **`ui-redesign/`** — 已取代的历史 UI 实现 / 截图证据；不再是当前合同或 release checklist
 - **`reference/audits/`** — 按 base commit 固定的仓库审计证据、checkpoint 与已复核 finding；不替代功能状态或产品意图 SSOT
 
 ## 意图可追溯
@@ -43,7 +43,13 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 
 历史 ADR 可以保留为证据，但必须在 frontmatter 标明 `current_status`、`historical_record: true` 和 `current_authority`。已挂起或已取代的历史路线不得在当前产品、架构或合规判断中继续充当依据。
 
-文档健康检查由 `Scripts/validate_docs.py --check` 执行，随 pre-commit 和 CI 运行。它只拦截高风险漂移：历史 ADR 未降级、过时 Firebase 路线陈述重新进入当前文档、feature spec 缺少意图追溯或 `intent_refs` 指向不存在的上游文档。
+文档机械门禁由两部分组成，均随 pre-commit 和 CI 运行：
+
+- `Scripts/validate_document_control.py --check`：覆盖所有 repository Markdown 的角色 / 生命周期，
+  检查历史降级提示、本地链接和 alias。
+- `Scripts/validate_docs.py --check`：检查历史 ADR、过时路线、定位 / 术语和 feature intent。
+
+两者不能替代人工语义 review 或外部事实新鲜度核查。
 
 ## 关键入口
 
@@ -54,11 +60,12 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 | **查单一本地资料库路径、inventory 与恢复状态** | `reference/local-library-data-contract.md` |
 | **看当前生产基线 / 已落地架构事实** | 根 `README.md` + `explanations/architecture.md` + 当前代码 / 构建 / 发布实证；`AGENTS.md` 只作入口路由 |
 | **看 Agent / 窗口角色、文件边界与交接方式** | `how-to/parallel-lanes.md` |
-| **看 UI 重设计决策和跨层发现** | `ui-redesign/REDESIGN-LOG.md` + `ui-redesign/flagship-cross-layer-contracts.md` |
+| **看历史 UI 实现和截图证据** | `ui-redesign/`；当前要求仍从 Release Contract + owning feature spec 读取 |
 | **怎么工作 / 决定下一步做什么** | **`how-to/shape-up.md`**（Shape Up 单人版：shaping→betting→building→cool-down；当前赌注由 PO 明确接受的 live GitHub issue/PR 或具名范围文档决定，不靠"最新文件名胜出"）|
 | **开工前确认目标、scope、验收和验证等级** | `how-to/definition-of-ready.md` |
 | 看某功能完整规格 | `features/active\|backlog/feat-*.md` |
-| 查所有功能当前状态 | `reference/feature-status.md`（自动生成，**勿手改**）|
+| 查所有功能当前实现状态 | `reference/feature-status.md`（自动生成，**勿手改**；不等于合同符合或发布就绪）|
+| 判断一份文档能否指导当前工作 | `reference/document-control.md` + `reference/document-control.json` |
 | 查 Vision / ADR 如何落到功能 | `reference/intent-traceability.md`（自动生成，**勿手改**）|
 | 理解产品为什么这么做 | `explanations/vision.md` + `explanations/design-principles.md` |
 | 新建一个功能规格 | 复制 `features/template.md` |
@@ -67,11 +74,15 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 | 查 PO 决策台账 | `decisions/po-decision-log.md` |
 | 架构决策依据 | `decisions/ADR-*.md` |
 | 看全仓审计方法与本次进度 | `how-to/repository-audit.md` + `reference/audits/2026-07-repository/README.md` |
-| 看 Agent 控制面评审 | `reference/audits/2026-07-agent-control-plane-review.md` |
+| 看 Agent 控制面历史评审 | `reference/audits/2026-07-agent-control-plane-review.md`（fixed-base evidence） |
 
-## 状态单一真理源（B 方案 · 自动单写）
+## 实现状态单写（B 方案）
 
-功能状态写在各 feature spec 的 frontmatter（`status` / `tier` / `blocked_by` / `mode`）；`tier` 允许 `free` / `pro` / `undecided`，其中 `pro` 只有在 effective 商业与 Release Contract 存在时才能使用，未裁决候选必须用 `undecided`。`reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 扫描 frontmatter **自动生成**。
+实现状态写在各 feature spec 的 frontmatter（`status` / `tier` / `blocked_by` / `mode`）；
+`implemented` 只表示代码路径存在，不表示 Release 1 合同符合、公开可达或发布就绪。`tier` 允许
+`free` / `pro` / `undecided`，其中 `pro` 只有在 effective 商业与 Release Contract 存在时才能使用，
+未裁决候选必须用 `undecided`。`reference/feature-status.md` 由
+`Scripts/generate_feature_status.py` 扫描 frontmatter **自动生成**。
 
 意图追溯写在各 feature spec 的 frontmatter `intent_refs`；`reference/intent-traceability.md` 由 `Scripts/generate_intent_traceability.py` 扫描 frontmatter **自动生成**。它证明“已声明上游依据”，不替代人工语义 review。
 

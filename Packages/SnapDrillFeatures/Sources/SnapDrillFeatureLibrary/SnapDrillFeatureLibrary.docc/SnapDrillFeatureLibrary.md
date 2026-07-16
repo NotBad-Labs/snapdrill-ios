@@ -1,5 +1,8 @@
 # ``SnapDrillFeatureLibrary``
 
+> 当前实现 API 参考；公开工具栏、批量能力和 SmartPaper 可达性由 Release Contract 与
+> Library feature spec 决定。
+
 资料库浏览与管理模块，支持搜索、过滤、编辑和导出。
 
 ## 概述
@@ -33,7 +36,7 @@
 
 ### 内部组件
 
-列表展示由 `LibraryListView`（`@Query` 驱动响应式更新）和 `LibraryDetailView`（单题详情）组成；
+列表展示由 `LibraryListView`（`@Query` 驱动响应式更新）和 `LibraryDetailView`（单份资料详情）组成；
 过滤面板 `LibraryFilterSheet` 支持按分类、来源、级别、标签多维过滤；
 导出功能通过 `ExportOptionsSheet`（选项配置）和 `ExportPreviewView`（PDF 预览）实现；
 批量操作通过 `BatchTagSheet`（批量打标签）完成。

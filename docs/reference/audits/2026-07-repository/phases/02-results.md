@@ -1,5 +1,7 @@
 # Phase 02 Results: Tracked Truth and Guardrails
 
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+
 ## Outcome
 
 Phase 02 在固定 `develop@d62fead8` 上审查规范链、实证链、生成状态、协作/发布说明、脚本入口与 UI 证据。三个 slice 均由 Codex C1、Claude Fable、Antigravity `Gemini 3.5 Flash (High)` 和 Grok 4.5 独立覆盖；C1 只保留能在 live tree、Git history 或当前 PO 指令上复核的结论。

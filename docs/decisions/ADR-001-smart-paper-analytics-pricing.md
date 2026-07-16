@@ -19,7 +19,7 @@ freshness:
 
 ## 背景
 
-智能组卷（Smart Paper, #566）与高级统计（Advanced Analytics, #567）的需求已定价、Pro 分层已决策（本 ADR）。两者的代码/可达性实现状态见 `../reference/feature-status.md`§功能状态总表（当前 StoreKit #479 未接，Pro 不可达）。需要决定它们在免费/Pro 分层中的定位。
+智能组卷（Smart Paper, #566）与高级统计（Advanced Analytics, #567）的需求已定价、Pro 分层已决策（本 ADR）。两者的代码存在状态见 `../reference/feature-status.md` 的历史对应行；该索引不证明 Release 1 可达或商业边界。需要决定它们在免费/Pro 分层中的定位。
 
 产品约束：
 - 免费层 = 完整单设备产品体验（采集 → 管理 → 导出/打印）

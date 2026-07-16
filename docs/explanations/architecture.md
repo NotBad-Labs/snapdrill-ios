@@ -9,7 +9,7 @@ freshness:
 
 > 面向新开发者的架构全景图。
 >
-> **产品重基线边界（2026-07-15）**：本文描述当前代码，不定义产品。Product Constitution v1 已选择一个可见资料库、Release 1 无 IAP，并把 Apple 私有同步 / Pro 降为未来假设；已 ratify 的 Release 1 Contract follow-up decisions 合入 `develop` 后继续约束 Must / hidden 与数据结果。因此下文 Multi-Profile、per-profile 偏好、Profile ZIP v2、Pro gating 与 CloudKit 路径只用于刻画待重审实现。不得据此新增功能或反向覆盖 `vision.md` / Release 1 Contract。Draft #868 须遵守 `../reference/local-library-data-contract.md`，并等待精确 Backup v3 Wire 与安全前置后重审。
+> **产品重基线边界（2026-07-16）**：本文描述当前代码，不定义产品。Product Constitution v1 已选择一个可见资料库、Release 1 无 IAP，并把 Apple 私有同步 / Pro 降为未来假设；effective 的 Release 1 Contract follow-up decisions 继续约束 Must / hidden 与数据结果。因此下文 Multi-Profile、per-profile 偏好、Profile ZIP v2、Pro gating 与 CloudKit 路径只用于刻画待收敛实现。不得据此新增功能或反向覆盖 `vision.md` / Release 1 Contract。#868 已关闭且只作历史证据；新实现须从最新 `develop` 遵守 `../reference/local-library-data-contract.md`、精确 Backup v3 Wire 与安全前置。
 
 ---
 

@@ -1,5 +1,8 @@
 # ``SnapDrillData``
 
+> 当前实现 API 参考。`ProfileManager` 与 ZIP v2 是 live compatibility / convergence 事实，
+> 不是 Release 1 产品或 Backup v3 wire 授权。
+
 SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 ## 概述
@@ -27,7 +30,7 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 - ``RepositoryContainer`` — 聚合所有 Repository 的单一入口，通过 `@Environment(\.repositories)` 注入
 - ``DataExecutor`` — actor 持有 `ModelContainer`，负责持久化入口、Schema 配置与 #599 死锁规避
-- ``ProfileManager`` — Multi-Profile 管理（创建/切换/删除 Profile，驱动 ModelContainer 重建）
+- ``ProfileManager`` — 当前 Multi-Profile 实现遗留（创建/切换/删除 Profile，驱动 ModelContainer 重建）
 
 ### 导出
 
@@ -35,7 +38,7 @@ SwiftData 数据层，提供 `@Model` 领域对象和具体 Repository 类。
 
 ### 备份与恢复
 
-- ``BackupService`` — `.zip` 备份文件的创建和解压（actor）
+- ``BackupService`` — 当前兼容期 `.zip` v2 备份文件的创建和解压（actor）
 - ``BackupManifest`` — 备份文件元数据清单（schema 版本、条目数）
 - ``BackupPayload`` — 备份数据传输对象顶层结构
 - ``BackupError`` — 备份操作错误类型

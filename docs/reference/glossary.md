@@ -31,7 +31,7 @@ layer: pattern
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **Profile（当前实现遗留）** | Profile / Workspace | 当前代码中的多资料库容器。Product Constitution v1 的产品目标是一个可见资料库，用户文案不得继续引入“资料空间 / Profile / Workspace”；本词只用于 #868 重基线前识别代码、数据和测试风险。 | `Profile` struct (Core), `ProfileManager` (Data) |
+| **Profile（当前实现遗留）** | Profile / Workspace | 当前代码中的多资料库容器。Product Constitution v1 的产品目标是一个可见资料库，用户文案不得继续引入“资料空间 / Profile / Workspace”；本词只用于完成单资料库收敛前识别代码、数据和测试风险。 | `Profile` struct (Core), `ProfileManager` (Data) |
 | **基线用户** | Baseline User | 不熟悉专业扫描 / 归档工具的成年用户（假设，待首批用户画像验证，见 `../explanations/assumptions.md` H1）。所有设计决策以此用户能否顺利完成为最低标准 | — |
 | **图片是真相** | Image is Truth | 当 OCR 文本与图片冲突时，以用户确认裁剪 / 方向后的 App-managed 可读图片为内容真相；不承诺来源原始字节或完整分辨率 | `ArchiveItemModel.imagePath` (Data) |
 | **.snapdrillbackup 备份** | .snapdrillbackup Backup | Release 1 的单一 purpose-built SQLite application document；不是 live SwiftData store 或通用 ZIP。Profile ZIP v2 仅为 epoch 前开发 fixture | 目标 wire 见 `backup-wire-format.md`；当前 `BackupService` 仍为待替换 v2 |
@@ -78,7 +78,7 @@ PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库”，但
 |---|---|---|---|
 | **PoC** | Proof of Concept | 功能正式纳入前的验证阶段，需满足预定义的 Go/No-Go 条件 | — |
 | **S0-S3** | Severity Level | 缺陷严重度分级：S0 数据不可逆丢失 > S1 流程阻断 > S2 有摩擦 > S3 不紧急 | — |
-| **DoD** | Definition of Done | PR 合并前检查清单（见 `AGENTS.md` §6 与 `parallel-lanes.md` §6） | — |
+| **DoD** | Definition of Done | 完成证据与风险分级（见根 `AGENTS.md` §6 与 `docs/how-to/parallel-lanes.md` §6） | — |
 
 ---
 
