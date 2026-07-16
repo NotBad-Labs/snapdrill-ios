@@ -12,7 +12,7 @@
 | [查阅参考](docs/reference/) | 功能状态(SSOT)、术语、埋点、平台边界、NFR、范围路线、ASO |
 | [操作指南](docs/how-to/) | 发布与 CI |
 | [架构决策](docs/decisions/) | ADR-001~005 |
-| [AGENTS.md](AGENTS.md) | 智能体协作行为约束 + 架构 + 编码（CLAUDE.md 软链至此）|
+| [AGENTS.md](AGENTS.md) | Agent 最小启动契约：权威路由、执行边界与完成证据（CLAUDE.md 软链至此）|
 | [DocC API 文档](Packages/) | Xcode: Product > Build Documentation |
 
 ## 当前状态（2026-07-12）
@@ -35,7 +35,7 @@
 | CloudKit 同步 | #485 —— 当前 `cloudKitDatabase: .none`；未来 Apple 私有同步假设 |
 | Word 导出 | #486 —— 不属于 Release 1；未来高级输出假设 |
 
-**发布路径**：美国全球版生产基线（`com.snapdrill.global`，自动签名）；DoD 门禁 = `swiftlint --strict` + `build-for-testing`(AllTests)。Archive 与开发签名真机安装已有本机实证，TestFlight / App Store 上传仍需当次 distribution signing、export/upload 与 App Store Connect 实证。shipping target 为 iPhone-only（`UIDeviceFamily = [1]`）；iPad 与中国大陆专项发行均须明确重入，不是默认后续步骤。
+**发布路径**：美国全球版生产基线（`com.snapdrill.global`，自动签名）；routine source gate 为 `bash Scripts/ci-local.sh`，更高风险改动继续补 targeted UI / AX、真机或发布证据。Archive 与开发签名真机安装已有本机实证，TestFlight / App Store 上传仍需当次 distribution signing、export/upload 与 App Store Connect 实证。shipping target 为 iPhone-only（`UIDeviceFamily = [1]`）；iPad 与中国大陆专项发行均须明确重入，不是默认后续步骤。
 
 ## 架构设计
 

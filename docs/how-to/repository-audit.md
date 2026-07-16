@@ -26,14 +26,16 @@
 
 ## 3. 独立审阅
 
-同一 slice 的 Codex、Claude、Antigravity 和 Grok 使用同一份中性 brief，彼此看不到先前结论。模型多数票不是事实；任何结论进入仓库前都由 C1 在 live base 上重跑命令并核对 `file:line`。
+同一 slice 的 Codex、Claude、Antigravity 和 Grok 使用同一份中性 brief，彼此看不到先前结论。模型多数票不是事实；任何结论进入仓库前都由 C1 在 live base 上重跑命令并核对 `file:line`。私有仓库内容外发前还必须按
+[`agent-invocation-protocol.md`](../reference/audits/2026-07-repository/agent-invocation-protocol.md)
+取得 PO 对 vendor 与最小 payload 的明确授权。
 
 当前模型约束：
 
 | Lane | 固定入口 | 约束 |
 |---|---|---|
 | Codex | 当前 C1 | 统筹、独立审阅、现场复核和归并；不把自身判断当裁决 |
-| Claude | `claude-fable-5[1m]` | `--safe-mode` + 显式 read tools；执行型只读审计用 `dontAsk`，跨 worktree 证据显式 `--add-dir`；禁用私有记忆和自定义 skill |
+| Claude | `claude-fable-5[1m]` | `--safe-mode` + `--permission-mode plan` + 显式 read tools；跨 worktree 证据显式 `--add-dir`；禁用私有记忆和自定义 skill |
 | Antigravity | `Gemini 3.5 Flash (High)` | 必须显式指定；禁止 3.1 Pro 和默认模型回退 |
 | Grok | `grok-4.5` | `--no-memory --no-subagents`，read-only，禁用 web search；terminal schema 不可用时降为 `Read,Grep,Glob` inference challenge，不伪装成数据执行 |
 

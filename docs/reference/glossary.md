@@ -78,7 +78,7 @@ PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库”，但
 |---|---|---|---|
 | **PoC** | Proof of Concept | 功能正式纳入前的验证阶段，需满足预定义的 Go/No-Go 条件 | — |
 | **S0-S3** | Severity Level | 缺陷严重度分级：S0 数据不可逆丢失 > S1 流程阻断 > S2 有摩擦 > S3 不紧急 | — |
-| **DoD** | Definition of Done | PR 合并前检查清单（lint/build/review/文档同步，见 AGENTS.md §DoD） | — |
+| **DoD** | Definition of Done | PR 合并前检查清单（见 `AGENTS.md` §6 与 `parallel-lanes.md` §6） | — |
 
 ---
 

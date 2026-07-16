@@ -52,8 +52,8 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 | **人工复核 Product Constitution v1** | `explanations/vision.md` |
 | **人工复核当前 Release 1 Contract** | `reference/release-1-contract.md` |
 | **查单一本地资料库路径、inventory 与恢复状态** | `reference/local-library-data-contract.md` |
-| **看当前生产基线 / 已落地架构事实** | 根 `README.md` + 根 `AGENTS.md` + 当前代码/构建实证 |
-| **看三路 agent 的文件边界与交接方式** | `how-to/parallel-lanes.md` |
+| **看当前生产基线 / 已落地架构事实** | 根 `README.md` + `explanations/architecture.md` + 当前代码 / 构建 / 发布实证；`AGENTS.md` 只作入口路由 |
+| **看 Agent / 窗口角色、文件边界与交接方式** | `how-to/parallel-lanes.md` |
 | **看 UI 重设计决策和跨层发现** | `ui-redesign/REDESIGN-LOG.md` + `ui-redesign/flagship-cross-layer-contracts.md` |
 | **怎么工作 / 决定下一步做什么** | **`how-to/shape-up.md`**（Shape Up 单人版：shaping→betting→building→cool-down；当前赌注由 PO 明确接受的 live GitHub issue/PR 或具名范围文档决定，不靠"最新文件名胜出"）|
 | **开工前确认目标、scope、验收和验证等级** | `how-to/definition-of-ready.md` |
@@ -67,6 +67,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 | 查 PO 决策台账 | `decisions/po-decision-log.md` |
 | 架构决策依据 | `decisions/ADR-*.md` |
 | 看全仓审计方法与本次进度 | `how-to/repository-audit.md` + `reference/audits/2026-07-repository/README.md` |
+| 看 Agent 控制面评审 | `reference/audits/2026-07-agent-control-plane-review.md` |
 
 ## 状态单一真理源（B 方案 · 自动单写）
 
