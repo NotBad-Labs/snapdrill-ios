@@ -31,12 +31,10 @@ nonisolated enum BackupImagePathValidator {
         }
     }
 
-    static func readableImageURL(path: String, relativeTo baseDirectory: URL) throws -> URL? {
+    static func readableImageURL(path: String, relativeTo baseDirectory: URL) throws -> URL {
         guard ImageStorage.isValidImagePath(path) else { throw BackupError.invalidArchive }
-        let expectedURL = baseDirectory.appendingPathComponent(path)
-        guard FileManager.default.fileExists(atPath: expectedURL.path) else { return nil }
         guard let fileURL = ImageStorage(baseDirectory: baseDirectory).imageFileURL(path: path) else {
-            throw BackupError.invalidArchive
+            throw BackupError.referencedImageUnavailable(path: path)
         }
         return fileURL
     }

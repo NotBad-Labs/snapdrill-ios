@@ -104,6 +104,18 @@ public actor BackupService {
         } catch {
             throw BackupError.archiveCreationFailed
         }
+        var didCompleteBackup = false
+        defer {
+            if !didCompleteBackup {
+                do {
+                    try fileManager.removeItem(at: backupURL)
+                } catch {
+                    if (error as NSError).code != NSFileNoSuchFileError {
+                        SnapDrillLogger.generic.warning("不完整备份清理失败: \(error.localizedDescription)")
+                    }
+                }
+            }
+        }
 
         // 1. 写入 manifest.json
         let encoder = JSONEncoder()
@@ -133,6 +145,7 @@ public actor BackupService {
             profileDirectories: profileDirectories, onProgress: onProgress
         )
 
+        didCompleteBackup = true
         return backupURL
     }
 
@@ -166,15 +179,10 @@ public actor BackupService {
 
             let profilePrefix = "profiles/\(profileData.profileId.uuidString)"
             for relativePath in Set(imagePaths) {
-                guard let fileURL = try BackupImagePathValidator.readableImageURL(
+                let fileURL = try BackupImagePathValidator.readableImageURL(
                     path: relativePath,
                     relativeTo: imageBasePath
-                ) else {
-                    SnapDrillLogger.generic.warning("备份跳过缺失图片: \(relativePath)")
-                    processedImages += 1
-                    reportProgress(processedImages, totalImages, lastPercent: &lastReportedPercent, handler: onProgress)
-                    continue
-                }
+                )
 
                 let fileData = try Data(contentsOf: fileURL)
                 try archive.addEntry(
@@ -440,6 +448,8 @@ public enum BackupError: LocalizedError {
     case schemaVersionTooNew(fileVersion: Int, appVersion: Int)
     /// 磁盘空间不足
     case insufficientDiskSpace
+    /// 数据库引用的图片不存在、不可读或不是普通文件
+    case referencedImageUnavailable(path: String)
     /// ZIP entry 解压体积超过恢复上限
     case archiveEntryTooLarge(path: String, limitBytes: Int64)
 
@@ -457,6 +467,8 @@ public enum BackupError: LocalizedError {
             return L10n.BackupErrors.schemaVersionTooNew(fileVersion, appVersion)
         case .insufficientDiskSpace:
             return L10n.BackupErrors.insufficientDiskSpace
+        case .referencedImageUnavailable:
+            return L10n.Errors.backupFailed
         case .archiveEntryTooLarge:
             return L10n.BackupErrors.invalidArchive
         }

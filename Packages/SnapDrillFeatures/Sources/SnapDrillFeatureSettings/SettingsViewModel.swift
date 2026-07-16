@@ -140,7 +140,7 @@ public final class SettingsViewModel {
 
         do {
             try await coordinator.restoreFromBackup(fileURL: fileURL)
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            NotificationCenter.default.post(name: .reviewDataDidChange, object: self)
             backupStatusMessage = L10n.Settings.restoreComplete
         } catch {
             backupError = L10n.Errors.restoreFailed
