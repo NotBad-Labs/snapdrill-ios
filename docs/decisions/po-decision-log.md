@@ -64,7 +64,8 @@
 | 07-06 | **多窗口并行模式采用**（主刀 / 副刀 / 运维 / QA；write ≤ 2；合并串行） | `docs/how-to/parallel-lanes.md` 多窗口小节（PR #855） |
 | 07-06 | 老窗口退役；PO 转发降级为提醒信号（Claude 自查仓库为准） | 本台账 |
 | 07-11 | **产品决策五态 + 旧规范显式 supersede + contract-first**（effective）；Draft 实验可先存在，但跨 feature / 数据 wire / 公开 / 商业 / 平台变更必须先有上游契约，每次合并仍需 PO 单独授权 | `AGENTS.md` §1 + `docs/how-to/definition-of-ready.md` |
-| 07-16 | **Agent 控制面改为角色制**：Codex C1 默认统筹；模型不永久拥有文件；Claude / Gemini / Grok 默认只读复核，只有 PO / shaping 显式分配时进入独立 write lane；write WIP ≤ 2，合并串行且逐次授权 | `AGENTS.md` + `docs/how-to/parallel-lanes.md` |
+| 07-16 | **Agent 控制面改为角色制**：Codex C1 默认统筹；模型不永久拥有文件；Claude / Gemini / Grok 默认只读复核，只有 PO / shaping 显式分配时进入独立 write lane；active write WIP ≤ 2，合并串行且逐次授权 | `AGENTS.md` + `docs/how-to/parallel-lanes.md` |
+| 07-16 | **Write WIP v2**：active write ≤ 2；满足精确 head 冻结、必需门禁全绿、PR / handoff 完整且无 blocker 的 slice 可进入 frozen merge queue（≤ 2）并退出 active 计数；任何新 commit、冲突、门禁失败或未解决 finding 使其退回 active；串行合并与精确 head 授权不变 | `AGENTS.md` + `docs/how-to/parallel-lanes.md` + PR 模板 |
 
 ## E. 处置类
 

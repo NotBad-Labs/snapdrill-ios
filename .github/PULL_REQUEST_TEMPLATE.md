@@ -9,6 +9,7 @@
 - 独立 worktree / branch：
 - Owning authority / current operations doc：
 - Decision lifecycle：effective / candidate / not applicable
+- WIP state：active write / frozen merge queue（冻结时说明满足条件）
 
 ## Scope
 

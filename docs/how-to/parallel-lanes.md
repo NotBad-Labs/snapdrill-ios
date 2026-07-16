@@ -87,12 +87,32 @@ PO / legal / fact gates:
 
 ## 4. 并行与 worktree
 
-- 同时进行的 write WIP 不超过 2；审计 / reviewer 不计入 write WIP。
+- active write WIP 不超过 2；冻结待合并队列不超过 2；审计 / reviewer 不计入 write WIP。
 - 每个 write lane 使用独立 worktree、分支和 DerivedData；不动主 checkout。
 - 不修改、清理或恢复其他 lane 的 worktree、stash、未提交文件和未知 artifact。
 - 窗口之间零口头依赖；协作只经 commit、PR、report、测试和 tracked docs。
 - 合并永远串行，顺序由 shaping 标注；每次 merge 都需 PO 对精确 head 明确授权。
 - 依赖另一个 slice 时，消费者等待契约 commit 合入或明确 rebase 基线，不能猜测未冻结接口。
+
+### WIP 状态机
+
+write slice 的状态必须写入 PR 描述或 handoff；GitHub 的 Draft / Ready 标签本身不决定 WIP
+归类，也不构成合并授权。
+
+- **active write**：head 仍可能变化，或实现、必需验证、冲突处理、必需复核仍未完成；总数不超过 2。
+- **frozen merge queue**：不计入 active write，但总数不超过 2。只有同时满足以下条件才能进入：
+  1. owned changes 已全部 commit / push，worktree clean，精确 head 与 scope 已冻结；
+  2. task brief 要求的本地门禁已绿，PR 记录实际运行、未运行项和剩余风险；
+  3. 必需复核已完成，且没有未解决 finding、合并冲突、上游 contract 或 PO 决策 blocker；
+  4. 依赖与合并顺序已明确，只剩精确 head 授权或串行 merge slot。
+- frozen slice 一旦新增 commit、需要解决冲突、必需门禁失败或出现未解决评审 finding，必须先退回
+  active write，再继续修改。
+- base 前进但 head 不变时，Operations 重新做 T0、mergeability 与所需验证判断；无需修改且门禁仍
+  充分时可保持 frozen，需要改动或补救时退回 active。
+- 已 merged、closed 或明确 superseded 的 branch 不计入两类 WIP，但仍按 §8 做分支生命周期处置。
+
+该状态机只提高 pipeline 吞吐，不改变 Shape Up 的单一主 bet、文件集不相交准入、串行合并或
+逐次 PO 授权。
 
 并行构建沿用 `release-and-ci.md` 的 canonical 参数，并为每个 lane 追加独立 DerivedData：
 

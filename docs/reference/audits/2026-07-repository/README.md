@@ -6,7 +6,9 @@
 - **审计 base**：`develop@d62fead87fb103708652ac5378eda8e2c03f8257`
 - **协调者**：Codex C1
 - **工作状态**：C2 / C3 / C4 暂挂；本审计的外部 CLI 是只读 reviewer，不是新的 write lane
-- **write WIP**：1 个审计分支 + 最多 1 个独立修复分支；总数不超过 2，审计分支不写产品代码
+- **write WIP**：遵循 [`parallel-lanes.md`](../../../how-to/parallel-lanes.md) §4 的 WIP v2；
+  审计 / 修复分支仍可能改动时计入 active（≤ 2），满足冻结条件后进入 frozen merge queue
+  （≤ 2）；审计分支不写产品代码
 - **目标**：区分必要投入、可解释返工、真实浪费和当前发布风险，形成可验证的 keep / repair / replace / retire / delete / defer 与 release 输入
 
 本 charter 只约束本次审计，不改写 steady-state lane 归属。产品方向、风险接受、修复优先级、合并和发布仍由 PO 裁决。

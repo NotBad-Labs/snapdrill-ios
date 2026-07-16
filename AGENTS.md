@@ -46,7 +46,10 @@
 - 使用独立 worktree / 分支，不修改或清理主 checkout、其他 worktree、stash 或未知文件；
 - shaping 明确 outcome、scope、red lines、owner、acceptance、验证等级和 PO / legal / fact gate；
 - 共享接缝先用小契约 PR 冻结当前 slice 所需接口，再让文件集不相交的实现并行；
-- write WIP 不超过 2；合并永远串行，每次 merge 都需 PO 明确授权。
+- active write WIP 不超过 2；精确 head 已冻结、必需门禁全绿、PR / handoff 完整且无未决
+  blocker 的 slice 可进入冻结待合并队列（不超过 2），不再计入 active。任何新 commit、
+  合并冲突、必需门禁失败或未解决评审发现都会使其退回 active。合并永远串行，每次 merge
+  都需 PO 对精确 head 明确授权。
 
 工具或模型不永久拥有文件。当前默认由 Codex C1 统筹 shaping、本地实证、实现整合与完成报告；
 Claude、Gemini / Antigravity、Grok 等默认是独立只读 reviewer，只有 PO 或 shaping 明确分配
