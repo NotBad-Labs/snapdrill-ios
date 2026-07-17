@@ -150,9 +150,94 @@ struct BackupServiceSizeLimitTests {
         }
     }
 
-    private func makePayload(profileId: UUID) -> BackupPayload {
+    @Test("createBackup 拒绝 reader 会因图片总量上限拒绝的 payload")
+    func createBackup_rejectsImageTotalReaderWouldReject() async throws {
+        let profileId = UUID()
+        let imageData = try makeTestJPEGData()
+        let totalLimit = Int64(imageData.count * 2 - 1)
+        let service = BackupService(
+            restoreSizeLimits: .init(maxSingleEntryBytes: 10_000, maxTotalEntryBytes: totalLimit)
+        )
+        let profileDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("BackupWriterLimitTests_\(UUID().uuidString)", isDirectory: true)
+        let imagesDirectory = profileDirectory.appendingPathComponent("images", isDirectory: true)
+        try FileManager.default.createDirectory(at: imagesDirectory, withIntermediateDirectories: true)
+        try imageData.write(to: imagesDirectory.appendingPathComponent("one.jpg"))
+        try imageData.write(to: imagesDirectory.appendingPathComponent("two.jpg"))
+        defer { cleanup(profileDirectory) }
+
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSinceReferenceDate: 0),
+            appVersion: "1.0",
+            totalItemCount: 2,
+            profileCount: 1,
+            profileNames: ["Default"]
+        )
+
+        do {
+            _ = try await service.createBackup(
+                payload: makePayload(profileId: profileId),
+                manifest: manifest,
+                profileDirectories: [profileDirectory]
+            )
+            Issue.record("createBackup should not emit an archive its reader rejects")
+        } catch BackupError.archiveEntryTooLarge(let path, let limitBytes) {
+            #expect(path.hasPrefix("profiles/\(profileId.uuidString)/images/"))
+            #expect(limitBytes == totalLimit)
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
+    @Test("createBackup 拒绝超过 reader 单 entry 上限的图片")
+    func createBackup_rejectsImageSingleEntryReaderWouldReject() async throws {
+        let profileId = UUID()
+        let imageData = try makeTestJPEGData()
+        let singleLimit = Int64(imageData.count - 1)
+        let service = BackupService(
+            restoreSizeLimits: .init(maxSingleEntryBytes: singleLimit, maxTotalEntryBytes: 10_000)
+        )
+        let profileDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("BackupWriterSingleLimitTests_\(UUID().uuidString)", isDirectory: true)
+        let imageURL = profileDirectory.appendingPathComponent("images/one.jpg")
+        try FileManager.default.createDirectory(
+            at: imageURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try imageData.write(to: imageURL)
+        defer { cleanup(profileDirectory) }
+
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSinceReferenceDate: 0),
+            appVersion: "1.0",
+            totalItemCount: 1,
+            profileCount: 1,
+            profileNames: ["Default"]
+        )
+
+        do {
+            _ = try await service.createBackup(
+                payload: makePayload(profileId: profileId, imagePaths: ["images/one.jpg"]),
+                manifest: manifest,
+                profileDirectories: [profileDirectory]
+            )
+            Issue.record("createBackup should enforce the reader's per-entry image limit")
+        } catch BackupError.archiveEntryTooLarge(let path, let limitBytes) {
+            #expect(path == "profiles/\(profileId.uuidString)/images/one.jpg")
+            #expect(limitBytes == singleLimit)
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
+    private func makePayload(
+        profileId: UUID,
+        imagePaths: [String] = ["images/one.jpg", "images/two.jpg"]
+    ) -> BackupPayload {
         let now = Date(timeIntervalSinceReferenceDate: 0)
-        let items = ["images/one.jpg", "images/two.jpg"].map { path in
+        let items = imagePaths.map { path in
             ArchiveItemBackupDTO(
                 id: UUID(),
                 content: "Item",

@@ -14,12 +14,17 @@ extension BackupServiceTests {
 
     @Test("createBackup 遇到缺失引用图片时失败且删除 partial ZIP")
     func missingReferencedImageFailsWithoutPartialArchive() async throws {
-        let service = BackupService()
+        let backupDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("BackupIntegrityArchives_\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: backupDirectory, withIntermediateDirectories: true)
+        let service = BackupService(
+            restoreSizeLimits: .production,
+            backupDirectory: backupDirectory
+        )
         let profileDir = try makeProfileDirectory()
-        let existingBackups = try temporaryBackupArchiveNames()
         defer {
             try? FileManager.default.removeItem(at: profileDir)
-            removeTemporaryBackups(excluding: existingBackups)
+            try? FileManager.default.removeItem(at: backupDirectory)
         }
 
         await #expect(throws: BackupError.self) {
@@ -30,7 +35,11 @@ extension BackupServiceTests {
             )
         }
 
-        #expect(try temporaryBackupArchiveNames() == existingBackups)
+        let remainingFiles = try FileManager.default.contentsOfDirectory(
+            at: backupDirectory,
+            includingPropertiesForKeys: nil
+        )
+        #expect(remainingFiles.isEmpty)
     }
 
     private func makeProfileDirectory() throws -> URL {
@@ -83,21 +92,4 @@ extension BackupServiceTests {
         )
     }
 
-    private func temporaryBackupArchiveNames() throws -> Set<String> {
-        let urls = try FileManager.default.contentsOfDirectory(
-            at: FileManager.default.temporaryDirectory,
-            includingPropertiesForKeys: nil
-        )
-        return Set(urls.lazy.map(\.lastPathComponent).filter {
-            $0.hasPrefix("SnapDrill_Backup_") && $0.hasSuffix(".zip")
-        })
-    }
-
-    private func removeTemporaryBackups(excluding preservedNames: Set<String>) {
-        guard let names = try? temporaryBackupArchiveNames() else { return }
-        for name in names.subtracting(preservedNames) {
-            let url = FileManager.default.temporaryDirectory.appendingPathComponent(name)
-            try? FileManager.default.removeItem(at: url)
-        }
-    }
 }

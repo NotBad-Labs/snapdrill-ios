@@ -69,6 +69,19 @@ struct BackupServiceSemanticClosureTests {
         }
     }
 
+    @Test("JPEG 预检拒绝数据不完整的 incremental source")
+    func validateCompleteImageSource_rejectsIncompleteSource() throws {
+        let source = try #require(CGImageSourceCreateIncremental(nil))
+        CGImageSourceUpdateData(source, try makeTestJPEGData() as CFData, false)
+        #expect(CGImageSourceGetCount(source) > 0)
+        #expect(CGImageSourceGetStatus(source) != .statusComplete)
+        #expect(CGImageSourceGetStatusAtIndex(source, 0) != .statusComplete)
+
+        #expect(throws: BackupError.self) {
+            try BackupImagePathValidator.validateCompleteImageSource(source)
+        }
+    }
+
     @Test("createBackup 不生成自身无法恢复的悬空分类归档")
     func createBackup_rejectsDanglingTaxonomy() async {
         let payload = makePayload(imagePath: nil, categoryValueDimensionId: UUID())

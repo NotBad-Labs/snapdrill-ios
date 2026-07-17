@@ -88,6 +88,7 @@ nonisolated enum BackupImagePathValidator {
               CGImageSourceGetCount(source) > 0 else {
             throw BackupError.invalidArchive
         }
+        try validateCompleteImageSource(source)
         try validateImageProperties(of: source)
 
         let thumbnailOptions: [CFString: Any] = [
@@ -101,6 +102,13 @@ nonisolated enum BackupImagePathValidator {
             0,
             thumbnailOptions as CFDictionary
         ) != nil else {
+            throw BackupError.invalidArchive
+        }
+    }
+
+    static func validateCompleteImageSource(_ source: CGImageSource) throws {
+        guard CGImageSourceGetStatus(source) == .statusComplete,
+              CGImageSourceGetStatusAtIndex(source, 0) == .statusComplete else {
             throw BackupError.invalidArchive
         }
     }

@@ -43,6 +43,16 @@ public actor BackupService {
         let maxSingleEntryBytes: Int64
         let maxTotalEntryBytes: Int64
 
+        func validate(byteCount: Int64, path: String, totalBytesSoFar: Int64? = nil) throws {
+            guard byteCount <= maxSingleEntryBytes else {
+                throw BackupError.archiveEntryTooLarge(path: path, limitBytes: maxSingleEntryBytes)
+            }
+            if let totalBytesSoFar,
+               totalBytesSoFar > maxTotalEntryBytes - byteCount {
+                throw BackupError.archiveEntryTooLarge(path: path, limitBytes: maxTotalEntryBytes)
+            }
+        }
+
         static let production = RestoreSizeLimits(
             maxSingleEntryBytes: 50 * 1024 * 1024,
             maxTotalEntryBytes: 1024 * 1024 * 1024
@@ -50,15 +60,21 @@ public actor BackupService {
     }
 
     private let restoreSizeLimits: RestoreSizeLimits
+    private let backupDirectory: URL
 
     // MARK: - Initialization
 
     public init() {
         self.restoreSizeLimits = .production
+        self.backupDirectory = FileManager.default.temporaryDirectory
     }
 
-    init(restoreSizeLimits: RestoreSizeLimits) {
+    init(
+        restoreSizeLimits: RestoreSizeLimits,
+        backupDirectory: URL = FileManager.default.temporaryDirectory
+    ) {
         self.restoreSizeLimits = restoreSizeLimits
+        self.backupDirectory = backupDirectory
     }
 
     // MARK: - Export
@@ -82,20 +98,10 @@ public actor BackupService {
         try BackupImagePathValidator.validatePayload(payload)
 
         let fileManager = FileManager.default
-        let tempDir = fileManager.temporaryDirectory
         let timestamp = ISO8601DateFormatter().string(from: Date())
             .replacingOccurrences(of: ":", with: "-")
-        let backupURL = tempDir.appendingPathComponent("SnapDrill_Backup_\(timestamp).zip")
-
-        // 清理可能存在的旧文件
-        do {
-            try fileManager.removeItem(at: backupURL)
-        } catch {
-            // 文件不存在是正常的，只记录非 fileNotFound 错误
-            if (error as NSError).code != NSFileNoSuchFileError {
-                SnapDrillLogger.generic.warning("备份旧文件清理失败: \(error.localizedDescription)")
-            }
-        }
+        let backupURL = backupDirectory
+            .appendingPathComponent("SnapDrill_Backup_\(timestamp)_\(UUID().uuidString).zip")
 
         // 创建 ZIP 归档
         let archive: Archive
@@ -166,6 +172,7 @@ public actor BackupService {
 
         var processedImages = 0
         var lastReportedPercent = -1
+        var totalImageBytes: Int64 = 0
 
         for (profileIndex, profileData) in payload.profiles.enumerated() {
             let imageBasePath = profileIndex < profileDirectories.count
@@ -185,8 +192,15 @@ public actor BackupService {
                 )
 
                 let fileData = try Data(contentsOf: fileURL)
+                let archivePath = "\(profilePrefix)/\(relativePath)"
+                try restoreSizeLimits.validate(
+                    byteCount: Int64(fileData.count),
+                    path: archivePath,
+                    totalBytesSoFar: totalImageBytes
+                )
+                totalImageBytes += Int64(fileData.count)
                 try archive.addEntry(
-                    with: "\(profilePrefix)/\(relativePath)",
+                    with: archivePath,
                     type: .file,
                     uncompressedSize: Int64(fileData.count),
                     compressionMethod: .none,
@@ -277,7 +291,6 @@ public actor BackupService {
         }
 
         let imageEntries = try extractImageEntries(from: archive, profileId: profileId)
-        let totalImages = imageEntries.count
 
         let fileManager = FileManager.default
         let stagingDir = fileManager.temporaryDirectory
@@ -320,8 +333,9 @@ public actor BackupService {
 
     private func extractImageEntries(from archive: Archive, profileId: UUID) throws -> [Entry] {
         let prefix = "profiles/\(profileId.uuidString)/images/"
-        let entries = archive.filter { $0.path.hasPrefix(prefix) && $0.type == .file }
-        guard Set(entries.map(\.path)).count == entries.count else {
+        let entries = archive.filter { $0.path.hasPrefix(prefix) }
+        guard entries.allSatisfy({ $0.type == .file }),
+              Set(entries.map(\.path)).count == entries.count else {
             throw BackupError.invalidArchive
         }
         return entries
@@ -393,27 +407,18 @@ public actor BackupService {
         var extractedBytes: Int64 = 0
         _ = try archive.extract(entry) { data in
             extractedBytes += Int64(data.count)
-            guard extractedBytes <= restoreSizeLimits.maxSingleEntryBytes else {
-                throw BackupError.archiveEntryTooLarge(
-                    path: entry.path,
-                    limitBytes: restoreSizeLimits.maxSingleEntryBytes
-                )
-            }
-            if let totalBytesSoFar {
-                guard totalBytesSoFar + extractedBytes <= restoreSizeLimits.maxTotalEntryBytes else {
-                    throw BackupError.archiveEntryTooLarge(
-                        path: entry.path,
-                        limitBytes: restoreSizeLimits.maxTotalEntryBytes
-                    )
-                }
-            }
+            try restoreSizeLimits.validate(
+                byteCount: extractedBytes,
+                path: entry.path,
+                totalBytesSoFar: totalBytesSoFar
+            )
             fileData.append(data)
         }
         return ExtractedEntryData(data: fileData, byteCount: extractedBytes)
     }
 
     private func validateSingleEntrySize(_ entry: Entry) throws {
-        guard Int64(entry.uncompressedSize) <= restoreSizeLimits.maxSingleEntryBytes else {
+        guard entry.uncompressedSize <= UInt64(restoreSizeLimits.maxSingleEntryBytes) else {
             throw BackupError.archiveEntryTooLarge(
                 path: entry.path,
                 limitBytes: restoreSizeLimits.maxSingleEntryBytes
