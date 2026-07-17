@@ -62,6 +62,8 @@ final class LibraryEditMetadataReadinessTests {
         let storage = ImageStorage(baseDirectory: directory)
         let tracker = AppActivityTracker()
         let viewModel = makeViewModel(item: item, storage: storage, tracker: tracker)
+        var activityBeginCount = 0
+        viewModel.beginActivity = { _ in activityBeginCount += 1 }
         viewModel.content = "Edited"
         viewModel.displayedImage = createTestImage()
 
@@ -81,6 +83,7 @@ final class LibraryEditMetadataReadinessTests {
         #expect(!viewModel.isSavedNormally)
         #expect(item.content == "Original")
         #expect(Set((item.categoryValues ?? []).map(\.id)) == Set([value.id]))
+        #expect(activityBeginCount == 0)
         #expect(tracker.activeActivities.isEmpty)
         #expect(await storage.imageDirectorySize() == 0)
         #expect(notificationCount == 0)
@@ -122,7 +125,12 @@ final class LibraryEditMetadataReadinessTests {
         let value = try seedValue(systemKey: "category", name: "Math")
         let dimensionID = try #require(value.dimension).id
         let oldPath = "images/original.jpg"
-        let item = try insertItem(content: "Original", imagePath: oldPath, values: [value])
+        let item = try insertItem(
+            content: nil,
+            imagePath: oldPath,
+            answerText: "Original answer",
+            values: [value]
+        )
         let viewModel = makeViewModel(item: item)
         let gate = SuspendedInitialImageGate()
         viewModel.initialImageLoader = { _ in
@@ -135,8 +143,11 @@ final class LibraryEditMetadataReadinessTests {
 
         #expect(viewModel.metadataLoadState == .ready)
         #expect(viewModel.selectedIds(forDimension: dimensionID).contains(value.id))
-        viewModel.content = "Edited while image loads"
+        viewModel.answer = "Edited while image loads"
         await viewModel.save()
+        #expect(viewModel.isSavedNormally)
+        #expect(item.content == nil)
+        #expect(item.answerText == "Edited while image loads")
         #expect(item.imagePath == oldPath)
         #expect(Set((item.categoryValues ?? []).map(\.id)) == Set([value.id]))
 
@@ -150,7 +161,12 @@ final class LibraryEditMetadataReadinessTests {
     func missingInitialImagePreservesOldPath() async throws {
         let value = try seedValue(systemKey: "category", name: "Math")
         let oldPath = "images/missing.jpg"
-        let item = try insertItem(content: "Original", imagePath: oldPath, values: [value])
+        let item = try insertItem(
+            content: nil,
+            imagePath: oldPath,
+            answerText: "Original answer",
+            values: [value]
+        )
         let directory = temporaryDirectory(named: "MissingImage")
         defer { removeTemporaryDirectory(directory) }
         let viewModel = makeViewModel(item: item, storage: ImageStorage(baseDirectory: directory))
@@ -159,8 +175,11 @@ final class LibraryEditMetadataReadinessTests {
 
         #expect(viewModel.metadataLoadState == .ready)
         #expect(viewModel.imageLoadFailed)
-        viewModel.content = "Edited without image decode"
+        viewModel.answer = "Edited without image decode"
         await viewModel.save()
+        #expect(viewModel.isSavedNormally)
+        #expect(item.content == nil)
+        #expect(item.answerText == "Edited without image decode")
         #expect(item.imagePath == oldPath)
         #expect(Set((item.categoryValues ?? []).map(\.id)) == Set([value.id]))
     }
@@ -204,11 +223,12 @@ final class LibraryEditMetadataReadinessTests {
     }
 
     private func insertItem(
-        content: String,
+        content: String?,
         imagePath: String? = nil,
+        answerText: String? = nil,
         values: [CategoryValueModel] = []
     ) throws -> ArchiveItemModel {
-        let item = ArchiveItemModel(content: content, imagePath: imagePath)
+        let item = ArchiveItemModel(content: content, imagePath: imagePath, answerText: answerText)
         item.categoryValues = values
         repos.archive.insert(item)
         try repos.archive.saveContext()

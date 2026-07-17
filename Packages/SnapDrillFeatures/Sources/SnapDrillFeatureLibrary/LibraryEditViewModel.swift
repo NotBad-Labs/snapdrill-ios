@@ -84,12 +84,10 @@ public final class LibraryEditViewModel {
     private var questionPhotoLoadToken = UUID()
     @ObservationIgnored
     private var answerPhotoLoadTask: Task<Void, Never>?
-    @ObservationIgnored
-    private var answerPhotoLoadToken = UUID()
-    @ObservationIgnored
-    var metadataLoader: () throws -> [CategoryDimensionModel]
-    @ObservationIgnored
-    var initialImageLoader: (String) async -> UIImage?
+    @ObservationIgnored private var answerPhotoLoadToken = UUID()
+    @ObservationIgnored var metadataLoader: () throws -> [CategoryDimensionModel]
+    @ObservationIgnored var initialImageLoader: (String) async -> UIImage?
+    @ObservationIgnored var beginActivity: (AppActivity) -> Void
 
     /// 创建题目编辑 ViewModel
     public init(
@@ -102,14 +100,16 @@ public final class LibraryEditViewModel {
             try await $0.loadTransferable(type: Data.self)
         }
     ) {
+        let resolvedActivityTracker = activityTracker ?? AppActivityTracker.shared
         self.item = item
         self.repositories = repositories
         self.imageStorage = imageStorage
         self.ocrService = ocrService
-        self.activityTracker = activityTracker ?? AppActivityTracker.shared
+        self.activityTracker = resolvedActivityTracker
         self.photoDataLoader = photoDataLoader
         self.metadataLoader = { try repositories.dimension.fetchAllModels() }
         self.initialImageLoader = { await imageStorage.loadImageAsync(path: $0) }
+        self.beginActivity = { resolvedActivityTracker.begin($0) }
 
         self.content = item.content ?? ""
         self.answer = item.answerText ?? ""
@@ -338,17 +338,17 @@ public final class LibraryEditViewModel {
     /// 将当前编辑内容持久化到数据库
     public func save() async {
         guard metadataLoadState == .ready else {
-            SnapDrillLogger.generic.warning("跳过元数据尚未就绪的资料保存。")
+            SnapDrillLogger.generic.warning("元数据未就绪，跳过保存。")
             return
         }
         guard !isSaving, !isPhotoLoading else { return }
-        activityTracker.begin(.capturing)
+        beginActivity(.capturing)
         defer { activityTracker.end(.capturing) }
         isSaving = true
         defer { isSaving = false }
 
         let willHaveContent = !content.isEmpty
-        let willHaveImage = displayedImage != nil
+        let willHaveImage = displayedImage != nil || item.imagePath != nil
         guard willHaveContent || willHaveImage else {
             SnapDrillLogger.generic.warning("保存失败：题目文字和图片均为空。")
             return
