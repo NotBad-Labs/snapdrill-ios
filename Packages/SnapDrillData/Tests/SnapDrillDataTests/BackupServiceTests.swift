@@ -425,6 +425,29 @@ struct BackupServiceTests {
         ) == "safe-new-image-data")
     }
 
+    @Test("restoreImages 在 staging 前拒绝重复图片 entry 且不修改旧图片")
+    func restoreImages_rejectsDuplicateEntriesWithoutMutation() async throws {
+        let service = BackupService()
+        let profileId = UUID()
+        let restoreDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("RestoreDuplicateEntryTest_\(UUID().uuidString)", isDirectory: true)
+        defer { cleanup(restoreDir) }
+
+        let originalImage = restoreDir.appendingPathComponent("images/keep.jpg")
+        try writeString("original-image-data", to: originalImage)
+        let duplicatePath = "profiles/\(profileId.uuidString)/images/keep.jpg"
+        let archiveURL = try makeArchive(entries: [
+            ZIPEntry(path: duplicatePath, data: Data("first".utf8)),
+            ZIPEntry(path: duplicatePath, data: Data("second".utf8))
+        ])
+        defer { cleanup(archiveURL) }
+
+        await #expect(throws: BackupError.self) {
+            try await service.restoreImages(from: archiveURL, profileId: profileId, to: restoreDir)
+        }
+        #expect(try stringContents(of: originalImage) == "original-image-data")
+    }
+
     @Test("restoreImages 拒绝符号链接 images 目录")
     func restoreImages_rejectsSymlinkedImagesDirectory() async throws {
         let service = BackupService()

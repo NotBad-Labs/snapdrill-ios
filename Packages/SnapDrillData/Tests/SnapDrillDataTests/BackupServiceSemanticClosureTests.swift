@@ -8,7 +8,9 @@
 
 import Testing
 import Foundation
+import ImageIO
 import UIKit
+import UniformTypeIdentifiers
 @testable import SnapDrillData
 
 @Suite("BackupService 语义闭包测试", .serialized)
@@ -36,6 +38,56 @@ struct BackupServiceSemanticClosureTests {
         defer { cleanup(archiveURL) }
 
         await expectInvalidArchive(archiveURL)
+    }
+
+    @Test("JPEG 预检在解码前拒绝异常像素尺寸")
+    func validatePixelDimensions_rejectsExcessivePixelCount() {
+        #expect(throws: BackupError.self) {
+            try BackupImagePathValidator.validatePixelDimensions(width: 16_384, height: 16_384)
+        }
+    }
+
+    @Test("JPEG 预检拒绝 GPS 元数据")
+    func validateJPEGData_rejectsGPSMetadata() throws {
+        let gpsMetadata: [CFString: Any] = [
+            kCGImagePropertyGPSDictionary: [
+                kCGImagePropertyGPSLatitudeRef: "N",
+                kCGImagePropertyGPSLatitude: 37.7749,
+                kCGImagePropertyGPSLongitudeRef: "W",
+                kCGImagePropertyGPSLongitude: 122.4194
+            ]
+        ]
+        let gpsJPEG = try makeTestJPEGData(properties: gpsMetadata)
+        let source = try #require(CGImageSourceCreateWithData(gpsJPEG as CFData, nil))
+        let properties = try #require(
+            CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any]
+        )
+        #expect(properties[kCGImagePropertyGPSDictionary] != nil)
+
+        #expect(throws: BackupError.self) {
+            try BackupImagePathValidator.validateJPEGData(gpsJPEG)
+        }
+    }
+
+    @Test("createBackup 不生成自身无法恢复的悬空分类归档")
+    func createBackup_rejectsDanglingTaxonomy() async {
+        let payload = makePayload(imagePath: nil, categoryValueDimensionId: UUID())
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSinceReferenceDate: 0),
+            appVersion: "1.0",
+            totalItemCount: 1,
+            profileCount: 1,
+            profileNames: ["Default"]
+        )
+
+        await #expect(throws: BackupError.self) {
+            _ = try await BackupService().createBackup(
+                payload: payload,
+                manifest: manifest,
+                profileDirectories: []
+            )
+        }
     }
 
     @Test("extractPayload 在数据库 mutation 前拒绝重复图片 entry")
@@ -156,13 +208,30 @@ struct BackupServiceSemanticClosureTests {
         return archiveURL
     }
 
-    private func makeTestJPEGData() throws -> Data {
+    private func makeTestJPEGData(properties: [CFString: Any] = [:]) throws -> Data {
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: 2, height: 2))
         let image = renderer.image { context in
             UIColor.systemBlue.setFill()
             context.fill(CGRect(x: 0, y: 0, width: 2, height: 2))
         }
-        return try #require(image.jpegData(compressionQuality: 0.8))
+        let output = NSMutableData()
+        let destination = try #require(
+            CGImageDestinationCreateWithData(
+                output,
+                UTType.jpeg.identifier as CFString,
+                1,
+                nil
+            )
+        )
+        CGImageDestinationAddImage(
+            destination,
+            try #require(image.cgImage),
+            properties as CFDictionary
+        )
+        guard CGImageDestinationFinalize(destination) else {
+            throw BackupError.invalidArchive
+        }
+        return output as Data
     }
 
     private func expectInvalidArchive(_ archiveURL: URL) async {

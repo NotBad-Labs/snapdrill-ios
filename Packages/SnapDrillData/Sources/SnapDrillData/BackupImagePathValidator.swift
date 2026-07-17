@@ -13,6 +13,9 @@ import ZIPFoundation
 import SnapDrillCore
 
 nonisolated enum BackupImagePathValidator {
+    private static let maxJPEGDimension: Int64 = 16_384
+    private static let maxJPEGPixelCount: Int64 = 100_000_000
+
     static func validatePayload(_ payload: BackupPayload) throws {
         guard hasUniqueIds(payload.profiles.map(\.profileId)) else {
             throw BackupError.invalidArchive
@@ -85,6 +88,7 @@ nonisolated enum BackupImagePathValidator {
               CGImageSourceGetCount(source) > 0 else {
             throw BackupError.invalidArchive
         }
+        try validateImageProperties(of: source)
 
         let thumbnailOptions: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
@@ -97,6 +101,27 @@ nonisolated enum BackupImagePathValidator {
             0,
             thumbnailOptions as CFDictionary
         ) != nil else {
+            throw BackupError.invalidArchive
+        }
+    }
+
+    private static func validateImageProperties(of source: CGImageSource) throws {
+        guard let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil)
+                as? [CFString: Any],
+              let width = (properties[kCGImagePropertyPixelWidth] as? NSNumber)?.int64Value,
+              let height = (properties[kCGImagePropertyPixelHeight] as? NSNumber)?.int64Value,
+              properties[kCGImagePropertyGPSDictionary] == nil else {
+            throw BackupError.invalidArchive
+        }
+        try validatePixelDimensions(width: width, height: height)
+    }
+
+    static func validatePixelDimensions(width: Int64, height: Int64) throws {
+        guard width > 0,
+              height > 0,
+              width <= maxJPEGDimension,
+              height <= maxJPEGDimension,
+              width <= maxJPEGPixelCount / height else {
             throw BackupError.invalidArchive
         }
     }

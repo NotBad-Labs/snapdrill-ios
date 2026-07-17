@@ -276,7 +276,7 @@ public actor BackupService {
             throw BackupError.invalidArchive
         }
 
-        let imageEntries = extractImageEntries(from: archive, profileId: profileId)
+        let imageEntries = try extractImageEntries(from: archive, profileId: profileId)
         let totalImages = imageEntries.count
 
         let fileManager = FileManager.default
@@ -318,9 +318,13 @@ public actor BackupService {
         }
     }
 
-    private func extractImageEntries(from archive: Archive, profileId: UUID) -> [Entry] {
+    private func extractImageEntries(from archive: Archive, profileId: UUID) throws -> [Entry] {
         let prefix = "profiles/\(profileId.uuidString)/images/"
-        return archive.filter { $0.path.hasPrefix(prefix) && $0.type == .file }
+        let entries = archive.filter { $0.path.hasPrefix(prefix) && $0.type == .file }
+        guard Set(entries.map(\.path)).count == entries.count else {
+            throw BackupError.invalidArchive
+        }
+        return entries
     }
 
     private func stageImageEntries(
