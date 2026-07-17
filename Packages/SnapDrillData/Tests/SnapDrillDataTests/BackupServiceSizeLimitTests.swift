@@ -52,6 +52,84 @@ struct BackupServiceSizeLimitTests {
         }
     }
 
+    @Test("createBackup 拒绝超过 reader 单 entry 上限的 manifest 且删除 partial ZIP")
+    func createBackup_rejectsOversizedManifestAndCleansPartialArchive() async throws {
+        let backupDirectory = try makeBackupDirectory()
+        defer { cleanup(backupDirectory) }
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSinceReferenceDate: 0),
+            appVersion: String(repeating: "v", count: 256),
+            totalItemCount: 0,
+            profileCount: 0,
+            profileNames: []
+        )
+        let limit = try encodedEntrySize(manifest) - 1
+        let service = BackupService(
+            restoreSizeLimits: .init(maxSingleEntryBytes: limit, maxTotalEntryBytes: 10_000),
+            backupDirectory: backupDirectory
+        )
+
+        do {
+            _ = try await service.createBackup(
+                payload: BackupPayload(profiles: []),
+                manifest: manifest,
+                profileDirectories: []
+            )
+            Issue.record("createBackup should not emit a manifest its reader rejects")
+        } catch BackupError.archiveEntryTooLarge(let path, let limitBytes) {
+            #expect(path == "manifest.json")
+            #expect(limitBytes == limit)
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+
+        #expect(try FileManager.default.contentsOfDirectory(
+            at: backupDirectory,
+            includingPropertiesForKeys: nil
+        ).isEmpty)
+    }
+
+    @Test("createBackup 拒绝超过 reader 单 entry 上限的 payload 且删除 partial ZIP")
+    func createBackup_rejectsOversizedPayloadAndCleansPartialArchive() async throws {
+        let backupDirectory = try makeBackupDirectory()
+        defer { cleanup(backupDirectory) }
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSinceReferenceDate: 0),
+            appVersion: "1.0",
+            totalItemCount: 1,
+            profileCount: 1,
+            profileNames: ["Default"]
+        )
+        let payload = makeTextPayload(content: String(repeating: "p", count: 2_000))
+        let limit = try encodedEntrySize(payload) - 1
+        #expect(try encodedEntrySize(manifest) <= limit)
+        let service = BackupService(
+            restoreSizeLimits: .init(maxSingleEntryBytes: limit, maxTotalEntryBytes: 10_000),
+            backupDirectory: backupDirectory
+        )
+
+        do {
+            _ = try await service.createBackup(
+                payload: payload,
+                manifest: manifest,
+                profileDirectories: [backupDirectory]
+            )
+            Issue.record("createBackup should not emit a payload its reader rejects")
+        } catch BackupError.archiveEntryTooLarge(let path, let limitBytes) {
+            #expect(path == "data.json")
+            #expect(limitBytes == limit)
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+
+        #expect(try FileManager.default.contentsOfDirectory(
+            at: backupDirectory,
+            includingPropertiesForKeys: nil
+        ).isEmpty)
+    }
+
     @Test("restoreImages 拒绝超过总解压上限的图片 entries 且不提交部分文件")
     func restoreImages_rejectsTotalUncompressedImageLimit() async throws {
         let service = BackupService(restoreSizeLimits: .init(maxSingleEntryBytes: 16, maxTotalEntryBytes: 20))
@@ -262,6 +340,48 @@ struct BackupServiceSizeLimitTests {
                 categoryValues: []
             )
         ])
+    }
+
+    private func makeTextPayload(content: String) -> BackupPayload {
+        let now = Date(timeIntervalSinceReferenceDate: 0)
+        return BackupPayload(profiles: [
+            ProfileBackupData(
+                profileName: "Default",
+                profileId: UUID(),
+                reviewItems: [
+                    ArchiveItemBackupDTO(
+                        id: UUID(),
+                        content: content,
+                        imagePath: nil,
+                        createdAt: now,
+                        lastReviewedAt: now,
+                        nextReviewAt: now,
+                        answerText: nil,
+                        answerImagePath: nil,
+                        easeFactor: 2.5,
+                        interval: 0,
+                        repetitions: 0,
+                        categoryValueIds: []
+                    )
+                ],
+                dimensions: [],
+                categoryValues: []
+            )
+        ])
+    }
+
+    private func encodedEntrySize<T: Encodable>(_ value: T) throws -> Int64 {
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        return Int64(try encoder.encode(value).count)
+    }
+
+    private func makeBackupDirectory() throws -> URL {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("BackupWriterJSONLimitTests_\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        return directory
     }
 
     private func makeTestJPEGData() throws -> Data {

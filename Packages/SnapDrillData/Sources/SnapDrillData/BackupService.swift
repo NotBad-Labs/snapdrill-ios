@@ -129,6 +129,7 @@ public actor BackupService {
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
 
         let manifestData = try encoder.encode(manifest)
+        try restoreSizeLimits.validate(byteCount: Int64(manifestData.count), path: "manifest.json")
         try archive.addEntry(
             with: "manifest.json",
             type: .file,
@@ -138,6 +139,7 @@ public actor BackupService {
 
         // 2. 写入 data.json
         let payloadData = try encoder.encode(payload)
+        try restoreSizeLimits.validate(byteCount: Int64(payloadData.count), path: "data.json")
         try archive.addEntry(
             with: "data.json",
             type: .file,
