@@ -29,20 +29,25 @@ jobs:
           persist-credentials: false
 
       - name: Verify checkout identity
+        id: checkout-identity
         run: |
-          if [ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]; then
+          CHECKOUT_SHA="$(git rev-parse HEAD)"
+          if [ "$CHECKOUT_SHA" != "$GITHUB_SHA" ]; then
             echo "::error::Checkout HEAD does not match GITHUB_SHA"
             exit 1
           fi
-          echo "Checkout identity: $GITHUB_SHA"
+          echo "sha=$CHECKOUT_SHA" >> "$GITHUB_OUTPUT"
+          echo "Checkout identity: $CHECKOUT_SHA"
 
       - name: Validate exact toolchain
+        id: toolchain
         run: |
           export PATH="$HOME/bin:$PATH"
           printf '%s\n' "$HOME/bin" >> "$GITHUB_PATH"
           python3 Scripts/ci_github.py toolchain \
             --config Configs/Toolchain.env \
-            --github-env "$GITHUB_ENV"
+            --github-env "$GITHUB_ENV" \
+            --github-output "$GITHUB_OUTPUT"
 
       - name: Lint
         run: swiftlint --strict
@@ -139,22 +144,88 @@ jobs:
             --github-output "$GITHUB_OUTPUT"
 
       - name: Test without building
+        id: source-tests
         env:
           DEVICE_ID: ${{ steps.simulator.outputs.udid }}
           XCTESTRUN_PATH: ${{ steps.xctestrun.outputs.path }}
+          TEST_LOG_PATH: ${{ runner.temp }}/snapdrill-ci-${{ github.run_id }}-${{ github.job }}-${{ github.run_attempt }}.log
+          TEST_RESULT_PATH: ${{ runner.temp }}/snapdrill-ci-${{ github.run_id }}-${{ github.job }}-${{ github.run_attempt }}.xcresult
         run: |
-          rm -rf -- "$GITHUB_WORKSPACE/TestResults.xcresult"
+          set +e
           xcodebuild test-without-building \
             -xctestrun "$XCTESTRUN_PATH" \
             -only-test-configuration CI \
             -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -parallel-testing-enabled NO \
-            -resultBundlePath "$GITHUB_WORKSPACE/TestResults.xcresult" \
+            -test-timeouts-enabled YES \
+            -default-test-execution-time-allowance 120 \
+            -maximum-test-execution-time-allowance 300 \
+            -resultBundlePath "$TEST_RESULT_PATH" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+            CODE_SIGN_IDENTITY="" \
+            2>&1 | tee "$TEST_LOG_PATH"
+          PIPE_STATUSES=("${PIPESTATUS[@]}")
+          TEST_STATUS="${PIPE_STATUSES[0]}"
+          if [ "${PIPE_STATUSES[1]}" -ne 0 ] && [ "$TEST_STATUS" -eq 0 ]; then
+            TEST_STATUS="${PIPE_STATUSES[1]}"
+          fi
+          set -e
+          echo "exit_code=$TEST_STATUS" >> "$GITHUB_OUTPUT"
+          exit "$TEST_STATUS"
 
-      # #922-B will move attempt evidence outside the checkout before later jobs/runs can clean it.
+      - name: Finalize routine CI evidence
+        if: always()
+        env:
+          TEST_LOG_PATH: ${{ runner.temp }}/snapdrill-ci-${{ github.run_id }}-${{ github.job }}-${{ github.run_attempt }}.log
+          TEST_RESULT_PATH: ${{ runner.temp }}/snapdrill-ci-${{ github.run_id }}-${{ github.job }}-${{ github.run_attempt }}.xcresult
+          TEST_OUTCOME: ${{ steps.source-tests.outcome }}
+          TEST_EXIT_CODE: ${{ steps.source-tests.outputs.exit_code }}
+          CHECKOUT_SHA: ${{ steps.checkout-identity.outputs.sha }}
+          TOOLCHAIN_VALIDATED: ${{ steps.toolchain.outputs.validated }}
+          DEVELOPER_DIR: ${{ steps.toolchain.outputs.developer_dir }}
+          XCODE_VERSION: ${{ steps.toolchain.outputs.xcode_version }}
+          XCODE_BUILD_VERSION: ${{ steps.toolchain.outputs.xcode_build_version }}
+          SWIFTLINT_VERSION: ${{ steps.toolchain.outputs.swiftlint_version }}
+          TOOLCHAIN_RUNTIME: ${{ steps.toolchain.outputs.simulator_runtime }}
+          DEVICE_NAME: ${{ steps.simulator.outputs.name }}
+          DEVICE_ID: ${{ steps.simulator.outputs.udid }}
+          DEVICE_RUNTIME: ${{ steps.simulator.outputs.runtime }}
+          DEVICE_TYPE: ${{ steps.simulator.outputs.device_type }}
+          DEVICE_DESTINATION: ${{ steps.simulator.outputs.destination }}
+        run: |
+          python3 Scripts/ci_github.py evidence \
+            --root "$HOME/.snapdrill/ci-evidence" \
+            --workspace "$GITHUB_WORKSPACE" \
+            --source-log "$TEST_LOG_PATH" \
+            --source-result "$TEST_RESULT_PATH" \
+            --github-summary "$GITHUB_STEP_SUMMARY" \
+            --trigger-sha "$GITHUB_SHA" \
+            --checkout-sha "$CHECKOUT_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --job "$GITHUB_JOB" \
+            --event-name "$GITHUB_EVENT_NAME" \
+            --outcome "$TEST_OUTCOME" \
+            --exit-code "$TEST_EXIT_CODE" \
+            --toolchain-validated "$TOOLCHAIN_VALIDATED" \
+            --xcode-version "$XCODE_VERSION" \
+            --xcode-build-version "$XCODE_BUILD_VERSION" \
+            --swiftlint-version "$SWIFTLINT_VERSION" \
+            --toolchain-runtime "$TOOLCHAIN_RUNTIME" \
+            --developer-dir "$DEVELOPER_DIR" \
+            --simulator-name "$DEVICE_NAME" \
+            --simulator-udid "$DEVICE_ID" \
+            --simulator-runtime "$DEVICE_RUNTIME" \
+            --simulator-device-type "$DEVICE_TYPE" \
+            --simulator-destination "$DEVICE_DESTINATION" \
+            --scheme AllTests \
+            --test-plan AllTests \
+            --test-configuration CI \
+            --default-timeout-seconds 120 \
+            --maximum-timeout-seconds 300 \
+            --retention-days 14 \
+            --max-total-bytes 21474836480
 
   ui-tests:
     name: UI Tests (develop only)
@@ -172,20 +243,25 @@ jobs:
           persist-credentials: false
 
       - name: Verify checkout identity
+        id: checkout-identity
         run: |
-          if [ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]; then
+          CHECKOUT_SHA="$(git rev-parse HEAD)"
+          if [ "$CHECKOUT_SHA" != "$GITHUB_SHA" ]; then
             echo "::error::Checkout HEAD does not match GITHUB_SHA"
             exit 1
           fi
-          echo "Checkout identity: $GITHUB_SHA"
+          echo "sha=$CHECKOUT_SHA" >> "$GITHUB_OUTPUT"
+          echo "Checkout identity: $CHECKOUT_SHA"
 
       - name: Validate exact toolchain
+        id: toolchain
         run: |
           export PATH="$HOME/bin:$PATH"
           printf '%s\n' "$HOME/bin" >> "$GITHUB_PATH"
           python3 Scripts/ci_github.py toolchain \
             --config Configs/Toolchain.env \
-            --github-env "$GITHUB_ENV"
+            --github-env "$GITHUB_ENV" \
+            --github-output "$GITHUB_OUTPUT"
 
       - name: Resolve exact simulator
         id: simulator
@@ -242,17 +318,85 @@ jobs:
             --github-output "$GITHUB_OUTPUT"
 
       - name: Test without building (UI)
+        id: ui-tests-run
         env:
           DEVICE_ID: ${{ steps.simulator.outputs.udid }}
           XCTESTRUN_PATH: ${{ steps.xctestrun.outputs.path }}
+          TEST_LOG_PATH: ${{ runner.temp }}/snapdrill-ci-${{ github.run_id }}-${{ github.job }}-${{ github.run_attempt }}.log
+          TEST_RESULT_PATH: ${{ runner.temp }}/snapdrill-ci-${{ github.run_id }}-${{ github.job }}-${{ github.run_attempt }}.xcresult
         run: |
-          rm -rf -- "$GITHUB_WORKSPACE/UITestResults.xcresult"
+          set +e
           xcodebuild test-without-building \
             -xctestrun "$XCTESTRUN_PATH" \
             -only-test-configuration CI \
             -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -parallel-testing-enabled NO \
-            -resultBundlePath "$GITHUB_WORKSPACE/UITestResults.xcresult" \
+            -test-timeouts-enabled YES \
+            -default-test-execution-time-allowance 300 \
+            -maximum-test-execution-time-allowance 600 \
+            -resultBundlePath "$TEST_RESULT_PATH" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+            CODE_SIGN_IDENTITY="" \
+            2>&1 | tee "$TEST_LOG_PATH"
+          PIPE_STATUSES=("${PIPESTATUS[@]}")
+          TEST_STATUS="${PIPE_STATUSES[0]}"
+          if [ "${PIPE_STATUSES[1]}" -ne 0 ] && [ "$TEST_STATUS" -eq 0 ]; then
+            TEST_STATUS="${PIPE_STATUSES[1]}"
+          fi
+          set -e
+          echo "exit_code=$TEST_STATUS" >> "$GITHUB_OUTPUT"
+          exit "$TEST_STATUS"
+
+      - name: Finalize routine UI evidence
+        if: always()
+        env:
+          TEST_LOG_PATH: ${{ runner.temp }}/snapdrill-ci-${{ github.run_id }}-${{ github.job }}-${{ github.run_attempt }}.log
+          TEST_RESULT_PATH: ${{ runner.temp }}/snapdrill-ci-${{ github.run_id }}-${{ github.job }}-${{ github.run_attempt }}.xcresult
+          TEST_OUTCOME: ${{ steps.ui-tests-run.outcome }}
+          TEST_EXIT_CODE: ${{ steps.ui-tests-run.outputs.exit_code }}
+          CHECKOUT_SHA: ${{ steps.checkout-identity.outputs.sha }}
+          TOOLCHAIN_VALIDATED: ${{ steps.toolchain.outputs.validated }}
+          DEVELOPER_DIR: ${{ steps.toolchain.outputs.developer_dir }}
+          XCODE_VERSION: ${{ steps.toolchain.outputs.xcode_version }}
+          XCODE_BUILD_VERSION: ${{ steps.toolchain.outputs.xcode_build_version }}
+          SWIFTLINT_VERSION: ${{ steps.toolchain.outputs.swiftlint_version }}
+          TOOLCHAIN_RUNTIME: ${{ steps.toolchain.outputs.simulator_runtime }}
+          DEVICE_NAME: ${{ steps.simulator.outputs.name }}
+          DEVICE_ID: ${{ steps.simulator.outputs.udid }}
+          DEVICE_RUNTIME: ${{ steps.simulator.outputs.runtime }}
+          DEVICE_TYPE: ${{ steps.simulator.outputs.device_type }}
+          DEVICE_DESTINATION: ${{ steps.simulator.outputs.destination }}
+        run: |
+          python3 Scripts/ci_github.py evidence \
+            --root "$HOME/.snapdrill/ci-evidence" \
+            --workspace "$GITHUB_WORKSPACE" \
+            --source-log "$TEST_LOG_PATH" \
+            --source-result "$TEST_RESULT_PATH" \
+            --github-summary "$GITHUB_STEP_SUMMARY" \
+            --trigger-sha "$GITHUB_SHA" \
+            --checkout-sha "$CHECKOUT_SHA" \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --job "$GITHUB_JOB" \
+            --event-name "$GITHUB_EVENT_NAME" \
+            --outcome "$TEST_OUTCOME" \
+            --exit-code "$TEST_EXIT_CODE" \
+            --toolchain-validated "$TOOLCHAIN_VALIDATED" \
+            --xcode-version "$XCODE_VERSION" \
+            --xcode-build-version "$XCODE_BUILD_VERSION" \
+            --swiftlint-version "$SWIFTLINT_VERSION" \
+            --toolchain-runtime "$TOOLCHAIN_RUNTIME" \
+            --developer-dir "$DEVELOPER_DIR" \
+            --simulator-name "$DEVICE_NAME" \
+            --simulator-udid "$DEVICE_ID" \
+            --simulator-runtime "$DEVICE_RUNTIME" \
+            --simulator-device-type "$DEVICE_TYPE" \
+            --simulator-destination "$DEVICE_DESTINATION" \
+            --scheme SnapDrill \
+            --test-plan UITests \
+            --test-configuration CI \
+            --default-timeout-seconds 300 \
+            --maximum-timeout-seconds 600 \
+            --retention-days 14 \
+            --max-total-bytes 21474836480

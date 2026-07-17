@@ -74,7 +74,11 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
      -only-test-configuration CI
      -destination 'platform=iOS Simulator,id=<same selected UDID>'
      -parallel-testing-enabled NO
-     -resultBundlePath TestResults.xcresult
+     -test-timeouts-enabled YES
+     -default-test-execution-time-allowance 120
+     -maximum-test-execution-time-allowance 300
+     -resultBundlePath $RUNNER_TEMP/<run-job-attempt>.xcresult
+  10. `if: always()` 将日志、可用 xcresult 和结构化摘要复制到 checkout 外的受管 evidence root
 
 【ui-tests job 步骤】（app 级 XCUITest，慢且对模拟器生命周期敏感，故隔离出门禁）
   1. 同样验证 checkout 与精确工具身份
@@ -88,7 +92,11 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
      -xctestrun <exact path>
      -only-test-configuration CI -parallel-testing-enabled NO
      -destination 'platform=iOS Simulator,id=<same selected UDID>'
-     -resultBundlePath UITestResults.xcresult
+     -test-timeouts-enabled YES
+     -default-test-execution-time-allowance 300
+     -maximum-test-execution-time-allowance 600
+     -resultBundlePath $RUNNER_TEMP/<run-job-attempt>.xcresult
+  7. `if: always()` 执行同一 durable evidence finalizer
 ```
 
 注：
@@ -97,8 +105,33 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
 - 两个 job 各自选择并绑定本 job 的唯一 simulator；这不声称在未来多 runner 环境中跨 job 使用同一设备。结构化 helper 记录 runtime identifier，但 Release candidate 的 runtime/device matrix 仍由候选证据门禁负责。
 - `pull_request` 事件中的 `GITHUB_SHA` 是 GitHub 生成的 `refs/pull/<n>/merge` 临时 merge commit，不是 PR head；push / manual dispatch 则是触发 ref 的 commit。日志中的 checkout identity 只按对应事件语义解释，临时 merge SHA 不能代替长期候选证据。
 - `test-without-building` 复用本 job 的 `build-for-testing` 产物。generic UI retry 已删除：任何产品断言、crash 或基础设施失败都保持红色，不会被后续成功覆盖。
-- **当前残留**：DerivedData / xcresult 仍位于 checkout，后续 job 或 run 可能清理，不能称为 durable failure evidence；#922-B 负责 checkout 外 run/job/attempt 路径、保留窗口和安全清理。GitHub artifact 上传仍停用，避免再次耗尽 Actions 存储配额。
+- 单项测试 timeout 仅由 CI 命令行启用，不改共享 test plan：source tests 默认 120 秒、硬上限 300 秒；app UI tests 默认 300 秒、硬上限 600 秒。60 / 45 分钟 job timeout 仍是外层兜底。超时保持失败并进入同一 finalizer，不做自动重跑。
 - `SnapshotRecord` configuration 仅本地显式重录 baseline 使用，不参与 CI。
+
+### Runner 本地 CI 证据
+
+两个 job 的测试日志和 xcresult 先写入按 run / job / attempt 唯一命名的 `$RUNNER_TEMP` 路径。紧随测试命令的 `if: always()` step 调用 `Scripts/ci_github.py evidence`，将当次可用材料复制到：
+
+```text
+$HOME/.snapdrill/ci-evidence/
+└── run-<GITHUB_RUN_ID>/
+    └── <GITHUB_JOB>/
+        └── attempt-<GITHUB_RUN_ATTEMPT>/
+            ├── summary.json
+            ├── summary.md
+            ├── test.log
+            └── results.xcresult/   # xcodebuild 已产出时
+```
+
+- `summary.json` 区分 GitHub trigger SHA 与经 checkout-identity step 验证的 checkout SHA，并记录 event/run/job/attempt、结果与 exit code、经 toolchain step 验证的工具版本与 Developer 目录、simulator name/UDID/runtime/device type/destination、scheme/test plan/configuration、CI-only timeout 和实际保存的附件。未经对应 step 验证的 checkout / toolchain 字段只能是 `null` / `false`。
+- test step 成功必须同时有日志与完整 xcresult；失败必须保留日志，并在 xcodebuild 已能 finalise 时复制 partial xcresult。若 checkout 已取得 helper、但之后的 identity、toolchain 或其他前置 step 失败导致测试被跳过，finalizer 仍写诚实的 `skipped` 摘要，不重新读取故障配置，也不虚构测试附件。若 `actions/checkout` 本身未取得 helper，则无法由 checkout 内脚本生成本地摘要。
+- finalizer 把 durable local path 和 routine-only 限制写入 `GITHUB_STEP_SUMMARY`。Operator 可从 Actions 页面直接定位 Mac mini 上的材料。
+- evidence root 首次使用时必须为空并写入固定 ownership marker；以后 marker 不匹配、root 与 checkout 任一方向嵌套、root 或其直接父目录 / run 为 symlink、lock 非普通文件或出现非受管直属项均 fail closed。finalization 与清理在同一 root lock 下串行，清理器不接管或删除无 marker 的目录。
+- 每次 finalization 先删除超过 14 天的旧 run，再按最旧优先把文件系统实际分配空间限制到 20 GiB；当前 run 永不为满足预算而删除。若当前 run 单独超限，保留材料并让 CI 失败，等待 operator 处置。
+- 这是当前 Mac mini 的 bounded、runner-local 诊断证据，不是 GitHub artifact，不跨 runner 复制。GitHub artifact 上传仍停用，避免再次耗尽 Actions 存储配额。
+- `if: always()` 只覆盖 GitHub job 仍能继续调度 step 的 success / failure / skipped / cancelled 控制流；runner 断电、job 强制终止或进程收到不可恢复的 hard kill 时不能保证 finalizer 执行。此时 Actions 状态本身是事故信号，不能把缺失的本地材料解释为测试通过。
+- self-hosted runner 会执行 checkout 中的 PR 代码；仓库写权限、fork policy、branch protection 与 runner 隔离属于本 helper 之外的信任边界，不能由 evidence marker 替代。
+- 分类固定为 `routine-ci-only`：它不证明签名 archive / 安装变体、隐私 / 网络运行时或 Release candidate conformance，也不授权 merge、upload、TestFlight、go/no-go 或 release。候选不可变证据仍归 #895 / #896 / #897。
 
 ### GitHub Token 配置
 
