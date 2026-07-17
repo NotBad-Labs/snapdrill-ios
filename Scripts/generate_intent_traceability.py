@@ -45,7 +45,7 @@ SECTION_7_FEATURE_IDS = frozenset(
         "feat-word-export",
     }
 )
-RELEASE_OPERATIONS_DECISIONS = frozenset({"C1-A", "C6-A"})
+RELEASE_OPERATIONS_DECISIONS = frozenset({"C1-A", "C6-A", "#932-A"})
 
 
 def rel(path: Path) -> str:
@@ -320,6 +320,25 @@ def collect_features(
                     f"{sorted(SECTION_7_FEATURE_IDS)}"
                 )
         features.append(fm)
+
+    owned_release_refs = set(operations_refs)
+    for feature in features:
+        feature_release_refs = feature.get("release_refs")
+        if isinstance(feature_release_refs, list):
+            owned_release_refs.update(
+                ref for ref in feature_release_refs if isinstance(ref, str)
+            )
+
+    unowned_release_refs = [
+        ref
+        for ref in known_release_refs
+        if ref != SECTION_7_REF and ref not in owned_release_refs
+    ]
+    if unowned_release_refs:
+        errors.append(
+            "ratified release refs require at least one Feature or "
+            f"release-operations owner {unowned_release_refs}"
+        )
 
     if errors:
         fail(errors)

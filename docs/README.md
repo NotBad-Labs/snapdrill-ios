@@ -30,7 +30,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 - `vision.md` 是 Product Constitution 的固定路径，也是仓库内最高产品权威；PO ratify 后仍须合入该归属权威才 effective。
 - Release Contract 定义一次发布的 Must outcomes、非目标与结果级验收；feature-status 不能替代它。
 - 下游文档必须指出其上游依据。找不到上游依据的需求是孤儿需求，不应直接实现。
-- 每个 feature spec 在 frontmatter 用 `intent_refs` 声明耐久 Vision / 产品政策 / ADR 归属，并用 `release_refs` 声明当前 Release Contract 归属；生成器校验精确 ID 与受限 §7 引用，但字段存在仍不证明语义正确、实现符合或候选纳入。
+- 每个 feature spec 在 frontmatter 用 `intent_refs` 声明耐久 Vision / 产品政策 / ADR 归属，并用 `release_refs` 声明当前 Release Contract 归属；生成器校验精确 ID、受限 §7 引用，并拒绝没有 Feature / operations owner 的 ratified decision，但字段存在仍不证明语义正确、实现符合或候选纳入。
 - 代码与测试证明“现在是什么”；Product Constitution、Release Contract 与 spec 约束“应该是什么”。不一致时必须显式记录偏差。
 - [Release 1 Contract](reference/release-1-contract.md) 承载截至 2026-07-15 ratify 的 Gate C 与后续精确裁决；[Local Library Data Contract](reference/local-library-data-contract.md) 承接单一本地资料库的 inventory、路径、generation / journal 与恢复生命周期。分支 / PR 副本仍是批准候选，合入 `develop` 后才 effective。feature spec 中旧 Multi-Profile、Pro、CloudKit、Word、iPad、五 Tab 或公开可达 Review / SmartPaper 仍属于已知下游漂移 / 实现刻画，不得覆盖合同，也不得在没有独立实现授权时启动投入。
 - 私有记忆、历史研究、旧 pitch 和关闭任务不参与当前裁决；需要历史证据（含已删除的 research/ 与历史 pitch）时使用 Git 历史或 GitHub 记录。

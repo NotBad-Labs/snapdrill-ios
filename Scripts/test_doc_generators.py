@@ -75,7 +75,7 @@ current_authority: docs/decisions/ADR-001-local-first.md
     def write_release_contract(
         self,
         frontmatter: str = (
-            'ratified_decisions: ["C1-A", "C2-Core", "C6-A"]\n'
+            'ratified_decisions: ["C1-A", "C2-Core", "C6-A", "#932-A"]\n'
             'pending_decisions: ["C9-Pending"]\n'
         ),
         *,
@@ -274,6 +274,7 @@ release_refs:
                 "release-1:C1-A",
                 "release-1:C2-Core",
                 "release-1:C6-A",
+                "release-1:#932-A",
                 "release-1:section-7",
             ],
         )
@@ -352,6 +353,21 @@ release_refs:
     def test_section_7_only_allows_named_backlog_features(self) -> None:
         self.write_feature(
             """---
+id: feat-capture
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:C2-Core
+---
+
+# Feature: Capture
+"""
+        )
+        self.write_feature(
+            """---
 id: feat-advanced-stats
 title: Advanced Stats
 status: backlog
@@ -375,7 +391,7 @@ release_refs:
             known_release_refs,
             pending_release_refs,
         )
-        self.assertEqual(features[0]["id"], "feat-advanced-stats")
+        self.assertIn("feat-advanced-stats", {feature["id"] for feature in features})
 
         self.write_feature(
             """---
@@ -438,7 +454,45 @@ release_refs:
             "| [`release-1:C6-A`](release-1-contract.md) | `release-operations` |",
             content,
         )
+        self.assertIn(
+            "| [`release-1:#932-A`](release-1-contract.md) | `release-operations` |",
+            content,
+        )
 
+        for decision in ("C1-A", "C6-A", "#932-A"):
+            with self.subTest(decision=decision):
+                self.write_feature(
+                    f"""---
+id: feat-capture
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:{decision}
+---
+
+# Feature: Capture
+"""
+                )
+                stderr = io.StringIO()
+                with redirect_stderr(stderr):
+                    with self.assertRaises(SystemExit) as raised:
+                        self.module.collect_features(
+                            known_refs,
+                            known_release_refs,
+                            pending_release_refs,
+                        )
+
+                self.assertEqual(raised.exception.code, 1)
+                self.assertIn("release-operations-only", stderr.getvalue())
+
+    def test_rejects_ratified_release_decision_without_owner(self) -> None:
+        self.write_release_contract(
+            'ratified_decisions: ["C1-A", "C2-Core", "C6-A", "#932-A", "D4-B"]\n'
+            "pending_decisions: []\n"
+        )
         self.write_feature(
             """---
 id: feat-capture
@@ -448,13 +502,17 @@ tier: free
 intent_refs:
   - vision:P1
 release_refs:
-  - release-1:C6-A
+  - release-1:C2-Core
 ---
 
 # Feature: Capture
 """
         )
-        with redirect_stderr(io.StringIO()):
+
+        known_refs = self.module.collect_known_refs()
+        known_release_refs, pending_release_refs = self.module.collect_release_refs()
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
             with self.assertRaises(SystemExit) as raised:
                 self.module.collect_features(
                     known_refs,
@@ -463,6 +521,11 @@ release_refs:
                 )
 
         self.assertEqual(raised.exception.code, 1)
+        self.assertIn(
+            "ratified release refs require at least one Feature or "
+            "release-operations owner ['release-1:D4-B']",
+            stderr.getvalue(),
+        )
 
     def test_release_index_is_deterministic_and_disclaims_conformance(self) -> None:
         self.write_feature(
