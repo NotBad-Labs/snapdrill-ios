@@ -242,7 +242,17 @@ public actor BackupService {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         let payload = try decoder.decode(BackupPayload.self, from: payloadData)
-        try BackupImagePathValidator.validateArchivePaths(payload, in: archive)
+        let imageEntries = try BackupImagePathValidator.validatedImageEntries(payload, in: archive)
+        var totalImageBytes: Int64 = 0
+        for entry in imageEntries {
+            let extracted = try extractEntryData(
+                entry,
+                from: archive,
+                totalBytesSoFar: totalImageBytes
+            )
+            try BackupImagePathValidator.validateJPEGData(extracted.data)
+            totalImageBytes += extracted.byteCount
+        }
         return payload
     }
 

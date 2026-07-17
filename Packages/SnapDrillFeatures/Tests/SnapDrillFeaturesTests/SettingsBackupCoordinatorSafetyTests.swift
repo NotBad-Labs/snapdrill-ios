@@ -8,6 +8,7 @@
 
 import Testing
 import Foundation
+import UIKit
 @testable import SnapDrillFeatureSettings
 @testable import SnapDrillData
 @testable import SnapDrillCore
@@ -85,6 +86,54 @@ extension SettingsViewModelTests {
         #expect(try Data(contentsOf: sentinelURL) == sentinelBytes)
     }
 
+    @Test("外部备份缺失引用图片时在数据库 mutation 前失败")
+    func malformedExternalBackupLeavesLibraryUntouched() async throws {
+        let context = try makeContext()
+        defer { context.cleanup() }
+        let repositories = context.manager.activeRepositories
+
+        let dimension = CategoryDimensionModel(
+            name: "保留分类", isMultiValue: false, isBuiltIn: false,
+            systemKey: nil, sortOrder: 100, icon: "folder"
+        )
+        try repositories.dimension.insertAndSave(dimension)
+        let value = CategoryValueModel(name: "保留值", dimension: dimension)
+        try repositories.categoryValue.insertAndSave(value)
+        let originalItem = ArchiveItemModel(content: "必须保留", answerText: "原答案")
+        originalItem.categoryValues = [value]
+        repositories.archive.insert(originalItem)
+        try repositories.archive.saveContext()
+
+        let replacement = makeProfileData(
+            profileId: context.activeProfile.id,
+            profileName: context.activeProfile.name,
+            imagePath: "images/test.jpg"
+        )
+        let restoreInput = try makeMalformedRestoreInput(
+            profileData: replacement,
+            documentsURL: context.documentsURL
+        )
+        let coordinator = SettingsBackupCoordinator(
+            repositories: repositories,
+            profileManager: context.manager,
+            backupService: BackupService(),
+            vault: context.vault
+        )
+
+        await #expect(throws: BackupError.self) {
+            try await coordinator.restoreFromBackup(fileURL: restoreInput)
+        }
+
+        let storedItems = try repositories.archive.fetchAllModels()
+        let storedItem = try #require(storedItems.first(where: { $0.id == originalItem.id }))
+        #expect(storedItems.count == 1)
+        #expect(storedItem.content == "必须保留")
+        #expect(storedItem.answerText == "原答案")
+        #expect(storedItem.categoryValues?.map(\.id) == [value.id])
+        #expect(try repositories.dimension.fetchAllModels().map(\.id) == [dimension.id])
+        #expect(repositories.categoryValue.fetchAllModels(in: dimension).map(\.id) == [value.id])
+    }
+
     @Test("taxonomy-only 资料库在后续图片恢复失败时完整回滚")
     func taxonomyOnlyLibraryRollsBackAfterImageFailure() async throws {
         let context = try makeContext()
@@ -107,7 +156,7 @@ extension SettingsViewModelTests {
             at: sourceImage.deletingLastPathComponent(),
             withIntermediateDirectories: true
         )
-        try Data("replacement-image".utf8).write(to: sourceImage)
+        try makeTestJPEGData().write(to: sourceImage)
         let replacement = makeProfileData(
             profileId: activeProfile.id,
             profileName: activeProfile.name,
@@ -187,6 +236,43 @@ extension SettingsViewModelTests {
         let input = documentsURL.appendingPathComponent("restore-input-\(UUID().uuidString).zip")
         try FileManager.default.copyItem(at: generated, to: input)
         return input
+    }
+
+    private func makeMalformedRestoreInput(
+        profileData: ProfileBackupData,
+        documentsURL: URL
+    ) throws -> URL {
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSinceReferenceDate: 0),
+            appVersion: "test",
+            totalItemCount: profileData.reviewItems.count,
+            profileCount: 1,
+            profileNames: [profileData.profileName]
+        )
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let input = documentsURL.appendingPathComponent("malformed-restore-\(UUID().uuidString).zip")
+        try ZIPArchiver().createArchive(
+            entries: [
+                ZIPEntry(path: "manifest.json", data: try encoder.encode(manifest)),
+                ZIPEntry(
+                    path: "data.json",
+                    data: try encoder.encode(BackupPayload(profiles: [profileData]))
+                )
+            ],
+            at: input
+        )
+        return input
+    }
+
+    private func makeTestJPEGData() throws -> Data {
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 2, height: 2))
+        let image = renderer.image { context in
+            UIColor.systemBlue.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 2, height: 2))
+        }
+        return try #require(image.jpegData(compressionQuality: 0.8))
     }
 
     private func makeProfileData(

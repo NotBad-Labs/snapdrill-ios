@@ -10,6 +10,7 @@
 
 import Testing
 import Foundation
+import UIKit
 @testable import SnapDrillData
 
 @Suite("BackupService 单元测试", .serialized)
@@ -82,8 +83,17 @@ struct BackupServiceTests {
             at: imageFile.deletingLastPathComponent(),
             withIntermediateDirectories: true
         )
-        try Data("fake-image-data".utf8).write(to: imageFile)
+        try makeTestJPEGData().write(to: imageFile)
         return dir
+    }
+
+    private func makeTestJPEGData() throws -> Data {
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 2, height: 2))
+        let image = renderer.image { context in
+            UIColor.systemBlue.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 2, height: 2))
+        }
+        return try #require(image.jpegData(compressionQuality: 0.8))
     }
 
     private func cleanup(_ url: URL) {
@@ -173,7 +183,7 @@ struct BackupServiceTests {
         let restoredImagePath = restoreDir.appendingPathComponent("images/test.jpg")
         #expect(FileManager.default.fileExists(atPath: restoredImagePath.path))
         let restoredData = try Data(contentsOf: restoredImagePath)
-        #expect(String(data: restoredData, encoding: .utf8) == "fake-image-data")
+        try BackupImagePathValidator.validateJPEGData(restoredData)
     }
 
     @Test("restoreImages 暂存失败时保留旧图片，成功时替换为新图片")
@@ -347,7 +357,7 @@ struct BackupServiceTests {
     @Test("extractPayload 保持忽略 Profile 下未知非图片 entry 的 v2 行为")
     func extractPayload_ignoresUnknownNonImageEntry() async throws {
         let service = BackupService()
-        let payload = makeSamplePayload()
+        let payload = makeSamplePayload(imagePath: nil)
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
         let archiveURL = try makeArchive(entries: [

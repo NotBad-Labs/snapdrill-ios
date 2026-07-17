@@ -8,6 +8,7 @@
 
 import Testing
 import Foundation
+import UIKit
 @testable import SnapDrillData
 
 @Suite("BackupService 解压体积上限测试", .serialized)
@@ -115,6 +116,76 @@ struct BackupServiceSizeLimitTests {
 
         #expect(!FileManager.default.fileExists(atPath: restoreDir.appendingPathComponent("images/one.jpg").path))
         #expect(!FileManager.default.fileExists(atPath: restoreDir.appendingPathComponent("images/two.jpg").path))
+    }
+
+    @Test("extractPayload 图片预检总量使用实际提取字节而非 ZIP header 声明值")
+    func extractPayload_countsActualImageBytesWhenHeaderUnderreports() async throws {
+        let profileId = UUID()
+        let firstPath = "profiles/\(profileId.uuidString)/images/one.jpg"
+        let secondPath = "profiles/\(profileId.uuidString)/images/two.jpg"
+        let imageData = try makeTestJPEGData()
+        let totalLimit = Int64(imageData.count * 2 - 1)
+        let service = BackupService(
+            restoreSizeLimits: .init(maxSingleEntryBytes: 10_000, maxTotalEntryBytes: totalLimit)
+        )
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let archiveURL = try makeArchive(entries: [
+            ZIPEntry(path: "data.json", data: try encoder.encode(makePayload(profileId: profileId))),
+            ZIPEntry(path: firstPath, data: imageData),
+            ZIPEntry(path: secondPath, data: imageData)
+        ])
+        defer { cleanup(archiveURL) }
+        try rewriteDeclaredUncompressedSize(of: firstPath, in: archiveURL, to: 0)
+        try rewriteDeclaredUncompressedSize(of: secondPath, in: archiveURL, to: 0)
+
+        do {
+            _ = try await service.extractPayload(from: archiveURL)
+            Issue.record("extractPayload should count actual image bytes, not ZIP header declarations")
+        } catch BackupError.archiveEntryTooLarge(let path, let limitBytes) {
+            #expect(path == secondPath)
+            #expect(limitBytes == totalLimit)
+        } catch {
+            Issue.record("Unexpected error: \(error)")
+        }
+    }
+
+    private func makePayload(profileId: UUID) -> BackupPayload {
+        let now = Date(timeIntervalSinceReferenceDate: 0)
+        let items = ["images/one.jpg", "images/two.jpg"].map { path in
+            ArchiveItemBackupDTO(
+                id: UUID(),
+                content: "Item",
+                imagePath: path,
+                createdAt: now,
+                lastReviewedAt: now,
+                nextReviewAt: now,
+                answerText: nil,
+                answerImagePath: nil,
+                easeFactor: 2.5,
+                interval: 0,
+                repetitions: 0,
+                categoryValueIds: []
+            )
+        }
+        return BackupPayload(profiles: [
+            ProfileBackupData(
+                profileName: "Default",
+                profileId: profileId,
+                reviewItems: items,
+                dimensions: [],
+                categoryValues: []
+            )
+        ])
+    }
+
+    private func makeTestJPEGData() throws -> Data {
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 2, height: 2))
+        let image = renderer.image { context in
+            UIColor.systemBlue.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 2, height: 2))
+        }
+        return try #require(image.jpegData(compressionQuality: 0.8))
     }
 
     private func makeArchive(entries: [ZIPEntry]) throws -> URL {

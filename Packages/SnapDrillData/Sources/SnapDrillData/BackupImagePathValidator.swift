@@ -7,27 +7,97 @@
 //
 
 import Foundation
+import ImageIO
+import UniformTypeIdentifiers
 import ZIPFoundation
 import SnapDrillCore
 
 nonisolated enum BackupImagePathValidator {
     static func validatePayload(_ payload: BackupPayload) throws {
+        guard hasUniqueIds(payload.profiles.map(\.profileId)) else {
+            throw BackupError.invalidArchive
+        }
+
         for profileData in payload.profiles {
+            let dimensionIds = profileData.dimensions.map(\.id)
+            let categoryValueIds = profileData.categoryValues.map(\.id)
+            guard hasUniqueIds(profileData.reviewItems.map(\.id)),
+                  hasUniqueIds(dimensionIds),
+                  hasUniqueIds(categoryValueIds) else {
+                throw BackupError.invalidArchive
+            }
+
+            let dimensionIdSet = Set(dimensionIds)
+            for value in profileData.categoryValues {
+                guard let dimensionId = value.dimensionId,
+                      dimensionIdSet.contains(dimensionId) else {
+                    throw BackupError.invalidArchive
+                }
+            }
+
+            let categoryValueIdSet = Set(categoryValueIds)
             for item in profileData.reviewItems {
+                guard hasUniqueIds(item.categoryValueIds),
+                      item.categoryValueIds.allSatisfy(categoryValueIdSet.contains) else {
+                    throw BackupError.invalidArchive
+                }
                 try validate(item.imagePath)
                 try validate(item.answerImagePath)
             }
         }
     }
 
-    static func validateArchivePaths(_ payload: BackupPayload, in archive: Archive) throws {
+    static func validatedImageEntries(_ payload: BackupPayload, in archive: Archive) throws -> [Entry] {
         try validatePayload(payload)
-        for profileData in payload.profiles {
+
+        let expectedPaths = Set(payload.profiles.flatMap { profileData in
             let profilePrefix = "profiles/\(profileData.profileId.uuidString)/"
-            let imagePrefix = profilePrefix + "images/"
-            for entry in archive where entry.path.hasPrefix(imagePrefix) && entry.type == .file {
-                try validate(String(entry.path.dropFirst(profilePrefix.count)))
+            return profileData.reviewItems.flatMap { item in
+                [item.imagePath, item.answerImagePath].compactMap { path in
+                    path.map { profilePrefix + $0 }
+                }
             }
+        })
+        var actualPaths: Set<String> = []
+        var imageEntries: [Entry] = []
+
+        for entry in archive where isImageNamespacePath(entry.path) {
+            guard entry.type == .file,
+                  expectedPaths.contains(entry.path),
+                  actualPaths.insert(entry.path).inserted else {
+                throw BackupError.invalidArchive
+            }
+            imageEntries.append(entry)
+        }
+
+        guard actualPaths == expectedPaths else {
+            throw BackupError.invalidArchive
+        }
+        return imageEntries.sorted { $0.path < $1.path }
+    }
+
+    static func validateJPEGData(_ data: Data) throws {
+        let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+        guard let source = CGImageSourceCreateWithData(data as CFData, sourceOptions),
+              let typeIdentifier = CGImageSourceGetType(source) as String?,
+              let imageType = UTType(typeIdentifier),
+              imageType.conforms(to: .jpeg),
+              CGImageSourceGetCount(source) > 0 else {
+            throw BackupError.invalidArchive
+        }
+
+        let thumbnailOptions: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: 1
+        ]
+        guard CGImageSourceCreateThumbnailAtIndex(
+            source,
+            0,
+            thumbnailOptions as CFDictionary
+        ) != nil else {
+            throw BackupError.invalidArchive
         }
     }
 
@@ -64,6 +134,17 @@ nonisolated enum BackupImagePathValidator {
     private static func validate(_ path: String?) throws {
         guard let path else { return }
         guard ImageStorage.isValidImagePath(path) else { throw BackupError.invalidArchive }
+    }
+
+    private static func hasUniqueIds(_ ids: [UUID]) -> Bool {
+        Set(ids).count == ids.count
+    }
+
+    private static func isImageNamespacePath(_ path: String) -> Bool {
+        let components = path.split(separator: "/", omittingEmptySubsequences: false)
+        return components.count >= 3
+            && components[0] == "profiles"
+            && components[2] == "images"
     }
 
     private static func isMissingOrDirectory(_ url: URL, fileManager: FileManager) throws -> Bool {
