@@ -132,7 +132,14 @@ struct BackupServiceSizeLimitTests {
 
     @Test("restoreImages 拒绝超过总解压上限的图片 entries 且不提交部分文件")
     func restoreImages_rejectsTotalUncompressedImageLimit() async throws {
-        let service = BackupService(restoreSizeLimits: .init(maxSingleEntryBytes: 16, maxTotalEntryBytes: 20))
+        let imageData = try makeTestJPEGData()
+        let totalLimit = Int64(imageData.count * 2 - 1)
+        let service = BackupService(
+            restoreSizeLimits: .init(
+                maxSingleEntryBytes: Int64(imageData.count),
+                maxTotalEntryBytes: totalLimit
+            )
+        )
         let profileId = UUID()
         let restoreDir = FileManager.default.temporaryDirectory
             .appendingPathComponent("RestoreZipBombLimitTest_\(UUID().uuidString)", isDirectory: true)
@@ -141,11 +148,11 @@ struct BackupServiceSizeLimitTests {
         let archiveURL = try makeArchive(entries: [
             ZIPEntry(
                 path: "profiles/\(profileId.uuidString)/images/one.jpg",
-                data: Data(repeating: 0x63, count: 12)
+                data: imageData
             ),
             ZIPEntry(
                 path: "profiles/\(profileId.uuidString)/images/two.jpg",
-                data: Data(repeating: 0x64, count: 12)
+                data: imageData
             )
         ])
         defer { cleanup(archiveURL) }
@@ -155,7 +162,7 @@ struct BackupServiceSizeLimitTests {
             Issue.record("restoreImages should reject archives whose image entries exceed total limit")
         } catch BackupError.archiveEntryTooLarge(let path, let limitBytes) {
             #expect(path == "profiles/\(profileId.uuidString)/images/two.jpg")
-            #expect(limitBytes == 20)
+            #expect(limitBytes == totalLimit)
         } catch {
             Issue.record("Unexpected error: \(error)")
         }
@@ -166,7 +173,14 @@ struct BackupServiceSizeLimitTests {
 
     @Test("restoreImages 总量上限使用实际提取字节而非 ZIP header 声明值")
     func restoreImages_countsActualBytesWhenUncompressedSizeUnderreports() async throws {
-        let service = BackupService(restoreSizeLimits: .init(maxSingleEntryBytes: 16, maxTotalEntryBytes: 20))
+        let imageData = try makeTestJPEGData()
+        let totalLimit = Int64(imageData.count * 2 - 1)
+        let service = BackupService(
+            restoreSizeLimits: .init(
+                maxSingleEntryBytes: Int64(imageData.count),
+                maxTotalEntryBytes: totalLimit
+            )
+        )
         let profileId = UUID()
         let firstPath = "profiles/\(profileId.uuidString)/images/one.jpg"
         let secondPath = "profiles/\(profileId.uuidString)/images/two.jpg"
@@ -175,8 +189,8 @@ struct BackupServiceSizeLimitTests {
         defer { cleanup(restoreDir) }
 
         let archiveURL = try makeArchive(entries: [
-            ZIPEntry(path: firstPath, data: Data(repeating: 0x63, count: 12)),
-            ZIPEntry(path: secondPath, data: Data(repeating: 0x64, count: 12))
+            ZIPEntry(path: firstPath, data: imageData),
+            ZIPEntry(path: secondPath, data: imageData)
         ])
         defer { cleanup(archiveURL) }
         try rewriteDeclaredUncompressedSize(of: firstPath, in: archiveURL, to: 0)
@@ -187,7 +201,7 @@ struct BackupServiceSizeLimitTests {
             Issue.record("restoreImages should count actual extracted bytes, not ZIP header declarations")
         } catch BackupError.archiveEntryTooLarge(let path, let limitBytes) {
             #expect(path == secondPath)
-            #expect(limitBytes == 20)
+            #expect(limitBytes == totalLimit)
         } catch {
             Issue.record("Unexpected error: \(error)")
         }
@@ -384,22 +398,6 @@ struct BackupServiceSizeLimitTests {
         return directory
     }
 
-    private func makeTestJPEGData() throws -> Data {
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 2, height: 2))
-        let image = renderer.image { context in
-            UIColor.systemBlue.setFill()
-            context.fill(CGRect(x: 0, y: 0, width: 2, height: 2))
-        }
-        return try #require(image.jpegData(compressionQuality: 0.8))
-    }
-
-    private func makeArchive(entries: [ZIPEntry]) throws -> URL {
-        let archiveURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent("BackupServiceSizeLimitTests_\(UUID().uuidString).zip")
-        try ZIPArchiver().createArchive(entries: entries, at: archiveURL)
-        return archiveURL
-    }
-
     private func rewriteDeclaredUncompressedSize(of path: String, in archiveURL: URL, to size: UInt32) throws {
         var archiveData = try Data(contentsOf: archiveURL)
         let pathData = Data(path.utf8)
@@ -453,4 +451,20 @@ struct BackupServiceSizeLimitTests {
     private func cleanup(_ url: URL) {
         try? FileManager.default.removeItem(at: url)
     }
+}
+
+private func makeTestJPEGData() throws -> Data {
+    let renderer = UIGraphicsImageRenderer(size: CGSize(width: 2, height: 2))
+    let image = renderer.image { context in
+        UIColor.systemBlue.setFill()
+        context.fill(CGRect(x: 0, y: 0, width: 2, height: 2))
+    }
+    return try #require(image.jpegData(compressionQuality: 0.8))
+}
+
+private func makeArchive(entries: [ZIPEntry]) throws -> URL {
+    let archiveURL = FileManager.default.temporaryDirectory
+        .appendingPathComponent("BackupServiceSizeLimitTests_\(UUID().uuidString).zip")
+    try ZIPArchiver().createArchive(entries: entries, at: archiveURL)
+    return archiveURL
 }

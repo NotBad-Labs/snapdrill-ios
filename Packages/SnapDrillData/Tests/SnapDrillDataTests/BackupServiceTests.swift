@@ -196,15 +196,16 @@ struct BackupServiceTests {
 
         let originalImage = restoreDir.appendingPathComponent("images/conflict.jpg")
         try writeString("old-image-data", to: originalImage)
+        let validImageData = try makeTestJPEGData()
 
         let failingArchive = try makeArchive(entries: [
             ZIPEntry(
                 path: "profiles/\(profileId.uuidString)/images/conflict.jpg",
-                data: Data("new-image-data".utf8)
+                data: validImageData
             ),
             ZIPEntry(
                 path: "profiles/\(profileId.uuidString)/images/nested/child.jpg",
-                data: Data("child-image-data".utf8)
+                data: Data("not-a-jpeg".utf8)
             )
         ])
         defer { cleanup(failingArchive) }
@@ -225,21 +226,19 @@ struct BackupServiceTests {
         let successfulArchive = try makeArchive(entries: [
             ZIPEntry(
                 path: "profiles/\(profileId.uuidString)/images/conflict.jpg",
-                data: Data("replacement-image-data".utf8)
+                data: validImageData
             ),
             ZIPEntry(
                 path: "profiles/\(profileId.uuidString)/images/new.jpg",
-                data: Data("brand-new-image-data".utf8)
+                data: validImageData
             )
         ])
         defer { cleanup(successfulArchive) }
 
         try await service.restoreImages(from: successfulArchive, profileId: profileId, to: restoreDir)
 
-        #expect(try stringContents(of: originalImage) == "replacement-image-data")
-        #expect(try stringContents(
-            of: restoreDir.appendingPathComponent("images/new.jpg")
-        ) == "brand-new-image-data")
+        #expect(try Data(contentsOf: originalImage) == validImageData)
+        #expect(try Data(contentsOf: restoreDir.appendingPathComponent("images/new.jpg")) == validImageData)
     }
 
     @Test("进度回调正确触发")
@@ -405,24 +404,23 @@ struct BackupServiceTests {
             atPath: restoreDir.appendingPathComponent("images/new.jpg").path
         ))
 
+        let restoredImageData = try makeTestJPEGData()
         let validArchive = try makeArchive(entries: [
             ZIPEntry(
                 path: "profiles/\(profileId.uuidString)/images/keep.jpg",
-                data: Data("restored-image-data".utf8)
+                data: restoredImageData
             ),
             ZIPEntry(
                 path: "profiles/\(profileId.uuidString)/images/custom-name.jpg",
-                data: Data("safe-new-image-data".utf8)
+                data: restoredImageData
             )
         ])
         defer { cleanup(validArchive) }
 
         try await service.restoreImages(from: validArchive, profileId: profileId, to: restoreDir)
 
-        #expect(try stringContents(of: originalImage) == "restored-image-data")
-        #expect(try stringContents(
-            of: restoreDir.appendingPathComponent("images/custom-name.jpg")
-        ) == "safe-new-image-data")
+        #expect(try Data(contentsOf: originalImage) == restoredImageData)
+        #expect(try Data(contentsOf: restoreDir.appendingPathComponent("images/custom-name.jpg")) == restoredImageData)
     }
 
     @Test("restoreImages 在 staging 前拒绝重复图片 entry 且不修改旧图片")

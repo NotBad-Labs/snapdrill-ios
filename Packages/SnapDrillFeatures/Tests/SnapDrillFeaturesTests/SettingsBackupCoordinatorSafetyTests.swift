@@ -42,7 +42,7 @@ extension SettingsViewModelTests {
 
         let sentinelURL = context.vault.imagesDirectory(for: activeProfile.id)
             .appendingPathComponent("sentinel.jpg")
-        let sentinelBytes = Data("sentinel-image-bytes".utf8)
+        let sentinelBytes = try makeTestJPEGData()
         try sentinelBytes.write(to: sentinelURL)
 
         let replacement = makeProfileData(
@@ -66,7 +66,7 @@ extension SettingsViewModelTests {
             object: viewModel,
             queue: .main
         ) { _ in
-            Task { await notificationFlag.markReceived() }
+            notificationFlag.markReceived()
         }
         defer { NotificationCenter.default.removeObserver(observer) }
 
@@ -74,7 +74,7 @@ extension SettingsViewModelTests {
 
         let storedItems = try repositories.archive.fetchAllModels()
         let storedItem = try #require(storedItems.first(where: { $0.id == originalItem.id }))
-        let notificationReceived = await notificationFlag.wasReceived
+        let notificationReceived = notificationFlag.wasReceived
         #expect(viewModel.backupError == L10n.Errors.restoreFailed)
         #expect(notificationReceived == false)
         #expect(storedItems.count == 1)
@@ -318,10 +318,19 @@ private struct TestContext {
     }
 }
 
-private actor NotificationFlag {
-    private(set) var wasReceived = false
+private final class NotificationFlag: @unchecked Sendable {
+    private let lock = NSLock()
+    private var received = false
 
     func markReceived() {
-        wasReceived = true
+        lock.withLock {
+            received = true
+        }
+    }
+
+    var wasReceived: Bool {
+        lock.withLock {
+            received
+        }
     }
 }

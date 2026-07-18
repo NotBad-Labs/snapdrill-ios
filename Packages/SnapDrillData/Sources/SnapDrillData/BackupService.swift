@@ -200,6 +200,7 @@ public actor BackupService {
                     path: archivePath,
                     totalBytesSoFar: totalImageBytes
                 )
+                try BackupImagePathValidator.validateJPEGData(fileData)
                 totalImageBytes += Int64(fileData.count)
                 try archive.addEntry(
                     with: archivePath,
@@ -395,6 +396,7 @@ public actor BackupService {
         }
 
         let extracted = try extractEntryData(entry, from: archive, totalBytesSoFar: totalBytesSoFar)
+        try BackupImagePathValidator.validateJPEGData(extracted.data)
         try extracted.data.write(to: stagedURL)
         return extracted.byteCount
     }

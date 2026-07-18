@@ -103,6 +103,37 @@ struct BackupServiceSemanticClosureTests {
         }
     }
 
+    @Test("createBackup 拒绝同版 reader 无法读取的引用图片")
+    func createBackup_rejectsUnreadableReferencedImage() async throws {
+        let profileDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("BackupWriterImageValidation_\(UUID().uuidString)", isDirectory: true)
+        let imageURL = profileDirectory.appendingPathComponent("images/test.jpg")
+        try FileManager.default.createDirectory(
+            at: imageURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try Data("not-a-jpeg".utf8).write(to: imageURL)
+        defer { cleanup(profileDirectory) }
+
+        let payload = makePayload()
+        let manifest = BackupManifest(
+            schemaVersion: BackupManifest.currentSchemaVersion,
+            createdAt: Date(timeIntervalSinceReferenceDate: 0),
+            appVersion: "1.0",
+            totalItemCount: 1,
+            profileCount: 1,
+            profileNames: ["Default"]
+        )
+
+        await #expect(throws: BackupError.self) {
+            _ = try await BackupService().createBackup(
+                payload: payload,
+                manifest: manifest,
+                profileDirectories: [profileDirectory]
+            )
+        }
+    }
+
     @Test("extractPayload 在数据库 mutation 前拒绝重复图片 entry")
     func extractPayload_rejectsDuplicateImageEntries() async throws {
         let imageData = try makeTestJPEGData()
