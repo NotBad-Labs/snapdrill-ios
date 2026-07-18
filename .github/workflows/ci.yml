@@ -62,32 +62,7 @@ jobs:
           python3 Scripts/validate_capture_contract.py --check
 
       - name: Check Package Dependencies
-        run: |
-          echo "Checking for reverse dependency violations..."
-          VIOLATIONS=0
-          # Core 不应该 import 任何下游包
-          if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillUI\|import SnapDrillFeatures' Packages/SnapDrillCore/Sources/ 2>/dev/null; then
-            echo "ERROR: Core must not import downstream packages"
-            VIOLATIONS=$((VIOLATIONS+1))
-          fi
-          if grep -rn --include='*.swift' 'import SnapDrillUI\|import SnapDrillFeatures' Packages/SnapDrillData/Sources/ 2>/dev/null; then
-            echo "ERROR: Data must only import Core"
-            VIOLATIONS=$((VIOLATIONS+1))
-          fi
-          if grep -rn --include='*.swift' 'import SnapDrillData\|import SnapDrillFeatures' Packages/SnapDrillUI/Sources/ 2>/dev/null; then
-            echo "ERROR: UI must only import Core"
-            VIOLATIONS=$((VIOLATIONS+1))
-          fi
-          # SnapDrillInfrastructure 包已退役（Firebase 剔除 RC-1/2/6）→ 相关反向依赖门禁移除
-          if grep -rn --include='*.swift' '^import SnapDrill' SnapDrillShare/ 2>/dev/null; then
-            echo "ERROR: Share Extension must not import SnapDrill packages"
-            VIOLATIONS=$((VIOLATIONS+1))
-          fi
-          if [ $VIOLATIONS -gt 0 ]; then
-            echo "Found $VIOLATIONS dependency direction violation(s)"
-            exit 1
-          fi
-          echo "All package dependency directions are correct"
+        run: python3 Scripts/ci_github.py dependencies --root "$GITHUB_WORKSPACE"
 
       - name: Resolve exact simulator
         id: simulator
@@ -140,6 +115,7 @@ jobs:
         run: |
           python3 Scripts/ci_github.py xctestrun \
             --root "$GITHUB_WORKSPACE/DerivedData/Build/Products" \
+            --confinement-root "$GITHUB_WORKSPACE" \
             --pattern 'AllTests_*.xctestrun' \
             --github-output "$GITHUB_OUTPUT"
 
@@ -314,6 +290,7 @@ jobs:
         run: |
           python3 Scripts/ci_github.py xctestrun \
             --root "$GITHUB_WORKSPACE/DerivedDataUI/Build/Products" \
+            --confinement-root "$GITHUB_WORKSPACE" \
             --pattern 'SnapDrill_UITests_*.xctestrun' \
             --github-output "$GITHUB_OUTPUT"
 

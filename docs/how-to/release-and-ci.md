@@ -68,7 +68,7 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
      -derivedDataPath $GITHUB_WORKSPACE/DerivedData
      -destination 'platform=iOS Simulator,id=<selected UDID>'
      CODE_SIGNING_ALLOWED=NO
-  8. 唯一解析 AllTests_*.xctestrun；零个或多个均失败
+  8. 在 `$GITHUB_WORKSPACE` confinement root 内唯一解析 AllTests_*.xctestrun；零个或多个、越界或 workspace 以下含 symlink path component 均失败
   9. xcodebuild test-without-building（单次执行）
      -xctestrun <exact path>
      -only-test-configuration CI
@@ -87,7 +87,7 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
   4. xcodebuild build-for-testing -scheme SnapDrill -testPlan UITests
      -derivedDataPath $GITHUB_WORKSPACE/DerivedDataUI
      -destination 'platform=iOS Simulator,id=<selected UDID>'
-  5. 唯一解析 SnapDrill_UITests_*.xctestrun
+  5. 在同一 workspace confinement root 内唯一解析 SnapDrill_UITests_*.xctestrun，并执行相同 symlink / 越界拒绝
   6. xcodebuild test-without-building（单次执行；不做 generic whole-suite retry）
      -xctestrun <exact path>
      -only-test-configuration CI -parallel-testing-enabled NO
@@ -124,10 +124,10 @@ $HOME/.snapdrill/ci-evidence/
 ```
 
 - `summary.json` 区分 GitHub trigger SHA 与经 checkout-identity step 验证的 checkout SHA，并记录 event/run/job/attempt、结果与 exit code、经 toolchain step 验证的工具版本与 Developer 目录、simulator name/UDID/runtime/device type/destination、scheme/test plan/configuration、CI-only timeout 和实际保存的附件。未经对应 step 验证的 checkout / toolchain 字段只能是 `null` / `false`。
-- test step 成功必须同时有日志与完整 xcresult；失败必须保留日志，并在 xcodebuild 已能 finalise 时复制 partial xcresult。若 checkout 已取得 helper、但之后的 identity、toolchain 或其他前置 step 失败导致测试被跳过，finalizer 仍写诚实的 `skipped` 摘要，不重新读取故障配置，也不虚构测试附件。若 `actions/checkout` 本身未取得 helper，则无法由 checkout 内脚本生成本地摘要。
+- test step 成功必须同时有非空日志与完整 xcresult；source 与复制后的 bundle 都必须无 symlink，并由当前 Xcode 的 `xcresulttool` 解析为至少执行一项测试的 `Passed` 结果。失败必须保留非空日志，并在 xcodebuild 已能 finalise 时复制无 symlink 的 partial xcresult。若 checkout 已取得 helper、但之后的 identity、toolchain 或其他前置 step 失败导致测试被跳过，finalizer 仍写诚实的 `skipped` 摘要，不重新读取故障配置，也不虚构测试附件。若 `actions/checkout` 本身未取得 helper，则无法由 checkout 内脚本生成本地摘要。
 - finalizer 把 durable local path 和 routine-only 限制写入 `GITHUB_STEP_SUMMARY`。Operator 可从 Actions 页面直接定位 Mac mini 上的材料。
 - evidence root 首次使用时必须为空并写入固定 ownership marker；以后 marker 不匹配、root 与 checkout 任一方向嵌套、root 或其直接父目录 / run 为 symlink、lock 非普通文件或出现非受管直属项均 fail closed。finalization 与清理在同一 root lock 下串行，清理器不接管或删除无 marker 的目录。
-- 每次 finalization 先删除超过 14 天的旧 run，再按最旧优先把文件系统实际分配空间限制到 20 GiB；当前 run 永不为满足预算而删除。若当前 run 单独超限，保留材料并让 CI 失败，等待 operator 处置。
+- 每次 finalization 在复制前按 source 的文件系统实际分配空间加 1 MiB metadata reserve 预留容量：先删除超过 14 天的旧 run，再按最旧优先清到“既有 run + 预留量 ≤ 20 GiB”；复制和写摘要后再按实际落盘占用复核一次。当前 run 永不为满足预算而删除。若当前 run 单独超限，保留材料并让 CI 失败，等待 operator 处置。
 - 这是当前 Mac mini 的 bounded、runner-local 诊断证据，不是 GitHub artifact，不跨 runner 复制。GitHub artifact 上传仍停用，避免再次耗尽 Actions 存储配额。
 - `if: always()` 只覆盖 GitHub job 仍能继续调度 step 的 success / failure / skipped / cancelled 控制流；runner 断电、job 强制终止或进程收到不可恢复的 hard kill 时不能保证 finalizer 执行。此时 Actions 状态本身是事故信号，不能把缺失的本地材料解释为测试通过。
 - self-hosted runner 会执行 checkout 中的 PR 代码；仓库写权限、fork policy、branch protection 与 runner 隔离属于本 helper 之外的信任边界，不能由 evidence marker 替代。

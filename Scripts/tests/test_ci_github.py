@@ -11,6 +11,7 @@ import tempfile
 import textwrap
 import unittest
 from pathlib import Path
+from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPTS_ROOT = REPO_ROOT / "Scripts"
@@ -72,6 +73,19 @@ def simulator_inventory() -> dict[str, object]:
             ]
         }
     }
+
+
+def make_dependency_tree(root: Path) -> None:
+    sources = {
+        "Packages/SnapDrillCore/Sources/Core.swift": "import Foundation\n",
+        "Packages/SnapDrillData/Sources/Data.swift": "import SnapDrillCore\n",
+        "Packages/SnapDrillUI/Sources/UI.swift": "import SnapDrillCore\n",
+        "SnapDrillShare/Share.swift": "import SwiftUI\n",
+    }
+    for relative_path, content in sources.items():
+        path = root / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
 
 
 class ToolchainContractTests(unittest.TestCase):
@@ -383,7 +397,11 @@ class XCTestRunContractTests(unittest.TestCase):
             expected.parent.mkdir()
             expected.touch()
 
-            selected = ci_github.find_exact_xctestrun(root, "AllTests_*.xctestrun")
+            selected = ci_github.find_exact_xctestrun(
+                root,
+                "AllTests_*.xctestrun",
+                confinement_root=root,
+            )
 
             self.assertEqual(selected, expected.resolve())
 
@@ -391,12 +409,176 @@ class XCTestRunContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             with self.assertRaises(ci_github.ContractError):
-                ci_github.find_exact_xctestrun(root, "AllTests_*.xctestrun")
+                ci_github.find_exact_xctestrun(
+                    root,
+                    "AllTests_*.xctestrun",
+                    confinement_root=root,
+                )
 
             (root / "AllTests_one.xctestrun").touch()
             (root / "AllTests_two.xctestrun").touch()
             with self.assertRaises(ci_github.ContractError):
-                ci_github.find_exact_xctestrun(root, "AllTests_*.xctestrun")
+                ci_github.find_exact_xctestrun(
+                    root,
+                    "AllTests_*.xctestrun",
+                    confinement_root=root,
+                )
+
+    def test_xctestrun_symlink_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            container = Path(temporary)
+            root = container / "products"
+            root.mkdir()
+            outside = container / "stale.xctestrun"
+            outside.touch()
+            (root / "AllTests_link.xctestrun").symlink_to(outside)
+
+            with self.assertRaisesRegex(ci_github.ContractError, "symbolic link"):
+                ci_github.find_exact_xctestrun(
+                    root,
+                    "AllTests_*.xctestrun",
+                    confinement_root=root,
+                )
+
+    def test_xctestrun_root_with_symlinked_ancestor_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            container = Path(temporary)
+            real_derived_data = container / "real-derived-data"
+            products = real_derived_data / "Build/Products"
+            products.mkdir(parents=True)
+            (products / "AllTests_fixture.xctestrun").touch()
+            linked_derived_data = container / "DerivedData"
+            linked_derived_data.symlink_to(real_derived_data, target_is_directory=True)
+
+            with self.assertRaisesRegex(
+                ci_github.ContractError,
+                "contains a symbolic link",
+            ):
+                ci_github.find_exact_xctestrun(
+                    linked_derived_data / "Build/Products",
+                    "AllTests_*.xctestrun",
+                    confinement_root=container,
+                )
+
+
+class DependencyContractTests(unittest.TestCase):
+    def test_valid_dependency_tree_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            make_dependency_tree(root)
+
+            ci_github.validate_package_dependencies(root)
+
+    def test_missing_or_empty_source_root_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            make_dependency_tree(root)
+            missing_root = root / "Packages/SnapDrillUI/Sources"
+            for source in missing_root.iterdir():
+                source.unlink()
+            missing_root.rmdir()
+
+            with self.assertRaisesRegex(ci_github.ContractError, "source root is missing"):
+                ci_github.validate_package_dependencies(root)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            make_dependency_tree(root)
+            empty_root = root / "SnapDrillShare"
+            for source in empty_root.iterdir():
+                source.unlink()
+
+            with self.assertRaisesRegex(ci_github.ContractError, "has no Swift files"):
+                ci_github.validate_package_dependencies(root)
+
+    def test_reverse_imports_report_exact_locations(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            make_dependency_tree(root)
+            core = root / "Packages/SnapDrillCore/Sources/Core.swift"
+            core.write_text("import struct SnapDrillData.ArchiveItem\n", encoding="utf-8")
+            share = root / "SnapDrillShare/Share.swift"
+            share.write_text("import SnapDrillCore\n", encoding="utf-8")
+
+            with self.assertRaises(ci_github.ContractError) as context:
+                ci_github.validate_package_dependencies(root)
+
+            detail = str(context.exception)
+            self.assertIn("Packages/SnapDrillCore/Sources/Core.swift:1", detail)
+            self.assertIn("SnapDrillShare/Share.swift:1", detail)
+
+    def test_annotated_multiline_and_access_level_imports_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            make_dependency_tree(root)
+            core = root / "Packages/SnapDrillCore/Sources/Core.swift"
+            core.write_text(
+                "@_implementationOnly /* boundary */ import SnapDrillData\n",
+                encoding="utf-8",
+            )
+            ui = root / "Packages/SnapDrillUI/Sources/UI.swift"
+            ui.write_text(
+                "@preconcurrency\nimport SnapDrillData\n",
+                encoding="utf-8",
+            )
+            share = root / "SnapDrillShare/Share.swift"
+            share.write_text("public import SnapDrillCore\n", encoding="utf-8")
+
+            with self.assertRaises(ci_github.ContractError) as context:
+                ci_github.validate_package_dependencies(root)
+
+            detail = str(context.exception)
+            self.assertIn("Packages/SnapDrillCore/Sources/Core.swift:1", detail)
+            self.assertIn("Packages/SnapDrillUI/Sources/UI.swift:2", detail)
+            self.assertIn("SnapDrillShare/Share.swift:1", detail)
+
+    def test_symlinked_source_parent_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            make_dependency_tree(root)
+            core_package = root / "Packages/SnapDrillCore"
+            real_core_package = root / "RealCore"
+            core_package.rename(real_core_package)
+            core_package.symlink_to(real_core_package, target_is_directory=True)
+
+            with self.assertRaisesRegex(ci_github.ContractError, "contains a symlink"):
+                ci_github.validate_package_dependencies(root)
+
+
+class XCResultContractTests(unittest.TestCase):
+    def test_complete_xcresult_requires_parseable_passed_tests(self) -> None:
+        summary = json.dumps({"result": "Passed", "totalTestCount": 42})
+        with mock.patch.object(ci_github, "run_output", return_value=summary) as run:
+            ci_github.validate_complete_xcresult(Path("/tmp/results.xcresult"))
+
+        run.assert_called_once_with(
+            [
+                "xcrun",
+                "xcresulttool",
+                "get",
+                "test-results",
+                "summary",
+                "--path",
+                "/tmp/results.xcresult",
+                "--format",
+                "json",
+            ]
+        )
+
+    def test_invalid_failed_or_empty_xcresult_fails_closed(self) -> None:
+        invalid_summaries = (
+            "not json",
+            "[]",
+            json.dumps({"result": "Failed", "totalTestCount": 1}),
+            json.dumps({"result": "Passed", "totalTestCount": 0}),
+        )
+        for summary in invalid_summaries:
+            with (
+                self.subTest(summary=summary),
+                mock.patch.object(ci_github, "run_output", return_value=summary),
+                self.assertRaises(ci_github.ContractError),
+            ):
+                ci_github.validate_complete_xcresult(Path("/tmp/results.xcresult"))
 
 
 class EvidenceContractTests(unittest.TestCase):
@@ -416,37 +598,44 @@ class EvidenceContractTests(unittest.TestCase):
             (result / "Info.plist").write_text("fixture", encoding="utf-8")
             github_summary = container / "github-summary.md"
 
-            attempt = ci_github.finalize_evidence(
-                root=root,
-                workspace=workspace,
-                source_log=log,
-                source_result=result,
-                github_summary=github_summary,
-                toolchain=EXPECTED_TOOLCHAIN,
-                toolchain_validated=True,
-                trigger_sha=self.SHA,
-                sha=self.SHA,
-                run_id="123",
-                run_attempt="2",
-                job="build",
-                event_name="pull_request",
-                outcome="success",
-                exit_code="0",
-                developer_dir="/Applications/Xcode.app/Contents/Developer",
-                simulator_name="iPhone 17",
-                simulator_udid=EXACT_UDID,
-                simulator_runtime=RUNTIME,
-                simulator_device_type=DEVICE_TYPE,
-                simulator_destination=f"platform=iOS Simulator,id={EXACT_UDID}",
-                scheme="AllTests",
-                test_plan="AllTests",
-                test_configuration="CI",
-                default_timeout_seconds=120,
-                maximum_timeout_seconds=300,
-                retention_days=14,
-                max_total_bytes=20 * 1024 * 1024,
-                now_timestamp=self.NOW,
-            )
+            xcresult_summary = json.dumps({"result": "Passed", "totalTestCount": 42})
+            with mock.patch.object(
+                ci_github,
+                "run_output",
+                return_value=xcresult_summary,
+            ) as run:
+                attempt = ci_github.finalize_evidence(
+                    root=root,
+                    workspace=workspace,
+                    source_log=log,
+                    source_result=result,
+                    github_summary=github_summary,
+                    toolchain=EXPECTED_TOOLCHAIN,
+                    toolchain_validated=True,
+                    trigger_sha=self.SHA,
+                    sha=self.SHA,
+                    run_id="123",
+                    run_attempt="2",
+                    job="build",
+                    event_name="pull_request",
+                    outcome="success",
+                    exit_code="0",
+                    developer_dir="/Applications/Xcode.app/Contents/Developer",
+                    simulator_name="iPhone 17",
+                    simulator_udid=EXACT_UDID,
+                    simulator_runtime=RUNTIME,
+                    simulator_device_type=DEVICE_TYPE,
+                    simulator_destination=f"platform=iOS Simulator,id={EXACT_UDID}",
+                    scheme="AllTests",
+                    test_plan="AllTests",
+                    test_configuration="CI",
+                    default_timeout_seconds=120,
+                    maximum_timeout_seconds=300,
+                    retention_days=14,
+                    max_total_bytes=20 * 1024 * 1024,
+                    now_timestamp=self.NOW,
+                )
+            self.assertEqual(run.call_count, 2)
 
             self.assertEqual(attempt, root.resolve() / "run-123/build/attempt-2")
             self.assertEqual((attempt / "test.log").read_text(encoding="utf-8"), "tests passed\n")
@@ -638,6 +827,135 @@ class EvidenceContractTests(unittest.TestCase):
             self.assertIsNone(summary["toolchain"]["xcode_version"])
             self.assertIsNone(summary["toolchain"]["developer_dir"])
 
+    def test_evidence_sources_reject_nested_xcresult_symlinks(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            container = Path(temporary)
+            workspace = container / "workspace"
+            workspace.mkdir()
+            root = ci_github.prepare_evidence_root(container / "evidence", workspace)
+            log = container / "test.log"
+            log.write_text("failed\n", encoding="utf-8")
+            result = container / "FailureResults.xcresult"
+            result.mkdir()
+            outside = container / "outside"
+            outside.write_text("not durable\n", encoding="utf-8")
+            (result / "external").symlink_to(outside)
+
+            with self.assertRaisesRegex(ci_github.ContractError, "symbolic links"):
+                ci_github._validate_evidence_sources(
+                    root=root,
+                    source_log=log,
+                    source_result=result,
+                    outcome="failure",
+                )
+
+    def test_finalize_reclaims_expired_runs_before_copying(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            container = Path(temporary)
+            workspace = container / "workspace"
+            workspace.mkdir()
+            root = ci_github.prepare_evidence_root(container / "evidence", workspace)
+            old_run = root / "run-129"
+            old_run.mkdir()
+            (old_run / "old.bin").write_bytes(b"x" * 4_096)
+            old_timestamp = self.NOW - 15 * 24 * 60 * 60
+            os.utime(old_run, (old_timestamp, old_timestamp))
+            original_copy = ci_github._copy_evidence_artifacts
+            copy_observed = False
+
+            def assert_cleanup_before_copy(**keywords: object) -> dict[str, str | None]:
+                nonlocal copy_observed
+                copy_observed = True
+                self.assertFalse(old_run.exists())
+                return original_copy(**keywords)
+
+            with mock.patch.object(
+                ci_github,
+                "_copy_evidence_artifacts",
+                side_effect=assert_cleanup_before_copy,
+            ):
+                ci_github.finalize_evidence(
+                    root=root,
+                    workspace=workspace,
+                    source_log=container / "missing.log",
+                    source_result=container / "missing.xcresult",
+                    github_summary=container / "summary.md",
+                    toolchain=None,
+                    toolchain_validated=False,
+                    trigger_sha=self.SHA,
+                    sha="",
+                    run_id="130",
+                    run_attempt="1",
+                    job="build",
+                    event_name="pull_request",
+                    outcome="skipped",
+                    exit_code="",
+                    developer_dir="",
+                    simulator_name="",
+                    simulator_udid="",
+                    simulator_runtime="",
+                    simulator_device_type="",
+                    simulator_destination="",
+                    scheme="AllTests",
+                    test_plan="AllTests",
+                    test_configuration="CI",
+                    default_timeout_seconds=120,
+                    maximum_timeout_seconds=300,
+                    retention_days=14,
+                    max_total_bytes=20 * 1024 * 1024,
+                    now_timestamp=self.NOW,
+                )
+
+            self.assertTrue(copy_observed)
+
+    def test_mismatched_checkout_sha_cannot_be_marked_validated(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            container = Path(temporary)
+            workspace = container / "workspace"
+            workspace.mkdir()
+            log = container / "test.log"
+            log.write_text("tests passed\n", encoding="utf-8")
+            result = container / "SourceResults.xcresult"
+            result.mkdir()
+
+            with self.assertRaisesRegex(
+                ci_github.ContractError,
+                "validated checkout SHA must match the trigger SHA",
+            ):
+                ci_github.finalize_evidence(
+                    root=container / "evidence",
+                    workspace=workspace,
+                    source_log=log,
+                    source_result=result,
+                    github_summary=container / "summary.md",
+                    toolchain=EXPECTED_TOOLCHAIN,
+                    toolchain_validated=True,
+                    trigger_sha=self.SHA,
+                    sha="b" * 40,
+                    run_id="128",
+                    run_attempt="1",
+                    job="build",
+                    event_name="pull_request",
+                    outcome="success",
+                    exit_code="0",
+                    developer_dir="/Applications/Xcode.app/Contents/Developer",
+                    simulator_name="iPhone 17",
+                    simulator_udid=EXACT_UDID,
+                    simulator_runtime=RUNTIME,
+                    simulator_device_type=DEVICE_TYPE,
+                    simulator_destination=(
+                        f"platform=iOS Simulator,id={EXACT_UDID}"
+                    ),
+                    scheme="AllTests",
+                    test_plan="AllTests",
+                    test_configuration="CI",
+                    default_timeout_seconds=120,
+                    maximum_timeout_seconds=300,
+                    retention_days=14,
+                    max_total_bytes=20 * 1024 * 1024,
+                    now_timestamp=self.NOW,
+                )
+
     def test_owned_root_rejects_checkout_unmarked_content_and_symlink(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             container = Path(temporary)
@@ -771,6 +1089,38 @@ class EvidenceContractTests(unittest.TestCase):
                 )
             self.assertTrue(current.is_dir())
 
+    def test_cleanup_reserves_capacity_for_incoming_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            container = Path(temporary)
+            workspace = container / "workspace"
+            workspace.mkdir()
+            root = ci_github.prepare_evidence_root(container / "evidence", workspace)
+            old = root / "run-20"
+            old.mkdir()
+            (old / "old.bin").write_bytes(b"x" * 4_096)
+            current = root / "run-21"
+            current.mkdir()
+            (current / "current.bin").write_bytes(b"x" * 4_096)
+            os.utime(old, (self.NOW - 10, self.NOW - 10))
+            total_bytes = (
+                ci_github.evidence_allocated_size(old)
+                + ci_github.evidence_allocated_size(current)
+            )
+            reserved_bytes = ci_github.evidence_allocated_size(old)
+
+            removed = ci_github._cleanup_evidence_unlocked(
+                root,
+                current_run_name="run-21",
+                retention_days=14,
+                max_total_bytes=total_bytes,
+                reserved_bytes=reserved_bytes,
+                now_timestamp=self.NOW,
+            )
+
+            self.assertEqual(removed, ["run-20"])
+            self.assertFalse(old.exists())
+            self.assertTrue(current.exists())
+
 
 class WorkflowContractTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -794,6 +1144,15 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("permissions:\n  contents: read", self.workflow)
         self.assertNotIn("contents: write", self.workflow)
         self.assertNotIn("persist-credentials: true", self.workflow)
+
+    def test_dependency_gate_uses_fail_closed_contract(self) -> None:
+        dependency_step = self.step_body(self.build, "Check Package Dependencies")
+        self.assertIn(
+            'python3 Scripts/ci_github.py dependencies --root "$GITHUB_WORKSPACE"',
+            dependency_step,
+        )
+        self.assertNotIn("grep ", dependency_step)
+        self.assertNotIn("2>/dev/null", dependency_step)
 
     def test_both_jobs_bind_tools_checkout_and_simulator_through_contract(self) -> None:
         for job in (self.build, self.ui):
@@ -827,6 +1186,7 @@ class WorkflowContractTests(unittest.TestCase):
                 self.assertEqual(job.count("-resolvePackageDependencies"), 1)
                 self.assertEqual(job.count("test-without-building"), 1)
                 self.assertIn("python3 Scripts/ci_github.py xctestrun", job)
+                self.assertIn("--confinement-root \"$GITHUB_WORKSPACE\"", job)
                 self.assertIn("steps.xctestrun.outputs.path", job)
                 test_step = self.step_body(job, step_name)
                 self.assertNotRegex(test_step, r"(?m)^\s*(?:for|while|until)\b")

@@ -35,10 +35,18 @@ IOS_RUNTIME_PATTERN = re.compile(
 EVIDENCE_MARKER_NAME = ".snapdrill-ci-evidence-root"
 EVIDENCE_MARKER_CONTENT = "SnapDrill routine CI evidence root v1\n"
 EVIDENCE_LOCK_NAME = ".snapdrill-ci-evidence.lock"
+EVIDENCE_METADATA_RESERVE_BYTES = 1024 * 1024
 RUN_ID_PATTERN = re.compile(r"[1-9]\d*")
 JOB_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}")
 SHA_PATTERN = re.compile(r"[0-9A-Fa-f]{40}")
 EVIDENCE_OUTCOMES = {"success", "failure", "cancelled", "skipped"}
+SWIFT_TOKEN_GAP = r"(?:\s|/\*.*?\*/|//[^\r\n]*(?:\r?\n|$))+"
+SWIFT_IMPORT_PATTERN = re.compile(
+    rf"\bimport{SWIFT_TOKEN_GAP}"
+    rf"(?:(?:typealias|struct|class|enum|protocol|let|var|func){SWIFT_TOKEN_GAP})?"
+    r"([A-Za-z_][A-Za-z0-9_]*)",
+    re.DOTALL,
+)
 
 
 class ContractError(ValueError):
@@ -214,12 +222,48 @@ def select_simulator(
     return matches[0]
 
 
-def find_exact_xctestrun(root: Path, pattern: str) -> Path:
-    if not root.is_dir():
+def find_exact_xctestrun(
+    root: Path,
+    pattern: str,
+    *,
+    confinement_root: Path,
+) -> Path:
+    if confinement_root.is_symlink() or not confinement_root.is_dir():
+        raise ContractError(
+            f"xctestrun confinement root does not exist: {confinement_root}"
+        )
+    if root.is_symlink() or not root.is_dir():
         raise ContractError(f"xctestrun root does not exist: {root}")
     if not pattern or "/" in pattern or pattern in {".", ".."}:
         raise ContractError(f"invalid xctestrun filename pattern: {pattern!r}")
-    matches = sorted(path.resolve() for path in root.rglob(pattern) if path.is_file())
+
+    lexical_confinement_root = confinement_root.absolute()
+    lexical_root = root.absolute()
+    if not _is_within(lexical_root, lexical_confinement_root):
+        raise ContractError("xctestrun root must stay within its confinement root")
+    current = lexical_confinement_root
+    for component in lexical_root.relative_to(lexical_confinement_root).parts:
+        current /= component
+        if current.is_symlink():
+            raise ContractError(f"xctestrun root contains a symbolic link: {current}")
+
+    resolved_confinement_root = confinement_root.resolve(strict=True)
+    resolved_root = root.resolve(strict=True)
+    if not _is_within(resolved_root, resolved_confinement_root):
+        raise ContractError("xctestrun root escaped its confinement root")
+    matches: list[Path] = []
+    for path in resolved_root.rglob(pattern):
+        if path.is_symlink():
+            raise ContractError(f"xctestrun must not be a symbolic link: {path}")
+        if not path.is_file():
+            continue
+        resolved_path = path.resolve(strict=True)
+        if resolved_path != path.absolute():
+            raise ContractError(f"xctestrun path contains a symbolic link: {path}")
+        if not _is_within(resolved_path, resolved_root):
+            raise ContractError(f"xctestrun must stay within its build root: {path}")
+        matches.append(resolved_path)
+    matches.sort()
     if len(matches) != 1:
         rendered = "\n".join(f"  {path}" for path in matches)
         suffix = f"\n{rendered}" if rendered else ""
@@ -253,6 +297,71 @@ def _require_one_line(value: str, label: str, *, allow_empty: bool = False) -> s
     if (not value and not allow_empty) or "\n" in value or "\r" in value:
         raise ContractError(f"{label} must be a valid one-line value")
     return value
+
+
+def validate_package_dependencies(repository: Path) -> None:
+    if repository.is_symlink() or not repository.is_dir():
+        raise ContractError(f"repository root must be a real directory: {repository}")
+    resolved_repository = repository.resolve(strict=True)
+    rules = (
+        (
+            Path("Packages/SnapDrillCore/Sources"),
+            set(),
+            "Core must not import downstream packages",
+        ),
+        (
+            Path("Packages/SnapDrillData/Sources"),
+            {"SnapDrillCore"},
+            "Data must only import Core",
+        ),
+        (
+            Path("Packages/SnapDrillUI/Sources"),
+            {"SnapDrillCore"},
+            "UI must only import Core",
+        ),
+        (
+            Path("SnapDrillShare"),
+            set(),
+            "Share Extension must not import SnapDrill packages",
+        ),
+    )
+    violations: list[str] = []
+    for relative_root, allowed_snapdrill_modules, message in rules:
+        source_root = resolved_repository / relative_root
+        if source_root.is_symlink() or not source_root.is_dir():
+            raise ContractError(f"dependency source root is missing: {relative_root}")
+        if source_root.resolve(strict=True) != source_root:
+            raise ContractError(f"dependency source root contains a symlink: {relative_root}")
+
+        swift_files: list[Path] = []
+        for path in source_root.rglob("*"):
+            if path.is_symlink():
+                raise ContractError(f"dependency source tree contains a symlink: {path}")
+            if path.is_file() and path.suffix == ".swift":
+                swift_files.append(path)
+        if not swift_files:
+            raise ContractError(f"dependency source root has no Swift files: {relative_root}")
+
+        for path in sorted(swift_files):
+            source = path.read_text(encoding="utf-8")
+            for match in SWIFT_IMPORT_PATTERN.finditer(source):
+                module = match.group(1)
+                is_forbidden = (
+                    module.startswith("SnapDrill")
+                    and module not in allowed_snapdrill_modules
+                )
+                if is_forbidden:
+                    location = path.relative_to(resolved_repository)
+                    line_number = source.count("\n", 0, match.start(1)) + 1
+                    declaration = " ".join(match.group(0).split())
+                    violations.append(
+                        f"{location}:{line_number}: {message}: {declaration}"
+                    )
+
+    if violations:
+        raise ContractError(
+            "dependency direction violations:\n" + "\n".join(violations)
+        )
 
 
 def prepare_evidence_root(root: Path, workspace: Path) -> Path:
@@ -381,12 +490,91 @@ def evidence_allocated_size(path: Path) -> int:
     return total
 
 
+def _require_self_contained_tree(path: Path, label: str) -> None:
+    pending = [path]
+    while pending:
+        current = pending.pop()
+        current_status = current.lstat()
+        if stat.S_ISLNK(current_status.st_mode):
+            raise ContractError(f"{label} must not contain symbolic links: {current}")
+        if stat.S_ISDIR(current_status.st_mode):
+            with os.scandir(current) as entries:
+                pending.extend(Path(entry.path) for entry in entries)
+        elif not stat.S_ISREG(current_status.st_mode):
+            raise ContractError(f"{label} must contain only files and directories: {current}")
+
+
+def validate_complete_xcresult(path: Path) -> None:
+    output = run_output(
+        [
+            "xcrun",
+            "xcresulttool",
+            "get",
+            "test-results",
+            "summary",
+            "--path",
+            str(path),
+            "--format",
+            "json",
+        ]
+    )
+    try:
+        summary = json.loads(output)
+    except json.JSONDecodeError as error:
+        raise ContractError("xcresulttool returned invalid JSON") from error
+    if not isinstance(summary, dict):
+        raise ContractError("xcresult summary must be a JSON object")
+    if summary.get("result") != "Passed":
+        raise ContractError("successful test evidence requires a passed xcresult")
+    total_test_count = summary.get("totalTestCount")
+    if (
+        not isinstance(total_test_count, int)
+        or isinstance(total_test_count, bool)
+        or total_test_count <= 0
+    ):
+        raise ContractError("successful xcresult must contain at least one test")
+
+
+def _validate_evidence_sources(
+    *,
+    root: Path,
+    source_log: Path,
+    source_result: Path,
+    outcome: str,
+) -> int:
+    allocated_bytes = 0
+    if source_log.exists():
+        if source_log.is_symlink() or not source_log.is_file():
+            raise ContractError("test log must be a regular file")
+        if _is_within(source_log.resolve(strict=True), root):
+            raise ContractError("test log source must be outside the durable evidence root")
+        if outcome in {"success", "failure"} and source_log.stat().st_size == 0:
+            raise ContractError(f"{outcome} test step produced an empty log")
+        allocated_bytes += evidence_allocated_size(source_log)
+    elif outcome in {"success", "failure"}:
+        raise ContractError(f"{outcome} test step did not produce a log")
+
+    if source_result.exists():
+        if source_result.is_symlink() or not source_result.is_dir():
+            raise ContractError("xcresult source must be a real directory")
+        if _is_within(source_result.resolve(strict=True), root):
+            raise ContractError("xcresult source must be outside the durable evidence root")
+        _require_self_contained_tree(source_result, "xcresult source")
+        if outcome == "success":
+            validate_complete_xcresult(source_result)
+        allocated_bytes += evidence_allocated_size(source_result)
+    elif outcome == "success":
+        raise ContractError("successful test step did not produce an xcresult")
+    return allocated_bytes
+
+
 def _cleanup_evidence_unlocked(
     root: Path,
     *,
     current_run_name: str,
     retention_days: int,
     max_total_bytes: int,
+    reserved_bytes: int = 0,
     now_timestamp: float | None = None,
 ) -> list[str]:
     if re.fullmatch(r"run-[1-9]\d*", current_run_name) is None:
@@ -395,6 +583,8 @@ def _cleanup_evidence_unlocked(
         raise ContractError("retention days must be positive")
     if max_total_bytes <= 0:
         raise ContractError("maximum evidence bytes must be positive")
+    if reserved_bytes < 0 or reserved_bytes >= max_total_bytes:
+        raise ContractError("reserved evidence bytes must be below the total size limit")
 
     now = time.time() if now_timestamp is None else now_timestamp
     runs = _managed_run_directories(root)
@@ -410,11 +600,12 @@ def _cleanup_evidence_unlocked(
 
     remaining = _managed_run_directories(root)
     total_bytes = sum(evidence_allocated_size(run) for run in remaining)
+    available_bytes = max_total_bytes - reserved_bytes
     for run in sorted(
         remaining,
         key=lambda candidate: (candidate.stat().st_mtime, candidate.name),
     ):
-        if total_bytes <= max_total_bytes:
+        if total_bytes <= available_bytes:
             break
         if run.name == current_run_name:
             continue
@@ -423,9 +614,9 @@ def _cleanup_evidence_unlocked(
         total_bytes -= run_bytes
         removed.append(run.name)
 
-    if total_bytes > max_total_bytes:
+    if total_bytes > available_bytes:
         raise ContractError(
-            "current run alone exceeds the routine CI evidence size limit; "
+            "current run plus reserved incoming evidence exceeds the size limit; "
             "evidence was preserved and the job must fail"
         )
     return removed
@@ -479,7 +670,6 @@ def _create_attempt_directory(
 
 def _copy_evidence_artifacts(
     *,
-    root: Path,
     attempt_directory: Path,
     source_log: Path,
     source_result: Path,
@@ -491,24 +681,15 @@ def _copy_evidence_artifacts(
     result_name: str | None = None
 
     if source_log.exists():
-        if source_log.is_symlink() or not source_log.is_file():
-            raise ContractError("test log must be a regular file")
-        if _is_within(source_log.resolve(strict=True), root):
-            raise ContractError("test log source must be outside the durable evidence root")
         shutil.copy2(source_log, log_target)
         log_name = log_target.name
-    elif outcome in {"success", "failure"}:
-        raise ContractError(f"{outcome} test step did not produce a log")
 
     if source_result.exists():
-        if source_result.is_symlink() or not source_result.is_dir():
-            raise ContractError("xcresult source must be a real directory")
-        if _is_within(source_result.resolve(strict=True), root):
-            raise ContractError("xcresult source must be outside the durable evidence root")
         shutil.copytree(source_result, result_target, symlinks=True)
+        _require_self_contained_tree(result_target, "copied xcresult")
+        if outcome == "success":
+            validate_complete_xcresult(result_target)
         result_name = result_target.name
-    elif outcome == "success":
-        raise ContractError("successful test step did not produce an xcresult")
 
     return {"log": log_name, "result_bundle": result_name}
 
@@ -551,6 +732,8 @@ def finalize_evidence(
         raise ContractError(f"unsupported test outcome: {outcome!r}")
     if sha and SHA_PATTERN.fullmatch(sha) is None:
         raise ContractError("checkout SHA must contain exactly 40 hexadecimal characters")
+    if sha and sha != trigger_sha:
+        raise ContractError("validated checkout SHA must match the trigger SHA")
     if outcome in {"success", "failure"} and not sha:
         raise ContractError(f"{outcome} evidence requires a validated checkout SHA")
     if toolchain_validated != (toolchain is not None):
@@ -618,21 +801,39 @@ def finalize_evidence(
 
     prepared_root = prepare_evidence_root(root, workspace)
     with _locked_evidence_root(prepared_root):
+        incoming_bytes = _validate_evidence_sources(
+            root=prepared_root,
+            source_log=source_log,
+            source_result=source_result,
+            outcome=outcome,
+        )
+        reserved_bytes = incoming_bytes + EVIDENCE_METADATA_RESERVE_BYTES
+        if reserved_bytes >= max_total_bytes:
+            raise ContractError(
+                "incoming evidence plus metadata reserve exceeds the total size limit"
+            )
         attempt_directory, run_name = _create_attempt_directory(
             prepared_root,
             run_id=run_id,
             job=job,
             run_attempt=run_attempt,
         )
+        timestamp = time.time() if now_timestamp is None else now_timestamp
+        removed = _cleanup_evidence_unlocked(
+            prepared_root,
+            current_run_name=run_name,
+            retention_days=retention_days,
+            max_total_bytes=max_total_bytes,
+            reserved_bytes=reserved_bytes,
+            now_timestamp=timestamp,
+        )
         artifacts = _copy_evidence_artifacts(
-            root=prepared_root,
             attempt_directory=attempt_directory,
             source_log=source_log,
             source_result=source_result,
             outcome=outcome,
         )
 
-        timestamp = time.time() if now_timestamp is None else now_timestamp
         created_at = datetime.fromtimestamp(timestamp, timezone.utc).isoformat().replace(
             "+00:00", "Z"
         )
@@ -705,12 +906,14 @@ def finalize_evidence(
             handle.write(markdown)
 
         os.utime(prepared_root / run_name, (timestamp, timestamp))
-        removed = _cleanup_evidence_unlocked(
-            prepared_root,
-            current_run_name=run_name,
-            retention_days=retention_days,
-            max_total_bytes=max_total_bytes,
-            now_timestamp=timestamp,
+        removed.extend(
+            _cleanup_evidence_unlocked(
+                prepared_root,
+                current_run_name=run_name,
+                retention_days=retention_days,
+                max_total_bytes=max_total_bytes,
+                now_timestamp=timestamp,
+            )
         )
     if removed:
         print(f"Removed expired/over-budget evidence runs: {', '.join(removed)}")
@@ -771,9 +974,18 @@ def command_simulator(arguments: argparse.Namespace) -> None:
 
 
 def command_xctestrun(arguments: argparse.Namespace) -> None:
-    path = find_exact_xctestrun(arguments.root, arguments.pattern)
+    path = find_exact_xctestrun(
+        arguments.root,
+        arguments.pattern,
+        confinement_root=arguments.confinement_root,
+    )
     append_github_values(arguments.github_output, {"path": str(path)})
     print(f"xctestrun: {path}")
+
+
+def command_dependencies(arguments: argparse.Namespace) -> None:
+    validate_package_dependencies(arguments.root)
+    print("All package dependency directions are correct")
 
 
 def command_evidence(arguments: argparse.Namespace) -> None:
@@ -855,9 +1067,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     xctestrun = subparsers.add_parser("xctestrun")
     xctestrun.add_argument("--root", type=Path, required=True)
+    xctestrun.add_argument("--confinement-root", type=Path, required=True)
     xctestrun.add_argument("--pattern", required=True)
     xctestrun.add_argument("--github-output", type=Path, required=True)
     xctestrun.set_defaults(handler=command_xctestrun)
+
+    dependencies = subparsers.add_parser("dependencies")
+    dependencies.add_argument("--root", type=Path, required=True)
+    dependencies.set_defaults(handler=command_dependencies)
 
     evidence = subparsers.add_parser("evidence")
     evidence.add_argument("--root", type=Path, required=True)
