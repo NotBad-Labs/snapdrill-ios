@@ -101,21 +101,6 @@ class CILocalTests(unittest.TestCase):
             """,
         )
         self.write_executable(
-            "grep",
-            r"""
-            #!/bin/bash
-            set -euo pipefail
-            printf 'grep|%s|%s\n' "$PWD" "$*" >> "$FAKE_COMMAND_LOG"
-            status="${FAKE_GREP_STATUS:-1}"
-            if [[ "$status" == "0" ]]; then
-              printf '%s\n' 'Fake.swift:1:import SnapDrillFeatures'
-            elif [[ "$status" == "2" ]]; then
-              printf '%s\n' 'grep fixture failure' >&2
-            fi
-            exit "$status"
-            """,
-        )
-        self.write_executable(
             "find",
             r"""
             #!/bin/bash
@@ -239,11 +224,14 @@ class CILocalTests(unittest.TestCase):
         self.assertIn("-only-test-configuration CI", test[0])
         self.assertIn("-destination platform=iOS Simulator,name=iPhone 17", build[0])
         self.assertIn("-destination platform=iOS Simulator,name=iPhone 17", test[0])
-        grep_commands = [line for line in log if line.startswith("grep|")]
         self.assertTrue(
-            any("import (SnapDrillData|SnapDrillUI|SnapDrillFeatures)" in line for line in grep_commands)
+            any(
+                line.startswith("python3|")
+                and "ci_github.py dependencies --root" in line
+                for line in log
+            )
         )
-        self.assertTrue(any("^import SnapDrill" in line for line in grep_commands))
+        self.assertFalse(any(line.startswith("grep|") for line in log))
         self.assertNotIn("-scheme SnapDrill ", "\n".join(log))
         self.assertNotIn("-skip-testing", "\n".join(log))
         self.assertFalse(any(line.startswith("xcpretty|") for line in log))
@@ -269,21 +257,13 @@ class CILocalTests(unittest.TestCase):
             "test_doc_generators.py",
             "validate_docs.py",
             "validate_capture_contract.py",
+            "ci_github.py dependencies",
             "AllTests.xctestplan",
         )
         for pattern in patterns:
             with self.subTest(pattern=pattern):
                 result = self.run_gate(
                     environment=self.environment(FAKE_FAIL_PATTERN=pattern)
-                )
-                self.assertNotEqual(result.returncode, 0)
-                self.assertNotIn("Source gate PASSED", result.stdout)
-
-    def test_dependency_match_and_scan_error_fail_closed(self) -> None:
-        for status in ("0", "2"):
-            with self.subTest(status=status):
-                result = self.run_gate(
-                    environment=self.environment(FAKE_GREP_STATUS=status)
                 )
                 self.assertNotEqual(result.returncode, 0)
                 self.assertNotIn("Source gate PASSED", result.stdout)

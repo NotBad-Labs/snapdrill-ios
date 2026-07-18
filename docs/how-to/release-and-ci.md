@@ -52,10 +52,11 @@ bash Scripts/ci-local.sh
 
 ```yaml
 # .github/workflows/ci.yml
-触发条件：PR → develop/main，push → develop/main，或手动触发（workflow_dispatch）
-Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
-  - `build`（Build & Test，timeout 60min）：每次 PR/push 都跑——门禁。
+触发条件：同仓 PR → develop/main，push → develop/main，手动触发（workflow_dispatch），或每日清理调度
+Runner：Mac mini 自托管（self-hosted, macOS）。两个测试 job + 一个清理 job：
+  - `build`（Build & Test，timeout 60min）：同仓 PR/push 跑——门禁；fork PR 与清理调度不进入。
   - `ui-tests`（UI Tests，timeout 45min）：仅 develop push（合并）或手动触发，且 `needs: build`。
+  - `evidence-janitor`（timeout 5min）：仅每日调度，执行受管 evidence root 的 age/size 清理，不构建或测试。
 
 【build job 步骤】
   1. Checkout（actions/checkout v5 固定完整 SHA；contents:read；不保留凭据）并验证 HEAD == GITHUB_SHA
@@ -110,7 +111,7 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
 
 ### Runner 本地 CI 证据
 
-两个 job 的测试日志和 xcresult 先写入按 run / job / attempt 唯一命名的 `$RUNNER_TEMP` 路径。紧随测试命令的 `if: always()` step 调用 `Scripts/ci_github.py evidence`，将当次可用材料复制到：
+两个测试 job 的日志和 xcresult 先写入按 run / job / attempt 唯一命名的 `$RUNNER_TEMP` 路径。紧随测试命令的 `if: always()` step 调用 `Scripts/ci_github.py evidence`，将当次可用材料复制到：
 
 ```text
 $HOME/.snapdrill/ci-evidence/
@@ -119,18 +120,19 @@ $HOME/.snapdrill/ci-evidence/
         └── attempt-<GITHUB_RUN_ATTEMPT>/
             ├── summary.json
             ├── summary.md
-            ├── test.log
-            └── results.xcresult/   # xcodebuild 已产出时
+            ├── test.log            # 容量允许且测试已产出时
+            └── results.xcresult/   # 容量允许且 xcodebuild 已产出时
 ```
 
 - `summary.json` 区分 GitHub trigger SHA 与经 checkout-identity step 验证的 checkout SHA，并记录 event/run/job/attempt、结果与 exit code、经 toolchain step 验证的工具版本与 Developer 目录、simulator name/UDID/runtime/device type/destination、scheme/test plan/configuration、CI-only timeout 和实际保存的附件。未经对应 step 验证的 checkout / toolchain 字段只能是 `null` / `false`。
 - test step 成功必须同时有非空日志与完整 xcresult；source 与复制后的 bundle 都必须无 symlink，并由当前 Xcode 的 `xcresulttool` 解析为至少执行一项测试的 `Passed` 结果。失败必须保留非空日志，并在 xcodebuild 已能 finalise 时复制无 symlink 的 partial xcresult。若 checkout 已取得 helper、但之后的 identity、toolchain 或其他前置 step 失败导致测试被跳过，finalizer 仍写诚实的 `skipped` 摘要，不重新读取故障配置，也不虚构测试附件。若 `actions/checkout` 本身未取得 helper，则无法由 checkout 内脚本生成本地摘要。
 - finalizer 把 durable local path 和 routine-only 限制写入 `GITHUB_STEP_SUMMARY`。Operator 可从 Actions 页面直接定位 Mac mini 上的材料。
 - evidence root 首次使用时必须为空并写入固定 ownership marker；以后 marker 不匹配、root 与 checkout 任一方向嵌套、root 或其直接父目录 / run 为 symlink、lock 非普通文件或出现非受管直属项均 fail closed。finalization 与清理在同一 root lock 下串行，清理器不接管或删除无 marker 的目录。
-- 每次 finalization 在复制前按 source 的文件系统实际分配空间加 1 MiB metadata reserve 预留容量：先删除超过 14 天的旧 run，再按最旧优先清到“既有 run + 预留量 ≤ 20 GiB”；复制和写摘要后再按实际落盘占用复核一次。当前 run 永不为满足预算而删除。若当前 run 单独超限，保留材料并让 CI 失败，等待 operator 处置。
+- 每次 finalization 在复制前按 source 的文件系统实际分配空间加 1 MiB metadata reserve 预留容量：先删除超过 14 天的旧 run，再按最旧优先清到“既有 run + 预留量 ≤ 20 GiB”；复制和写摘要后再按实际落盘占用复核一次。当前 run 永不为满足预算而删除。若附件无法在预算内落盘，finalizer 仍先写入小型 `summary.json` / `summary.md`，将附件记为 omitted 并让 CI 失败；不会在创建 attempt 之前无记录退出。
+- workflow 每日调度独立 `evidence-janitor`，在 runner 在线时执行同一 14 天 / 20 GiB 清理策略；每次正常 finalization 也继续清理。runner 持续离线或 workflow 被禁用时无法承诺墙钟时间上的立即删除，恢复后的首个 janitor/finalizer 必须补做清理，不能把“14 天策略”描述为离线机器上的硬实时保证。
 - 这是当前 Mac mini 的 bounded、runner-local 诊断证据，不是 GitHub artifact，不跨 runner 复制。GitHub artifact 上传仍停用，避免再次耗尽 Actions 存储配额。
 - `if: always()` 只覆盖 GitHub job 仍能继续调度 step 的 success / failure / skipped / cancelled 控制流；runner 断电、job 强制终止或进程收到不可恢复的 hard kill 时不能保证 finalizer 执行。此时 Actions 状态本身是事故信号，不能把缺失的本地材料解释为测试通过。
-- self-hosted runner 会执行 checkout 中的 PR 代码；仓库写权限、fork policy、branch protection 与 runner 隔离属于本 helper 之外的信任边界，不能由 evidence marker 替代。
+- self-hosted runner 只接受同仓 PR：Private 仓库设置必须保持 `run_workflows_from_fork_pull_requests=false`，workflow 的 job guard 也拒绝 fork head；该外部设置由 #928 留存证据。若将来开放 fork workflow，必须先改用隔离/临时 runner，不能靠 checkout 内可修改的 guard。已有仓库写权限的同仓 contributor 与 runner 账号仍可读写这些原始材料，因此它们是可变诊断缓存，不是安全隔离区或不可变证据。
 - 分类固定为 `routine-ci-only`：它不证明签名 archive / 安装变体、隐私 / 网络运行时或 Release candidate conformance，也不授权 merge、upload、TestFlight、go/no-go 或 release。候选不可变证据仍归 #895 / #896 / #897。
 
 ### GitHub Token 配置

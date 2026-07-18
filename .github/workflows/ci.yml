@@ -5,6 +5,8 @@ on:
     branches: [ "develop", "main" ]
   push:
     branches: [ "develop", "main" ]
+  schedule:
+    - cron: "17 3 * * *"
   workflow_dispatch:
 
 permissions:
@@ -19,6 +21,9 @@ concurrency:
 jobs:
   build:
     name: Build & Test
+    # Private-repository fork workflows are disabled in GitHub settings. This
+    # second guard keeps fork PRs off the persistent self-hosted runner.
+    if: github.event_name != 'schedule' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: [self-hosted, macOS]
     timeout-minutes: 60
 
@@ -375,5 +380,25 @@ jobs:
             --test-configuration CI \
             --default-timeout-seconds 300 \
             --maximum-timeout-seconds 600 \
+            --retention-days 14 \
+            --max-total-bytes 21474836480
+
+  evidence-janitor:
+    name: Prune runner-local CI evidence
+    if: github.event_name == 'schedule'
+    runs-on: [self-hosted, macOS]
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout trusted default branch
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          persist-credentials: false
+
+      - name: Enforce retention and size policy
+        run: |
+          python3 Scripts/ci_github.py evidence-janitor \
+            --root "$HOME/.snapdrill/ci-evidence" \
+            --workspace "$GITHUB_WORKSPACE" \
             --retention-days 14 \
             --max-total-bytes 21474836480

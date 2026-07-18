@@ -513,7 +513,8 @@ class DependencyContractTests(unittest.TestCase):
             make_dependency_tree(root)
             core = root / "Packages/SnapDrillCore/Sources/Core.swift"
             core.write_text(
-                "@_implementationOnly /* boundary */ import SnapDrillData\n",
+                "@_implementationOnly /* boundary */ import SnapDrillData\n"
+                "@_spi(Testing) public import SnapDrillFeatures\n",
                 encoding="utf-8",
             )
             ui = root / "Packages/SnapDrillUI/Sources/UI.swift"
@@ -529,8 +530,114 @@ class DependencyContractTests(unittest.TestCase):
 
             detail = str(context.exception)
             self.assertIn("Packages/SnapDrillCore/Sources/Core.swift:1", detail)
+            self.assertIn("Packages/SnapDrillCore/Sources/Core.swift:2", detail)
             self.assertIn("Packages/SnapDrillUI/Sources/UI.swift:2", detail)
             self.assertIn("SnapDrillShare/Share.swift:1", detail)
+
+    def test_backtick_and_same_line_imports_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            make_dependency_tree(root)
+            core = root / "Packages/SnapDrillCore/Sources/Core.swift"
+            core.write_text(
+                "import Foundation; public import `SnapDrillData`\n",
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(ci_github.ContractError) as context:
+                ci_github.validate_package_dependencies(root)
+
+            self.assertIn("Packages/SnapDrillCore/Sources/Core.swift:1", str(context.exception))
+
+    def test_import_text_inside_literals_and_nested_comments_is_ignored(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            make_dependency_tree(root)
+            core = root / "Packages/SnapDrillCore/Sources/Core.swift"
+            core.write_text(
+                textwrap.dedent(
+                    '''
+                    let ordinary = "import SnapDrillData"
+                    let raw = #"import SnapDrillUI"#
+                    let multiline = """
+                    import SnapDrillFeatures
+                    """
+                    let regex = /import SnapDrillData/
+                    let extendedRegex = #/
+                    import SnapDrillFeatures
+                    /#
+                    // import SnapDrillUI
+                    /* outer
+                       /* import SnapDrillFeatures */
+                       import SnapDrillData
+                    */
+                    import Foundation
+                    '''
+                ).lstrip(),
+                encoding="utf-8",
+            )
+
+            ci_github.validate_package_dependencies(root)
+
+    def test_compiler_parser_handles_adversarial_legal_swift(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            make_dependency_tree(root)
+            core = root / "Packages/SnapDrillCore/Sources/Core.swift"
+            core.write_text(
+                textwrap.dedent(
+                    r'''
+                    let string = #"foo \#"#; import SnapDrillData"#
+                    let regex = #/foo\/#; import SnapDrillData/#
+                    let closure = { (_: String) in /foo; import SnapDrillData/ }
+                    let `你好` = 1
+                    let astText = #"(import_decl harmless)"#
+                    let astRegex = #/\(import_decl harmless\)/#
+                    '''
+                ).lstrip(),
+                encoding="utf-8",
+            )
+
+            ci_github.validate_package_dependencies(root)
+
+    def test_conditional_compilation_imports_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            make_dependency_tree(root)
+            core = root / "Packages/SnapDrillCore/Sources/Core.swift"
+            core.write_text(
+                textwrap.dedent(
+                    '''
+                    #if os(iOS)
+                    import SnapDrillData
+                    #elseif canImport(SnapDrillFeatures)
+                    import SnapDrillFeatures
+                    #else
+                    import Foundation
+                    #endif
+                    '''
+                ).lstrip(),
+                encoding="utf-8",
+            )
+
+            with self.assertRaises(ci_github.ContractError) as context:
+                ci_github.validate_package_dependencies(root)
+
+            detail = str(context.exception)
+            self.assertIn("Packages/SnapDrillCore/Sources/Core.swift:2", detail)
+            self.assertIn("Packages/SnapDrillCore/Sources/Core.swift:4", detail)
+
+    def test_unterminated_comment_or_string_fails_closed(self) -> None:
+        cases = ("/* import SnapDrillData", '"import SnapDrillData')
+        for source in cases:
+            with self.subTest(source=source), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                make_dependency_tree(root)
+                core = root / "Packages/SnapDrillCore/Sources/Core.swift"
+                core.write_text(source, encoding="utf-8")
+
+                with self.assertRaises(ci_github.ContractError):
+                    ci_github.validate_package_dependencies(root)
 
     def test_symlinked_source_parent_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -666,6 +773,7 @@ class EvidenceContractTests(unittest.TestCase):
             self.assertEqual(summary["test"]["maximum_timeout_seconds"], 300)
             self.assertEqual(summary["artifacts"]["log"], "test.log")
             self.assertEqual(summary["artifacts"]["result_bundle"], "results.xcresult")
+            self.assertIsNone(summary["artifacts"]["omission_reason"])
             self.assertIn("release candidate conformance", " ".join(summary["limitations"]))
             self.assertEqual((root / "run-123").stat().st_mtime, self.NOW)
             rendered = github_summary.read_text(encoding="utf-8")
@@ -826,6 +934,66 @@ class EvidenceContractTests(unittest.TestCase):
             self.assertFalse(summary["toolchain"]["validated"])
             self.assertIsNone(summary["toolchain"]["xcode_version"])
             self.assertIsNone(summary["toolchain"]["developer_dir"])
+
+    def test_oversize_evidence_fails_after_preserving_minimal_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            container = Path(temporary)
+            workspace = container / "workspace"
+            workspace.mkdir()
+            root = container / "evidence"
+            log = container / "failure.log"
+            log.write_bytes(b"x" * 128 * 1024)
+            github_summary = container / "github-summary.md"
+
+            with self.assertRaisesRegex(
+                ci_github.ContractError,
+                "minimal summary preserved",
+            ):
+                ci_github.finalize_evidence(
+                    root=root,
+                    workspace=workspace,
+                    source_log=log,
+                    source_result=container / "missing.xcresult",
+                    github_summary=github_summary,
+                    toolchain=EXPECTED_TOOLCHAIN,
+                    toolchain_validated=True,
+                    trigger_sha=self.SHA,
+                    sha=self.SHA,
+                    run_id="129",
+                    run_attempt="1",
+                    job="build",
+                    event_name="push",
+                    outcome="failure",
+                    exit_code="65",
+                    developer_dir="/Applications/Xcode.app/Contents/Developer",
+                    simulator_name="iPhone 17",
+                    simulator_udid=EXACT_UDID,
+                    simulator_runtime=RUNTIME,
+                    simulator_device_type=DEVICE_TYPE,
+                    simulator_destination=f"platform=iOS Simulator,id={EXACT_UDID}",
+                    scheme="AllTests",
+                    test_plan="AllTests",
+                    test_configuration="CI",
+                    default_timeout_seconds=120,
+                    maximum_timeout_seconds=300,
+                    retention_days=14,
+                    max_total_bytes=(
+                        ci_github.EVIDENCE_METADATA_RESERVE_BYTES + 64 * 1024
+                    ),
+                    now_timestamp=self.NOW,
+                )
+
+            attempt = root.resolve() / "run-129/build/attempt-1"
+            summary = json.loads((attempt / "summary.json").read_text(encoding="utf-8"))
+            self.assertIsNone(summary["artifacts"]["log"])
+            self.assertIsNone(summary["artifacts"]["result_bundle"])
+            self.assertIn(
+                "exceeds the total size limit",
+                summary["artifacts"]["omission_reason"],
+            )
+            self.assertFalse((attempt / "test.log").exists())
+            self.assertFalse((attempt / "results.xcresult").exists())
+            self.assertIn("attachments: omitted", github_summary.read_text(encoding="utf-8"))
 
     def test_evidence_sources_reject_nested_xcresult_symlinks(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -1110,7 +1278,7 @@ class EvidenceContractTests(unittest.TestCase):
 
             removed = ci_github._cleanup_evidence_unlocked(
                 root,
-                current_run_name="run-21",
+                protected_run_name="run-21",
                 retention_days=14,
                 max_total_bytes=total_bytes,
                 reserved_bytes=reserved_bytes,
@@ -1121,12 +1289,43 @@ class EvidenceContractTests(unittest.TestCase):
             self.assertFalse(old.exists())
             self.assertTrue(current.exists())
 
+    def test_scheduled_prune_requires_no_current_run(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            container = Path(temporary)
+            workspace = container / "workspace"
+            workspace.mkdir()
+            root = ci_github.prepare_evidence_root(container / "evidence", workspace)
+            expired = root / "run-30"
+            expired.mkdir()
+            (expired / "expired.bin").write_bytes(b"x" * 4_096)
+            recent = root / "run-31"
+            recent.mkdir()
+            (recent / "recent.bin").write_bytes(b"x" * 4_096)
+            os.utime(expired, (self.NOW - 15 * 24 * 60 * 60,) * 2)
+            os.utime(recent, (self.NOW,) * 2)
+            recent_bytes = ci_github.evidence_allocated_size(recent)
+
+            removed = ci_github.prune_evidence(
+                root,
+                retention_days=14,
+                max_total_bytes=recent_bytes - 1,
+                now_timestamp=self.NOW,
+            )
+
+            self.assertEqual(removed, ["run-30", "run-31"])
+            self.assertFalse(expired.exists())
+            self.assertFalse(recent.exists())
+
 
 class WorkflowContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.workflow = WORKFLOW.read_text(encoding="utf-8")
         jobs = self.workflow.split("  build:\n", maxsplit=1)[1]
-        self.build, self.ui = jobs.split("  ui-tests:\n", maxsplit=1)
+        self.build, ui_and_janitor = jobs.split("  ui-tests:\n", maxsplit=1)
+        self.ui, self.janitor = ui_and_janitor.split(
+            "  evidence-janitor:\n",
+            maxsplit=1,
+        )
 
     @staticmethod
     def step_body(job: str, name: str) -> str:
@@ -1137,13 +1336,27 @@ class WorkflowContractTests(unittest.TestCase):
     def test_checkout_is_pinned_read_only_and_drops_credentials(self) -> None:
         checkout = "actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd"
         checkout_count = self.workflow.count("uses: actions/checkout@")
-        self.assertEqual(checkout_count, 2)
+        self.assertEqual(checkout_count, 3)
         self.assertEqual(self.workflow.count(checkout), checkout_count)
         self.assertEqual(self.workflow.count("persist-credentials: false"), checkout_count)
         self.assertEqual(self.workflow.count("permissions:"), 1)
         self.assertIn("permissions:\n  contents: read", self.workflow)
         self.assertNotIn("contents: write", self.workflow)
         self.assertNotIn("persist-credentials: true", self.workflow)
+
+    def test_fork_prs_are_kept_off_the_persistent_runner(self) -> None:
+        self.assertIn("pull_request:", self.workflow)
+        self.assertIn("github.event.pull_request.head.repo.full_name", self.build)
+        self.assertIn("== github.repository", self.build)
+        self.assertIn("github.event_name != 'schedule'", self.build)
+
+    def test_daily_janitor_enforces_retention_without_running_tests(self) -> None:
+        self.assertIn('cron: "17 3 * * *"', self.workflow)
+        self.assertIn("if: github.event_name == 'schedule'", self.janitor)
+        self.assertIn("python3 Scripts/ci_github.py evidence-janitor", self.janitor)
+        self.assertIn("--retention-days 14", self.janitor)
+        self.assertIn("--max-total-bytes 21474836480", self.janitor)
+        self.assertNotIn("xcodebuild", self.janitor)
 
     def test_dependency_gate_uses_fail_closed_contract(self) -> None:
         dependency_step = self.step_body(self.build, "Check Package Dependencies")

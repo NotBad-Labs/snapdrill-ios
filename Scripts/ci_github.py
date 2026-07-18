@@ -40,13 +40,6 @@ RUN_ID_PATTERN = re.compile(r"[1-9]\d*")
 JOB_PATTERN = re.compile(r"[A-Za-z0-9][A-Za-z0-9_-]{0,63}")
 SHA_PATTERN = re.compile(r"[0-9A-Fa-f]{40}")
 EVIDENCE_OUTCOMES = {"success", "failure", "cancelled", "skipped"}
-SWIFT_TOKEN_GAP = r"(?:\s|/\*.*?\*/|//[^\r\n]*(?:\r?\n|$))+"
-SWIFT_IMPORT_PATTERN = re.compile(
-    rf"\bimport{SWIFT_TOKEN_GAP}"
-    rf"(?:(?:typealias|struct|class|enum|protocol|let|var|func){SWIFT_TOKEN_GAP})?"
-    r"([A-Za-z_][A-Za-z0-9_]*)",
-    re.DOTALL,
-)
 
 
 class ContractError(ValueError):
@@ -299,6 +292,103 @@ def _require_one_line(value: str, label: str, *, allow_empty: bool = False) -> s
     return value
 
 
+def swift_imports(paths: Sequence[Path]) -> list[tuple[Path, str, int, str]]:
+    if not paths:
+        raise ContractError("expected at least one Swift source path")
+    helper = Path(__file__).with_name("swift_dependency_imports.swift")
+    if helper.is_symlink() or not helper.is_file():
+        raise ContractError(f"Swift dependency helper is missing: {helper}")
+
+    swiftc_path = Path(run_output(["/usr/bin/xcrun", "--find", "swiftc"]))
+    if not swiftc_path.is_absolute() or not swiftc_path.is_file():
+        raise ContractError(f"xcrun returned an invalid swiftc path: {swiftc_path}")
+    resolved_swiftc = swiftc_path.resolve(strict=True)
+    toolchain_root = resolved_swiftc.parent.parent.parent
+    developer_dir = toolchain_root.parent.parent
+    if (
+        toolchain_root.suffix != ".xctoolchain"
+        or toolchain_root.parent.name != "Toolchains"
+        or developer_dir.name != "Developer"
+    ):
+        raise ContractError(f"swiftc is not inside an Xcode toolchain: {resolved_swiftc}")
+    host_libraries = resolved_swiftc.parent.parent / "lib/swift/host"
+    required_host_artifacts = (
+        host_libraries / "SwiftParser.swiftmodule",
+        host_libraries / "SwiftSyntax.swiftmodule",
+        host_libraries / "libSwiftParser.dylib",
+        host_libraries / "libSwiftSyntax.dylib",
+    )
+    if any(not artifact.exists() for artifact in required_host_artifacts):
+        raise ContractError(f"Swift parser host libraries are missing: {host_libraries}")
+    sdk_path = Path(
+        run_output(["/usr/bin/xcrun", "--sdk", "macosx", "--show-sdk-path"])
+    )
+    if (
+        not sdk_path.is_absolute()
+        or not sdk_path.is_dir()
+        or not _is_within(sdk_path.resolve(strict=True), developer_dir)
+    ):
+        raise ContractError(f"xcrun returned an invalid macOS SDK path: {sdk_path}")
+
+    path_lookup = {str(path): path for path in paths}
+    output = run_output(
+        [
+            "/usr/bin/xcrun",
+            "swift",
+            "-I",
+            str(host_libraries),
+            "-L",
+            str(host_libraries),
+            "-lSwiftSyntax",
+            "-lSwiftParser",
+            "-sdk",
+            str(sdk_path),
+            str(helper),
+            *path_lookup,
+        ]
+    )
+    imports: list[tuple[Path, str, int, str]] = []
+    for output_line in output.splitlines():
+        try:
+            record = json.loads(output_line)
+        except json.JSONDecodeError as error:
+            raise ContractError("Swift dependency helper emitted invalid JSON") from error
+        if not isinstance(record, dict) or set(record) != {
+            "path",
+            "line",
+            "module",
+            "declaration",
+        }:
+            raise ContractError("Swift dependency helper emitted an invalid record")
+        path_value = record["path"]
+        line_value = record["line"]
+        module_value = record["module"]
+        declaration_value = record["declaration"]
+        if (
+            not isinstance(path_value, str)
+            or path_value not in path_lookup
+            or not isinstance(line_value, int)
+            or isinstance(line_value, bool)
+            or line_value < 1
+            or not isinstance(module_value, str)
+            or not module_value
+            or "\n" in module_value
+            or "\r" in module_value
+            or not isinstance(declaration_value, str)
+            or not declaration_value
+        ):
+            raise ContractError("Swift dependency helper emitted an invalid record")
+        imports.append(
+            (
+                path_lookup[path_value],
+                module_value,
+                line_value,
+                " ".join(declaration_value.split()),
+            )
+        )
+    return imports
+
+
 def validate_package_dependencies(repository: Path) -> None:
     if repository.is_symlink() or not repository.is_dir():
         raise ContractError(f"repository root must be a real directory: {repository}")
@@ -342,21 +432,18 @@ def validate_package_dependencies(repository: Path) -> None:
         if not swift_files:
             raise ContractError(f"dependency source root has no Swift files: {relative_root}")
 
-        for path in sorted(swift_files):
-            source = path.read_text(encoding="utf-8")
-            for match in SWIFT_IMPORT_PATTERN.finditer(source):
-                module = match.group(1)
-                is_forbidden = (
-                    module.startswith("SnapDrill")
-                    and module not in allowed_snapdrill_modules
+        for path, module, line_number, declaration in swift_imports(
+            sorted(swift_files)
+        ):
+            is_forbidden = (
+                module.startswith("SnapDrill")
+                and module not in allowed_snapdrill_modules
+            )
+            if is_forbidden:
+                location = path.relative_to(resolved_repository)
+                violations.append(
+                    f"{location}:{line_number}: {message}: {declaration}"
                 )
-                if is_forbidden:
-                    location = path.relative_to(resolved_repository)
-                    line_number = source.count("\n", 0, match.start(1)) + 1
-                    declaration = " ".join(match.group(0).split())
-                    violations.append(
-                        f"{location}:{line_number}: {message}: {declaration}"
-                    )
 
     if violations:
         raise ContractError(
@@ -571,14 +658,17 @@ def _validate_evidence_sources(
 def _cleanup_evidence_unlocked(
     root: Path,
     *,
-    current_run_name: str,
+    protected_run_name: str | None,
     retention_days: int,
     max_total_bytes: int,
     reserved_bytes: int = 0,
     now_timestamp: float | None = None,
 ) -> list[str]:
-    if re.fullmatch(r"run-[1-9]\d*", current_run_name) is None:
-        raise ContractError("current run name must use run-<positive integer>")
+    if (
+        protected_run_name is not None
+        and re.fullmatch(r"run-[1-9]\d*", protected_run_name) is None
+    ):
+        raise ContractError("protected run name must use run-<positive integer>")
     if retention_days <= 0:
         raise ContractError("retention days must be positive")
     if max_total_bytes <= 0:
@@ -588,13 +678,15 @@ def _cleanup_evidence_unlocked(
 
     now = time.time() if now_timestamp is None else now_timestamp
     runs = _managed_run_directories(root)
-    if not any(run.name == current_run_name for run in runs):
-        raise ContractError(f"current evidence run is missing: {current_run_name}")
+    if protected_run_name is not None and not any(
+        run.name == protected_run_name for run in runs
+    ):
+        raise ContractError(f"protected evidence run is missing: {protected_run_name}")
 
     removed: list[str] = []
     cutoff = now - retention_days * 24 * 60 * 60
     for run in sorted(runs, key=lambda candidate: (candidate.stat().st_mtime, candidate.name)):
-        if run.name != current_run_name and run.stat().st_mtime < cutoff:
+        if run.name != protected_run_name and run.stat().st_mtime < cutoff:
             shutil.rmtree(run)
             removed.append(run.name)
 
@@ -607,7 +699,7 @@ def _cleanup_evidence_unlocked(
     ):
         if total_bytes <= available_bytes:
             break
-        if run.name == current_run_name:
+        if run.name == protected_run_name:
             continue
         run_bytes = evidence_allocated_size(run)
         shutil.rmtree(run)
@@ -616,8 +708,8 @@ def _cleanup_evidence_unlocked(
 
     if total_bytes > available_bytes:
         raise ContractError(
-            "current run plus reserved incoming evidence exceeds the size limit; "
-            "evidence was preserved and the job must fail"
+            "protected evidence plus reserved incoming bytes exceeds the size limit; "
+            "protected material was preserved and the job must fail"
         )
     return removed
 
@@ -633,7 +725,24 @@ def cleanup_evidence(
     with _locked_evidence_root(root):
         return _cleanup_evidence_unlocked(
             root,
-            current_run_name=current_run_name,
+            protected_run_name=current_run_name,
+            retention_days=retention_days,
+            max_total_bytes=max_total_bytes,
+            now_timestamp=now_timestamp,
+        )
+
+
+def prune_evidence(
+    root: Path,
+    *,
+    retention_days: int,
+    max_total_bytes: int,
+    now_timestamp: float | None = None,
+) -> list[str]:
+    with _locked_evidence_root(root):
+        return _cleanup_evidence_unlocked(
+            root,
+            protected_run_name=None,
             retention_days=retention_days,
             max_total_bytes=max_total_bytes,
             now_timestamp=now_timestamp,
@@ -692,6 +801,15 @@ def _copy_evidence_artifacts(
         result_name = result_target.name
 
     return {"log": log_name, "result_bundle": result_name}
+
+
+def _discard_partial_evidence_artifacts(attempt_directory: Path) -> None:
+    log_target = attempt_directory / "test.log"
+    result_target = attempt_directory / "results.xcresult"
+    if log_target.exists() and not log_target.is_symlink():
+        log_target.unlink()
+    if result_target.exists() and not result_target.is_symlink():
+        shutil.rmtree(result_target)
 
 
 def finalize_evidence(
@@ -800,6 +918,7 @@ def finalize_evidence(
         )
 
     prepared_root = prepare_evidence_root(root, workspace)
+    finalization_error: str | None = None
     with _locked_evidence_root(prepared_root):
         incoming_bytes = _validate_evidence_sources(
             root=prepared_root,
@@ -807,11 +926,6 @@ def finalize_evidence(
             source_result=source_result,
             outcome=outcome,
         )
-        reserved_bytes = incoming_bytes + EVIDENCE_METADATA_RESERVE_BYTES
-        if reserved_bytes >= max_total_bytes:
-            raise ContractError(
-                "incoming evidence plus metadata reserve exceeds the total size limit"
-            )
         attempt_directory, run_name = _create_attempt_directory(
             prepared_root,
             run_id=run_id,
@@ -819,20 +933,71 @@ def finalize_evidence(
             run_attempt=run_attempt,
         )
         timestamp = time.time() if now_timestamp is None else now_timestamp
-        removed = _cleanup_evidence_unlocked(
-            prepared_root,
-            current_run_name=run_name,
-            retention_days=retention_days,
-            max_total_bytes=max_total_bytes,
-            reserved_bytes=reserved_bytes,
-            now_timestamp=timestamp,
-        )
-        artifacts = _copy_evidence_artifacts(
-            attempt_directory=attempt_directory,
-            source_log=source_log,
-            source_result=source_result,
-            outcome=outcome,
-        )
+        removed: list[str] = []
+        artifacts: dict[str, str | None] = {
+            "log": None,
+            "result_bundle": None,
+        }
+        try:
+            removed.extend(
+                _cleanup_evidence_unlocked(
+                    prepared_root,
+                    protected_run_name=run_name,
+                    retention_days=retention_days,
+                    max_total_bytes=max_total_bytes,
+                    reserved_bytes=EVIDENCE_METADATA_RESERVE_BYTES,
+                    now_timestamp=timestamp,
+                )
+            )
+        except ContractError as error:
+            finalization_error = str(error)
+
+        reserved_bytes = incoming_bytes + EVIDENCE_METADATA_RESERVE_BYTES
+        if finalization_error is None and reserved_bytes >= max_total_bytes:
+            finalization_error = (
+                "incoming evidence plus metadata reserve exceeds the total size limit"
+            )
+
+        if finalization_error is None:
+            try:
+                removed.extend(
+                    _cleanup_evidence_unlocked(
+                        prepared_root,
+                        protected_run_name=run_name,
+                        retention_days=retention_days,
+                        max_total_bytes=max_total_bytes,
+                        reserved_bytes=reserved_bytes,
+                        now_timestamp=timestamp,
+                    )
+                )
+                artifacts = _copy_evidence_artifacts(
+                    attempt_directory=attempt_directory,
+                    source_log=source_log,
+                    source_result=source_result,
+                    outcome=outcome,
+                )
+            except (ContractError, OSError) as error:
+                _discard_partial_evidence_artifacts(attempt_directory)
+                finalization_error = f"durable attachment publication failed: {error}"
+
+        os.utime(prepared_root / run_name, (timestamp, timestamp))
+        try:
+            removed.extend(
+                _cleanup_evidence_unlocked(
+                    prepared_root,
+                    protected_run_name=run_name,
+                    retention_days=retention_days,
+                    max_total_bytes=max_total_bytes,
+                    reserved_bytes=EVIDENCE_METADATA_RESERVE_BYTES,
+                    now_timestamp=timestamp,
+                )
+            )
+        except ContractError as error:
+            if artifacts["log"] is not None or artifacts["result_bundle"] is not None:
+                _discard_partial_evidence_artifacts(attempt_directory)
+                artifacts = {"log": None, "result_bundle": None}
+            if finalization_error is None:
+                finalization_error = str(error)
 
         created_at = datetime.fromtimestamp(timestamp, timezone.utc).isoformat().replace(
             "+00:00", "Z"
@@ -883,12 +1048,20 @@ def finalize_evidence(
                 "default_timeout_seconds": default_timeout_seconds,
                 "maximum_timeout_seconds": maximum_timeout_seconds,
             },
-            "artifacts": artifacts,
+            "artifacts": {
+                **artifacts,
+                "omission_reason": finalization_error,
+            },
             "limitations": limitations,
         }
         (attempt_directory / "summary.json").write_text(
             json.dumps(summary, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
+        )
+        attachment_markdown = (
+            f"- Durable attachments: omitted (`{finalization_error}`)\n\n"
+            if finalization_error
+            else "- Durable attachments: retained\n\n"
         )
         markdown = (
             "# Routine CI evidence\n\n"
@@ -897,6 +1070,7 @@ def finalize_evidence(
             f"- Validated checkout SHA: `{sha or 'not validated'}`\n"
             f"- Test plan/configuration: `{test_plan}` / `{test_configuration}`\n"
             f"- Durable local path: `{attempt_directory}`\n\n"
+            f"{attachment_markdown}"
             "> This is routine CI only. It does not prove signed archive/install, "
             "privacy/network behavior, or release candidate conformance and does not "
             "authorize release.\n"
@@ -905,18 +1079,15 @@ def finalize_evidence(
         with github_summary.open("a", encoding="utf-8") as handle:
             handle.write(markdown)
 
-        os.utime(prepared_root / run_name, (timestamp, timestamp))
-        removed.extend(
-            _cleanup_evidence_unlocked(
-                prepared_root,
-                current_run_name=run_name,
-                retention_days=retention_days,
-                max_total_bytes=max_total_bytes,
-                now_timestamp=timestamp,
-            )
-        )
     if removed:
-        print(f"Removed expired/over-budget evidence runs: {', '.join(removed)}")
+        print(
+            "Removed expired/over-budget evidence runs: "
+            + ", ".join(dict.fromkeys(removed))
+        )
+    if finalization_error is not None:
+        raise ContractError(
+            f"{finalization_error}; minimal summary preserved at {attempt_directory}"
+        )
     return attempt_directory
 
 
@@ -1047,6 +1218,19 @@ def command_evidence(arguments: argparse.Namespace) -> None:
     print(f"Durable routine CI evidence: {attempt}")
 
 
+def command_evidence_janitor(arguments: argparse.Namespace) -> None:
+    root = prepare_evidence_root(arguments.root, arguments.workspace)
+    removed = prune_evidence(
+        root,
+        retention_days=arguments.retention_days,
+        max_total_bytes=arguments.max_total_bytes,
+    )
+    if removed:
+        print("Removed evidence runs: " + ", ".join(removed))
+    else:
+        print("Evidence retention policy already satisfied")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -1109,6 +1293,13 @@ def build_parser() -> argparse.ArgumentParser:
     evidence.add_argument("--retention-days", type=int, required=True)
     evidence.add_argument("--max-total-bytes", type=int, required=True)
     evidence.set_defaults(handler=command_evidence)
+
+    evidence_janitor = subparsers.add_parser("evidence-janitor")
+    evidence_janitor.add_argument("--root", type=Path, required=True)
+    evidence_janitor.add_argument("--workspace", type=Path, required=True)
+    evidence_janitor.add_argument("--retention-days", type=int, required=True)
+    evidence_janitor.add_argument("--max-total-bytes", type=int, required=True)
+    evidence_janitor.set_defaults(handler=command_evidence_janitor)
     return parser
 
 
