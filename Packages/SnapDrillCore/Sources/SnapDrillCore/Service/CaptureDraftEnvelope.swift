@@ -271,3 +271,22 @@ struct PendingPublication {
             && draft.imageJPEG == imageJPEG
     }
 }
+
+enum PendingPublicationResolution {
+    case completed(CaptureDraftToken)
+    case continueFrom(CaptureDraftToken)
+
+    var completedToken: CaptureDraftToken? {
+        guard case .completed(let token) = self else {
+            return nil
+        }
+        return token
+    }
+
+    var continuationToken: CaptureDraftToken? {
+        guard case .continueFrom(let token) = self else {
+            return nil
+        }
+        return token
+    }
+}

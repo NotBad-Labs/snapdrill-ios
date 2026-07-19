@@ -68,31 +68,27 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
         guard !trimmedContent.isEmpty || imageJPEG != nil else {
             throw CaptureDraftServiceError.emptyDraft
         }
-        if let reconciled = try reconcilePendingPublication(
+        let pendingResolution = try reconcilePendingPublication(
             requestedCaptureID: captureID,
             expected: expected,
             content: content,
             category: category,
             imageJPEG: imageJPEG
-        ) {
-            return reconciled
+        )
+        if let completedToken = pendingResolution?.completedToken {
+            return completedToken
         }
-        if expected == nil {
-            do {
-                try store.removeOrphanedSettlementEvidence()
-            } catch {
-                throw CaptureDraftServiceError.persistenceFailed
-            }
-        }
+        let effectiveExpected = pendingResolution?.continuationToken ?? expected
+        try prepareNewDraftIfNeeded(expected: effectiveExpected, store: store)
         let resolvedCaptureID = try resolveCaptureID(
             requested: captureID,
-            expected: expected
+            expected: effectiveExpected
         )
         guard !closedCaptureIDs.contains(resolvedCaptureID),
               !committedCaptureIDs.contains(resolvedCaptureID) else {
             throw CaptureDraftServiceError.admissionClosed
         }
-        try validateReplacement(expected: expected)
+        try validateReplacement(expected: effectiveExpected)
 
         let token = CaptureDraftToken(
             captureID: resolvedCaptureID,
@@ -107,7 +103,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
         )
         do {
             try store.publish(stored)
-            finishPublishedDraft(token, replacing: expected, store: store)
+            finishPublishedDraft(token, replacing: effectiveExpected, store: store)
             SnapDrillLogger.capture.info(
                 "Capture draft generation committed: \(token.generationID)"
             )
@@ -115,7 +111,7 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
         } catch CaptureDraftStoreError.publicationOutcomeUncertain {
             pendingPublication = PendingPublication(
                 draft: stored,
-                expected: expected
+                expected: effectiveExpected
             )
             throw CaptureDraftServiceError.publicationOutcomeUncertain
         } catch {
@@ -261,6 +257,20 @@ public final class CaptureDraftService: CaptureDraftServiceProtocol {
 }
 
 private extension CaptureDraftService {
+    func prepareNewDraftIfNeeded(
+        expected: CaptureDraftToken?,
+        store: CaptureDraftStore
+    ) throws {
+        guard expected == nil else {
+            return
+        }
+        do {
+            try store.removeOrphanedSettlementEvidence()
+        } catch {
+            throw CaptureDraftServiceError.persistenceFailed
+        }
+    }
+
     func validateSettlementAdmission(
         captureID: UUID,
         expected: CaptureDraftToken?
@@ -339,7 +349,7 @@ private extension CaptureDraftService {
         content: String,
         category: String?,
         imageJPEG: Data?
-    ) throws -> CaptureDraftToken? {
+    ) throws -> PendingPublicationResolution? {
         guard let pending = pendingPublication else {
             return nil
         }
@@ -350,12 +360,6 @@ private extension CaptureDraftService {
         switch store.state() {
         case .recoverable(let current) where current.token == pending.draft.token:
             try makePendingPublicationDurable(pending, store: store)
-            self.pendingPublication = nil
-            finishPublishedDraft(
-                pending.draft.token,
-                replacing: pending.expected,
-                store: store
-            )
             if pending.matches(
                 requestedCaptureID: requestedCaptureID,
                 expected: expected,
@@ -363,12 +367,18 @@ private extension CaptureDraftService {
                 category: category,
                 imageJPEG: imageJPEG
             ) {
-                return current.token
+                completePendingPublication(pending, store: store)
+                return .completed(current.token)
             }
-            guard expected == current.token else {
+            guard expected == current.token
+                    || (
+                        expected == pending.expected
+                            && requestedCaptureID == current.token.captureID
+                    ) else {
                 throw CaptureDraftServiceError.staleGeneration
             }
-            return nil
+            completePendingPublication(pending, store: store)
+            return .continueFrom(current.token)
         case .recoverable(let current) where current.token == pending.expected:
             self.pendingPublication = nil
             return nil
@@ -381,6 +391,18 @@ private extension CaptureDraftService {
             self.pendingPublication = nil
             throw CaptureDraftServiceError.staleGeneration
         }
+    }
+
+    private func completePendingPublication(
+        _ pending: PendingPublication,
+        store: CaptureDraftStore
+    ) {
+        pendingPublication = nil
+        finishPublishedDraft(
+            pending.draft.token,
+            replacing: pending.expected,
+            store: store
+        )
     }
 
     private func makePendingPublicationDurable(

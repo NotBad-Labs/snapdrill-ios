@@ -94,6 +94,32 @@ struct CaptureDraftChannelSafetyTests {
         #expect(draftService.saveCalls.last?.expected == first)
     }
 
+    @Test("page checkpoint keeps one capture ID across an uncertain first publication")
+    func pageCheckpointRetainsCaptureIDAfterUncertainPublish() async throws {
+        let draftService = CaptureDraftServiceMock()
+        draftService.saveError = .publicationOutcomeUncertain
+        let session = CapturePageDraftSession()
+
+        await #expect(throws: CaptureDraftServiceError.publicationOutcomeUncertain) {
+            try await session.saveCheckpoint(
+                image: createTestImage(),
+                using: draftService
+            )
+        }
+        draftService.saveError = nil
+        _ = try await session.saveCheckpoint(
+            image: createTestImage(),
+            using: draftService
+        )
+
+        #expect(draftService.saveCalls.count == 2)
+        #expect(draftService.saveCalls.first?.captureID != nil)
+        #expect(
+            draftService.saveCalls.last?.captureID
+                == draftService.saveCalls.first?.captureID
+        )
+    }
+
     @Test(
         "page picker starts a new capture after its prior generation commits",
         arguments: PagePickerChannel.allCases
@@ -139,7 +165,8 @@ struct CaptureDraftChannelSafetyTests {
         await process().value
 
         #expect(draftService.saveCalls.last?.expected == nil)
-        #expect(draftService.saveCalls.last?.captureID == nil)
+        #expect(draftService.saveCalls.last?.captureID != nil)
+        #expect(draftService.saveCalls.last?.captureID != first.captureID)
         #expect(draftService.storedDraft?.token.captureID != first.captureID)
     }
 
@@ -200,7 +227,8 @@ struct CaptureDraftChannelSafetyTests {
         await process().value
 
         #expect(draftService.saveCalls.last?.expected == nil)
-        #expect(draftService.saveCalls.last?.captureID == nil)
+        #expect(draftService.saveCalls.last?.captureID != nil)
+        #expect(draftService.saveCalls.last?.captureID != pickerToken.captureID)
         #expect(draftService.storedDraft?.token.captureID != pickerToken.captureID)
     }
 

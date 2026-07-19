@@ -12,6 +12,7 @@ import UIKit
 @MainActor
 final class CapturePageDraftSession {
     var token: CaptureDraftToken?
+    private var captureID = UUID()
 
     func synchronize(with state: CaptureDraftState) {
         guard let token else {
@@ -20,11 +21,14 @@ final class CapturePageDraftSession {
         switch state {
         case .none:
             self.token = nil
+            captureID = UUID()
         case .recoverable(let draft) where draft.token.captureID == token.captureID:
             self.token = draft.token
+            captureID = draft.token.captureID
         case .committedPendingRetirement(let pendingToken)
             where pendingToken.captureID == token.captureID:
             self.token = nil
+            captureID = UUID()
         case .recoverable, .durabilityPending, .settlementPending,
              .committedPendingRetirement, .unrecoverable:
             break
@@ -69,10 +73,11 @@ final class CapturePageDraftSession {
             image: image,
             content: "",
             category: nil,
-            captureID: expected?.captureID,
+            captureID: expected?.captureID ?? captureID,
             expected: expected
         )
         token = committed
+        captureID = committed.captureID
         return committed
     }
 }
