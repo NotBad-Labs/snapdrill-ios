@@ -9,6 +9,8 @@ last_updated: 2026-07-12
 intent_refs:
   - vision:P3
   - vision:P5
+release_refs:
+  - release-1:section-7
 ---
 
 # Feature: 高级统计（候选，商业分层未定）
@@ -50,6 +52,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P3 免费层完成核心闭环 / P5 成人生产力工具） | 基础统计永久免费、不锁基础能力；数字只显示事实、不贩卖焦虑 |
+| Release 1 Contract | `../../reference/release-1-contract.md` §7 (`release-1:section-7`) | 高级统计是 Release 1 明确非目标；该引用只固定隐藏边界，不表示候选纳入 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | 当前无有效 Pro 层；隐藏 teaser / upsell，不公开承诺候选能力 |
 | 待验证假设 | `../../explanations/business-model.md` H8 | 验证附加价值，不预设转化模式 |
 | 验收证据 | 当前无 Release GWT；等待新 contract | 不把不可达代码当产品 oracle |

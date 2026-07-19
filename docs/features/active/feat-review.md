@@ -10,6 +10,9 @@ intent_refs:
   - vision:P2
   - vision:P3
   - vision:P5
+release_refs:
+  - release-1:C3
+  - release-1:C4-D
 ---
 
 # Feature: 回顾（SM-2 间隔调度）

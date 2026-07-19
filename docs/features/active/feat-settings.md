@@ -11,6 +11,11 @@ intent_refs:
   - vision:P4
   - vision:P5
   - ADR-005
+release_refs:
+  - release-1:C2-Personalization
+  - release-1:C3
+  - release-1:C4-D
+  - release-1:D5-A
 ---
 
 # Feature: 设置与个性化

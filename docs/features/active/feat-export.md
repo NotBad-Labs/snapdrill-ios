@@ -9,6 +9,12 @@ last_updated: 2026-07-15
 intent_refs:
   - vision:P2
   - vision:P4
+release_refs:
+  - release-1:C2-Core
+  - release-1:C2-Optional
+  - release-1:C5-E
+  - release-1:C5-S1
+  - release-1:D2-A
 ---
 
 # Feature: PDF 导出与打印
@@ -104,7 +110,8 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P4 用户拥有数据 / P2 简洁） | 导出/打印是价值链一等终点；数据可导出可打印可带走；不损害录入/管理简洁 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Optional / D2-A / C5-E / C5-S1 / C6-A | 打印必须独立验收；基础 PDF 无封面且页数闭合；分享 / 保存不能替代；增强项与 SmartPaper 不能顺带扩张；最终 binary 建立结果证据 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Optional / C5-E / C5-S1 / D2-A | 打印是独立终点，分享 / 保存不能替代；基础 PDF 无封面且页数闭合；增强项与 SmartPaper 不能顺带扩张 |
+| 结果 / 发布证据消费者 | `../../reference/release-1-contract.md` C6-A | 真实打印结果可供发布 gate 取证；不表示本 feature 拥有 release-operations 裁决或已经完成验证 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | Release 1 免费、无广告、无 IAP；Word / 图片增强只作候选，不作为升级承诺 |
 | 待验证假设 | `../../explanations/assumptions.md` H3（导出/打印是归档后的高价值终点） | 导出/打印使用率验证 H3 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |

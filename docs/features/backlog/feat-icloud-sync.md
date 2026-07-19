@@ -9,6 +9,8 @@ last_updated: 2026-07-15
 intent_refs:
   - vision:P4
   - vision:P6
+release_refs:
+  - release-1:section-7
 ---
 
 # Feature: Apple 私有同步（候选，商业分层未定）
@@ -51,6 +53,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P4 用户拥有数据·隐私 / P6 Apple 原生优先） | 同步基于系统级 CloudKit、Apple 加密、SnapDrill 不接触；不引入第三方同步层 |
+| Release 1 Contract | `../../reference/release-1-contract.md` §7 (`release-1:section-7`) | CloudKit / Apple 私有同步是 Release 1 明确非目标；该引用只固定隐藏边界，不表示候选纳入 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A）；`../../decisions/ADR-003-dual-region-release.md`（挂起历史） | 当前无有效 Pro 或区域同步承诺；手动备份永久免费 |
 | 待验证假设 | `../../explanations/business-model.md` H7 | 先验证多设备价值，不预设付费理由 |
 | 验收证据 | 新 contract 生效后补；当前 `cloudKitDatabase: .none` | 见本 spec Verify 节 |

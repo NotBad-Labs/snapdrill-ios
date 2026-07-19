@@ -10,6 +10,9 @@ intent_refs:
   - vision:P2
   - vision:P3
   - vision:P4
+release_refs:
+  - release-1:C5-E
+  - release-1:C5-S1
 ---
 
 # Feature: SmartPaper（候选，商业分层未定）

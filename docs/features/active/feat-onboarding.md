@@ -12,6 +12,11 @@ intent_refs:
   - vision:P5
   - ADR-002
   - positioning-and-audience
+release_refs:
+  - release-1:C2-Optional
+  - release-1:C3
+  - release-1:C4-D
+  - release-1:C5-E
 ---
 
 # Feature: Onboarding 新手引导
@@ -88,6 +93,7 @@ intent_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P2 简洁 / P4 用户拥有数据 / P5 成人生产力工具） | 快进不配置、零注册纯本地、中性成熟不挡门外 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Optional / C3 / C4-D / C5-E | 结束后进入 Dashboard；不介绍 optional 清单、Review 或 SmartPaper，也不把实验能力纳入首次体验 |
 | 产品政策 / ADR | `../../decisions/ADR-002-remove-att-authorization.md`（ATT 已移除）；`../../explanations/positioning-and-audience.md`（通用受众预期管理） | Onboarding 不索取追踪授权 / 不预期儿童；明确"归档工具"定位 |
 | 待验证假设 | `../../explanations/assumptions.md` H1（首次能完成采集与保存） | Onboarding 不阻挡首次达成 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
