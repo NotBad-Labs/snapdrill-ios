@@ -259,7 +259,7 @@ durable 成功后才删。四个以上 incident 仍须 byte-identical 保留，�
 ## 7. 偏好与 legacy epoch
 
 单资料库 runtime 不读写 `activeProfileId`、`profiles.json`、Profile 名称或 `preferences.json`。同设备
-升级继续保留 Release 1 支持的全局偏好：`AppleLanguages`、`appearanceMode`、`appTintColor`、
+升级继续保留 Release 1 支持的 App-owned 全局偏好：App 内语言选择、`appearanceMode`、`appTintColor`、
 `hasCompletedOnboarding`、`captureFieldAnswer` 和 `capture_dim_visible_*`。当前已隐藏的身份、Review、
 SmartPaper 配额与提醒键不能驱动 Release 1 行为；D5-A 也不得借 Clear Library 删除语言 / 外观或
 其他仍存在的设备偏好。
