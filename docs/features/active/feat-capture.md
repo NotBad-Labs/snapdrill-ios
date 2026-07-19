@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-14
+last_updated: 2026-07-19
 intent_refs:
   - vision:P1
   - vision:P2
@@ -16,11 +16,12 @@ release_refs:
   - release-1:C2-Core
   - release-1:C2-Image
   - release-1:C2-Optional
+  - release-1:S1-A
 ---
 
 # Feature: 采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）
 
-> **产品重基线（2026-07-14）**：采集属于核心价值链。Release 1 Must 输入是相机 / 文档扫描、相册与 PDF；手动、剪贴板和 Share Extension 属 Candidate optional，默认隐藏。OCR 是可编辑辅助，保存真相是用户确认裁剪 / 方向后的 App-managed 可读图片；不承诺来源原始字节或完整分辨率。frontmatter 与技术章节仍记录当前实现，下文 iPad、Profile 和 Pro 图片增强描述只作实现 / 历史追溯。
+> **产品重基线（2026-07-19）**：采集属于核心价值链。Release 1 Must 输入是相机 / 文档扫描、相册与 PDF；手动、剪贴板和 Share Extension 属 Candidate optional，默认隐藏。OCR 是可编辑辅助，保存真相是用户确认裁剪 / 方向后的 App-managed 可读图片；不承诺来源原始字节或完整分辨率。S1-A 的文字与 normalized JPEG 接受边界由 Local Library Data Contract 唯一拥有。frontmatter 与技术章节仍记录当前实现，下文 iPad、Profile 和 Pro 图片增强描述只作实现 / 历史追溯。
 
 > 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
@@ -61,7 +62,7 @@ release_refs:
   - PDF 导入 → `PDFPagePickerView`（PDFKit 选页 → 渲染为 UIImage）
   - 剪贴板 / 手动 → `CaptureMethodCard` 手动入口 → ManualEdit；纯文本路径走 `CaptureResultView`（不依赖 OCR，允许无图保存，Image is Truth 例外）
   - Share Extension → `SnapDrillShare` Extension target（系统 ShareSheet，通过 App Groups 共享容器；进入后直接进裁剪/编辑 → 保存）
-- **关键机制 / 数据流**：图片来源进入裁剪（`ImageCropperView`，依赖 Mantis）→ 对图片执行 OCR（端上 Vision；当前实现语言配置仍含遗留 Profile 偏好）→ 识别结果可编辑 / 可复制但不阻塞保存 → Repository 原子性写入资料、图片引用、OCR 文本与元数据。图片**只存裁剪压缩后的副本**（长边限制 2000px、JPEG quality 0.8，~200KB/张），不修改用户原始照片。
+- **关键机制 / 数据流**：图片来源进入裁剪（`ImageCropperView`，依赖 Mantis）→ 对图片执行 OCR（端上 Vision；当前实现语言配置仍含遗留 Profile 偏好）→ 识别结果可编辑 / 可复制但不阻塞保存 → Repository 原子性写入资料、图片引用、OCR 文本与元数据。图片**只存裁剪压缩后的副本**；产品接受边界只见 [S1-A](../../reference/local-library-data-contract.md#21-release-1-内容与图片接受边界s1-a)，JPEG quality 0.8 与约 200KB / 张只是当前实现 / 测量基准，不修改用户原始照片。
   - **实现现状（待单资料库重基线）**：当前 OCR 语言配置仍经 Profile 相关偏好表达。B5-A 后不得新增 Profile 语言感知需求；B7-A 的英文 / 简体中文只约束产品 UI 语言，OCR 识别语言集合（含已落地的繁体识别）由 Release Contract 与识别质量证据另行裁定。
 - **EXIF 隐私铁律**：图片入库前必须经 `ImageStorage` 剥离 GPS / 位置信息（保存前清除）。
 - **State & Concurrency**（Swift 6 strict）：采集 View 由 `@Observable` ViewModel（`@MainActor`：`CaptureViewModel` / `CaptureResultViewModel`）驱动；OCR、图片压缩与落库等重活经 Core service / Repository → `DataExecutor`（actor 拥有 `ModelContainer`，`createOffMainActor()` 消除 MainActor+XPC 死锁 #599），不阻塞主线程；保存后通过 `Notification.Name.reviewDataDidChange` 跨模块刷新 Dashboard / Review。采集流程必须 `AppActivityTracker.begin(...)` → ... → `end(...)`；当前用于阻止 Profile 切换，单资料库实现中应继续保护并发数据一致性。
@@ -80,7 +81,7 @@ release_refs:
   - 连续保存重复点击 → 忽略重复或 disable 保存按钮，不产生重复资料记录（B13）。
   - 采集中意外退出（来电 / 崩溃 / 强退）→ 下次进入采集提示恢复最近一份 draft（B03 / B11）。
   - 未裁剪直接保存整页大图 → 给裁剪引导提示或保留更高清晰度，满足再次放大查看（B22）。
-- **数据保证**：未点击保存前不产生正式资料记录；保存成功后记录必须包含主内容载体、必要元数据与可检索 OCR 文本；图片资料必须保留裁剪后的副本，OCR 不是唯一数据来源；任何写入失败不得产生半写入记录；Draft 隔离策略等待单资料库实现收敛，成功保存后清除与 EXIF GPS 剥离保证不变。
+- **数据保证**：未点击保存前不产生正式资料记录；保存成功后记录必须包含主内容载体、必要元数据与可检索 OCR 文本；图片资料必须保留裁剪后的副本，OCR 不是唯一数据来源；S1-A 校验失败必须在正式 mutation 前拒绝且不得截断；任何写入失败不得产生半写入记录；Draft 隔离策略等待单资料库实现收敛，成功保存后清除与 EXIF GPS 剥离保证不变。
   - **实现现状（GAP-R2 已缓解，剩余 caveat）**：草稿图片不再使用全局 `Caches/draft_capture.jpg`，而是按 `activeProfileId` 写入 `Application Support/CaptureDrafts/<profileId>/draft_capture.jpg`；草稿元数据仍写 `UserDefaults.standard`，但 `UDKey.captureDraftMetadata` 已列入 `ProfileManager.perProfileKeys`，切换 Profile 时随偏好保存 / 加载。剩余 caveat：`CaptureDraftService` 仍通过 `UserDefaults.standard` 读取 active profile 与元数据，尚未显式接收 `ProfileScope`。
 - **NFR**：OCR 识别响应 < 2 秒（印刷体中英文，拍照到文字出现在编辑区）；图片裁剪内存 < 300MB（Mantis 内部管理）；单题存储均值 ~205KB（OCR ~5KB + 压缩图 ~200KB）；草稿恢复为 S0 级数据丢失防护（意外退出后可恢复）；OCR 端上执行、图片不上传云端。
 
@@ -142,7 +143,7 @@ release_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P6 Apple 原生优先） | 采集是价值链第一环；主路径图片、OCR 辅助不阻塞保存；端上 OCR 不上传；Apple Vision / VisionKit 原生 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Image / C2-Optional | Must 输入、确认裁剪后的 App-managed 图片真相，以及手动 / 剪贴板 / Share Extension 的默认隐藏边界 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Image / C2-Optional / S1-A | Must 输入、确认裁剪后的 App-managed 图片真相、手动 / 剪贴板 / Share Extension 的默认隐藏边界，以及 Local Library Data Contract 统一拥有的输入接受边界 |
 | 产品政策 / ADR | `../../decisions/ADR-005-analytics-privacy-strategy.md`（全球零后端行为采集） | 采集不产生任何后端行为上报；图片入库前剥离 EXIF GPS / 位置信息 |
 | 待验证假设 | `../../explanations/assumptions.md` H1（首次能完成采集与保存）/ H2（管理需求成立） | 采集首次达成的成败直接验证 H1 |
 | 验收证据 | §4 验证标准 GWT + AllTests + 真机录入 | 见本 spec Verify 节 |

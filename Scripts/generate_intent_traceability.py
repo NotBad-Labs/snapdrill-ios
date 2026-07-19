@@ -45,7 +45,7 @@ SECTION_7_FEATURE_IDS = frozenset(
         "feat-word-export",
     }
 )
-RELEASE_OPERATIONS_DECISIONS = frozenset({"C1-A", "C6-A", "#932-A"})
+RELEASE_OPERATIONS_DECISIONS = frozenset({"C1-A", "C6-A", "#932-A", "ORI-A"})
 
 
 def rel(path: Path) -> str:
@@ -205,7 +205,7 @@ def collect_release_refs() -> tuple[dict[str, dict[str, str | None]], set[str]]:
         known_refs[ref] = {
             "label": decision,
             "path": "release-1-contract.md",
-            "operations_owner": (
+            "operations_consumer": (
                 "release-operations"
                 if decision in RELEASE_OPERATIONS_DECISIONS
                 else None
@@ -214,7 +214,7 @@ def collect_release_refs() -> tuple[dict[str, dict[str, str | None]], set[str]]:
     known_refs[SECTION_7_REF] = {
         "label": "§7 明确非目标与隐藏能力",
         "path": "release-1-contract.md",
-        "operations_owner": None,
+        "operations_consumer": None,
     }
     pending_refs = {f"{RELEASE_REF_PREFIX}{decision}" for decision in pending}
     return known_refs, pending_refs
@@ -230,7 +230,7 @@ def collect_features(
     operations_refs = {
         ref
         for ref, info in known_release_refs.items()
-        if info["operations_owner"] is not None
+        if info["operations_consumer"] is not None
     }
     for path in sorted(FEATURES_DIR.rglob("feat-*.md")):
         if path.name == "template.md":
@@ -288,13 +288,13 @@ def collect_features(
                 f"{rel(path)}: unknown release_refs {unknown_release_refs}"
             )
 
-        fabricated_feature_owners = [
+        invalid_feature_consumers = [
             ref for ref in release_refs if ref in operations_refs
         ]
-        if fabricated_feature_owners:
+        if invalid_feature_consumers:
             errors.append(
                 f"{rel(path)}: release_refs are release-operations-only "
-                f"{fabricated_feature_owners}"
+                f"{invalid_feature_consumers}"
             )
 
         is_active = path.parent.name == "active"
@@ -321,23 +321,23 @@ def collect_features(
                 )
         features.append(fm)
 
-    owned_release_refs = set(operations_refs)
+    consumed_release_refs = set(operations_refs)
     for feature in features:
         feature_release_refs = feature.get("release_refs")
         if isinstance(feature_release_refs, list):
-            owned_release_refs.update(
+            consumed_release_refs.update(
                 ref for ref in feature_release_refs if isinstance(ref, str)
             )
 
-    unowned_release_refs = [
+    unconsumed_release_refs = [
         ref
         for ref in known_release_refs
-        if ref != SECTION_7_REF and ref not in owned_release_refs
+        if ref != SECTION_7_REF and ref not in consumed_release_refs
     ]
-    if unowned_release_refs:
+    if unconsumed_release_refs:
         errors.append(
             "ratified release refs require at least one Feature or "
-            f"release-operations owner {unowned_release_refs}"
+            f"release-operations consumer {unconsumed_release_refs}"
         )
 
     if errors:
@@ -431,7 +431,7 @@ def render_release_feature_table(
     lines = [
         "## Feature -> Release 1",
         "",
-        "| Feature | Release 1 规范归属 |",
+        "| Feature | Release 1 消费引用 |",
         "|---|---|",
     ]
     for feature in features:
@@ -458,21 +458,21 @@ def render_release_reverse_index(
             by_ref[ref].append(feature)
 
     lines = [
-        "## Release 1 -> Feature / Operations",
+        "## Release 1 -> Feature / Operations Consumers",
         "",
-        "| Release 1 引用 | Feature / operations owner |",
+        "| Release 1 引用 | Feature / operations consumer |",
         "|---|---|",
     ]
     for ref, info in known_release_refs.items():
-        owners: list[str] = []
-        operations_owner = info["operations_owner"]
-        if operations_owner is not None:
-            owners.append(f"`{operations_owner}`")
-        owners.extend(
+        consumers: list[str] = []
+        operations_consumer = info["operations_consumer"]
+        if operations_consumer is not None:
+            consumers.append(f"`{operations_consumer}`")
+        consumers.extend(
             f"[{feature['title']}](../{feature['__path'].relative_to(DOCS_ROOT).as_posix()})"
             for feature in by_ref[ref]
         )
-        value = " / ".join(owners) if owners else "—"
+        value = " / ".join(consumers) if consumers else "—"
         lines.append(f"| {link_release_ref(ref, known_release_refs)} | {value} |")
     lines.append("")
     return lines
@@ -490,7 +490,8 @@ def render(
         "> 来源 = 各 `docs/features/**/feat-*.md` frontmatter 的 `intent_refs` / `release_refs`；",
         "> Release 1 精确 ID 从 effective `release-1-contract.md` 的 `ratified_decisions` 读取。",
         "> 实现状态只描述代码路径，不证明 Release 1 合同符合、公开可达或发布就绪。",
-        "> `release_refs` 只表示规范归属，不证明语义正确、实现符合或候选纳入；",
+        "> `release_refs` 只表示 Feature 消费 / 追溯边，不把 Feature 变成上游裁决 owner；",
+        "> 它不证明语义正确、实现符合或候选纳入；",
         "> 也不证明 M1-M10 已有证据、Capability Manifest inclusion 或发布授权。",
         "",
     ]

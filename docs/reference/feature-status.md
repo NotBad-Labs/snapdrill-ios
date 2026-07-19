@@ -7,13 +7,13 @@
 
 | 功能 | 实现状态 | 层级 | 阻塞 | 模式 | 最后更新 |
 |---|---|---|---|---|---|
-| [备份与 CSV 导入导出](../features/active/feat-backup.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-15 |
-| [采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）](../features/active/feat-capture.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-14 |
-| [PDF 导出与打印](../features/active/feat-export.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-15 |
-| [资料库管理 + 分享卡片](../features/active/feat-library.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-15 |
+| [备份与 CSV 导入导出](../features/active/feat-backup.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-19 |
+| [采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）](../features/active/feat-capture.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-19 |
+| [PDF 导出与打印](../features/active/feat-export.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-19 |
+| [资料库管理 + 分享卡片](../features/active/feat-library.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-19 |
 | [Onboarding 新手引导](../features/active/feat-onboarding.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-14 |
 | [回顾（SM-2 间隔调度）](../features/active/feat-review.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-14 |
-| [设置与个性化](../features/active/feat-settings.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-15 |
+| [设置与个性化](../features/active/feat-settings.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-19 |
 | [首页概览（Dashboard）](../features/active/feat-dashboard.md) | 🛠 进行中 | 免费 | — | full | 2026-07-14 |
 | [单一本地资料库（Multi-Profile 退场）](../features/active/feat-profile.md) | 🛠 进行中 | 免费 | — | full | 2026-07-16 |
 | [SmartPaper（候选，商业分层未定）](../features/backlog/feat-smartpaper.md) | 🛠 进行中 | 未定 | — | lightweight | 2026-07-14 |

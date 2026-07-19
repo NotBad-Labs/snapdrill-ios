@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-16
+last_verified: 2026-07-19
 layer: pattern
 freshness:
   max_age_days: 60
@@ -280,7 +280,7 @@ PO 离线时，Incident DRI 可以完成分诊、修复、验证和本地 commit
 ---
 # Release 1 dogfood 与发布证据计划
 
-> **规范状态（2026-07-15）**：[Release 1 Product Contract](../reference/release-1-contract.md) 已承载 ratified Gate C 与后续 D1-B 至 D5-A、#932-A、#891 文案裁决，合入 `develop` 后成为本计划的产品 oracle。下列清单仍不授权实现、上传或发布；未纳入冻结 Capability Manifest 的 optional 能力必须隐藏，Review / SmartPaper 在 `public-candidate` 必须隐藏。
+> **规范状态（2026-07-19）**：[Release 1 Product Contract](../reference/release-1-contract.md) 已承载 ratified Gate C、D1-B 至 D5-A、#932-A、#891 文案与 S1-A / M1-A / D4S-A / ORI-A，合入 `develop` 后成为本计划的产品 oracle。下列清单仍不授权实现、上传或发布；未纳入冻结 Capability Manifest 的 optional 能力必须隐藏，Review / SmartPaper 在 `public-candidate` 必须隐藏。
 >
 > **上游依赖**：Product Constitution v1 + [Release 1 Product Contract](../reference/release-1-contract.md) + 本文件 §发布流程。
 >
@@ -307,15 +307,15 @@ PO 离线时，Incident DRI 可以完成分诊、修复、验证和本地 commit
 | Must | 最低结果 oracle | Evidence owner |
 |---|---|---|
 | M1 | clean install 到首次可保存路径，全程无注册、身份或资料空间 gate | QA / Product |
-| M2 | 相机 / 文扫、相册、PDF 分别完成确认、保存和读回；确认后的裁剪 / 方向图片可读且持久化 / backup 图片无 GPS；印刷体中英文分别验证可见可编辑 OCR，人工修正值读回；OCR 失败 / 空结果仍可保存 | Capture / QA |
+| M2 | 相机 / 文扫、相册、PDF 分别完成确认、保存和读回；确认后的裁剪图片可读且持久化，图片 / 文档内容自身方向在采集、查看与导出中保持，backup 图片无 GPS；印刷体中英文分别验证可见可编辑 OCR，人工修正值读回；OCR 失败 / 空结果仍可保存 | Capture / QA |
 | M3 | 首次 / 既有拒权、各输入取消和 OCR failure 均能经替代路径保存，无残留 cover / overlay / 失效导航 | Capture / QA |
 | M4 | 分类 / 标签选择保存并读回；搜索与基础过滤命中正确集合；查看、编辑、删除；删除从点击时持久化五秒绝对期限，后台 / 重启不缩短，期限内撤销完整恢复，期限后只硬删除一次 | Library / Data / QA |
 | M5 | `N >= 1` 的 selected set 与 PDF 条目一一对应且顺序稳定；基础 PDF 无封面且物理页数严格为 `ceil(N / itemsPerPage)`，空选择在渲染前失败；图片 / 纯文字 / 混合资料均可读且无空白 / 重复；真实 AirPrint 完成并检查输出；系统 share sheet 与“存储到文件”分别覆盖成功 / 取消 / 失败；已明确保存到 App 外的副本保留，无打印机 / 取消 / 失败不误报且清理 App-owned 临时输出 | Export / QA |
 | M6 | 后台 / 终止注入后重启，只出现可完整恢复草稿或明确无草稿 / 丢弃结果，不出现半状态 | Capture / Data / QA |
-| M7 | 正式 writer-reader round-trip 覆盖完整资料库；损坏 / 恶意 / 超限输入在 mutation 前拒绝或进入明确恢复态，原库不变 | Data / Security |
+| M7 | 正式 writer-reader round-trip 覆盖完整资料库；损坏 / 恶意 / 超限输入在 mutation 前拒绝或进入明确恢复态，原库不变；按 D4S-A 覆盖 pending delete / undo、健康 closed generation 与 unavailable-store raw prestate、complete-operation barrier、immutable backup snapshot detach，以及 partial export 的 pre-barrier completion / post-barrier fail-fast oracles | Data / Security |
 | M8 | store 打不开、停在裁决页终止、重启、恢复 / 放弃 / 双失败；始终保留 DATA-1 要求的材料且正常 UI 不假空 | Data / QA |
 | M9 | 静态数据流 / entitlement / manifest / policy 对账；禁网运行全部可达 Must + included optional；受控联网覆盖启动 / 后台 / 升级 / Share Extension，区分用户主动外发、Apple 系统流量与意外外发；持久化 / 备份图片 GPS 检查；结论一致 | Privacy / Security / Release |
-| M10 | 中英文、iPhone 17e / 17 / 17 Pro Max、默认 / xxxLarge / Accessibility 5 与 VoiceOver 最低矩阵；覆盖全部 Must、included optional、loading / empty / error / confirmation 和系统面板，旅程可完成且无阻断截断 / 遮挡 / 不可达操作；source settings、signed archive 与 ASC availability 同时证明 Mac / Vision Pro compatibility opt-out | UI / AX / QA / Release |
+| M10 | 中英文、iPhone 17e / 17 / 17 Pro Max、默认 / xxxLarge / Accessibility 5 与 VoiceOver 最低矩阵；覆盖全部 Must、included optional、loading / empty / error / confirmation 和系统面板，旅程可完成且无阻断截断 / 遮挡 / 不可达操作；source settings、signed archive 与运行时证明 ORI-A 的 portrait-only App shell 且不旋转媒体内容，并与 ASC availability 一起证明 Mac / Vision Pro compatibility opt-out | UI / AX / QA / Release |
 
 成功标准和产品边界只来自 effective Release Contract；本表定义如何证明。每次候选必须保存一份 M1-M10 -> test / dogfood / attachment 索引，未覆盖项直接阻断 public go / no-go。
 

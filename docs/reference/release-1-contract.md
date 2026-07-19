@@ -1,13 +1,14 @@
 ---
-last_verified: 2026-07-15
+last_verified: 2026-07-19
 layer: release-contract
 release: 1
 ratified_at:
   C3: 2026-07-13
   remaining_12: 2026-07-14
   follow_up_contract_decisions: 2026-07-15
+  release_safety_boundaries: 2026-07-19
 activation: effective_when_merged_to_develop
-ratified_decisions: ["C1-A", "C2-Core", "C2-Image", "C2-Optional", "C2-Personalization", "C3", "C4-D", "C5-E", "C5-S1", "C6-A", "DATA-1", "DATA-1-E", "DATA-1-R", "D1-B", "D2-A", "D3-B", "D4-B", "D5-A", "#932-A", "#891-copy"]
+ratified_decisions: ["C1-A", "C2-Core", "C2-Image", "C2-Optional", "C2-Personalization", "C3", "C4-D", "C5-E", "C5-S1", "C6-A", "DATA-1", "DATA-1-E", "DATA-1-R", "D1-B", "D2-A", "D3-B", "D4-B", "D5-A", "#932-A", "#891-copy", "S1-A", "M1-A", "D4S-A", "ORI-A"]
 pending_decisions: []
 upstream:
   - ../explanations/vision.md
@@ -17,7 +18,7 @@ upstream:
 ---
 # Release 1 Product Contract
 
-> PO 于 2026-07-13 至 2026-07-15 ratify Gate C 与后续数据、导出、删除和平台边界裁决。本文在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective Release 1 权威。`RATIFIED` 不授权代码实现、构建上传、开放 TestFlight、发布或合并；每次合并和发布动作仍需 PO 单独明确授权。
+> PO 于 2026-07-13 至 2026-07-19 ratify Gate C 与后续数据、导出、删除、安全边界和平台裁决。本文在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective Release 1 权威。`RATIFIED` 不授权代码实现、构建上传、开放 TestFlight、发布或合并；每次合并和发布动作仍需 PO 单独明确授权。
 
 ## 1. 合同职责
 
@@ -49,8 +50,12 @@ upstream:
 | D5-A | RATIFIED | Settings 提供“清空资料库 / Clear Library”，不是 App factory reset |
 | #932-A | RATIFIED | Release 1 同时退出 Apple Silicon Mac 与 Apple Vision Pro 的 iPhone-app compatibility distribution |
 | #891-copy | RATIFIED | 未加密备份的中英文逐次导出提示文案由 `feat-backup.md` 固定 |
+| S1-A | RATIFIED | Release 1 内容、taxonomy 与 normalized JPEG 接受边界由 Local Library Data Contract 唯一固定 |
+| M1-A | RATIFIED | taxonomy 单值 / 多值转换遵循失败原子性，不静默丢弃既有关联 |
+| D4S-A | RATIFIED | 完整操作共享稳定 prestate 与 mutation barrier；局部导出不冒充完整资料库快照 |
+| ORI-A | RATIFIED | iPhone App shell 采用竖屏，图片与文档内容保持自身方向 |
 
-后续裁决的 shaping 与 PO ratification 回执保留在 [#882](https://github.com/NotBad-Labs/snapdrill-ios/issues/882)、[#885](https://github.com/NotBad-Labs/snapdrill-ios/issues/885)、[#906](https://github.com/NotBad-Labs/snapdrill-ios/issues/906)、[#907](https://github.com/NotBad-Labs/snapdrill-ios/issues/907)、[#910](https://github.com/NotBad-Labs/snapdrill-ios/issues/910)、[#932](https://github.com/NotBad-Labs/snapdrill-ios/issues/932) 与 [#891](https://github.com/NotBad-Labs/snapdrill-ios/issues/891)。这些 issue 是来源证据；合入 `develop` 后的本文与 owning contract / feature spec 才是规范权威。
+后续裁决的 shaping 与 PO ratification 回执保留在 [#882](https://github.com/NotBad-Labs/snapdrill-ios/issues/882)、[#885](https://github.com/NotBad-Labs/snapdrill-ios/issues/885)、[#906](https://github.com/NotBad-Labs/snapdrill-ios/issues/906)、[#907](https://github.com/NotBad-Labs/snapdrill-ios/issues/907)、[#910](https://github.com/NotBad-Labs/snapdrill-ios/issues/910)、[#918](https://github.com/NotBad-Labs/snapdrill-ios/issues/918)、[#884](https://github.com/NotBad-Labs/snapdrill-ios/issues/884)、[#932](https://github.com/NotBad-Labs/snapdrill-ios/issues/932)、[#950](https://github.com/NotBad-Labs/snapdrill-ios/issues/950) 与 [#891](https://github.com/NotBad-Labs/snapdrill-ios/issues/891)。这些 issue 是来源证据；合入 `develop` 后的本文与 owning contract / feature spec 才是规范权威。
 
 ## 2. 目标产物
 
@@ -72,7 +77,7 @@ Release 1 服务处理结构化纸张、照片或 PDF 材料的成年人。考�
 
 ### 3.1 Must outcomes
 
-**RATIFIED C2-Core**：批准下列 M1-M10 用户结果。具体撤销时长、图片编码参数、命令、test ID、fault-injection 点和设备集合由 owning feature / Data / QA / Release DRI 维护，不随本项一并锁定。
+**RATIFIED C2-Core**：批准下列 M1-M10 用户结果。具体撤销时长、图片编码参数、命令、test ID、fault-injection 点和设备集合由 owning feature / Data / QA / Release DRI 维护，不随本项一并锁定。后续 S1-A 已在 [Local Library Data Contract](local-library-data-contract.md) 固定产品可接受的内容与图片边界；DRI 只能在该边界内选择实现参数。
 
 **RATIFIED C2-Image**：保存内容真相是用户确认裁剪和方向后的 App-managed 可读图片；OCR 是辅助表达。Release 1 不承诺保留来源照片 / PDF 渲染页的原始字节或完整分辨率。工程可以选择编码与质量参数，但必须满足可读性、隐私和所有受支持资料库可完整备份的结果边界。
 
@@ -188,11 +193,21 @@ Release 1 必须让产品所支持创建的任意资料库都能生成一个同�
 
 恶意 / 损坏输入、磁盘不足、进程中断、数据库与图片提交不同步或 store 打不开，均不得造成崩溃、越界读写、静默覆盖、假空库或不可理解的半恢复。用户看到的是可崩溃恢复的 all-or-nothing 结果或明确阻塞恢复态；具体 inventory、staging、journal phase、marker、启动协调与 fault injection 由 [Local Library Data Contract](local-library-data-contract.md) 承接，外部 archive grammar、schema / key 与 fixtures 由 [Backup Wire Format](backup-wire-format.md) 承接。两者都不能从本节直接获得实现授权。
 
-### 6.1 资料库清除边界
+### 6.1 Release 1 资料库安全边界
+
+**RATIFIED S1-A**：Release 1 对资料文字、taxonomy 名称、SF Symbol 名称与 normalized JPEG 设定明确接受边界；精确字节、像素、拒绝语义和全库容量口径只由 [Local Library Data Contract](local-library-data-contract.md) §2.1 拥有。feature、NFR 与 Backup Wire 只能引用，不得复制数字或另造更小上限。
+
+**RATIFIED M1-A**：taxonomy 从单值转多值可以直接进行；反向转换必须先证明所有受影响资料满足目标 cardinality，否则整体拒绝并报告违反数量，不自动删值或部分修改。精确数据不变量由 [Local Library Data Contract](local-library-data-contract.md) §2.2 拥有。
+
+**RATIFIED D4S-A**：只有外部完整 `.snapdrillbackup` 以及 `restore` / `clearLibrary` / `storeRecovery` 属于 contract-defined complete operations；它们消费 [Local Library Data Contract](local-library-data-contract.md) §4.3 的 operation-specific prestate 与 mutation barrier。健康 closed generation 与 unavailable store 的内部证明路径不同，不能用假空库替代。Settings JSON / CSV 与 selected PDF / CSV 是 partial exports；它们不排队等待该 barrier，也不得宣称代表完整资料库。该裁决不批准 Backup v3 DDL、package、journal operation 或实现。
+
+### 6.2 资料库清除边界
 
 **RATIFIED D5-A**：Release 1 的破坏性 Settings 操作命名为“清空资料库 / Clear Library”，不是“清除所有数据”或 factory reset。它只删除已保存资料、这些资料引用的 App-managed 主图 / 答案图、分类 / 字段 / 关联，以及附着于这些资料的 Review 调度状态。它不静默删除未保存采集草稿、语言 / 外观 / 通知等本机偏好、DATA-1-R 保留的未解决 recovery incident，或用户已经保存到沙盒外的文件。每类排除内容继续由自己的可见生命周期管理；公开隐私说明不得把 Clear Library 描述为完整 App reset。
 
 ## 7. 明确非目标与隐藏能力
+
+**RATIFIED ORI-A**：Release 1 的 iPhone App shell 只支持竖屏。用户导入、查看和导出的图片或文档内容继续保持自身方向；shell 方向不得被误用为旋转、裁切或重编码媒体内容的授权。本文只固定产品与发布结果，当前 source settings、signed archive 和运行时仍须由独立实现与发布证据证明。
 
 Release 1 不包含：
 
@@ -233,7 +248,7 @@ Release 1 不包含：
 
 ## 10. 合同生效与退出条件
 
-1. PO 已于 2026-07-13 至 2026-07-15 批准摘要表列出的 Gate C 与后续精确决策；它们在本权威及 owning feature / Data Contract 同步合入后 effective。
+1. PO 已于 2026-07-13 至 2026-07-19 批准摘要表列出的 Gate C 与后续精确决策；它们在本权威及 owning feature / Data Contract 同步合入后 effective。
 2. 本文及必要 thin pointers 通过文档门禁和独立语义复核。
 3. PR 合并获得 PO 单独授权并进入 `develop`；合并前仍是 ratified candidate。
 4. 本合同 docs-only PR 同步对齐受 Gate C 与后续裁决直接影响的产品说明、feature spec、结果 oracle、发布 evidence plan、术语与导航索引；这些改动用于移除旧规范冲突并建立追溯，不授权或包含代码、导航、schema / wire 实现。

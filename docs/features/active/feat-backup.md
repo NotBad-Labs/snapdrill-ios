@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-15
+last_updated: 2026-07-19
 intent_refs:
   - vision:P4
 release_refs:
@@ -16,11 +16,13 @@ release_refs:
   - release-1:D1-B
   - release-1:D3-B
   - release-1:#891-copy
+  - release-1:S1-A
+  - release-1:D4S-A
 ---
 
 # Feature: 备份与 CSV 导入导出
 
-> **产品重基线（2026-07-15）**：B4-A 将手动备份 / 恢复确立为永久数据权利，Release 1 Contract 的 DATA-1 / DATA-1-E / DATA-1-R 固定 epoch、完整备份、未加密提示和恢复材料保留边界。D1-B 选择 purpose-built SQLite `.snapdrillbackup`，D3-B 固定 degraded pre-restore snapshot 语义，#891 固定逐次导出提示文案。frontmatter 与技术章节仍只记录当前实现；现有 Profile ZIP wire、图片 best-effort 与自动清理是待 owning Data Contracts 收敛的偏差，不得冒充目标已实现。
+> **产品重基线（2026-07-19）**：B4-A 将手动备份 / 恢复确立为永久数据权利，Release 1 Contract 的 DATA-1 / DATA-1-E / DATA-1-R 固定 epoch、完整备份、未加密提示和恢复材料保留边界。D1-B 选择 purpose-built SQLite `.snapdrillbackup`，D3-B 固定 degraded pre-restore snapshot 语义，#891 固定逐次导出提示文案。S1-A 与 D4S-A 分别提供统一数据接受边界和 complete-operation snapshot / barrier；精确规则只由 Local Library Data Contract 拥有。frontmatter 与技术章节仍只记录当前实现；现有 Profile ZIP wire、图片 best-effort 与自动清理是待 owning Data Contracts 收敛的偏差，不得冒充目标已实现。
 
 > 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
@@ -37,7 +39,10 @@ release_refs:
 - **恢复安全规范**：仅在文件完整性与版本兼容性满足要求时执行恢复；不满足时必须**拒绝恢复且保持现有数据不变**。
 - **兼容生命周期**：DATA-1 定义正式兼容 epoch 与 epoch 前开发格式处置；不得把当前 v1 / v2 fixture 或“无测试用户”外推成永久兼容或任意破坏授权。本地 inventory / 恢复生命周期与外部 wire 分别下沉各自 Data Contract。
 - **完整备份语义**：外部完整备份严格 all-or-nothing，损坏 store 的部分 salvage 是独立路径。当前元数据原子、图片 best-effort 只作实现偏差证据。
+- **统一接受边界（S1-A）**：正式 writer / reader、恢复和 CSV / JSON import 必须消费 [Local Library Data Contract](../../reference/local-library-data-contract.md) §2.1；超限或无效输入在 mutation 前拒绝，不得截断或另设更小产品总量 cap。
+- **完整与局部操作（D4S-A）**：外部 `.snapdrillbackup` 与 restore 是 complete operations；它们使用稳定 inventory / immutable snapshot 与 mutation barrier。CSV / JSON export 是 partial，不等待 complete-operation barrier，也不得表述为完整资料库备份。
 - **内部恢复快照（D3-B）**：外部完整备份仍不得缺图。内部 pre-restore recovery artifact 可以精确记录当前资料库在快照时已经缺失的图片，但必须有 recovery-only marker 和闭合的 `present` / `missing-at-snapshot` inventory；外部 reader 不得接受它作为完整备份。
+- **不可打开 store 的恢复材料**：`storeRecovery` 不得伪造健康 checkpoint 或数据库引用闭包；它只消费 Data Contract 的 unavailable-store raw prestate，把 source generation 与 sidecar 原样保留到 incident，且不把该内部材料交给外部 Backup reader。
 - **CSV 导出**：结构化字段与 OCR 文本摘要，可用 Excel 打开，以实际导出字段清单为准；属于 C2-Optional，默认隐藏，只有冻结 manifest 显式纳入才可见。
 - **CSV 导入**：Candidate optional，默认隐藏；只有 GAP-R6 字段数量严格性修复完成、冻结 manifest 显式纳入并通过数据完整性门禁后才可见。
 - **边界 / 不做**：不做自动本地备份（增加存储负担）；Apple 私有同步是未来候选，不属于当前备份职责；导入文件损坏 / 不可读时提示重新选择，不破坏现有数据。
@@ -54,6 +59,7 @@ release_refs:
   - **恢复前校验**：先验证文件可读性、结构完整性、版本兼容性，校验失败直接拒绝并保持现有数据不变。
   - **当前恢复前安全网**：执行恢复前将当前数据快照到沙盒临时目录；现有“成功后保留到下次启动自动清理”是实现事实。DATA-1-R 要求损坏 store 与恢复前滚 / 回滚双失败后选择空库继续的 incident-bound 源材料、安全快照和只读失败态保留到用户显式删除；普通导出不清理，只有已确认且成功的“导出并删除”可以清理。普通成功 restore 只可清理 disposable staging，不得清理 incident-bound 材料。具体 retention 与状态以 [Local Library Data Contract](../../reference/local-library-data-contract.md) 为准。
   - **D3-B 快照约束**：每个图片引用必须唯一声明为 `present` 或 `missing-at-snapshot`。`present` 必须逐字节读取、digest 校验并进入快照；已有文件但不可读时在 active-library mutation 前失败。`missing-at-snapshot` 只重建原先已经缺失的状态，不能放宽 taxonomy / metadata reference closure，也不能进入外部完整 Backup。
+  - **D4S-A barrier**：完整备份只需阻塞到 immutable source snapshot detached / finalized；后续编码与 share sheet 不继续占用 active-library mutation gate。restore 的 barrier 持续到 publication、verified rollback 或 blocking incident terminal cleanup。该边界不把 `backup` 加入 destructive journal operation。
   - **当前 Multi-Profile 提交策略（待 Data Contract 重基线）**：`SettingsViewModel.restoreFromBackup` 按 Profile sequential 提交；这是 `develop` 实现事实，不是目标产品行为。单资料库后的 wire、提交和回滚策略不得从本 spec 推导。
   - **CSV 注入防护（导出）**：导出 CSV 时以 `=+-@` 开头的值前加 tab。
   - **CSV 解析（导入）**：严格 RFC 4180——引号转义、CRLF/LF 兼容、字段数不匹配则整行拒绝并提示用户。
@@ -70,6 +76,9 @@ release_refs:
   - 恢复写入中途失败 → 当前实现提示失败并尽力回滚，图片仍可能 best-effort 缺失；DATA-1 要求正式外部完整备份整包失败且原资料库不变，部分 salvage 另走明确路径（Boundary B05, S0）。
   - 当前 Multi-Profile 备份恢复的中途失败行为属于实现风险清单，必须在单资料库 Data Contract 中明确收敛，不能继续作为目标验收。
   - 当前资料库引用的图片在快照前已缺失 → recovery-only snapshot 以 `missing-at-snapshot` 记录并可继续；文件存在但不可读、inventory 撒谎或 digest / reference 不闭合 → 零 mutation 拒绝开始。
+  - S1-A 任一字段 / taxonomy / normalized JPEG 超限、无效 UTF-8 或 checked overflow → 在生成成功或恢复 mutation 前拒绝，输入与原资料库保持不变。
+  - complete backup snapshot detached 后 → Library mutation 可重新准入，后续分享取消不改变已冻结 artifact；barrier 前已 detached 的 CSV / JSON partial snapshot 可完成，barrier 后的新请求立即 busy 失败而不等待。
+  - store 无法打开 → 不把打不开解释为空库，也不要求先完成健康 DB inventory；raw generation durable 保留到 incident 且用户明确选择后，才可继续空库路径。
   - 磁盘空间不足 → 恢复前检查可用空间，不足则拒绝开始恢复并提示。
   - CSV/JSON 导出磁盘写满 → 提示导出失败、清理临时文件，不生成损坏文件，原数据不受影响（Boundary B07, S1）。
   - 导入文件损坏/不可读 → 提示文件不可用、允许重新选择，现有数据不变（Boundary B08, S1）。
@@ -79,6 +88,7 @@ release_refs:
   - 恢复不得读写资料库之外的数据；当前 DB rollback / 图片 best-effort 是实现事实，不得冒充 DATA-1 的严格完整恢复已达成。
   - 任何恢复失败均不得损坏恢复前的现有本地数据。
   - CSV/JSON 导出以实际导出字段清单为准，不得静默宣称为全字段导出；导出为只读操作，不修改题目主数据/复习状态/统计。
+  - complete / partial 分类和 barrier 释放点只消费 Local Library Data Contract；本 spec 不创建第二套 prestate、journal 或 wire schema。
 - **NFR**：
   - 性能：备份打包 < 30 秒（500 条 + 图片，点击备份到 ShareSheet 弹出）。CSV 导入 < 5 秒（1000 行）只在 GAP-R6 修复且冻结 manifest 纳入该 optional 后成为候选门禁。
   - 内存：备份/恢复 < 200MB；SQLite image BLOB 必须增量读写，不得把单张图片、全库图片或整个数据库物化为一个 `Data`。CSV 导入（1000 行）< 80MB 只在满足同一纳入前置后适用。
@@ -116,6 +126,8 @@ release_refs:
 | schema/version 预校验 | Data 层契约测试 |
 | D1-B SQLite hostile-file / capacity closure | exact-schema、integrity、FK/reference、sidecar/symlink、incremental BLOB、writer-reader round-trip 与 adversarial corpus |
 | D3-B degraded snapshot | recovery-only marker/inventory contract tests + pre-mutation fault tests |
+| S1-A 统一接受边界 | boundary / invalid UTF-8 / checked-overflow / reject-without-truncation contract tests |
+| D4S-A complete / partial 操作 | undo settlement、snapshot detach、barrier release、restore / storeRecovery terminal outcome、partial pre-barrier completion 与 post-barrier fail-fast tests |
 | CSV 字段严格性 | GAP-R6 后续修复测试 |
 | 未加密备份隐私提示 | UI / AX test + Export/Backup dogfood：提示先于系统分享面板且明确包含私人文字与图片 |
 | 其他导出隐私防护 | Export/Backup 流程 review + dogfood |
@@ -125,8 +137,8 @@ release_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P4 用户拥有数据·数据安全子条款） | `.snapdrillbackup` 是免费换机迁移出口；恢复前校验、失败不破坏现有数据、结果透明 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Optional / DATA-1 / DATA-1-E / DATA-1-R / D1-B / D3-B / #891-copy | CSV 可携带性辅助默认隐藏；epoch、SQLite application document、完整备份、未加密提示、degraded internal snapshot、逐次提示文案与恢复材料保留已固定；现有 v2 / best-effort / 自动清理不构成目标 |
-| Local Library Data Contract | `../../reference/local-library-data-contract.md` | Profile-free inventory、generation / journal、D3-B prestate 与 incident 生命周期 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Optional / DATA-1 / DATA-1-E / DATA-1-R / D1-B / D3-B / #891-copy / S1-A / D4S-A | CSV 可携带性辅助默认隐藏；epoch、SQLite application document、完整备份、统一接受边界、complete-operation barrier、未加密提示、degraded internal snapshot、逐次提示文案与恢复材料保留已固定；现有 v2 / best-effort / 自动清理不构成目标 |
+| Local Library Data Contract | `../../reference/local-library-data-contract.md` | Profile-free inventory、S1-A 接受边界、generation / journal、D4S-A barrier、D3-B prestate 与 incident 生命周期 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | 手动备份 / 恢复永久免费；Apple 私有同步只是候选假设 |
 | 待验证假设 | `../../explanations/assumptions.md` H10（用户仅保存有权处理的个人资料） | 备份 / 导出边界与版权提示 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |

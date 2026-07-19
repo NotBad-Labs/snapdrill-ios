@@ -12,7 +12,7 @@
 | `setup.sh` | 新开发者入职的一键环境配置（待完善） |
 | `pre-commit` | Git pre-commit hook（提交前自动检查） |
 | `generate_feature_status.py` | 由各 feature spec frontmatter 生成 `docs/reference/feature-status.md`（实现状态单写；不表示 Release 合同符合；产物勿手改，pre-commit/CI 校验） |
-| `generate_intent_traceability.py` | 由各 feature spec `intent_refs` / `release_refs` 生成 durable intent 与 Release 1 双向追溯索引；Release ID 从 effective contract 读取，ratified decision 无 Feature / operations owner 时失败（产物勿手改，pre-commit/CI 校验） |
+| `generate_intent_traceability.py` | 由各 feature spec `intent_refs` / `release_refs` 生成 durable intent 与 Release 1 双向追溯索引；Release ID 从 effective contract 读取，ratified decision 无 Feature / operations consumer 时失败（产物勿手改，pre-commit/CI 校验） |
 | `test_doc_generators.py` | 文档生成器单元测试（覆盖意图追溯索引与功能状态看板的成功与失败路径，pre-commit/CI 校验） |
 | `validate_document_control.py` | 检查所有 repository Markdown 的角色 / 生命周期唯一归属、历史降级标识、本地链接 / anchor 与 alias |
 | `validate_docs.py` | 检查高风险文档漂移：历史 ADR 状态、过时 Firebase 路线陈述、产品定位回退、feature spec 意图追溯、`intent_refs` 目标存在性与验收证据行 |
