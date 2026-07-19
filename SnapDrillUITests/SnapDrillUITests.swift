@@ -1462,6 +1462,10 @@ final class SnapDrillUITests: XCTestCase {
         waitForAnyElement("library.detail.root", in: app)
         app.buttons["library.detail.editButton"].tap()
         waitForAnyElement("library.edit.root", in: app)
+        let saveButton = app.buttons["library.edit.save"]
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 5), "元数据 ready 后编辑页应显示保存按钮")
+        XCTAssertTrue(saveButton.isEnabled, "元数据 ready 后保存按钮应可用")
+        XCTAssertFalse(app.buttons["library.edit.metadataRetry"].exists, "正常初始化不应显示重试入口")
         waitForAnyElement("library.edit.questionImage", in: app, timeout: 10)
         waitForAnyElement("library.edit.cropImage", in: app)
         addScreenshot(named: "ui-freeze-library-edit-image-01-crop-button")

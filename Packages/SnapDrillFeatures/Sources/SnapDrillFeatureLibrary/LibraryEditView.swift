@@ -44,17 +44,7 @@ public struct LibraryEditView: View {
     
     public var body: some View {
         NavigationStack {
-            Form {
-                if let vm = viewModel {
-                    imageSection(vm: vm)
-                    contentSection(vm: vm)
-                    answerSection(vm: vm)
-                    metadataSection(vm: vm)
-                } else {
-                    ProgressView()
-                }
-            }
-            .accessibilityIdentifier("library.edit.root")
+            editContent
             .navigationTitle(L10n.Library.editTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -65,6 +55,7 @@ public struct LibraryEditView: View {
                     }, label: {
                         Text(L10n.Common.cancel)
                     })
+                    .accessibilityIdentifier("library.edit.cancel")
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(L10n.Common.save) {
@@ -81,12 +72,14 @@ public struct LibraryEditView: View {
                         }
                     }
                     .disabled(
-                        (viewModel?.isProcessing ?? false)
+                        viewModel?.metadataLoadState != .ready
+                            || (viewModel?.isProcessing ?? false)
                             || (viewModel?.isPhotoLoading ?? false)
                             || (viewModel?.isSaving ?? false)
                             || isSaveRequested
                             || cropperItem != nil
                     )
+                    .accessibilityIdentifier("library.edit.save")
                 }
             }
             .scrollDismissesKeyboard(.immediately)
@@ -136,17 +129,106 @@ public struct LibraryEditView: View {
             .ignoresSafeArea()
         }
     }
+
+    @ViewBuilder
+    private var editContent: some View {
+        if let viewModel {
+            switch viewModel.metadataLoadState {
+            case .loading:
+                ProgressView(L10n.Common.loading)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityIdentifier("library.edit.metadataLoading")
+            case .failed:
+                ContentUnavailableView {
+                    Label(L10n.Errors.loadFailed, systemImage: "exclamationmark.triangle")
+                        .accessibilityIdentifier("library.edit.metadataError")
+                } description: {
+                    Text(L10n.Errors.tryAgainLater)
+                } actions: {
+                    Button(L10n.Common.retry) {
+                        Task { await viewModel.loadData() }
+                    }
+                    .accessibilityIdentifier("library.edit.metadataRetry")
+                }
+            case .ready:
+                Form {
+                    imageSection(vm: viewModel)
+                    contentSection(vm: viewModel)
+                    answerSection(vm: viewModel)
+                    metadataSection(vm: viewModel)
+                }
+                .accessibilityIdentifier("library.edit.root")
+            }
+        } else {
+            ProgressView(L10n.Common.loading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityIdentifier("library.edit.metadataLoading")
+        }
+    }
     
     private func loadData() async {
         if viewModel == nil {
-            viewModel = LibraryEditViewModel(
+            let imageStorage = profileManager.activeImageStorage
+            let createdViewModel = LibraryEditViewModel(
                 item: item,
                 repositories: repositories,
-                imageStorage: profileManager.activeImageStorage
+                imageStorage: imageStorage
             )
+#if DEBUG
+            configureUITestBehavior(
+                on: createdViewModel,
+                repositories: repositories,
+                imageStorage: imageStorage
+            )
+#endif
+            viewModel = createdViewModel
         }
+#if DEBUG
+        guard !Self.holdsMetadataLoadForUITesting else { return }
+#endif
         await viewModel?.loadData()
     }
+
+#if DEBUG
+    private static var holdsMetadataLoadForUITesting: Bool {
+        ProcessInfo.processInfo.arguments.contains("--ui-test-library-edit-metadata-loading")
+    }
+
+    private func configureUITestBehavior(
+        on viewModel: LibraryEditViewModel,
+        repositories: RepositoryContainer,
+        imageStorage: ImageStorage
+    ) {
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("--ui-test-library-edit-metadata-failure") {
+            var shouldFail = true
+            viewModel.metadataLoader = {
+                if shouldFail {
+                    shouldFail = false
+                    throw LibraryEditUITestError.expectedMetadataFailure
+                }
+                return try repositories.dimension.fetchAllModels()
+            }
+        }
+        if arguments.contains("--ui-test-library-edit-slow-image") {
+            viewModel.initialImageLoader = { path in
+                do {
+                    try await Task.sleep(for: .seconds(15))
+                } catch {
+                    return nil
+                }
+                guard !Task.isCancelled else { return nil }
+                return await imageStorage.loadImageAsync(path: path)
+            }
+        } else if arguments.contains("--ui-test-library-edit-missing-answer"),
+                  let answerPath = item.answerImagePath {
+            viewModel.initialImageLoader = { path in
+                guard path != answerPath else { return nil }
+                return await imageStorage.loadImageAsync(path: path)
+            }
+        }
+    }
+#endif
     
     // MARK: - Subviews
     
@@ -169,6 +251,7 @@ public struct LibraryEditView: View {
                     // 有图片路径但尚未加载完成（async I/O）
                     ProgressView()
                         .frame(height: 150)
+                        .accessibilityIdentifier("library.edit.questionImageLoading")
                 } else {
                     ContentUnavailableView(L10n.Library.noImage, systemImage: "photo.badge.exclamationmark")
                         .frame(height: 150)
@@ -245,32 +328,47 @@ public struct LibraryEditView: View {
                     .padding(.vertical, 8)
                     .accessibilityIdentifier("library.edit.answerImage")
 
-                Button(role: .destructive) {
-                    vm.removeAnswerImage()
-                } label: {
-                    Label(L10n.Library.removeAnswerImage, systemImage: "trash")
-                }
-                .disabled(vm.isPhotoLoading || vm.isSaving || isSaveRequested || vm.isSavedNormally)
-                .accessibilityIdentifier("library.edit.removeAnswerImage")
+                removeAnswerImageButton(vm: vm)
+            } else if vm.answerImageLoadFailed, item.answerImagePath != nil, !vm.isAnswerImageCleared {
+                ContentUnavailableView(L10n.Errors.imageLoadFailed, systemImage: "photo.badge.exclamationmark")
+                    .frame(height: 100)
+                    .accessibilityIdentifier("library.edit.answerImageError")
+                answerImagePicker(vm: vm, isLoading: isAnswerPhotoLoading)
+                removeAnswerImageButton(vm: vm)
             } else if item.answerImagePath != nil && !vm.isAnswerImageCleared {
                 // 有答案图路径但尚未加载完成（排除已删除待保存的情况）
                 ProgressView()
                     .frame(height: 100)
+                    .accessibilityIdentifier("library.edit.answerImageLoading")
             } else {
-                PhotosPicker(selection: $answerPickerSelection, matching: .images) {
-                    HStack(spacing: 8) {
-                        Label(L10n.Library.addAnswerImage, systemImage: "photo.badge.plus")
-                        if isAnswerPhotoLoading {
-                            ProgressView()
-                                .controlSize(.small)
-                                .accessibilityLabel(L10n.Common.loading)
-                        }
-                    }
-                }
-                .disabled(vm.isPhotoLoading || vm.isSaving || isSaveRequested || vm.isSavedNormally)
-                .accessibilityIdentifier("library.edit.addAnswerImage")
+                answerImagePicker(vm: vm, isLoading: isAnswerPhotoLoading)
             }
         }
+    }
+
+    private func answerImagePicker(vm: LibraryEditViewModel, isLoading: Bool = false) -> some View {
+        PhotosPicker(selection: $answerPickerSelection, matching: .images) {
+            HStack(spacing: 8) {
+                Label(L10n.Library.addAnswerImage, systemImage: "photo.badge.plus")
+                if isLoading {
+                    ProgressView()
+                        .controlSize(.small)
+                        .accessibilityLabel(L10n.Common.loading)
+                }
+            }
+        }
+        .disabled(vm.isPhotoLoading || vm.isSaving || isSaveRequested || vm.isSavedNormally)
+        .accessibilityIdentifier("library.edit.addAnswerImage")
+    }
+
+    private func removeAnswerImageButton(vm: LibraryEditViewModel) -> some View {
+        Button(role: .destructive) {
+            vm.removeAnswerImage()
+        } label: {
+            Label(L10n.Library.removeAnswerImage, systemImage: "trash")
+        }
+        .disabled(vm.isPhotoLoading || vm.isSaving || isSaveRequested || vm.isSavedNormally)
+        .accessibilityIdentifier("library.edit.removeAnswerImage")
     }
     
     private func metadataSection(vm: LibraryEditViewModel) -> some View {
@@ -292,6 +390,12 @@ private struct CropperItem: Identifiable {
     let id = UUID()
     let image: UIImage
 }
+
+#if DEBUG
+private enum LibraryEditUITestError: Error {
+    case expectedMetadataFailure
+}
+#endif
 
 #Preview {
     let schema = Schema(SnapDrillSchemaV1.models)
