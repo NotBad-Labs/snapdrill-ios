@@ -74,6 +74,7 @@ python3 Scripts/test_doc_generators.py
 python3 Scripts/validate_document_control.py --check
 python3 Scripts/validate_docs.py --check
 python3 Scripts/validate_capture_contract.py --check
+python3 Scripts/validate_release_configuration.py --check
 
 printf '\n[3/6] Dependency direction checks\n'
 python3 Scripts/ci_github.py dependencies --root "$repo_root"

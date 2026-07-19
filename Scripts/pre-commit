@@ -50,6 +50,12 @@ python3 Scripts/validate_capture_contract.py --check || {
   exit 1
 }
 
+echo "Checking Release platform configuration..."
+python3 Scripts/validate_release_configuration.py --check || {
+  echo "error: Release 平台配置检查失败，请修正 iPhone / Mac / Vision compatibility 设置"
+  exit 1
+}
+
 echo "Running script regression tests..."
 python3 -m unittest discover -s Scripts/tests || {
   echo "error: script regression tests failed"

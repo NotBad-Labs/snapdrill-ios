@@ -276,6 +276,8 @@ PO 离线时，Incident DRI 可以完成分诊、修复、验证和本地 commit
 
 **注意**：当前全球版不包含 `GoogleService-Info.plist` 或 Firebase SDK。恢复任何后端遥测都属于新的产品与隐私决策，必须经 PO 批准并同步 Privacy Manifest、App Store Privacy 标签与公开政策。
 
+`Scripts/validate_release_configuration.py` 在 source gate 中结构化校验 App target 的 Debug / Release 均为 iPhone-only，并显式退出 Mac / Vision compatibility；signed archive 与 ASC availability 仍须按 M10 单独存证。
+
 ## 发版检查清单
 ---
 # Release 1 dogfood 与发布证据计划
