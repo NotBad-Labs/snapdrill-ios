@@ -52,10 +52,11 @@ bash Scripts/ci-local.sh
 
 ```yaml
 # .github/workflows/ci.yml
-触发条件：PR → develop/main，push → develop/main，或手动触发（workflow_dispatch）
-Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
-  - `build`（Build & Test，timeout 60min）：每次 PR/push 都跑——门禁。
+触发条件：同仓 PR → develop/main，push → develop/main，手动触发（workflow_dispatch），或每日清理调度
+Runner：Mac mini 自托管（self-hosted, macOS）。两个测试 job + 一个清理 job：
+  - `build`（Build & Test，timeout 60min）：同仓 PR/push 跑——门禁；fork PR 与清理调度不进入。
   - `ui-tests`（UI Tests，timeout 45min）：仅 develop push（合并）或手动触发，且 `needs: build`。
+  - `evidence-janitor`（timeout 5min）：仅每日调度，执行受管 evidence root 的 age/size 清理，不构建或测试。
 
 【build job 步骤】
   1. Checkout（actions/checkout v5 固定完整 SHA；contents:read；不保留凭据）并验证 HEAD == GITHUB_SHA
@@ -68,13 +69,17 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
      -derivedDataPath $GITHUB_WORKSPACE/DerivedData
      -destination 'platform=iOS Simulator,id=<selected UDID>'
      CODE_SIGNING_ALLOWED=NO
-  8. 唯一解析 AllTests_*.xctestrun；零个或多个均失败
+  8. 在 `$GITHUB_WORKSPACE` confinement root 内唯一解析 AllTests_*.xctestrun；零个或多个、越界或 workspace 以下含 symlink path component 均失败
   9. xcodebuild test-without-building（单次执行）
      -xctestrun <exact path>
      -only-test-configuration CI
      -destination 'platform=iOS Simulator,id=<same selected UDID>'
      -parallel-testing-enabled NO
-     -resultBundlePath TestResults.xcresult
+     -test-timeouts-enabled YES
+     -default-test-execution-time-allowance 120
+     -maximum-test-execution-time-allowance 300
+     -resultBundlePath $RUNNER_TEMP/<run-job-attempt>.xcresult
+  10. `if: always()` 将日志、可用 xcresult 和结构化摘要复制到 checkout 外的受管 evidence root
 
 【ui-tests job 步骤】（app 级 XCUITest，慢且对模拟器生命周期敏感，故隔离出门禁）
   1. 同样验证 checkout 与精确工具身份
@@ -83,12 +88,16 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
   4. xcodebuild build-for-testing -scheme SnapDrill -testPlan UITests
      -derivedDataPath $GITHUB_WORKSPACE/DerivedDataUI
      -destination 'platform=iOS Simulator,id=<selected UDID>'
-  5. 唯一解析 SnapDrill_UITests_*.xctestrun
+  5. 在同一 workspace confinement root 内唯一解析 SnapDrill_UITests_*.xctestrun，并执行相同 symlink / 越界拒绝
   6. xcodebuild test-without-building（单次执行；不做 generic whole-suite retry）
      -xctestrun <exact path>
      -only-test-configuration CI -parallel-testing-enabled NO
      -destination 'platform=iOS Simulator,id=<same selected UDID>'
-     -resultBundlePath UITestResults.xcresult
+     -test-timeouts-enabled YES
+     -default-test-execution-time-allowance 300
+     -maximum-test-execution-time-allowance 600
+     -resultBundlePath $RUNNER_TEMP/<run-job-attempt>.xcresult
+  7. `if: always()` 执行同一 durable evidence finalizer
 ```
 
 注：
@@ -97,8 +106,34 @@ Runner：Mac mini 自托管（self-hosted, macOS）。两个 job：
 - 两个 job 各自选择并绑定本 job 的唯一 simulator；这不声称在未来多 runner 环境中跨 job 使用同一设备。结构化 helper 记录 runtime identifier，但 Release candidate 的 runtime/device matrix 仍由候选证据门禁负责。
 - `pull_request` 事件中的 `GITHUB_SHA` 是 GitHub 生成的 `refs/pull/<n>/merge` 临时 merge commit，不是 PR head；push / manual dispatch 则是触发 ref 的 commit。日志中的 checkout identity 只按对应事件语义解释，临时 merge SHA 不能代替长期候选证据。
 - `test-without-building` 复用本 job 的 `build-for-testing` 产物。generic UI retry 已删除：任何产品断言、crash 或基础设施失败都保持红色，不会被后续成功覆盖。
-- **当前残留**：DerivedData / xcresult 仍位于 checkout，后续 job 或 run 可能清理，不能称为 durable failure evidence；#922-B 负责 checkout 外 run/job/attempt 路径、保留窗口和安全清理。GitHub artifact 上传仍停用，避免再次耗尽 Actions 存储配额。
+- 单项测试 timeout 仅由 CI 命令行启用，不改共享 test plan：source tests 默认 120 秒、硬上限 300 秒；app UI tests 默认 300 秒、硬上限 600 秒。60 / 45 分钟 job timeout 仍是外层兜底。超时保持失败并进入同一 finalizer，不做自动重跑。
 - `SnapshotRecord` configuration 仅本地显式重录 baseline 使用，不参与 CI。
+
+### Runner 本地 CI 证据
+
+两个测试 job 的日志和 xcresult 先写入按 run / job / attempt 唯一命名的 `$RUNNER_TEMP` 路径。紧随测试命令的 `if: always()` step 调用 `Scripts/ci_github.py evidence`，将当次可用材料复制到：
+
+```text
+$HOME/.snapdrill/ci-evidence/
+└── run-<GITHUB_RUN_ID>/
+    └── <GITHUB_JOB>/
+        └── attempt-<GITHUB_RUN_ATTEMPT>/
+            ├── summary.json
+            ├── summary.md
+            ├── test.log            # 容量允许且测试已产出时
+            └── results.xcresult/   # 容量允许且 xcodebuild 已产出时
+```
+
+- `summary.json` 区分 GitHub trigger SHA 与经 checkout-identity step 验证的 checkout SHA，并记录 event/run/job/attempt、结果与 exit code、经 toolchain step 验证的工具版本与 Developer 目录、simulator name/UDID/runtime/device type/destination、scheme/test plan/configuration、CI-only timeout 和实际保存的附件。未经对应 step 验证的 checkout / toolchain 字段只能是 `null` / `false`。
+- test step 成功必须同时有非空日志与完整 xcresult；source 与复制后的 bundle 都必须无 symlink，并由当前 Xcode 的 `xcresulttool` 解析为至少执行一项测试的 `Passed` 结果。失败必须保留非空日志，并在 xcodebuild 已能 finalise 时复制无 symlink 的 partial xcresult。若 checkout 已取得 helper、但之后的 identity、toolchain 或其他前置 step 失败导致测试被跳过，finalizer 仍写诚实的 `skipped` 摘要，不重新读取故障配置，也不虚构测试附件。若 `actions/checkout` 本身未取得 helper，则无法由 checkout 内脚本生成本地摘要。
+- finalizer 把 durable local path 和 routine-only 限制写入 `GITHUB_STEP_SUMMARY`。Operator 可从 Actions 页面直接定位 Mac mini 上的材料。
+- evidence root 首次使用时必须为空并写入固定 ownership marker；以后 marker 不匹配、root 与 checkout 任一方向嵌套、root 或其直接父目录 / run 为 symlink、lock 非普通文件或出现非受管直属项均 fail closed。finalization 与清理在同一 root lock 下串行，清理器不接管或删除无 marker 的目录。
+- 每次 finalization 在复制前按 source 的文件系统实际分配空间加 1 MiB metadata reserve 预留容量：先删除超过 14 天的旧 run，再按最旧优先清到“既有 run + 预留量 ≤ 20 GiB”；复制和写摘要后再按实际落盘占用复核一次。当前 run 永不为满足预算而删除。若附件无法在预算内落盘，finalizer 仍先写入小型 `summary.json` / `summary.md`，将附件记为 omitted 并让 CI 失败；不会在创建 attempt 之前无记录退出。
+- workflow 每日调度独立 `evidence-janitor`，在 runner 在线时执行同一 14 天 / 20 GiB 清理策略；每次正常 finalization 也继续清理。runner 持续离线或 workflow 被禁用时无法承诺墙钟时间上的立即删除，恢复后的首个 janitor/finalizer 必须补做清理，不能把“14 天策略”描述为离线机器上的硬实时保证。
+- 这是当前 Mac mini 的 bounded、runner-local 诊断证据，不是 GitHub artifact，不跨 runner 复制。GitHub artifact 上传仍停用，避免再次耗尽 Actions 存储配额。
+- `if: always()` 只覆盖 GitHub job 仍能继续调度 step 的 success / failure / skipped / cancelled 控制流；runner 断电、job 强制终止或进程收到不可恢复的 hard kill 时不能保证 finalizer 执行。此时 Actions 状态本身是事故信号，不能把缺失的本地材料解释为测试通过。
+- self-hosted runner 只接受同仓 PR：Private 仓库设置必须保持 `run_workflows_from_fork_pull_requests=false`，workflow 的 job guard 也拒绝 fork head；该外部设置由 #928 留存证据。若将来开放 fork workflow，必须先改用隔离/临时 runner，不能靠 checkout 内可修改的 guard。已有仓库写权限的同仓 contributor 与 runner 账号仍可读写这些原始材料，因此它们是可变诊断缓存，不是安全隔离区或不可变证据。
+- 分类固定为 `routine-ci-only`：它不证明签名 archive / 安装变体、隐私 / 网络运行时或 Release candidate conformance，也不授权 merge、upload、TestFlight、go/no-go 或 release。候选不可变证据仍归 #895 / #896 / #897。
 
 ### GitHub Token 配置
 

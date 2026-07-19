@@ -30,7 +30,6 @@ done
 require_command xcodebuild
 require_command swiftlint
 require_command python3
-require_command grep
 require_command find
 require_command mktemp
 
@@ -76,42 +75,8 @@ python3 Scripts/validate_document_control.py --check
 python3 Scripts/validate_docs.py --check
 python3 Scripts/validate_capture_contract.py --check
 
-check_forbidden_imports() {
-  local root="$1"
-  local pattern="$2"
-  local message="$3"
-  local matches
-  local status
-
-  [[ -d "$root" ]] || die "missing dependency scan root: $root"
-  if matches="$(grep -R -n -E --include='*.swift' "$pattern" "$root")"; then
-    printf '%s\n' "$matches" >&2
-    die "$message"
-  else
-    status=$?
-    [[ "$status" -eq 1 ]] || die "dependency scan failed for $root with status $status"
-  fi
-}
-
 printf '\n[3/6] Dependency direction checks\n'
-# Keep these predicates byte-for-byte equivalent in meaning to the current CI grep rules.
-# #922 may replace both copies with one shared validator after this slice is effective.
-check_forbidden_imports \
-  "Packages/SnapDrillCore/Sources" \
-  'import (SnapDrillData|SnapDrillUI|SnapDrillFeatures)' \
-  "Core must not import downstream packages"
-check_forbidden_imports \
-  "Packages/SnapDrillData/Sources" \
-  'import (SnapDrillUI|SnapDrillFeatures)' \
-  "Data must only import Core"
-check_forbidden_imports \
-  "Packages/SnapDrillUI/Sources" \
-  'import (SnapDrillData|SnapDrillFeatures)' \
-  "UI must only import Core"
-check_forbidden_imports \
-  "SnapDrillShare" \
-  '^import SnapDrill' \
-  "Share Extension must not import SnapDrill packages"
+python3 Scripts/ci_github.py dependencies --root "$repo_root"
 
 printf '\n[4/6] AllTests plan contract\n'
 python3 -c '
