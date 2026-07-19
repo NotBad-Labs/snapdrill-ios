@@ -172,6 +172,18 @@ final class SnapDrillUITests: XCTestCase {
         waitForAnyElement("settings.dataAndSync.root", in: app)
     }
 
+    private func assertUnsafeCacheClearIsAbsent(in app: XCUIApplication) {
+        let importCSV = app.buttons["settings.dataAndSync.importCSV"]
+        scrollUntilHittable(importCSV, in: app, maxSwipes: 4)
+        XCTAssertTrue(importCSV.waitForExistence(timeout: 5), "数据与备份页应保留 CSV 导入按钮")
+        XCTAssertFalse(
+            app.buttons["settings.dataAndSync.clearCache"].waitForExistence(timeout: 1),
+            "数据与备份页不得暴露无所有权的清理缓存按钮"
+        )
+        XCTAssertFalse(app.buttons["清理缓存"].exists, "清理缓存按钮不得以其他 identifier 重新出现")
+        XCTAssertFalse(app.alerts["清理缓存"].exists, "清理缓存确认弹窗不得可达")
+    }
+
     /// 步骤①：启动竞态修复验证 —— 连续冷启动多次，每次都应稳定进入主界面
     /// （防 ProfileManager 环境注入冷启动崩溃复发）
     func testLaunchStabilityAcrossRelaunches() {
@@ -1100,13 +1112,7 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-settings-controls-05-restore-dialog")
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
 
-        let clearCache = app.buttons["settings.dataAndSync.clearCache"]
-        scrollUntilHittable(clearCache, in: app, maxSwipes: 4)
-        XCTAssertTrue(clearCache.waitForExistence(timeout: 5), "数据与备份页应有清理缓存按钮")
-        clearCache.tap()
-        XCTAssertTrue(app.alerts["清理缓存"].waitForExistence(timeout: 5), "清理缓存应显示确认弹窗")
-        addScreenshot(named: "ui-freeze-settings-controls-06-clear-cache-alert")
-        app.alerts["清理缓存"].buttons["取消"].tap()
+        assertUnsafeCacheClearIsAbsent(in: app)
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
         waitForAnyElement("settings.root", in: app)
@@ -1162,6 +1168,20 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(alert.waitForExistence(timeout: 5), "通知权限拒绝时应显示 app-owned alert")
         waitForUIAnimation(seconds: 0.5)
         addScreenshot(named: "ui-freeze-settings-notifications-01-permission-denied")
+    }
+
+    /// Data safety: whole-process temporary/cache deletion must not be user reachable.
+    func testDataAndSyncDoesNotExposeUnsafeCacheClear() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments()
+        app.launch()
+
+        openDataAndSync(in: app)
+        let backup = app.buttons["settings.dataAndSync.backup"]
+        let restore = app.buttons["settings.dataAndSync.restore"]
+        XCTAssertTrue(backup.waitForExistence(timeout: 5), "数据与备份页应保留备份按钮")
+        XCTAssertTrue(restore.waitForExistence(timeout: 5), "数据与备份页应保留恢复按钮")
+        assertUnsafeCacheClearIsAbsent(in: app)
     }
 
     /// UI-freeze evidence: capture Data & Sync app-owned progress rows without opening system sheets.
