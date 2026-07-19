@@ -16,29 +16,6 @@ import UIKit
 @testable import SnapDrillData
 @testable import SnapDrillCore
 
-// MARK: - Mock DraftService
-
-@MainActor
-final class MockDraftService: CaptureDraftServiceProtocol {
-    var hasDraft: Bool = false
-    var savedDraft: CaptureDraftService.Draft?
-    var clearDraftCallCount = 0
-
-    func saveDraft(image: UIImage?, content: String, category: String?) async {
-        hasDraft = true
-    }
-
-    func loadDraft() -> CaptureDraftService.Draft? {
-        savedDraft
-    }
-
-    func clearDraft() {
-        clearDraftCallCount += 1
-        hasDraft = false
-        savedDraft = nil
-    }
-}
-
 @Suite("DashboardViewModel 统计与草稿测试", .serialized)
 @MainActor
 final class DashboardViewModelTests {
@@ -55,11 +32,22 @@ final class DashboardViewModelTests {
         repos = RepositoryContainer(modelContext: container.mainContext)
     }
 
+    private func makeViewModel(
+        draftService: CaptureDraftServiceProtocol = CaptureDraftServiceMock(),
+        deletionScheduler: DeletionScheduler = DeletionScheduler()
+    ) -> DashboardViewModel {
+        DashboardViewModel(
+            repositories: repos,
+            draftService: draftService,
+            deletionScheduler: deletionScheduler
+        )
+    }
+
     // MARK: - loadData
 
     @Test("loadData 空数据库返回全零统计")
     func loadData_empty_allZero() {
-        let vm = DashboardViewModel(repositories: repos)
+        let vm = makeViewModel()
         vm.loadData()
 
         #expect(vm.todayItemsCount == 0)
@@ -77,7 +65,7 @@ final class DashboardViewModelTests {
         repos.archive.insert(item2)
         try repos.archive.saveContext()
 
-        let vm = DashboardViewModel(repositories: repos)
+        let vm = makeViewModel()
         vm.loadData()
 
         #expect(vm.totalCount == 2)
@@ -99,7 +87,7 @@ final class DashboardViewModelTests {
 
         try repos.archive.saveContext()
 
-        let vm = DashboardViewModel(repositories: repos)
+        let vm = makeViewModel()
         vm.loadData()
 
         #expect(vm.totalCount == 2)
@@ -111,9 +99,15 @@ final class DashboardViewModelTests {
 
     @Test("checkDraftAndCapture 有草稿时显示弹窗")
     func checkDraftAndCapture_withDraft_showsAlert() {
-        let draftService = MockDraftService()
-        draftService.hasDraft = true
-        let vm = DashboardViewModel(repositories: repos, draftService: draftService)
+        let draftService = CaptureDraftServiceMock(
+            initialDraft: CaptureDraft(
+                image: nil,
+                content: "草稿",
+                date: Date(),
+                category: nil
+            )
+        )
+        let vm = makeViewModel(draftService: draftService)
         let router = DashboardRouter()
 
         vm.checkDraftAndCapture(router: router)
@@ -124,9 +118,8 @@ final class DashboardViewModelTests {
 
     @Test("checkDraftAndCapture 无草稿时导航到采集")
     func checkDraftAndCapture_noDraft_navigates() {
-        let draftService = MockDraftService()
-        draftService.hasDraft = false
-        let vm = DashboardViewModel(repositories: repos, draftService: draftService)
+        let draftService = CaptureDraftServiceMock()
+        let vm = makeViewModel(draftService: draftService)
         let router = DashboardRouter()
 
         var navigated = false
@@ -139,21 +132,56 @@ final class DashboardViewModelTests {
         vm.cancelTasks()
     }
 
+    @Test("已入库但待物理清理的草稿不显示恢复弹窗")
+    func checkDraftAndCapture_committedPendingRetirement_navigates() {
+        let draft = CaptureDraft(
+            image: nil,
+            content: "已提交",
+            date: Date(),
+            category: nil
+        )
+        let draftService = CaptureDraftServiceMock(
+            initialDraft: draft,
+            pendingSettlementToken: draft.token
+        )
+        draftService.discardError = .discardFailed
+        #expect(throws: CaptureDraftServiceError.discardFailed) {
+            try draftService.reconcileCommittedDraft(draft.token)
+        }
+        let vm = makeViewModel(draftService: draftService)
+        let router = DashboardRouter()
+        var navigated = false
+        router.onNavigateToCapture = { _ in navigated = true }
+
+        vm.checkDraftAndCapture(router: router)
+
+        #expect(vm.isShowingDraftAlert == false)
+        #expect(navigated)
+        vm.cancelTasks()
+    }
+
     // MARK: - startNewCapture
 
     @Test("startNewCapture 清除草稿并导航")
     func startNewCapture_clearsDraftAndNavigates() {
-        let draftService = MockDraftService()
-        draftService.hasDraft = true
-        let vm = DashboardViewModel(repositories: repos, draftService: draftService)
+        let draftService = CaptureDraftServiceMock(
+            initialDraft: CaptureDraft(
+                image: nil,
+                content: "草稿",
+                date: Date(),
+                category: nil
+            )
+        )
+        let vm = makeViewModel(draftService: draftService)
         let router = DashboardRouter()
 
         var navigated = false
         router.onNavigateToCapture = { _ in navigated = true }
 
+        vm.checkDraftAndCapture(router: router)
         vm.startNewCapture(router: router)
 
-        #expect(draftService.clearDraftCallCount == 1)
+        #expect(draftService.clearCallCount == 1)
         #expect(navigated == true)
         vm.cancelTasks()
     }
@@ -162,40 +190,36 @@ final class DashboardViewModelTests {
 
     @Test("restoreDraft 有草稿时带草稿导航")
     func restoreDraft_withDraft_navigatesWithDraft() {
-        let draftService = MockDraftService()
         let draft = CaptureDraftService.Draft(image: createTestImage(), content: "草稿", date: Date(), category: "数学")
-        draftService.savedDraft = draft
-        draftService.hasDraft = true
-        let vm = DashboardViewModel(repositories: repos, draftService: draftService)
+        let draftService = CaptureDraftServiceMock(initialDraft: draft)
+        let vm = makeViewModel(draftService: draftService)
         let router = DashboardRouter()
 
         var receivedDraft: CaptureDraftService.Draft?
         router.onNavigateToCapture = { draft in receivedDraft = draft }
 
+        vm.checkDraftAndCapture(router: router)
         vm.restoreDraft(router: router)
 
         #expect(receivedDraft != nil)
         #expect(receivedDraft?.content == "草稿")
-        #expect(draftService.clearDraftCallCount == 0)
+        #expect(draftService.clearCallCount == 0)
         vm.cancelTasks()
     }
 
-    @Test("restoreDraft 无草稿时直接导航")
-    func restoreDraft_noDraft_navigatesWithoutDraft() {
-        let draftService = MockDraftService()
-        draftService.savedDraft = nil
-        let vm = DashboardViewModel(repositories: repos, draftService: draftService)
+    @Test("restoreDraft 未缓存可恢复状态时保持提示且不导航")
+    func restoreDraft_withoutRecoverableState_keepsAlert() {
+        let draftService = CaptureDraftServiceMock()
+        let vm = makeViewModel(draftService: draftService)
         let router = DashboardRouter()
 
         var navigated = false
-        router.onNavigateToCapture = { draft in
-            #expect(draft == nil)
-            navigated = true
-        }
+        router.onNavigateToCapture = { _ in navigated = true }
 
         vm.restoreDraft(router: router)
 
-        #expect(navigated == true)
+        #expect(navigated == false)
+        #expect(vm.isShowingDraftAlert == true)
         vm.cancelTasks()
     }
 
@@ -203,7 +227,7 @@ final class DashboardViewModelTests {
 
     @Test("cancelTasks 不崩溃")
     func cancelTasks_noCrash() {
-        let vm = DashboardViewModel(repositories: repos)
+        let vm = makeViewModel()
         vm.cancelTasks()
     }
 
@@ -215,7 +239,7 @@ final class DashboardViewModelTests {
         repos.archive.insert(item)
         try repos.archive.saveContext()
 
-        let vm = DashboardViewModel(repositories: repos)
+        let vm = makeViewModel()
         #expect(vm.totalCount == 0)
 
         // 让 for-await 循环启动（短暂让出 MainActor）
@@ -239,11 +263,7 @@ final class DashboardViewModelTests {
 
         let scheduler = DeletionScheduler()
         scheduler.scheduleDeletion(ids: [pending.id]) { _ in }  // 模拟 5 秒撤销窗口
-        let vm = DashboardViewModel(
-            repositories: repos,
-            draftService: MockDraftService(),
-            deletionScheduler: scheduler
-        )
+        let vm = makeViewModel(deletionScheduler: scheduler)
         vm.loadData()
 
         #expect(vm.dueCount == 1)    // 排除 pending 后只剩 1

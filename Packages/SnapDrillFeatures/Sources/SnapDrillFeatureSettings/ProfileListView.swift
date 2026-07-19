@@ -22,8 +22,16 @@ struct ProfileListView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var viewModel: ProfileListViewModel
 
-    init(profileManager: ProfileManager) {
-        _viewModel = State(initialValue: ProfileListViewModel(profileManager: profileManager))
+    init(
+        profileManager: ProfileManager,
+        draftService: CaptureDraftServiceProtocol
+    ) {
+        _viewModel = State(
+            initialValue: ProfileListViewModel(
+                profileManager: profileManager,
+                draftService: draftService
+            )
+        )
     }
 
     var body: some View {

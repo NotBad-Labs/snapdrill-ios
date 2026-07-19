@@ -30,6 +30,11 @@ nonisolated extension L10n {
         public static let maintenanceTitle = NSLocalizedString("app_root.maintenance_title", value: "测试版维护中", comment: "维护页标题")
         public static let maintenanceDescription = NSLocalizedString("app_root.maintenance_description", value: "当前测试版本正在进行紧急维护或已失效，请稍后再试或前往 TestFlight 下载最新版本。", comment: "维护页描述")
         public static let checkUpdate = NSLocalizedString("app_root.check_update", value: "检查更新", comment: "检查更新按钮")
+        public static let shareImportFailed = NSLocalizedString(
+            "app_root.share_import_failed",
+            value: "无法导入分享的图片，请重新分享后再试。",
+            comment: "Share Extension 图片导入失败提示"
+        )
         public static let storeRecoveryNavigationTitle = NSLocalizedString("app_root.store_recovery.navigation_title", value: "数据恢复", comment: "损坏库恢复页导航标题")
         public static let storeRecoveryTitle = NSLocalizedString("app_root.store_recovery.title", value: "需要确认数据恢复方式", comment: "损坏库恢复页标题")
         public static let storeRecoveryDescription = NSLocalizedString(

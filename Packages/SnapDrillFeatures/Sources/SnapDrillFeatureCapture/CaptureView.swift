@@ -7,7 +7,6 @@
 //
 //  采集功能主界面，提供多种资料录入入口
 //
-
 import SwiftUI
 import Observation
 import SnapDrillCore
@@ -18,18 +17,15 @@ import UniformTypeIdentifiers
 #if DEBUG
 import UIKit
 #endif
-
 /// 采集功能界面，提供拍摄、导入与手动录入入口。
 public struct CaptureView: View {
-    
     // MARK: - Properties
-    
     @Bindable private var router: CaptureRouter
     @Environment(\.repositories) private var repositories
     @Environment(\.profileManager) private var profileManager
     @Environment(\.analyticsService) private var analyticsService
+    @Environment(\.services) private var services
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    
     @State private var viewModel = CaptureViewModel()
     /// 连续裁剪模式：是否正在显示裁剪器
     @State private var isShowingContinuousCropper = false
@@ -39,7 +35,6 @@ public struct CaptureView: View {
     @State private var didOpenUITestPagePicker = false
 #endif
     private let tabBarBreathingRoom: CGFloat = 180
-    
     /// 初始化采集视图
     /// - Parameter router: 注入的路由器
     public init(router: CaptureRouter) {
@@ -53,9 +48,8 @@ public struct CaptureView: View {
             [GridItem(.flexible()), GridItem(.flexible())]
         }
     }
-    
+
     // MARK: - Body
-    
     /// 采集功能界面的视图层次
     public var body: some View {
         NavigationStack(path: $router.path) {
@@ -65,11 +59,9 @@ public struct CaptureView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
-                        
                         Text(L10n.Capture.entryMethodTitle)
                             .font(.headline)
                             .padding(.horizontal)
-                        
                         GlassEffectContainer {
                         LazyVGrid(columns: methodColumns, spacing: 16) {
                             // 1. 智能扫描（先检查权限再打开相机）
@@ -122,7 +114,13 @@ public struct CaptureView: View {
                                 isDisabled: isInteractionDisabled
                             ) {
                                 // 以空状态导航到结果编辑页
-                                router.push(.scannerResult(content: "", image: nil))
+                                router.push(
+                                    .scannerResult(
+                                        content: "",
+                                        image: nil,
+                                        draftToken: nil
+                                    )
+                                )
                             }
                             
                             // 4. 剪贴板粘贴
@@ -172,7 +170,6 @@ public struct CaptureView: View {
                                 viewModel.isShowingPDFPicker = true
                                 activeMethod = nil
                             }
-
                         }
                         .padding(.horizontal)
                         } // GlassEffectContainer
@@ -183,7 +180,6 @@ public struct CaptureView: View {
                     .padding(.bottom, tabBarBreathingRoom)
                 }
                 .scrollIndicators(.hidden)
-                
                 // 加载中遮罩
                 if viewModel.isProcessing {
                     Color.black.opacity(0.4)
@@ -210,23 +206,34 @@ public struct CaptureView: View {
                 switch destination {
                 case .placeholder:
                     ContentUnavailableView(L10n.Common.comingSoon, systemImage: "clock")
-                case .scannerResult(let content, let image):
+                case .scannerResult(let content, let image, let draftToken):
                     let resultViewModel = CaptureResultViewModel(
                         content: content,
                         image: image,
+                        draftToken: draftToken,
                         repositories: repositories,
                         ocrService: viewModel.ocrService,
                         analyticsService: analyticsService,
                         imageStorage: profileManager.activeImageStorage,
-                        router: router
+                        router: router,
+                        draftService: services.captureDraft,
+                        activityTracker: services.activityTracker
                     )
                     CaptureResultView(viewModel: resultViewModel)
 
                 case .pdfPagePicker:
-                    PDFPagePickerView(router: router, ocrService: viewModel.ocrService)
+                    PDFPagePickerView(
+                        router: router,
+                        ocrService: viewModel.ocrService,
+                        draftService: services.captureDraft
+                    )
 
                 case .scanPagePicker:
-                    ScanPagePickerView(router: router, ocrService: viewModel.ocrService)
+                    ScanPagePickerView(
+                        router: router,
+                        ocrService: viewModel.ocrService,
+                        draftService: services.captureDraft
+                    )
                 }
             }
             // 扫描器全屏覆盖
@@ -234,7 +241,7 @@ public struct CaptureView: View {
                 SmartCameraView(
                     onCapture: { image in
                         viewModel.isShowingScanner = false
-                        viewModel.processScannedImage(image, router: router)
+                        viewModel.processCameraImage(image, router: router)
                     },
                     onCancel: {
                         viewModel.isShowingScanner = false
@@ -280,6 +287,8 @@ public struct CaptureView: View {
                 }
             }
             .onAppear {
+                viewModel.configureDraftService(services.captureDraft)
+                CaptureDraftReconciler.reconcile(draftService: services.captureDraft, repositories: repositories)
                 viewModel.checkDraftOnAppear(router: router)
 #if DEBUG
                 openUITestImageResultIfNeeded()
@@ -313,7 +322,7 @@ public struct CaptureView: View {
                         onCrop: { croppedImage in
                             isShowingContinuousCropper = false
                             // 对裁剪结果做 OCR 后推入编辑页
-                            viewModel.processScannedImage(croppedImage, router: router)
+                            viewModel.processAlbumImage(croppedImage, router: router)
                         },
                         onCancel: {
                             // 用户点取消 = 结束连续裁剪模式
@@ -344,15 +353,23 @@ public struct CaptureView: View {
                     }
                 }
             }
-            .alert(L10n.Capture.draftAlertTitle, isPresented: $viewModel.showDraftAlert) {
-                Button(L10n.Capture.draftContinue) {
-                    viewModel.startEditingDraft(router: router)
-                }
-                Button(L10n.Common.discard, role: .destructive) {
-                    viewModel.clearDraft()
-                }
-            } message: {
-                Text(viewModel.draftAlertMessage)
+            .sheet(isPresented: $viewModel.showDraftAlert) {
+                CaptureDraftRecoverySheet(
+                    title: viewModel.draftAlertTitle,
+                    message: viewModel.draftAlertMessage,
+                    canRestore: viewModel.canRestoreDraft,
+                    onContinue: {
+                        viewModel.startEditingDraft(router: router)
+                        viewModel.showDraftAlert = false
+                    },
+                    onDiscard: {
+                        viewModel.clearDraft()
+                        viewModel.showDraftAlert = false
+                    }
+                )
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+                .interactiveDismissDisabled()
             }
             .fileImporter(
                 isPresented: $viewModel.isShowingPDFPicker,
@@ -407,7 +424,9 @@ public struct CaptureView: View {
             }
         }
     }
+}
 
+private extension CaptureView {
     private var isInteractionDisabled: Bool {
         viewModel.isProcessing || activeMethod != nil
     }
@@ -435,7 +454,8 @@ public struct CaptureView: View {
         router.push(
             .scannerResult(
                 content: "Capture image fixture text",
-                image: image
+                image: image,
+                draftToken: nil
             )
         )
     }
@@ -461,7 +481,6 @@ public struct CaptureView: View {
     }
 #endif
 }
-
 private enum CaptureMethod {
     case camera
     case clipboard

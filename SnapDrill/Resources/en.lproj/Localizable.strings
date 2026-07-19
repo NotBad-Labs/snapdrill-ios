@@ -15,6 +15,7 @@
 "app_root.maintenance_title" = "Under Maintenance";
 "app_root.maintenance_description" = "This beta version is undergoing maintenance or has expired. Please try again later or download the latest version from TestFlight.";
 "app_root.check_update" = "Check for Update";
+"app_root.share_import_failed" = "Unable to import the shared image. Share it again and retry.";
 
 // MARK: - Common
 

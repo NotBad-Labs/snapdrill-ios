@@ -31,7 +31,7 @@
 
 ### 服务（`Service/` 子目录）
 
-- ``CaptureDraftService`` — 跨域草稿缓存（Dashboard 检测 / Capture 消费），`@MainActor` 单例
+- ``CaptureDraftService`` — Profile-free 崩溃一致草稿 authority；由 `ServiceContainer` 注入给 Dashboard / Capture，使用 durable envelope、目录同步、fail-closed settlement evidence 与 generation CAS
 - ``PDFExportService`` — 从 `[any PDFExportable]` 生成 PDF Data
 - ``PDFExportOptions`` — PDF 导出配置（去答案、留白答题区、页眉页码等）
 - ``PrivacyConsentService`` — 隐私授权服务（ATT 已移除，ADR-002）

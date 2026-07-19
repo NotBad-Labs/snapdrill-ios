@@ -20,7 +20,7 @@ public enum CaptureDestination: Hashable {
     /// 占位页面
     case placeholder
     /// 扫描结果预览/编辑页面 (含图片)
-    case scannerResult(content: String, image: UIImage?)
+    case scannerResult(content: String, image: UIImage?, draftToken: CaptureDraftToken?)
     /// PDF 页面选择器（文档存储在 CaptureRouter.pdfDocument 中）
     case pdfPagePicker
     /// 文档扫描页面选择器（扫描页存储在 CaptureRouter.scannedPages 中）
@@ -79,7 +79,13 @@ public final class CaptureRouter: @MainActor FeatureRouter {
     public func restoreDraft(_ draft: CaptureDraftService.Draft) {
         shouldSuppressNextDraftPrompt = true
         path = NavigationPath()
-        path.append(CaptureDestination.scannerResult(content: draft.content, image: draft.image))
+        path.append(
+            CaptureDestination.scannerResult(
+                content: draft.content,
+                image: draft.image,
+                draftToken: draft.token
+            )
+        )
     }
 
     /// 保存成功后的退栈导航（导航策略从 CaptureResultViewModel 迁入，归 router 自身）

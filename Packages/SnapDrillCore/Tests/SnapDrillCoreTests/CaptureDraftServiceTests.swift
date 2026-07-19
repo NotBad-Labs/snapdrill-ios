@@ -1,184 +1,401 @@
-//
-//  CaptureDraftServiceTests.swift
-//  SnapDrillCoreTests
-//
-//  Created by NotBad Labs.
-//  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
-//
-//  CaptureDraftService 草稿生命周期测试（UIKit 平台专用）。
-
+import Darwin
+import Foundation
 import Testing
 import UIKit
 @testable import SnapDrillCore
 
-@Suite("CaptureDraftService 单元测试", .serialized)
+@Suite("Capture draft crash consistency", .serialized)
 struct CaptureDraftServiceTests {
+    @Test("one envelope round-trips across a fresh service instance")
+    func roundTripAcrossRelaunch() async throws {
+        let fixture = try CaptureDraftTestFixture()
+        defer { fixture.cleanup() }
+        let token = try await fixture.service.saveDraft(
+            image: testImage(.red),
+            content: "OCR text",
+            category: "Inbox",
+            captureID: nil,
+            expected: nil
+        )
 
-    private let service = CaptureDraftService.shared
-
-    // 每个测试前后清理，避免状态污染
-    private func cleanup() {
-        service.clearDraft()
-    }
-
-    // MARK: - 基础生命周期
-
-    @Test("初始状态或清理后 hasDraft 为 false")
-    func initialState_noDraft() {
-        cleanup()
-        #expect(service.hasDraft == false)
-        #expect(service.loadDraft() == nil)
-    }
-
-    @Test("saveDraft 后 hasDraft 为 true")
-    func saveDraft_setsHasDraft() async {
-        cleanup()
-        let image = createTestImage()
-        await service.saveDraft(image: image, content: "测试内容")
-
-        #expect(service.hasDraft == true)
-        cleanup()
-    }
-
-    @Test("saveDraft → loadDraft 内容完整")
-    func saveDraft_thenLoad_contentPreserved() async {
-        cleanup()
-        let image = createTestImage()
-        let content = "OCR 识别文本"
-        await service.saveDraft(image: image, content: content)
-
-        let draft = service.loadDraft()
-        #expect(draft != nil)
-        #expect(draft?.content == content)
-        #expect(draft?.image?.size.width ?? 0 > 0)
-        cleanup()
-    }
-
-    @Test("saveDraft → loadDraft 时间戳合理")
-    func saveDraft_thenLoad_timestampReasonable() async {
-        cleanup()
-        let beforeSave = Date()
-        await service.saveDraft(image: createTestImage(), content: "")
-        let afterSave = Date()
-
-        let draft = service.loadDraft()
-        #expect(draft != nil)
-        if let date = draft?.date {
-            #expect(date >= beforeSave.addingTimeInterval(-1))
-            #expect(date <= afterSave.addingTimeInterval(1))
+        let reopened = try fixture.makeService()
+        guard case .recoverable(let draft) = reopened.state() else {
+            Issue.record("Expected a recoverable draft after reopening")
+            return
         }
-        cleanup()
+        #expect(draft.token == token)
+        #expect(draft.content == "OCR text")
+        #expect(draft.category == "Inbox")
+        #expect(draft.image != nil)
     }
 
-    @Test("clearDraft 后 hasDraft 恢复 false")
-    func clearDraft_resetsState() async {
-        cleanup()
-        await service.saveDraft(image: createTestImage(), content: "临时")
-        #expect(service.hasDraft == true)
+    @Test("rename failure preserves the prior committed generation byte-for-byte")
+    func renameFailurePreservesOldGeneration() async throws {
+        let fixture = try CaptureDraftTestFixture()
+        defer { fixture.cleanup() }
+        let old = try await fixture.service.saveDraft(
+            image: testImage(.red),
+            content: "old",
+            category: nil,
+            captureID: nil,
+            expected: nil
+        )
+        let oldBytes = try Data(contentsOf: fixture.store.currentURL)
+        let failingService = try fixture.makeService(
+            publisher: Self.renameFailingPublisher()
+        )
 
-        service.clearDraft()
-        #expect(service.hasDraft == false)
-        #expect(service.loadDraft() == nil)
+        await #expect(throws: CaptureDraftServiceError.persistenceFailed) {
+            try await failingService.saveDraft(
+                image: testImage(.blue),
+                content: "new",
+                category: nil,
+                captureID: old.captureID,
+                expected: old
+            )
+        }
+
+        #expect(try Data(contentsOf: fixture.store.currentURL) == oldBytes)
+        guard case .recoverable(let reopened) = try fixture.makeService().state() else {
+            Issue.record("Old generation should remain recoverable")
+            return
+        }
+        #expect(reopened.token == old)
+        #expect(reopened.content == "old")
     }
 
-    @Test("saveDraft 空字符串 content 可正常存取")
-    func saveDraft_emptyContent_roundTrip() async {
-        cleanup()
-        await service.saveDraft(image: createTestImage(), content: "")
+    @Test("post-rename sync failure needs an exact durable retry before success")
+    func uncertainPublishRequiresExactDurableRetry() async throws {
+        let fixture = try CaptureDraftTestFixture()
+        defer { fixture.cleanup() }
+        let old = try await fixture.service.saveDraft(
+            image: testImage(.red),
+            content: "old",
+            category: nil,
+            captureID: nil,
+            expected: nil
+        )
+        let uncertainService = try fixture.makeService(
+            publisher: postRenameSyncFailingOncePublisher()
+        )
 
-        let draft = service.loadDraft()
-        #expect(draft?.content == "")
-        cleanup()
+        await #expect(throws: CaptureDraftServiceError.publicationOutcomeUncertain) {
+            try await uncertainService.saveDraft(
+                image: testImage(.blue),
+                content: "new",
+                category: nil,
+                captureID: old.captureID,
+                expected: old
+            )
+        }
+
+        guard case .recoverable(let reopened) = try fixture.makeService().state() else {
+            Issue.record("Atomic rename should expose the uncertain generation")
+            return
+        }
+        let new = try await uncertainService.saveDraft(
+            image: testImage(.blue),
+            content: "new",
+            category: nil,
+            captureID: old.captureID,
+            expected: old
+        )
+        #expect(reopened.token == new)
+        #expect(reopened.content == "new")
     }
 
-    @Test("连续 saveDraft 覆盖旧草稿")
-    func saveDraft_twice_overwritesPrevious() async {
-        cleanup()
-        await service.saveDraft(image: createTestImage(), content: "第一次")
-        await service.saveDraft(image: createTestImage(), content: "第二次")
-
-        let draft = service.loadDraft()
-        #expect(draft?.content == "第二次")
-        cleanup()
-    }
-
-    @Test("saveDraft 含 Unicode 特殊字符")
-    func saveDraft_unicodeContent_preserved() async {
-        cleanup()
-        let content = "∫₀^∞ e⁻ˣ dx = 1\n👨‍👩‍👧‍👦"
-        await service.saveDraft(image: createTestImage(), content: content)
-
-        let draft = service.loadDraft()
-        #expect(draft?.content == content)
-        cleanup()
-    }
-
-    // MARK: - 纯文字草稿
-
-    @Test("纯文字草稿（无图片）round-trip 正常")
-    func saveDraft_textOnly_roundTrip() async {
-        cleanup()
-        await service.saveDraft(image: nil, content: "手动输入的文字内容")
-
-        let draft = service.loadDraft()
-        #expect(draft != nil)
-        #expect(draft?.content == "手动输入的文字内容")
-        #expect(draft?.image == nil)
-        cleanup()
-    }
-
-    @Test("纯文字草稿覆盖带图草稿后，图片文件被清理")
-    func saveDraft_textOverwritesImage_imageFileRemoved() async {
-        cleanup()
-        // 先保存带图草稿
-        await service.saveDraft(image: createTestImage(), content: "有图")
-        #expect(service.loadDraft()?.image != nil)
-
-        // 再保存纯文字草稿，应覆盖图片
-        await service.saveDraft(image: nil, content: "纯文字")
-        let draft = service.loadDraft()
-        #expect(draft?.content == "纯文字")
-        #expect(draft?.image == nil)
-        cleanup()
-    }
-
-    // MARK: - 数据隔离：草稿图按 Profile 隔离（防敏感数据串档，撞儿童隐私隔离根基）
-
-    @Test("草稿图按 Profile 隔离：切换档案后读不到另一档案的草稿图（防串档）")
-    func draftImage_isolatedByProfile() async {
-        let originalProfile = UserDefaults.standard.string(forKey: UDKey.activeProfileId)
-        defer {
-            // 清理两个测试档案的草稿图 + 恢复原 activeProfileId
-            UserDefaults.standard.set("profile-iso-A", forKey: UDKey.activeProfileId)
-            service.clearDraft()
-            UserDefaults.standard.set("profile-iso-B", forKey: UDKey.activeProfileId)
-            service.clearDraft()
-            if let originalProfile {
-                UserDefaults.standard.set(originalProfile, forKey: UDKey.activeProfileId)
-            } else {
-                UserDefaults.standard.removeObject(forKey: UDKey.activeProfileId)
+    @Test("transient post-publish read failure returns the exact generation on retry")
+    func transientVerificationReadFailureReconcilesExactRetry() async throws {
+        let fixture = try CaptureDraftTestFixture()
+        defer { fixture.cleanup() }
+        var files = CaptureDraftFileOperations.live
+        let liveRead = files.read
+        var shouldFailRead = true
+        files.read = { url in
+            if shouldFailRead {
+                shouldFailRead = false
+                throw CocoaError(.fileReadUnknown)
             }
+            return try liveRead(url)
+        }
+        let service = try fixture.makeService(files: files)
+
+        await #expect(throws: CaptureDraftServiceError.publicationOutcomeUncertain) {
+            try await service.saveDraft(
+                image: nil,
+                content: "uncertain",
+                category: nil,
+                captureID: nil,
+                expected: nil
+            )
+        }
+        let committedBytes = try Data(contentsOf: fixture.store.currentURL)
+        guard case .recoverable(let reopened) = try fixture.makeService().state() else {
+            Issue.record("Atomic publish installed a generation despite transient verification failure")
+            return
         }
 
-        // 档案 A 存带图草稿
-        UserDefaults.standard.set("profile-iso-A", forKey: UDKey.activeProfileId)
-        await service.saveDraft(image: createTestImage(), content: "A 的题")
-        #expect(service.loadDraft()?.image != nil, "档案 A 应能读回自己的草稿图")
+        let reconciled = try await service.saveDraft(
+            image: nil,
+            content: "uncertain",
+            category: nil,
+            captureID: nil,
+            expected: nil
+        )
 
-        // 切到档案 B：草稿图路径按 profileId 隔离，B 读不到 A 的图
-        UserDefaults.standard.set("profile-iso-B", forKey: UDKey.activeProfileId)
-        #expect(service.loadDraft()?.image == nil, "切换档案后不应读到另一档案的草稿图（防敏感数据串档）")
+        #expect(reconciled == reopened.token)
+        #expect(try Data(contentsOf: fixture.store.currentURL) == committedBytes)
     }
 
-    // MARK: - Private Helpers
+    @Test("image encoding failure cannot destroy the prior generation")
+    func imageEncodingFailurePreservesOldGeneration() async throws {
+        let fixture = try CaptureDraftTestFixture()
+        defer { fixture.cleanup() }
+        let old = try await fixture.service.saveDraft(
+            image: testImage(.red),
+            content: "old",
+            category: nil,
+            captureID: nil,
+            expected: nil
+        )
+        let oldBytes = try Data(contentsOf: fixture.store.currentURL)
 
-    private func createTestImage() -> UIImage {
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = 1.0
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10), format: format)
-        return renderer.image { ctx in
-            UIColor.red.setFill()
-            ctx.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
+        await #expect(throws: CaptureDraftServiceError.imageEncodingFailed) {
+            try await fixture.service.saveDraft(
+                image: UIImage(),
+                content: "new",
+                category: nil,
+                captureID: old.captureID,
+                expected: old
+            )
+        }
+        #expect(try Data(contentsOf: fixture.store.currentURL) == oldBytes)
+    }
+
+    @Test("late enrichment and discard cannot mutate a newer generation")
+    func staleMutationsAreRejected() async throws {
+        let fixture = try CaptureDraftTestFixture()
+        defer { fixture.cleanup() }
+        let first = try await fixture.service.saveDraft(
+            image: testImage(.red),
+            content: "",
+            category: nil,
+            captureID: nil,
+            expected: nil
+        )
+        let second = try await fixture.service.saveDraft(
+            image: testImage(.red),
+            content: "enriched",
+            category: nil,
+            captureID: first.captureID,
+            expected: first
+        )
+        let committedBytes = try Data(contentsOf: fixture.store.currentURL)
+
+        await #expect(throws: CaptureDraftServiceError.staleGeneration) {
+            try await fixture.service.saveDraft(
+                image: testImage(.blue),
+                content: "late",
+                category: nil,
+                captureID: first.captureID,
+                expected: first
+            )
+        }
+        #expect(throws: CaptureDraftServiceError.staleGeneration) {
+            try fixture.service.discard(.generation(first))
+        }
+        #expect(try Data(contentsOf: fixture.store.currentURL) == committedBytes)
+        guard case .recoverable(let current) = fixture.service.state() else {
+            Issue.record("Newer generation should remain")
+            return
+        }
+        #expect(current.token == second)
+    }
+
+    @Test("settlement fences late writes and abort reopens admission")
+    func settlementFenceAndAbort() async throws {
+        let fixture = try CaptureDraftTestFixture()
+        defer { fixture.cleanup() }
+        let token = try await fixture.service.saveDraft(
+            image: testImage(.red),
+            content: "draft",
+            category: nil,
+            captureID: nil,
+            expected: nil
+        )
+        let settlement = try await fixture.service.beginSettlement(
+            captureID: token.captureID,
+            expected: token
+        )
+
+        await #expect(throws: CaptureDraftServiceError.admissionClosed) {
+            try await fixture.service.saveDraft(
+                image: testImage(.blue),
+                content: "late",
+                category: nil,
+                captureID: token.captureID,
+                expected: token
+            )
+        }
+
+        try fixture.service.abortSettlement(settlement)
+        #expect(try fixture.makeService().pendingSettlementToken() == nil)
+        let enriched = try await fixture.service.saveDraft(
+            image: testImage(.blue),
+            content: "retry",
+            category: nil,
+            captureID: token.captureID,
+            expected: token
+        )
+        #expect(enriched.captureID == token.captureID)
+    }
+
+    @Test("committed settlement conditionally retires once and blocks resurrection")
+    func committedSettlementRetiresAndStaysClosed() async throws {
+        let fixture = try CaptureDraftTestFixture()
+        defer { fixture.cleanup() }
+        let token = try await fixture.service.saveDraft(
+            image: testImage(.red),
+            content: "draft",
+            category: nil,
+            captureID: nil,
+            expected: nil
+        )
+        let settlement = try await fixture.service.beginSettlement(
+            captureID: token.captureID,
+            expected: token
+        )
+        try fixture.service.retireCommittedDraft(settlement)
+        guard case .none = fixture.service.state() else {
+            Issue.record("Committed generation should be retired")
+            return
+        }
+
+        await #expect(throws: CaptureDraftServiceError.admissionClosed) {
+            try await fixture.service.saveDraft(
+                image: testImage(.blue),
+                content: "late",
+                category: nil,
+                captureID: token.captureID,
+                expected: nil
+            )
         }
     }
+
+    @Test("mock settlement enforces production capture identity and empty-state rules")
+    func mockSettlementMatchesProductionGuards() async throws {
+        let draft = CaptureDraft(
+            image: nil,
+            content: "draft",
+            date: Date(),
+            category: nil
+        )
+        let occupied = CaptureDraftServiceMock(initialDraft: draft)
+
+        await #expect(throws: CaptureDraftServiceError.staleGeneration) {
+            try await occupied.beginSettlement(
+                captureID: UUID(),
+                expected: draft.token
+            )
+        }
+        await #expect(throws: CaptureDraftServiceError.draftAlreadyExists) {
+            try await occupied.beginSettlement(
+                captureID: draft.token.captureID,
+                expected: nil
+            )
+        }
+
+        let empty = CaptureDraftServiceMock()
+        _ = try await empty.beginSettlement(
+            captureID: UUID(),
+            expected: nil
+        )
+    }
+
+    @Test(
+        "expiry boundary is recoverable before seven days and absent at or after",
+        arguments: [
+            -0.001,
+            0,
+            0.001
+        ]
+    )
+    func exactExpiryBoundary(offset: TimeInterval) async throws {
+        let savedAt = Date(timeIntervalSince1970: 1_800_000_000)
+        var observedNow = savedAt
+        let fixture = try CaptureDraftTestFixture(now: { observedNow })
+        defer { fixture.cleanup() }
+        _ = try await fixture.service.saveDraft(
+            image: testImage(.red),
+            content: "",
+            category: nil,
+            captureID: nil,
+            expected: nil
+        )
+        observedNow = savedAt.addingTimeInterval(7 * 24 * 60 * 60 + offset)
+
+        if offset < 0 {
+            guard case .recoverable = fixture.service.state() else {
+                Issue.record("Draft should remain before the exact deadline")
+                return
+            }
+        } else {
+            guard case .none = fixture.service.state() else {
+                Issue.record("Draft should expire at the exact deadline")
+                return
+            }
+            #expect(FileManager.default.fileExists(atPath: fixture.store.currentURL.path) == false)
+        }
+    }
+
+    @Test(
+        "corrupt envelopes produce typed unrecoverable state",
+        arguments: Corruption.allCases
+    )
+    func corruptionMatrix(corruption: Corruption) async throws {
+        let fixture = try CaptureDraftTestFixture()
+        defer { fixture.cleanup() }
+        _ = try await fixture.service.saveDraft(
+            image: testImage(.red),
+            content: "valid",
+            category: nil,
+            captureID: nil,
+            expected: nil
+        )
+        let original = try Data(contentsOf: fixture.store.currentURL)
+        try corruption.apply(to: fixture.store.currentURL, original: original)
+
+        guard case .unrecoverable(let failure) = try fixture.makeService().state() else {
+            Issue.record("Corrupt bytes must not enter the editor")
+            return
+        }
+        #expect(failure.reason == corruption.expectedReason)
+    }
+
+    @Test("unrecoverable discard uses a byte fingerprint CAS")
+    func corruptDiscardIsConditional() async throws {
+        let fixture = try CaptureDraftTestFixture()
+        defer { fixture.cleanup() }
+        try Data("broken-old".utf8).write(to: fixture.preparedCurrentURL())
+        guard case .unrecoverable(let oldFailure) = fixture.service.state() else {
+            Issue.record("Expected corrupt state")
+            return
+        }
+        try Data("broken-new".utf8).write(to: fixture.store.currentURL)
+
+        #expect(throws: CaptureDraftServiceError.staleGeneration) {
+            try fixture.service.discard(oldFailure.revision)
+        }
+        #expect(try Data(contentsOf: fixture.store.currentURL) == Data("broken-new".utf8))
+    }
+
+    private static func renameFailingPublisher() -> DurableRegularFilePublisher {
+        var calls = DurableRegularFileSystemCalls.live
+        calls.renameAt = { _, _, _, _, _ in
+            errno = EIO
+            return -1
+        }
+        return DurableRegularFilePublisher(systemCalls: calls)
+    }
+
 }

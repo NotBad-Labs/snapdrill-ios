@@ -45,7 +45,7 @@ release_refs:
 - **一图多题**：一图一题（手动裁剪）+ 同一张图连续裁剪多题（不用重新选图）。
 - **连续录入**：保存后默认回到采集界面（摄像头 / 同图再次出现），不回 Dashboard。
 - **元数据填写**：Release 1 Must 支持基础分类 / 标签；来源、级别与自定义字段属于动态字段 Candidate optional，只有冻结 manifest 纳入时才出现。当前实现会沿用已开启字段的上次选值，该机制不得让首次采集依赖 optional 配置。
-- **草稿恢复**：采集页退出时自动保存草稿（图片 + OCR 文字，或纯文本）；下次进入采集检测到草稿弹窗提示恢复或放弃；仅保留最近一份，保存新题目后清除，7 天过期自动清理。
+- **草稿恢复**：采集编辑中断后可恢复图片 + OCR 文字或纯文本；相机、文档扫描、相册与 PDF 在裁剪后、OCR 前完成 durable checkpoint，Share Extension 在删除共享容器源文件前完成 durable handoff，手动 / 剪贴板进入编辑器后立即 checkpoint 并随文字编辑合并更新。正式保存后精确退役该代草稿。下次进入采集只呈现完整可恢复草稿或明确损坏 / 丢弃结果；仅保留最近一份，7 天过期自动清理。
 - **边界 / 不做**：
   - 手写体识别增强、AI 辅助拆题、数理化公式识别均为**探索性**（需 PoC 达标才纳入），当前不做（见 How·平台边界）。
   - CSV / JSON 不是主录入路径，UI 上不与拍照同级展示（属数据可携带权场景，对应 Settings 的 CSV/JSON 导入导出）。
@@ -82,7 +82,7 @@ release_refs:
   - 采集中意外退出（来电 / 崩溃 / 强退）→ 下次进入采集提示恢复最近一份 draft（B03 / B11）。
   - 未裁剪直接保存整页大图 → 给裁剪引导提示或保留更高清晰度，满足再次放大查看（B22）。
 - **数据保证**：未点击保存前不产生正式资料记录；保存成功后记录必须包含主内容载体、必要元数据与可检索 OCR 文本；图片资料必须保留裁剪后的副本，OCR 不是唯一数据来源；S1-A 校验失败必须在正式 mutation 前拒绝且不得截断；任何写入失败不得产生半写入记录；Draft 隔离策略等待单资料库实现收敛，成功保存后清除与 EXIF GPS 剥离保证不变。
-  - **实现现状（GAP-R2 已缓解，剩余 caveat）**：草稿图片不再使用全局 `Caches/draft_capture.jpg`，而是按 `activeProfileId` 写入 `Application Support/CaptureDrafts/<profileId>/draft_capture.jpg`；草稿元数据仍写 `UserDefaults.standard`，但 `UDKey.captureDraftMetadata` 已列入 `ProfileManager.perProfileKeys`，切换 Profile 时随偏好保存 / 加载。剩余 caveat：`CaptureDraftService` 仍通过 `UserDefaults.standard` 读取 active profile 与元数据，尚未显式接收 `ProfileScope`。
+  - **实现现状**：Profile-free `CaptureDraftService` 经 `ServiceContainer` 单点注入，使用 `Application Support/com.snapdrill.global/Drafts/current.v1` 保存一个带 schema、稳定 `captureID`、generation、长度与 digest 的 envelope。写入经 durable atomic publish 和读回验证；首次创建 / 读取还须从 Drafts 到 Application Support 父级完成目录链同步，失败时保持未提交或 `durabilityPending`，不得提前暴露恢复内容。结果编辑器在首次出现时保存初始输入，并以 250ms 合并窗口保存后续文字编辑；编辑期 checkpoint 失败会显示错误而不再只写日志。Share Extension 只有在相同 authority 完成 durable handoff 后才清理 App Group 源文件。保存、富化、丢弃、过期与正式保存结算都以 generation token 做 CAS，不使用 UserDefaults 或 Profile 路径作为草稿 authority。`settlement.v1` 只保存精确 token 的持久提交证据，不复制 payload，也不构成第二份 draft authority；存在该证据时保持 `settlementPending` 并查询正式资料：已提交则退役草稿，未提交则持久撤销结算后重新开放恢复，查询失败继续 fail closed。不可读的结算控制证据以当前精确 generation 作为候选继续对账，不能静默开放或永久锁死；对账会在启动、回到前台、进入采集和正式保存重试，不得仅凭 `captureID` 推断提交。多页入口每次 checkpoint 前按同一 `captureID` 对账最新 generation；已正式入库但物理退役暂时失败的 generation 继续阻塞 Profile 变更，却不得再次显示为可恢复编辑内容。
 - **NFR**：OCR 识别响应 < 2 秒（印刷体中英文，拍照到文字出现在编辑区）；图片裁剪内存 < 300MB（Mantis 内部管理）；单题存储均值 ~205KB（OCR ~5KB + 压缩图 ~200KB）；草稿恢复为 S0 级数据丢失防护（意外退出后可恢复）；OCR 端上执行、图片不上传云端。
 
 ## 5. Contracts（状态 / 错误 / 文案 / L10n 归属）

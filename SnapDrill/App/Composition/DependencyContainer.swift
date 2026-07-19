@@ -38,8 +38,11 @@ final class DependencyContainer {
     private init() {
         // UI 测试模式：使用 mock services 与 in-memory 存储。
         if Self.isUITesting {
-            self.services = MockServiceContainer()
-            self.router = AppRouter()
+            let services = MockServiceContainer(
+                captureDraft: Self.makeUITestCaptureDraftService()
+            )
+            self.services = services
+            self.router = AppRouter(captureDraftService: services.captureDraft)
             // 引导页通过 launch argument -hasCompletedOnboarding YES 跳过（进程级，不持久化）
             SnapDrillLogger.generic.info("DependencyContainer: UI 测试模式初始化完成")
             return
@@ -57,9 +60,34 @@ final class DependencyContainer {
         self.services = liveServices
 
         // 3. 初始化顶级路由器
-        self.router = AppRouter()
+        self.router = AppRouter(captureDraftService: liveServices.captureDraft)
 
         SnapDrillLogger.generic.info("DependencyContainer: Composition Root initialized successfully.")
+    }
+
+    private static func makeUITestCaptureDraftService() -> CaptureDraftServiceMock {
+        let service = CaptureDraftServiceMock()
+        let arguments = ProcessInfo.processInfo.arguments
+
+        if arguments.contains("--ui-test-capture-recoverable-draft") {
+            service.setDraftToLoad(
+                CaptureDraft(
+                    image: nil,
+                    content: "Recoverable Capture Draft",
+                    date: Date(timeIntervalSince1970: 1_788_000_000),
+                    category: nil
+                )
+            )
+        } else if arguments.contains("--ui-test-capture-corrupt-draft") {
+            service.setUnrecoverable(
+                CaptureDraftUnrecoverable(
+                    reason: .digestMismatch,
+                    revision: .corruptFingerprint("ui-test-corrupt-draft")
+                )
+            )
+        }
+
+        return service
     }
 
     @MainActor

@@ -34,8 +34,10 @@ struct PDFPagePickerView: View {
     @State private var ocrTask: Task<Void, Never>?
     @State private var thumbnailCache: PDFThumbnailCache?
     @State private var ocrNotice = OCRNotice()
+    @State private var draftSession = CapturePageDraftSession()
 
     var ocrService: OCRServiceProtocol = OCRService()
+    var draftService: CaptureDraftServiceProtocol
 
     /// 缩略图尺寸（点）
     private let thumbnailSize = CGSize(width: 300, height: 400)
@@ -117,6 +119,7 @@ struct PDFPagePickerView: View {
             if thumbnailCache == nil, let doc = document {
                 thumbnailCache = PDFThumbnailCache(document: doc, thumbnailSize: thumbnailSize)
             }
+            draftSession.synchronize(with: draftService.state())
         }
         .onDisappear {
             renderTask?.cancel()
@@ -126,11 +129,19 @@ struct PDFPagePickerView: View {
             thumbnailCache?.cancelAll()
         }
         .alert(ocrNotice.title, isPresented: $ocrNotice.isPresented) {
-            Button(L10n.Capture.ocrContinueEdit) {
-                if let image = ocrNotice.image {
-                    router.push(.scannerResult(content: "", image: image))
+            if ocrNotice.draftToken != nil {
+                Button(L10n.Capture.ocrContinueEdit) {
+                    if let image = ocrNotice.image {
+                        router.push(
+                            .scannerResult(
+                                content: "",
+                                image: image,
+                                draftToken: ocrNotice.draftToken
+                            )
+                        )
+                    }
+                    ocrNotice.clear()
                 }
-                ocrNotice.clear()
             }
             Button(L10n.Common.cancel, role: .cancel) {
                 ocrNotice.clear()
@@ -197,29 +208,24 @@ struct PDFPagePickerView: View {
         }
     }
 
-    private func processOCRAndNavigate(_ image: UIImage) {
+    @discardableResult
+    func processOCRAndNavigate(_ image: UIImage) -> Task<Void, Never> {
         isProcessingOCR = true
-        ocrTask = Task {
-            var ocrText = ""
-            if let cgImage = image.cgImage {
-                do {
-                    let result = try await ocrService.recognizeDocument(from: cgImage)
-                    ocrText = result.transcript
-                } catch {
-                    SnapDrillLogger.capture.error("PDF 页面 OCR 失败: \(error.localizedDescription)")
-                    await presentOCRNotice(
-                        title: L10n.Capture.ocrFailedTitle,
-                        message: L10n.Capture.ocrFailedHint,
-                        image: image
-                    )
-                    return
-                }
-            } else {
+        let task = Task {
+            let checkpoint: CaptureDraftToken
+            do {
+                checkpoint = try await makeCheckpoint(for: image)
+            } catch {
                 await presentOCRNotice(
-                    title: L10n.Capture.ocrFailedTitle,
-                    message: L10n.Capture.ocrFailedHint,
-                    image: image
+                    title: L10n.Capture.saveFailed,
+                    message: L10n.Errors.tryAgainLater,
+                    image: image,
+                    draftToken: nil
                 )
+                return
+            }
+
+            guard let ocrText = await recognizeText(in: image, checkpoint: checkpoint) else {
                 return
             }
 
@@ -229,18 +235,100 @@ struct PDFPagePickerView: View {
                 ocrNotice.present(
                     title: L10n.Capture.ocrEmptyTitle,
                     message: L10n.Capture.ocrEmptyHint,
-                    image: image
+                    image: image,
+                    draftToken: checkpoint
                 )
                 return
             }
-            router.push(.scannerResult(content: ocrText, image: image))
+            await enrichAndNavigate(
+                image: image,
+                text: ocrText,
+                checkpoint: checkpoint
+            )
+        }
+        ocrTask = task
+        return task
+    }
+
+    private func makeCheckpoint(for image: UIImage) async throws -> CaptureDraftToken {
+        try await draftSession.saveCheckpoint(
+            image: image,
+            using: draftService
+        )
+    }
+
+    private func recognizeText(
+        in image: UIImage,
+        checkpoint: CaptureDraftToken
+    ) async -> String? {
+        guard let cgImage = image.cgImage else {
+            await presentOCRNotice(
+                title: L10n.Capture.ocrFailedTitle,
+                message: L10n.Capture.ocrFailedHint,
+                image: image,
+                draftToken: checkpoint
+            )
+            return nil
+        }
+        do {
+            return try await ocrService.recognizeDocument(from: cgImage).transcript
+        } catch {
+            SnapDrillLogger.capture.error("PDF 页面 OCR 失败: \(error.localizedDescription)")
+            await presentOCRNotice(
+                title: L10n.Capture.ocrFailedTitle,
+                message: L10n.Capture.ocrFailedHint,
+                image: image,
+                draftToken: checkpoint
+            )
+            return nil
         }
     }
 
-    private func presentOCRNotice(title: String, message: String, image: UIImage) async {
+    private func enrichAndNavigate(
+        image: UIImage,
+        text: String,
+        checkpoint: CaptureDraftToken
+    ) async {
+        do {
+            let enriched = try await draftService.saveDraft(
+                image: image,
+                content: text,
+                category: nil,
+                captureID: checkpoint.captureID,
+                expected: checkpoint
+            )
+            draftSession.token = enriched
+            router.push(
+                .scannerResult(
+                    content: text,
+                    image: image,
+                    draftToken: enriched
+                )
+            )
+        } catch {
+            ocrNotice.present(
+                title: L10n.Capture.saveFailed,
+                message: L10n.Errors.tryAgainLater,
+                image: image,
+                draftToken: checkpoint
+            )
+        }
+    }
+
+    private func presentOCRNotice(
+        title: String,
+        message: String,
+        image: UIImage,
+        draftToken: CaptureDraftToken?
+    ) async {
         guard !Task.isCancelled else { return }
         isProcessingOCR = false
-        ocrNotice.present(title: title, message: message, image: image)
+        ocrNotice.present(
+            title: title,
+            message: message,
+            image: image,
+            draftToken: draftToken
+        )
     }
 }
 
@@ -254,17 +342,25 @@ private struct OCRNotice {
     var title = ""
     var message = ""
     var image: UIImage?
+    var draftToken: CaptureDraftToken?
 
-    mutating func present(title: String, message: String, image: UIImage) {
+    mutating func present(
+        title: String,
+        message: String,
+        image: UIImage,
+        draftToken: CaptureDraftToken?
+    ) {
         self.title = title
         self.message = message
         self.image = image
+        self.draftToken = draftToken
         self.isPresented = true
     }
 
     mutating func clear() {
         isPresented = false
         image = nil
+        draftToken = nil
     }
 }
 

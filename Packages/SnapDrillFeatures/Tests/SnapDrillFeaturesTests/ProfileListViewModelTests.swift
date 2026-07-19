@@ -25,8 +25,13 @@ final class ProfileListViewModelTests {
         profileManager = ProfileManager(inMemory: true)
     }
 
-    private func makeVM() -> ProfileListViewModel {
-        ProfileListViewModel(profileManager: profileManager)
+    private func makeVM(
+        draftService: CaptureDraftServiceProtocol = CaptureDraftServiceMock()
+    ) -> ProfileListViewModel {
+        ProfileListViewModel(
+            profileManager: profileManager,
+            draftService: draftService
+        )
     }
 
     // MARK: - 初始状态
@@ -118,6 +123,24 @@ final class ProfileListViewModelTests {
         #expect(!vm.profiles.contains(where: { $0.id == target.id }))
     }
 
+    @Test("活跃 Profile 有 Profile-free 草稿时拒绝删除")
+    func executeDelete_activeProfileWithDraft_isBlocked() async {
+        _ = profileManager.createProfile(name: "保留 Profile")
+        let draftService = CaptureDraftServiceMock(initialDraft: makeDraft())
+        let vm = makeVM(draftService: draftService)
+        guard let active = vm.profiles.first(where: { $0.id == vm.activeProfileId }) else {
+            Issue.record("应能找到活跃 Profile")
+            return
+        }
+        vm.profileToDelete = active
+
+        await vm.executeDelete()
+
+        #expect(vm.deleteError != nil)
+        #expect(vm.profiles.contains(where: { $0.id == active.id }))
+        #expect(draftService.state().revision != nil)
+    }
+
     // MARK: - createProfile
 
     @Test("createProfile 空名称跳过（trim 后空）")
@@ -158,5 +181,62 @@ final class ProfileListViewModelTests {
         #expect(result == false)
         #expect(vm.switchError == nil)
         #expect(vm.pendingSwitchProfileId == nil)
+    }
+
+    @Test("Profile-free 草稿必须先精确丢弃再切换")
+    func switchToProfile_draftRequiresDiscard() async {
+        guard let target = profileManager.createProfile(name: "目标 Profile") else {
+            Issue.record("应能创建目标 Profile")
+            return
+        }
+        let draftService = CaptureDraftServiceMock(initialDraft: makeDraft())
+        let vm = makeVM(draftService: draftService)
+
+        let initialSwitch = await vm.switchToProfile(target.id)
+        #expect(initialSwitch == false)
+        #expect(vm.pendingSwitchProfileId == target.id)
+        #expect(draftService.state().revision != nil)
+
+        let confirmedSwitch = await vm.discardDraftAndSwitch()
+        #expect(confirmedSwitch)
+        #expect(draftService.state().revision == nil)
+    }
+
+    @Test("已入库但待退役的 generation 继续阻止 Profile 切换")
+    func switchToProfile_committedPendingRetirementRemainsGuardVisible() async {
+        guard let target = profileManager.createProfile(name: "目标 Profile") else {
+            Issue.record("应能创建目标 Profile")
+            return
+        }
+        let draft = makeDraft()
+        let draftService = CaptureDraftServiceMock(
+            initialDraft: draft,
+            pendingSettlementToken: draft.token
+        )
+        draftService.discardError = .discardFailed
+        #expect(throws: CaptureDraftServiceError.discardFailed) {
+            try draftService.reconcileCommittedDraft(draft.token)
+        }
+        let vm = makeVM(draftService: draftService)
+
+        let initialSwitch = await vm.switchToProfile(target.id)
+
+        #expect(initialSwitch == false)
+        #expect(vm.pendingSwitchProfileId == target.id)
+        #expect(draftService.state().revision == .generation(draft.token))
+
+        draftService.discardError = nil
+        let confirmedSwitch = await vm.discardDraftAndSwitch()
+        #expect(confirmedSwitch)
+        #expect(draftService.state().revision == nil)
+    }
+
+    private func makeDraft() -> CaptureDraft {
+        CaptureDraft(
+            image: nil,
+            content: "未完成草稿",
+            date: Date(),
+            category: nil
+        )
     }
 }

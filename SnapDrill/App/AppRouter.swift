@@ -35,6 +35,7 @@ enum AppTab: Hashable {
 /// 应用层级路由器
 ///
 /// 负责管理一级 Tab 切换和各功能模块的子路由。
+@MainActor
 @Observable
 final class AppRouter {
     
@@ -53,11 +54,14 @@ final class AppRouter {
     let reviewRouter = ReviewRouter()
     /// 设置模块路由
     let settingsRouter = SettingsRouter()
+    private let captureDraftService: CaptureDraftServiceProtocol
+    var shareImportErrorMessage: String?
     
     // MARK: - Initialization
     
     /// 初始化并设立绑定
-    init() {
+    init(captureDraftService: CaptureDraftServiceProtocol) {
+        self.captureDraftService = captureDraftService
         dashboardRouter.onNavigateToReview = { [weak self] in
             self?.selectedTab = .review
         }
@@ -96,50 +100,90 @@ final class AppRouter {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
               let fileName = components.queryItems?.first(where: { $0.name == "file" })?.value,
               !fileName.isEmpty else {
-            SnapDrillLogger.capture.error("Share Extension URL 缺少 file 参数: \(url.absoluteString)")
+            reportShareImportFailure("Share Extension URL 缺少 file 参数: \(url.absoluteString)")
             return
         }
         guard Self.isValidShareFileName(fileName) else {
-            SnapDrillLogger.capture.error("Share Extension URL 包含非法 file 参数: \(fileName)")
+            reportShareImportFailure("Share Extension URL 包含非法 file 参数: \(fileName)")
             return
         }
 
         guard let containerURL = FileManager.default.containerURL(
             forSecurityApplicationGroupIdentifier: Self.appGroupID
         ) else {
-            SnapDrillLogger.capture.error("无法获取 App Groups 共享容器路径")
+            reportShareImportFailure("无法获取 App Groups 共享容器路径")
             return
         }
 
         let pendingURL = containerURL.appendingPathComponent(fileName)
         guard FileManager.default.fileExists(atPath: pendingURL.path) else {
-            SnapDrillLogger.capture.error("Share Extension 文件不存在（可能被系统清理）: \(fileName)")
+            reportShareImportFailure("Share Extension 文件不存在（可能被系统清理）: \(fileName)")
             return
         }
         let data: Data
         do {
             data = try Data(contentsOf: pendingURL)
         } catch {
-            SnapDrillLogger.capture.error("Share Extension 文件读取失败: \(fileName) - \(error.localizedDescription)")
+            reportShareImportFailure(
+                "Share Extension 文件读取失败: \(fileName) - \(error.localizedDescription)"
+            )
             return
         }
         guard let image = UIImage(data: data) else {
-            SnapDrillLogger.capture.error("Share Extension 图片解码失败: \(fileName)（data size: \(data.count) bytes）")
+            reportShareImportFailure(
+                "Share Extension 图片解码失败: \(fileName)（data size: \(data.count) bytes）"
+            )
             return
         }
 
-        // best-effort: 临时文件清理，失败不影响功能
-        try? FileManager.default.removeItem(at: pendingURL)
+        Task {
+            await persistSharedImage(image, sourceURL: pendingURL)
+        }
+    }
 
+    private func persistSharedImage(_ image: UIImage, sourceURL: URL) async {
+        let token: CaptureDraftToken
+        do {
+            token = try await captureDraftService.saveDraft(
+                image: image,
+                content: "",
+                category: nil,
+                captureID: nil,
+                expected: nil
+            )
+        } catch {
+            // Keep the App Group source intact so a failed handoff is retryable.
+            reportShareImportFailure(
+                "Share Extension durable handoff failed: \(error.localizedDescription)"
+            )
+            return
+        }
+        do {
+            try FileManager.default.removeItem(at: sourceURL)
+        } catch {
+            SnapDrillLogger.capture.warning(
+                "Share Extension source cleanup deferred: \(error.localizedDescription)"
+            )
+        }
         // 先切换 Tab 并重置导航栈，延迟一个 RunLoop 周期后再 push，
         // 避免 Tab 切换动画与导航 push 在同一帧竞争导致 push 丢失
         selectedTab = .capture
         captureRouter.path = NavigationPath()
-        Task {
-            // best-effort: 等待 Tab 切换动画完成，取消不影响正确性
-            try? await Task.sleep(for: .milliseconds(100))
-            captureRouter.push(.scannerResult(content: "", image: image))
-        }
+        // best-effort: 等待 Tab 切换动画完成，取消不影响正确性
+        try? await Task.sleep(for: .milliseconds(100))
+        captureRouter.push(
+            .scannerResult(
+                content: "",
+                image: image,
+                draftToken: token
+            )
+        )
+    }
+
+    private func reportShareImportFailure(_ logMessage: String) {
+        selectedTab = .capture
+        shareImportErrorMessage = L10n.AppRoot.shareImportFailed
+        SnapDrillLogger.capture.error("\(logMessage)")
     }
 
     private static func isValidShareFileName(_ fileName: String) -> Bool {

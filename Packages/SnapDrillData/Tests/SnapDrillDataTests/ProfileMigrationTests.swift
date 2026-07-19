@@ -124,7 +124,8 @@ struct ProfileMigrationTests {
 
         let (defaults, suiteName) = try makeDefaults()
         defer { defaults.removePersistentDomain(forName: suiteName) }
-        defaults.set(Data("draft".utf8), forKey: UDKey.captureDraftMetadata)
+        let nonJSONKey = "legacy.non_json.preference"
+        defaults.set(Data("legacy".utf8), forKey: nonJSONKey)
         defaults.set("Keep local first", forKey: UDKey.userMotto)
         let visibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)legacy"
         defaults.set(false, forKey: visibilityKey)
@@ -134,7 +135,7 @@ struct ProfileMigrationTests {
         let vault = ProfileVault(documentsURL: documentsURL)
         let profile = try #require(vault.loadProfiles().first)
         let preferences = try readPreferences(from: vault.preferencesURL(for: profile.id))
-        #expect(preferences[UDKey.captureDraftMetadata] == nil)
+        #expect(preferences[nonJSONKey] == nil)
         #expect(preferences[UDKey.userMotto] as? String == "Keep local first")
         #expect(preferences[visibilityKey] as? Bool == false)
     }

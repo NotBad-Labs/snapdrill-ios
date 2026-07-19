@@ -48,16 +48,27 @@ final class CaptureResultViewModelTests {
     private func createVM(
         content: String = "测试文本",
         image: UIImage? = nil,
-        draftService: CaptureDraftServiceProtocol = CaptureDraftServiceMock()
+        draftService: CaptureDraftServiceProtocol = CaptureDraftServiceMock(),
+        imageStorage: ImageStorage = ImageStorage(
+            baseDirectory: FileManager.default.temporaryDirectory
+        )
     ) -> TestContext {
         let analytics = AnalyticsServiceMock()
         let router = CaptureRouter()
+        let recoveredDraftToken: CaptureDraftToken?
+        if case .recoverable(let draft) = draftService.state() {
+            recoveredDraftToken = draft.token
+        } else {
+            recoveredDraftToken = nil
+        }
         let vm = CaptureResultViewModel(
             content: content,
             image: image,
+            draftToken: recoveredDraftToken,
             repositories: repos,
             ocrService: MockOCRServiceShared(),
             analyticsService: analytics,
+            imageStorage: imageStorage,
             contentTaggingService: ContentTaggingServiceMock(),
             router: router,
             draftService: draftService
@@ -128,6 +139,18 @@ final class CaptureResultViewModelTests {
         #expect(draftService.hasDraft == true)
     }
 
+    @Test("首次草稿 checkpoint 失败必须提示用户")
+    func generateDraftIfNeeded_persistenceFailure_isVisible() async {
+        let draftService = CaptureDraftServiceMock()
+        draftService.saveError = .persistenceFailed
+        let ctx = createVM(content: "未保护的输入", draftService: draftService)
+
+        await ctx.vm.generateDraftIfNeeded()
+
+        #expect(ctx.vm.showErrorAlert)
+        #expect(ctx.vm.errorMessage == L10n.Errors.tryAgainLater)
+    }
+
     @Test("generateDraftIfNeeded 已保存时不生成草稿")
     func generateDraftIfNeeded_alreadySaved_noDraft() async throws {
         let draftService = CaptureDraftServiceMock()
@@ -152,6 +175,50 @@ final class CaptureResultViewModelTests {
         #expect(draftService.hasDraft == false)
     }
 
+    @Test("手动编辑正文后自动 checkpoint")
+    func scheduleDraftCheckpoint_manualEdit_savesLatestText() async throws {
+        let draftService = CaptureDraftServiceMock()
+        let ctx = createVM(content: "", draftService: draftService)
+        ctx.vm.content = "手动录入内容"
+
+        ctx.vm.scheduleDraftCheckpoint()
+
+        try await waitUntil("编辑内容写入草稿") { draftService.hasDraft }
+        #expect(draftService.storedDraft?.content == "手动录入内容")
+    }
+
+    @Test("编辑期自动 checkpoint 失败必须提示用户")
+    func scheduleDraftCheckpoint_persistenceFailure_isVisible() async throws {
+        let draftService = CaptureDraftServiceMock()
+        draftService.saveError = .persistenceFailed
+        let ctx = createVM(content: "", draftService: draftService)
+        ctx.vm.content = "仍未落盘"
+
+        ctx.vm.scheduleDraftCheckpoint()
+
+        try await waitUntil("草稿落盘失败提示") {
+            ctx.vm.showErrorAlert
+        }
+        #expect(ctx.vm.errorMessage == L10n.Errors.tryAgainLater)
+    }
+
+    @Test("已有 generation 首次出现时不重复落盘")
+    func generateDraftIfNeeded_existingGeneration_doesNotRewrite() async throws {
+        let draftService = CaptureDraftServiceMock(
+            initialDraft: CaptureDraft(
+                image: nil,
+                content: "已有草稿",
+                date: Date(),
+                category: nil
+            )
+        )
+        let ctx = createVM(content: "已有草稿", draftService: draftService)
+
+        await ctx.vm.generateDraftIfNeeded()
+
+        #expect(draftService.saveCalls.isEmpty)
+    }
+
     // MARK: - handleImageCrop
 
     @Test("handleImageCrop 更新图片并触发 OCR")
@@ -166,7 +233,8 @@ final class CaptureResultViewModelTests {
             ocrService: mockOCR,
             analyticsService: AnalyticsServiceMock(),
             contentTaggingService: ContentTaggingServiceMock(),
-            router: router
+            router: router,
+            draftService: CaptureDraftServiceMock()
         )
 
         let croppedImage = createTestImage()
@@ -257,6 +325,51 @@ final class CaptureResultViewModelTests {
         #expect(ctx.vm.isSaved == true)
         #expect(draftService.hasDraft == false)
         #expect(draftService.clearCallCount == 1)
+    }
+
+    @Test("已提交 ID 与恢复后的新编辑冲突时保留草稿且不谎报成功")
+    func saveResult_existingArchiveRetainsEditedDraft() async throws {
+        let captureID = UUID()
+        let draft = CaptureDraft(
+            image: nil,
+            content: "提交前内容",
+            date: Date(),
+            category: nil,
+            token: CaptureDraftToken(
+                captureID: captureID,
+                generationID: UUID()
+            )
+        )
+        let draftService = CaptureDraftServiceMock(initialDraft: draft)
+        try repos.archive.insertAndSave(
+            ArchiveItemModel(id: captureID, content: "已提交内容")
+        )
+        let ctx = createVM(
+            content: "恢复后新编辑",
+            draftService: draftService
+        )
+
+        await ctx.vm.saveResult()
+
+        #expect(ctx.vm.isSaved == false)
+        #expect(ctx.vm.showErrorAlert)
+        #expect(try repos.archive.fetchModel(by: captureID)?.content == "已提交内容")
+        guard case .recoverable(let remaining) = draftService.state() else {
+            Issue.record("冲突的新编辑必须保留为可恢复草稿")
+            return
+        }
+        #expect(remaining.content == "恢复后新编辑")
+        #expect(draftService.pendingSettlementToken() == nil)
+
+        CaptureDraftReconciler.reconcile(
+            draftService: draftService,
+            repositories: repos
+        )
+        guard case .recoverable(let reconciled) = draftService.state() else {
+            Issue.record("没有 settlement 证据时，启动对账不得删除冲突后的新编辑")
+            return
+        }
+        #expect(reconciled.content == "恢复后新编辑")
     }
 
     @Test("saveResult 保存失败时设置 showErrorAlert 和 errorMessage")
@@ -367,7 +480,8 @@ final class CaptureResultViewModelTests {
             ocrService: MockOCRServiceShared(),
             analyticsService: AnalyticsServiceMock(),
             contentTaggingService: tagging,
-            router: CaptureRouter()
+            router: CaptureRouter(),
+            draftService: CaptureDraftServiceMock()
         )
 
         vm.loadFormData()   // 触发异步 AI 标注 Task

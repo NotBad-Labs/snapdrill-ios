@@ -40,6 +40,9 @@ public final class CaptureViewModel {
 
     /// 草稿提示详情文案（含分类和编辑时间）
     public var draftAlertMessage: String {
+        if pendingDraftFailure != nil {
+            return L10n.Errors.dataCorruptedHelp
+        }
         guard let draft = pendingDraft else {
             return L10n.Capture.draftAlertMessage
         }
@@ -62,6 +65,8 @@ public final class CaptureViewModel {
     public var pendingOCRImage: UIImage?
     @ObservationIgnored
     public var pendingOCRRouter: CaptureRouter?
+    @ObservationIgnored
+    public var pendingOCRDraftToken: CaptureDraftToken?
     /// 是否正在显示 PDF 文件选择器
     public var isShowingPDFPicker = false
     /// 是否显示 PDF 大文件警告对话框
@@ -74,29 +79,40 @@ public final class CaptureViewModel {
     // MARK: - Dependencies
     
     public let ocrService: OCRServiceProtocol
-    /// 草稿服务（S-D4-001 起从 ServiceContainer 注入，默认 .shared 兼容历史调用方）
-    private let draftService: CaptureDraftServiceProtocol
+    /// 草稿服务由 CaptureView 从唯一的 ServiceContainer authority 注入。
+    private var draftService: CaptureDraftServiceProtocol?
     /// 活动追踪器（S-D4-001 起注入，避免静态单例污染测试）
     private let activityTracker: AppActivityTracker
+    private let photoDataLoader: @Sendable (PhotosPickerItem) async throws -> Data?
 
     // MARK: - Initialization
 
     /// 创建采集功能 ViewModel
     /// - Parameters:
     ///   - ocrService: OCR 识别服务，默认使用 `OCRService()`
-    ///   - draftService: 草稿服务，默认 `CaptureDraftService.shared`
+    ///   - draftService: 草稿服务；生产 View 在首次出现前从 ServiceContainer 注入
     ///   - activityTracker: 活动追踪器，默认 `AppActivityTracker.shared`
+    ///   - photoDataLoader: 相册数据加载器；测试可注入确定性数据
     public init(
         ocrService: OCRServiceProtocol = OCRService(),
         draftService: CaptureDraftServiceProtocol? = nil,
-        activityTracker: AppActivityTracker? = nil
+        activityTracker: AppActivityTracker? = nil,
+        photoDataLoader: @escaping @Sendable (PhotosPickerItem) async throws -> Data? = {
+            try await $0.loadTransferable(type: Data.self)
+        }
     ) {
         self.ocrService = ocrService
-        self.draftService = draftService ?? CaptureDraftService.shared
+        self.draftService = draftService
         self.activityTracker = activityTracker ?? AppActivityTracker.shared
+        self.photoDataLoader = photoDataLoader
     }
     
     // MARK: - Public API
+
+    /// Binds the production-wide draft authority before user interaction.
+    public func configureDraftService(_ draftService: CaptureDraftServiceProtocol) {
+        self.draftService = draftService
+    }
 
     /// 检查相机权限，未授权时弹出引导提示
     ///
@@ -131,9 +147,17 @@ public final class CaptureViewModel {
             router.shouldSuppressNextDraftPrompt = false
             return
         }
-        if let draft = draftService.loadDraft() {
+        guard let draftService else { return }
+        switch draftService.state() {
+        case .recoverable(let draft):
             pendingDraft = draft
             showDraftAlert = true
+        case .unrecoverable(let failure):
+            pendingDraftFailure = failure
+            showDraftAlert = true
+        case .none, .durabilityPending, .settlementPending,
+             .committedPendingRetirement:
+            break
         }
     }
     
@@ -141,14 +165,28 @@ public final class CaptureViewModel {
     public func startEditingDraft(router: CaptureRouter) {
         guard let draft = pendingDraft else { return }
         router.shouldSuppressNextDraftPrompt = true
-        router.push(.scannerResult(content: draft.content, image: draft.image))
+        router.push(
+            .scannerResult(
+                content: draft.content,
+                image: draft.image,
+                draftToken: draft.token
+            )
+        )
         pendingDraft = nil
+        pendingDraftFailure = nil
     }
     
     /// 丢弃当前草稿并清除持久化记录
     public func clearDraft() {
-        draftService.clearDraft()
-        pendingDraft = nil
+        guard let revision = pendingDraftRevision, let draftService else { return }
+        do {
+            try draftService.discard(revision)
+            pendingDraft = nil
+            pendingDraftFailure = nil
+        } catch {
+            errorMessage = L10n.Errors.tryAgainLater
+            showErrorAlert = true
+        }
     }
     
     /// 加载相册图片并触发 OCR 识别流程
@@ -158,7 +196,7 @@ public final class CaptureViewModel {
         isProcessing = true
         photoLoadTask = Task {
             do {
-                if let data = try await item.loadTransferable(type: Data.self),
+                if let data = try await photoDataLoader(item),
                    let image = UIImage(data: data) {
                     guard !Task.isCancelled else { return }
                     // 存储原图用于连续裁剪（保存后可从同一张图裁剪不同区域）
@@ -186,9 +224,11 @@ public final class CaptureViewModel {
         guard let image = pendingOCRImage, let router = pendingOCRRouter else { return }
         pendingOCRImage = nil
         pendingOCRRouter = nil
+        let draftToken = pendingOCRDraftToken
+        pendingOCRDraftToken = nil
         isProcessing = true
         Task {
-            await processImageOCR(image, router: router)
+            await processImageOCR(image, router: router, existingToken: draftToken)
         }
     }
 
@@ -197,7 +237,9 @@ public final class CaptureViewModel {
         guard let image = pendingOCRImage, let router = pendingOCRRouter else { return }
         pendingOCRImage = nil
         pendingOCRRouter = nil
-        router.push(.scannerResult(content: "", image: image))
+        let draftToken = pendingOCRDraftToken
+        pendingOCRDraftToken = nil
+        router.push(.scannerResult(content: "", image: image, draftToken: draftToken))
     }
 
     /// 从剪贴板读取文本并跳转到编辑页
@@ -205,7 +247,7 @@ public final class CaptureViewModel {
     /// 剪贴板为空或无文本时，展示错误提示。
     public func pasteFromClipboard(router: CaptureRouter) {
         if let text = UIPasteboard.general.string, !text.isEmpty {
-            router.push(.scannerResult(content: text, image: nil))
+            router.push(.scannerResult(content: text, image: nil, draftToken: nil))
         } else {
             errorMessage = L10n.Errors.clipboardEmpty
             showErrorAlert = true
@@ -214,6 +256,20 @@ public final class CaptureViewModel {
 
     /// 处理文档扫描仪返回的图片并触发 OCR 识别流程
     public func processScannedImage(_ image: UIImage, router: CaptureRouter) {
+        beginImageOCR(image, router: router)
+    }
+
+    /// 处理相机返回的图片并触发 OCR 识别流程
+    public func processCameraImage(_ image: UIImage, router: CaptureRouter) {
+        beginImageOCR(image, router: router)
+    }
+
+    /// 处理相册连续裁剪返回的图片并触发 OCR 识别流程
+    public func processAlbumImage(_ image: UIImage, router: CaptureRouter) {
+        beginImageOCR(image, router: router)
+    }
+
+    private func beginImageOCR(_ image: UIImage, router: CaptureRouter) {
         isProcessing = true
         // 保存句柄到 photoLoadTask，使 cancelOngoingTasks() 可取消此任务
         photoLoadTask = Task {
@@ -314,13 +370,30 @@ public final class CaptureViewModel {
 
     // MARK: - Private Logic
     
-    private func processImageOCR(_ image: UIImage, router: CaptureRouter) async {
+    private func processImageOCR(
+        _ image: UIImage,
+        router: CaptureRouter,
+        existingToken: CaptureDraftToken? = nil
+    ) async {
         ocrTask = Task {
             activityTracker.begin(.capturing)
             defer { activityTracker.end(.capturing) }
-            // 数据安全：OCR 之前先把原图落盘为草稿，确保 OCR 失败或进程终止（崩溃/上滑/OOM）
-            // 都不会丢失这次采集。OCR 是可重跑的富化步骤，不是持久化的前置闸门。
-            await draftService.saveDraft(image: image, content: "", category: nil)
+            guard let draftService else {
+                presentDraftPersistenceError()
+                return
+            }
+            let checkpoint: CaptureDraftToken
+            do {
+                checkpoint = try await makeImageCheckpoint(
+                    image,
+                    existingToken: existingToken,
+                    draftService: draftService
+                )
+            } catch {
+                presentDraftPersistenceError()
+                return
+            }
+
             do {
                 guard let cgImage = image.cgImage else {
                     throw OCRError.invalidImage
@@ -331,30 +404,78 @@ public final class CaptureViewModel {
                 try Task.checkCancellation()
 
                 // OCR 成功：将识别文本富化回草稿，使 OCR 结果也具备崩溃恢复能力
-                await draftService.saveDraft(image: image, content: text, category: nil)
+                let enrichedToken = try await draftService.saveDraft(
+                    image: image,
+                    content: text,
+                    category: nil,
+                    captureID: checkpoint.captureID,
+                    expected: checkpoint
+                )
 
-                await MainActor.run { [weak self] in
-                    guard let self = self else { return }
-                    self.isProcessing = false
-                    if text.isEmpty {
-                        SnapDrillLogger.capture.warning("OCR 识别结果为空文本。")
-                    }
-                    router.push(.scannerResult(content: text, image: image))
+                isProcessing = false
+                if text.isEmpty {
+                    SnapDrillLogger.capture.warning("OCR 识别结果为空文本。")
                 }
+                router.push(
+                    .scannerResult(
+                        content: text,
+                        image: image,
+                        draftToken: enrichedToken
+                    )
+                )
             } catch is CancellationError {
                 SnapDrillLogger.capture.info("OCR 任务已取消。")
+            } catch is CaptureDraftServiceError {
+                presentDraftPersistenceError()
             } catch {
                 SnapDrillLogger.capture.error("OCR 识别失败: \(error.localizedDescription)")
-                await MainActor.run { [weak self] in
-                    guard let self = self else { return }
-                    self.isProcessing = false
-                    // 暂存图片和路由器，弹出重试 alert 让用户选择
-                    self.pendingOCRImage = image
-                    self.pendingOCRRouter = router
-                    self.showOCRRetryAlert = true
-                }
+                isProcessing = false
+                pendingOCRImage = image
+                pendingOCRRouter = router
+                pendingOCRDraftToken = checkpoint
+                showOCRRetryAlert = true
             }
         }
+    }
+
+    private func makeImageCheckpoint(
+        _ image: UIImage,
+        existingToken: CaptureDraftToken?,
+        draftService: CaptureDraftServiceProtocol
+    ) async throws -> CaptureDraftToken {
+        if let existingToken {
+            return existingToken
+        }
+        return try await draftService.saveDraft(
+            image: image,
+            content: "",
+            category: nil,
+            captureID: nil,
+            expected: nil
+        )
+    }
+
+    private var pendingDraftFailure: CaptureDraftUnrecoverable?
+
+    public var canRestoreDraft: Bool {
+        pendingDraft != nil
+    }
+
+    public var draftAlertTitle: String {
+        pendingDraftFailure == nil ? L10n.Capture.draftAlertTitle : L10n.Errors.dataCorrupted
+    }
+
+    private var pendingDraftRevision: CaptureDraftRevision? {
+        if let pendingDraft {
+            return .generation(pendingDraft.token)
+        }
+        return pendingDraftFailure?.revision
+    }
+
+    private func presentDraftPersistenceError() {
+        isProcessing = false
+        errorMessage = L10n.Errors.tryAgainLater
+        showErrorAlert = true
     }
     
     @ObservationIgnored

@@ -134,6 +134,7 @@ public struct DashboardView: View {
                 if viewModel == nil {
                     viewModel = DashboardViewModel(
                         repositories: repositories,
+                        draftService: services.captureDraft,
                         deletionScheduler: services.deletionScheduler
                     )
                 }
@@ -158,15 +159,17 @@ public struct DashboardView: View {
                     .allowsHitTesting(false)
             }
         }
-        .alert(L10n.Dashboard.draftAlertTitle, isPresented: Binding(
+        .alert(viewModel?.draftAlertTitle ?? L10n.Dashboard.draftAlertTitle, isPresented: Binding(
             get: { viewModel?.isShowingDraftAlert ?? false },
             set: { viewModel?.isShowingDraftAlert = $0 }
         )) {
             Button(L10n.Dashboard.draftStartNew) {
                 viewModel?.startNewCapture(router: router)
             }
-            Button(L10n.Dashboard.draftRestore) {
-                viewModel?.restoreDraft(router: router)
+            if viewModel?.canRestoreDraft == true {
+                Button(L10n.Dashboard.draftRestore) {
+                    viewModel?.restoreDraft(router: router)
+                }
             }
             Button(L10n.Common.cancel, role: .cancel) { }
         } message: {

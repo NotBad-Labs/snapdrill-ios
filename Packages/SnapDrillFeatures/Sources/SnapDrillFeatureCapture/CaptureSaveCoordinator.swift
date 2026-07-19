@@ -15,6 +15,21 @@ import UIKit
 import SnapDrillCore
 import SnapDrillData
 
+/// 保存题目前置校验错误（typed throws 替代裸 NSError）
+enum CaptureSaveError: LocalizedError {
+    case contentAndImageEmpty
+    case archiveAlreadyCommitted
+
+    var errorDescription: String? {
+        switch self {
+        case .contentAndImageEmpty:
+            L10n.Errors.contentAndImageEmpty
+        case .archiveAlreadyCommitted:
+            L10n.Errors.saveFailed
+        }
+    }
+}
+
 /// 采集结果保存时的表单数据快照（值类型）
 ///
 /// 把表单各字段打包成一个值，避免 `save` 的长参数列表（SwiftLint function_parameter_count）。
@@ -29,6 +44,11 @@ struct CaptureFormSnapshot {
     let answerImage: UIImage?
 }
 
+enum CaptureSaveOutcome {
+    case committed
+    case alreadyCommitted
+}
+
 /// 采集结果保存事务编排器（无状态）
 ///
 /// 必须 `@MainActor`：内部触碰 SwiftData `ModelContext`（repositories）与非 Sendable
@@ -41,7 +61,7 @@ struct CaptureSaveCoordinator {
 
     /// 保存题目：校验 → 标签 → 存图 → 插入 → saveContext。
     /// 失败时回滚 context + 清理孤儿图片，再抛错供调用方处理 UI 反馈。
-    func save(_ form: CaptureFormSnapshot) async throws {
+    func save(_ form: CaptureFormSnapshot, id: UUID) async throws -> CaptureSaveOutcome {
         // 声明在 do 块外，确保 catch 中可访问以清理孤儿文件
         var savedImagePath: String?
         var savedAnswerImagePath: String?
@@ -51,6 +71,9 @@ struct CaptureSaveCoordinator {
             let contentValue = form.content.isEmpty ? nil : form.content
             guard contentValue != nil || form.image != nil else {
                 throw CaptureSaveError.contentAndImageEmpty
+            }
+            if try repositories.archive.fetchModel(by: id) != nil {
+                return .alreadyCommitted
             }
 
             // 持久化题目截图，获取本地相对路径
@@ -63,9 +86,20 @@ struct CaptureSaveCoordinator {
                 savedAnswerImagePath = try await imageStorage.saveImage(answerImg)
             }
 
+            // Image writes suspend MainActor. Recheck before insert so a resumed
+            // crash-window retry cannot create a second row with the same UUID.
+            if try repositories.archive.fetchModel(by: id) != nil {
+                await cleanupOrphanImages(
+                    imagePath: savedImagePath,
+                    answerImagePath: savedAnswerImagePath
+                )
+                return .alreadyCommitted
+            }
+
             // 构造 @Model 对象并插入（纯内存），再统一 saveContext。
             // L3：分类经动态维度值（categoryValues）；旧裸字符串字段已不再写入。
             let model = ArchiveItemModel(
+                id: id,
                 content: contentValue,
                 imagePath: savedImagePath,
                 answerText: form.answerText.isEmpty ? nil : form.answerText,
@@ -74,6 +108,7 @@ struct CaptureSaveCoordinator {
             model.categoryValues = form.selectedValues
             repositories.archive.insert(model)
             try repositories.archive.saveContext()
+            return .committed
         } catch {
             // 回滚 mainContext：清除本次操作插入的脏 Tag 和脏 ArchiveItemModel。
             // 单用户本地优先架构下，save 执行期间 mainContext 不存在其他并发未保存变更，

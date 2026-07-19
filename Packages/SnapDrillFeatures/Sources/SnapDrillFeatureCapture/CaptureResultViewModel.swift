@@ -8,30 +8,19 @@
 //  采集结果预览与编辑的 ViewModel，直接通过 RepositoryContainer 保存题目内容与图片。
 //  L3：分类改为动态维度（dimensions + selectedByDimension）。
 //
-
 import SwiftUI
 import PhotosUI
 import SnapDrillCore
 import SnapDrillData
 import SnapDrillUI
-
-/// 保存题目前置校验错误（typed throws 替代裸 NSError）
-enum CaptureSaveError: LocalizedError {
-    case contentAndImageEmpty
-    var errorDescription: String? { L10n.Errors.contentAndImageEmpty }
-}
-
 /// 采集结果预览与编辑的 ViewModel
 @Observable
 public final class CaptureResultViewModel {
-
     // MARK: - Properties
-
     /// OCR 识别的题目文本（用户可编辑）
     public var content: String
     /// 题目截图（可为 `nil` 表示纯文字题）
     public var image: UIImage?
-
     // 动态维度（L3：取代固定分类/来源/级别/标签字段）
     /// 当前所有命名维度（按 sortOrder）
     public private(set) var dimensions: [CategoryDimensionModel] = []
@@ -39,13 +28,11 @@ public final class CaptureResultViewModel {
     public private(set) var valuesByDimension: [UUID: [CategoryValueModel]] = [:]
     /// 每维度的选中值（dimensionId → selected valueIds；单值维度 size<=1）
     public private(set) var selectedByDimension: [UUID: Set<UUID>] = [:]
-
     // 详情表单
     /// 答案文本
     public var answerText: String = ""
     /// 答案图片（可为 `nil`）
     public var answerImage: UIImage?
-
     // 相册选择器状态
     /// 用户从相册选择的答案图片项（变更时自动触发图片加载）
     public var answerPhotoItem: PhotosPickerItem? {
@@ -53,7 +40,6 @@ public final class CaptureResultViewModel {
             processSelectedPhoto()
         }
     }
-
     // UI 状态
     /// 是否正在重新识别 OCR
     public var isRecognizing = false
@@ -76,22 +62,21 @@ public final class CaptureResultViewModel {
     private let profileTipState = ProfileTipState()
     /// AI 标注是否正在进行
     public var isTagging = false
-
     // MARK: - Dependencies
-
-    private let repositories: RepositoryContainer
+    let repositories: RepositoryContainer
     private let ocrService: OCRServiceProtocol
     private let analyticsService: AnalyticsServiceProtocol
     private let imageStorage: ImageStorage
     private let router: CaptureRouter
     private let contentTaggingService: ContentTaggingServiceProtocol
-    /// 草稿服务（S-D4-001 起从 ServiceContainer 注入，默认 .shared 兼容历史调用方）
-    private let draftService: CaptureDraftServiceProtocol
+    /// App-wide generation-safe draft authority.
+    let draftService: CaptureDraftServiceProtocol
+    let captureID: UUID
+    var draftToken: CaptureDraftToken?
     /// 活动追踪器（S-D4-001 起注入，避免静态单例污染测试）
     private let activityTracker: AppActivityTracker
     /// 相册数据加载入口；注入后可确定性验证选择图片与保存的时序。
     private let photoDataLoader: @Sendable (PhotosPickerItem) async throws -> Data?
-
     /// 识别任务句柄（@MainActor 隔离，由 View 的 onDisappear 通过 cancelTasks() 取消）
     @ObservationIgnored
     private var recognitionTask: Task<Void, Never>?
@@ -107,25 +92,28 @@ public final class CaptureResultViewModel {
     private var saveTask: Task<Void, Never>?
     /// 草稿保存任务句柄（onDisappear 触发，best-effort）
     @ObservationIgnored
-    private var draftSaveTask: Task<Void, Never>?
+    var draftSaveTask: Task<Void, Never>?
+    /// 编辑中的短延迟 checkpoint；连续输入时只落最新快照。
+    @ObservationIgnored
+    var draftAutosaveTask: Task<Void, Never>?
     /// 导航延迟任务句柄（保存成功后等待触觉反馈）
     @ObservationIgnored
     private var navigateTask: Task<Void, Never>?
-
     // MARK: - Initialization
-
     /// 创建采集结果 ViewModel
     public init(
         content: String,
         image: UIImage?,
+        draftToken: CaptureDraftToken? = nil,
         repositories: RepositoryContainer,
         ocrService: OCRServiceProtocol,
         analyticsService: AnalyticsServiceProtocol,
         imageStorage: ImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory),
         contentTaggingService: ContentTaggingServiceProtocol = ContentTaggingService(),
         router: CaptureRouter,
-        draftService: CaptureDraftServiceProtocol? = nil,
+        draftService: CaptureDraftServiceProtocol,
         activityTracker: AppActivityTracker? = nil,
+        makeCaptureID: () -> UUID = UUID.init,
         photoDataLoader: @escaping @Sendable (PhotosPickerItem) async throws -> Data? = {
             try await $0.loadTransferable(type: Data.self)
         }
@@ -138,13 +126,13 @@ public final class CaptureResultViewModel {
         self.imageStorage = imageStorage
         self.contentTaggingService = contentTaggingService
         self.router = router
-        self.draftService = draftService ?? CaptureDraftService.shared
+        self.draftService = draftService
+        self.draftToken = draftToken
+        self.captureID = draftToken?.captureID ?? makeCaptureID()
         self.activityTracker = activityTracker ?? AppActivityTracker.shared
         self.photoDataLoader = photoDataLoader
     }
-
     // MARK: - Public API
-
     /// 取消进行中的异步任务（由 View 的 onDisappear 调用）
     public func cancelTasks() {
         recognitionTask?.cancel()
@@ -159,14 +147,14 @@ public final class CaptureResultViewModel {
         navigateTask = nil
         taggingTask?.cancel()
         taggingTask = nil
+        draftAutosaveTask?.cancel()
+        draftAutosaveTask = nil
     }
-
     /// 移除答案图，并取消尚未完成的相册替换任务，避免迟到结果重新写回。
     public func removeAnswerImage() {
         answerPhotoItem = nil
         answerImage = nil
     }
-
     /// 加载默认表单数据：拉取所有维度及其值，并触发 AI 标注
     public func loadFormData() {
         do {
@@ -183,7 +171,6 @@ public final class CaptureResultViewModel {
         }
         startAITagging()
     }
-
     /// AI 标注：有 OCR 文本时自动建议主分类维度的值（best-effort）
     private func startAITagging() {
         guard !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
@@ -196,7 +183,6 @@ public final class CaptureResultViewModel {
             applySuggestion(category: suggestion.category)
         }
     }
-
     /// 应用 AI 建议：category 命中主分类维度的同名值则选中（仅当该维度未选）。
     private func applySuggestion(category: String) {
         if let categoryDim = dimensions.first(where: { $0.systemKey == CategorySystemKey.category }),
@@ -205,9 +191,7 @@ public final class CaptureResultViewModel {
             selectedByDimension[categoryDim.id] = [value.id]
         }
     }
-
     // MARK: - 维度选择 / 新建（供 View 经 DimensionInputRow 驱动）
-
     /// 某维度是否在录入页可见（per-维度可见性；缺省走 defaultCaptureVisibility：
     /// 用户自建维度默认可见，内置维度默认隐藏；管理界面写入显式开关覆盖缺省）
     public func isDimensionVisible(_ dimension: CategoryDimensionModel) -> Bool {
@@ -260,6 +244,7 @@ public final class CaptureResultViewModel {
     public func handleImageCrop(_ croppedImage: UIImage) {
         self.image = croppedImage
         self.isCropping = false
+        scheduleDraftCheckpoint()
         recognitionTask?.cancel()
         recognitionTask = Task {
             await reRecognizeText(from: croppedImage)
@@ -271,22 +256,6 @@ public final class CaptureResultViewModel {
         self.isCropping = false
     }
 
-    /// 保存预览草稿（async，文件 I/O 在后台执行；测试可直接 await）
-    public func generateDraftIfNeeded() async {
-        let hasContent = !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        if !isSaved, image != nil || hasContent {
-            let categoryName = selectedName(forSystemKey: CategorySystemKey.category)
-            await draftService.saveDraft(image: image, content: content, category: categoryName.isEmpty ? nil : categoryName)
-        }
-    }
-
-    /// 触发草稿保存并存储 Task 句柄（由 View 的 onDisappear 调用）
-    public func saveDraftOnDisappear() {
-        draftSaveTask = Task {
-            await generateDraftIfNeeded()
-        }
-    }
-
     /// 触发保存并存储 Task 句柄（由 View 调用，替代裸 Task 包裹）
     public func save() {
         guard !isSaving, !isSaved, !isAnswerPhotoLoading else { return }
@@ -296,7 +265,6 @@ public final class CaptureResultViewModel {
             await performSave()
         }
     }
-
     /// 保存正式题目；进行中或成功后的重复调用会被忽略
     public func saveResult() async {
         guard !isSaving, !isSaved, !isAnswerPhotoLoading else { return }
@@ -304,11 +272,23 @@ public final class CaptureResultViewModel {
         defer { isSaving = false }
         await performSave()
     }
-
     private func performSave() async {
         activityTracker.begin(.capturing)
         defer { activityTracker.end(.capturing) }
-
+        draftAutosaveTask?.cancel()
+        draftAutosaveTask = nil
+        do {
+            if try reconcilePendingSettlementBeforeSave() {
+                return
+            }
+        } catch {
+            SnapDrillLogger.capture.error(
+                "Capture settlement reconciliation failed: \(error.localizedDescription)"
+            )
+            self.errorMessage = L10n.Errors.saveFailed
+            self.showErrorAlert = true
+            return
+        }
         let coordinator = CaptureSaveCoordinator(repositories: repositories, imageStorage: imageStorage)
         let form = CaptureFormSnapshot(
             content: content,
@@ -317,13 +297,50 @@ public final class CaptureResultViewModel {
             answerText: answerText,
             answerImage: answerImage
         )
+        var settlement: CaptureDraftSettlement?
         do {
-            try await coordinator.save(form)
+            let settledToken = try await checkpointDraftIfNeeded()
+            if try repositories.archive.fetchModel(by: captureID) != nil {
+                throw CaptureSaveError.archiveAlreadyCommitted
+            }
+            settlement = try await draftService.beginSettlement(
+                captureID: captureID,
+                expected: settledToken
+            )
+            let outcome = try await coordinator.save(form, id: captureID)
+            guard case .committed = outcome else {
+                throw CaptureSaveError.archiveAlreadyCommitted
+            }
+            if let settlement {
+                retireCommittedDraftAfterSave(settlement)
+            }
             handleSaveSuccess()
         } catch {
+            if let settlement {
+                do {
+                    try draftService.abortSettlement(settlement)
+                } catch {
+                    SnapDrillLogger.capture.error(
+                        "Capture settlement abort failed: \(error.localizedDescription)"
+                    )
+                }
+            }
             SnapDrillLogger.generic.error("保存失败: \(error.localizedDescription)")
             self.errorMessage = L10n.Errors.saveFailed
             self.showErrorAlert = true
+        }
+    }
+
+    private func retireCommittedDraftAfterSave(
+        _ settlement: CaptureDraftSettlement
+    ) {
+        do {
+            try draftService.retireCommittedDraft(settlement)
+        } catch {
+            // The archive commit is authoritative. Keep cleanup state hidden.
+            SnapDrillLogger.capture.warning(
+                "Committed Capture draft retirement deferred: \(error.localizedDescription)"
+            )
         }
     }
 
@@ -347,19 +364,9 @@ public final class CaptureResultViewModel {
         return result.filter { !$0.isDeleted }
     }
 
-    /// 取某内置维度（按 systemKey）当前选中的首个值名（埋点/草稿用，无则空串）
-    private func selectedName(forSystemKey key: String) -> String {
-        guard let dim = dimensions.first(where: { $0.systemKey == key }),
-              let valueId = selectedByDimension[dim.id]?.first,
-              let value = (valuesByDimension[dim.id] ?? []).first(where: { $0.id == valueId })
-        else { return "" }
-        return value.name
-    }
-
     /// 保存成功后的善后：通知、埋点、引导检查
-    private func handleSaveSuccess() {
+    func handleSaveSuccess() {
         isSaved = true
-        draftService.clearDraft()
         NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
 
         analyticsService.track(.captureSaved, parameters: [

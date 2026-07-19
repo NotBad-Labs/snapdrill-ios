@@ -31,6 +31,7 @@ struct AppRootView: View {
     @Bindable var router: AppRouter
     let makeProfileManager: () async -> ProfileManager
     @Environment(\.services) private var services
+    @Environment(\.scenePhase) private var scenePhase
     @State private var profileManager: ProfileManager?
     @State private var handledStoreRecoveryEventKey: String?
 
@@ -48,6 +49,30 @@ struct AppRootView: View {
                         await loadProfileManagerIfNeeded()
                     }
             }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active, let profileManager else { return }
+            CaptureDraftReconciler.reconcile(
+                draftService: services.captureDraft,
+                repositories: profileManager.activeRepositories
+            )
+        }
+        .alert(
+            L10n.Common.error,
+            isPresented: Binding(
+                get: { router.shareImportErrorMessage != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        router.shareImportErrorMessage = nil
+                    }
+                }
+            )
+        ) {
+            Button(L10n.Common.ok) {
+                router.shareImportErrorMessage = nil
+            }
+        } message: {
+            Text(router.shareImportErrorMessage ?? L10n.AppRoot.shareImportFailed)
         }
     }
 
@@ -213,7 +238,12 @@ struct AppRootView: View {
 
     private func loadProfileManagerIfNeeded() async {
         guard profileManager == nil else { return }
-        profileManager = await makeProfileManager()
+        let loadedProfileManager = await makeProfileManager()
+        CaptureDraftReconciler.reconcile(
+            draftService: services.captureDraft,
+            repositories: loadedProfileManager.activeRepositories
+        )
+        profileManager = loadedProfileManager
     }
 }
 

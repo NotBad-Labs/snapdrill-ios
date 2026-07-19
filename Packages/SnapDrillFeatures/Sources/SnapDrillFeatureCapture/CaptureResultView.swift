@@ -67,6 +67,12 @@ public struct CaptureResultView: View {
         .onAppear {
             viewModel.loadFormData()
         }
+        .task {
+            await viewModel.generateDraftIfNeeded()
+        }
+        .onChange(of: viewModel.content) {
+            viewModel.scheduleDraftCheckpoint()
+        }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button {

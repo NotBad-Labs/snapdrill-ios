@@ -28,6 +28,7 @@ final class ProfileListViewModel {
     var profileToDelete: Profile?
     /// 草稿存在时暂存目标 Profile ID，等用户确认后再切换
     var pendingSwitchProfileId: UUID?
+    private var pendingDraftRevision: CaptureDraftRevision?
     /// 切换被阻塞时的错误提示
     var switchError: String?
     /// 删除失败时的错误提示（如最后一个 Profile 无法删除）
@@ -36,13 +37,13 @@ final class ProfileListViewModel {
     // MARK: - Dependencies
 
     let profileManager: ProfileManager
-    private let draftService: CaptureDraftService
+    private let draftService: CaptureDraftServiceProtocol
 
     // MARK: - Init
 
     init(
         profileManager: ProfileManager,
-        draftService: CaptureDraftService = .shared
+        draftService: CaptureDraftServiceProtocol
     ) {
         self.profileManager = profileManager
         self.draftService = draftService
@@ -66,6 +67,12 @@ final class ProfileListViewModel {
     /// 用户在确认 alert 点删除
     func executeDelete() async {
         guard let profile = profileToDelete else { return }
+        if profile.id == profileManager.activeProfileId,
+           draftService.state().revision != nil {
+            deleteError = L10n.Settings.draftExistsMessage
+            profileToDelete = nil
+            return
+        }
         do {
             try await profileManager.deleteProfile(id: profile.id)
         } catch {
@@ -79,8 +86,10 @@ final class ProfileListViewModel {
     @discardableResult
     func switchToProfile(_ profileId: UUID) async -> Bool {
         guard profileId != profileManager.activeProfileId else { return false }
-        if draftService.hasDraft {
+        let draftState = draftService.state()
+        if let revision = draftState.revision {
             pendingSwitchProfileId = profileId
+            pendingDraftRevision = revision
             return false
         }
         do {
@@ -92,14 +101,18 @@ final class ProfileListViewModel {
         }
     }
 
-    /// 放弃草稿后执行切换（先切换再清草稿，避免切换失败时草稿已丢）
+    /// 放弃 Profile-free 草稿后执行切换，避免草稿短暂暴露给目标 Profile。
     @discardableResult
     func discardDraftAndSwitch() async -> Bool {
-        guard let profileId = pendingSwitchProfileId else { return false }
+        guard let profileId = pendingSwitchProfileId,
+              let draftRevision = pendingDraftRevision else {
+            return false
+        }
         do {
+            try draftService.discard(draftRevision)
             try await profileManager.switchProfile(to: profileId)
-            draftService.clearDraft()
             pendingSwitchProfileId = nil
+            pendingDraftRevision = nil
             return true
         } catch {
             switchError = error.localizedDescription

@@ -73,7 +73,6 @@ public final class ProfileManager {
         UDKey.reviewReminderEnabled, UDKey.reviewReminderTime,
         UDKey.notificationsEnabled, UDKey.notificationHour, UDKey.notificationMinute,
         UDKey.soundEnabled,
-        UDKey.captureDraftMetadata,
         UDKey.smartPaperFreeQuotaMonth, UDKey.smartPaperFreeQuotaUsed,
         UDKey.tipReviewSwipeSeen, UDKey.tipFieldConfigSeen
     ]

@@ -46,6 +46,7 @@ public final class DashboardViewModel {
     @ObservationIgnored
     private var pendingRefreshTask: Task<Void, Never>?
     private let draftService: CaptureDraftServiceProtocol
+    private var pendingDraftState: CaptureDraftState?
     private let repositories: RepositoryContainer
     /// 软删调度器（注入 App 级共享实例）：用 pendingDeletionIDs 把 5 秒撤销窗口内的软删资料从待回顾数中排除
     private let deletionScheduler: DeletionScheduler
@@ -53,11 +54,11 @@ public final class DashboardViewModel {
     /// 创建仪表盘 ViewModel
     /// - Parameters:
     ///   - repositories: 应用的数据仓库容器
-    ///   - draftService: 草稿服务，默认使用 `CaptureDraftService.shared`
+    ///   - draftService: App-wide typed draft authority
     ///   - deletionScheduler: 软删调度器，默认空实例（测试无 pending 时不过滤）
     public init(
         repositories: RepositoryContainer,
-        draftService: CaptureDraftServiceProtocol = CaptureDraftService.shared,
+        draftService: CaptureDraftServiceProtocol,
         deletionScheduler: DeletionScheduler = DeletionScheduler()
     ) {
         self.repositories = repositories
@@ -100,7 +101,10 @@ public final class DashboardViewModel {
 
     /// 草稿提示详情文案（含分类和编辑时间）
     public var draftAlertMessage: String {
-        guard let draft = draftService.loadDraft() else {
+        guard case .some(.recoverable(let draft)) = pendingDraftState else {
+            if case .some(.unrecoverable) = pendingDraftState {
+                return L10n.Errors.dataCorruptedHelp
+            }
             return L10n.Dashboard.draftAlertMessage
         }
         let timeAgo = draft.date.relativeDescription()
@@ -112,26 +116,61 @@ public final class DashboardViewModel {
 
     /// 检查是否有未完成草稿；若有则弹出提示，否则直接导航到采集页
     public func checkDraftAndCapture(router: DashboardRouter) {
-        if draftService.hasDraft {
-            isShowingDraftAlert = true
-        } else {
+        let state = draftService.state()
+        switch state {
+        case .none, .committedPendingRetirement:
+            pendingDraftState = nil
             router.navigateToCapture()
+        case .durabilityPending, .settlementPending:
+            pendingDraftState = nil
+            SnapDrillLogger.capture.warning(
+                "Dashboard Capture navigation deferred while draft safety state settles"
+            )
+        case .recoverable, .unrecoverable:
+            pendingDraftState = state
+            isShowingDraftAlert = true
         }
     }
 
     /// 丢弃现有草稿并开始新建采集
     public func startNewCapture(router: DashboardRouter) {
-        draftService.clearDraft()
-        router.navigateToCapture()
+        guard let revision = pendingDraftState?.revision else {
+            router.navigateToCapture()
+            return
+        }
+        do {
+            try draftService.discard(revision)
+            pendingDraftState = nil
+            router.navigateToCapture()
+        } catch {
+            SnapDrillLogger.capture.warning(
+                "Dashboard draft discard rejected: \(error.localizedDescription)"
+            )
+        }
     }
 
     /// 恢复草稿并导航到采集编辑页（无草稿时直接跳转采集页）
     public func restoreDraft(router: DashboardRouter) {
-        if let draft = draftService.loadDraft() {
+        if case .some(.recoverable(let draft)) = pendingDraftState {
+            pendingDraftState = nil
             router.navigateToCapture(withDraft: draft)
         } else {
-            router.navigateToCapture()
+            isShowingDraftAlert = true
         }
+    }
+
+    public var canRestoreDraft: Bool {
+        if case .some(.recoverable) = pendingDraftState {
+            return true
+        }
+        return false
+    }
+
+    public var draftAlertTitle: String {
+        if case .some(.unrecoverable) = pendingDraftState {
+            return L10n.Errors.dataCorrupted
+        }
+        return L10n.Dashboard.draftAlertTitle
     }
 
     // MARK: - Private Helpers

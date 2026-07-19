@@ -10,6 +10,8 @@
 
 import Testing
 import UIKit
+import PhotosUI
+import SwiftUI
 @testable import SnapDrillFeatureCapture
 @testable import SnapDrillCore
 
@@ -19,6 +21,8 @@ import UIKit
 final class MockOCRService: OCRServiceProtocol {
     var recognizeTextResult: String = ""
     var recognizeTextError: Error?
+    var onRecognizeText: (() -> Void)?
+    var onRecognizeDocument: (() -> Void)?
 
     var recognizeTextCallCount = 0
     var lastImage: CGImage?
@@ -26,6 +30,7 @@ final class MockOCRService: OCRServiceProtocol {
     func recognizeText(from image: CGImage) async throws -> String {
         recognizeTextCallCount += 1
         lastImage = image
+        onRecognizeText?()
 
         if let error = recognizeTextError {
             throw error
@@ -34,7 +39,10 @@ final class MockOCRService: OCRServiceProtocol {
     }
 
     var recognizeDocumentResult: DocumentRecognitionResult = .empty
+    var recognizeDocumentCallCount = 0
     func recognizeDocument(from cgImage: CGImage) async throws -> DocumentRecognitionResult {
+        recognizeDocumentCallCount += 1
+        onRecognizeDocument?()
         if let error = recognizeTextError {
             throw error
         }
@@ -100,6 +108,33 @@ struct CaptureViewModelTests {
         #expect(viewModel.pendingDraft?.content == "Draft Content")
     }
 
+    @Test("已入库但待物理清理的草稿不显示恢复弹窗")
+    func testCheckDraftOnAppear_CommittedPendingRetirement_DoesNotShowAlert() {
+        let draft = CaptureDraftService.Draft(
+            image: nil,
+            content: "Committed",
+            date: Date(),
+            category: nil
+        )
+        let draftService = CaptureDraftServiceMock(
+            initialDraft: draft,
+            pendingSettlementToken: draft.token
+        )
+        draftService.discardError = .discardFailed
+        #expect(throws: CaptureDraftServiceError.discardFailed) {
+            try draftService.reconcileCommittedDraft(draft.token)
+        }
+        let viewModel = CaptureViewModel(
+            ocrService: MockOCRService(),
+            draftService: draftService
+        )
+
+        viewModel.checkDraftOnAppear(router: CaptureRouter())
+
+        #expect(viewModel.showDraftAlert == false)
+        #expect(viewModel.pendingDraft == nil)
+    }
+
     @Test("startEditingDraft 推送路由并保留持久草稿")
     func testStartEditingDraft_PushesToRouterAndRetainsDraft() {
         let draft = CaptureDraftService.Draft(
@@ -115,8 +150,9 @@ struct CaptureViewModelTests {
         var pushCalled = false
         router.onPush = { destination in
             pushCalled = true
-            if case let .scannerResult(content, _) = destination {
+            if case let .scannerResult(content, _, token) = destination {
                 #expect(content == "Draft Content")
+                #expect(token == draft.token)
             } else {
                 Issue.record("Expected .scannerResult destination")
             }
@@ -165,8 +201,9 @@ struct CaptureViewModelTests {
 
         var pushCalled = false
         router.onPush = { destination in
-            if case let .scannerResult(content, _) = destination {
+            if case let .scannerResult(content, _, token) = destination {
                 #expect(content == "Recognized Text")
+                #expect(token != nil)
                 pushCalled = true
             }
         }
@@ -210,9 +247,10 @@ struct CaptureViewModelTests {
         var pushedContent: String?
         var pushedImage: UIImage?
         router.onPush = { destination in
-            if case let .scannerResult(content, image) = destination {
+            if case let .scannerResult(content, image, token) = destination {
                 pushedContent = content
                 pushedImage = image
+                #expect(token != nil)
             }
         }
 
@@ -237,9 +275,10 @@ struct CaptureViewModelTests {
         var pushedContent: String?
         var pushedImage: UIImage?
         router.onPush = { destination in
-            if case let .scannerResult(content, image) = destination {
+            if case let .scannerResult(content, image, token) = destination {
                 pushedContent = content
                 pushedImage = image
+                #expect(token != nil)
             }
         }
 
@@ -295,4 +334,116 @@ struct CaptureViewModelTests {
         #expect(draftMock.saveCalls.contains { $0.image != nil && $0.content.isEmpty })
         #expect(draftMock.saveCalls.contains { $0.content == "识别文本" })
     }
+
+    @Test(
+        "相机、相册和单页扫描均在 OCR 调用前完成持久化",
+        arguments: SharedCaptureChannel.allCases
+    )
+    func sharedImageChannels_checkpointBeforeOCR(channel: SharedCaptureChannel) async throws {
+        let image = createTestImage()
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            Issue.record("测试图片无法编码")
+            return
+        }
+        let draftService = CaptureDraftServiceMock()
+        let ocrService = MockOCRService()
+        ocrService.recognizeTextResult = "识别文本"
+        var observedDurableCheckpoint = false
+        ocrService.onRecognizeText = {
+            if case .recoverable(let draft) = draftService.state() {
+                observedDurableCheckpoint = draft.image != nil && draft.content.isEmpty
+            }
+        }
+        let viewModel = CaptureViewModel(
+            ocrService: ocrService,
+            draftService: draftService,
+            photoDataLoader: { _ in imageData }
+        )
+        let router = CaptureRouter()
+        var pushed = false
+        router.onPush = { _ in pushed = true }
+
+        switch channel {
+        case .camera:
+            viewModel.processCameraImage(image, router: router)
+        case .album:
+            viewModel.loadPhoto(
+                PhotosPickerItem(itemIdentifier: "capture-draft-album"),
+                router: router
+            )
+        case .singlePageScan:
+            viewModel.processScannedImage(image, router: router)
+        }
+
+        try await waitUntil(timeout: .seconds(5)) { pushed }
+        #expect(observedDurableCheckpoint)
+    }
+
+    @Test("PDF 页在文档 OCR 调用前完成持久化")
+    func pdfPage_checkpointBeforeOCR() async throws {
+        let draftService = CaptureDraftServiceMock()
+        let ocrService = MockOCRService()
+        ocrService.recognizeDocumentResult = DocumentRecognitionResult(
+            transcript: "PDF 文本",
+            paragraphs: [],
+            tables: []
+        )
+        var observedDurableCheckpoint = false
+        ocrService.onRecognizeDocument = {
+            if case .recoverable(let draft) = draftService.state() {
+                observedDurableCheckpoint = draft.image != nil && draft.content.isEmpty
+            }
+        }
+        let router = CaptureRouter()
+        var pushed = false
+        router.onPush = { _ in pushed = true }
+        let view = PDFPagePickerView(
+            router: router,
+            ocrService: ocrService,
+            draftService: draftService
+        )
+
+        view.processOCRAndNavigate(createTestImage())
+
+        try await waitUntil(timeout: .seconds(5)) { pushed }
+        #expect(observedDurableCheckpoint)
+    }
+
+    @Test("多页扫描在文档 OCR 调用前完成持久化")
+    func multiPageScan_checkpointBeforeOCR() async throws {
+        let draftService = CaptureDraftServiceMock()
+        let ocrService = MockOCRService()
+        ocrService.recognizeDocumentResult = DocumentRecognitionResult(
+            transcript: "扫描文本",
+            paragraphs: [],
+            tables: []
+        )
+        var observedDurableCheckpoint = false
+        ocrService.onRecognizeDocument = {
+            if case .recoverable(let draft) = draftService.state() {
+                observedDurableCheckpoint = draft.image != nil && draft.content.isEmpty
+            }
+        }
+        let router = CaptureRouter()
+        var pushed = false
+        router.onPush = { _ in pushed = true }
+        let view = ScanPagePickerView(
+            router: router,
+            ocrService: ocrService,
+            draftService: draftService
+        )
+
+        view.processImage(createTestImage())
+
+        try await waitUntil(timeout: .seconds(5)) { pushed }
+        #expect(observedDurableCheckpoint)
+    }
+}
+
+enum SharedCaptureChannel: String, CaseIterable, CustomTestStringConvertible {
+    case camera
+    case album
+    case singlePageScan
+
+    var testDescription: String { rawValue }
 }

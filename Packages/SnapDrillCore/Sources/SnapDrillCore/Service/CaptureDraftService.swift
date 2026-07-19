@@ -5,173 +5,417 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  采集草稿服务，负责暂时保存未确认的拍摄内容。跨域共用（Dashboard 检测、Capture 消费）。
+//  Single-authority, generation-safe persistence for interrupted Capture work.
 //
 
+import Foundation
 import UIKit
 
-/// 负责管理拍照识题的草稿缓存
-///
-/// 当用户意外退出编辑界面时，用于恢复之前的图片和识别文字。
 public final class CaptureDraftService: CaptureDraftServiceProtocol {
+    public typealias Draft = CaptureDraft
 
-    @available(*, deprecated, message: "通过 @Environment(\\.services).captureDraft 注入，避免静态单例耦合（S-D4-001）")
-    public static let shared = CaptureDraftService()
+    static let lifetime: TimeInterval = 7 * 24 * 60 * 60
 
-    private let fileManager = FileManager.default
-    private let defaults = UserDefaults.standard
+    let store: CaptureDraftStore?
+    let now: () -> Date
+    private let makeUUID: () -> UUID
+    var suppressedRevisions: Set<CaptureDraftRevision> = []
+    private var closedCaptureIDs: Set<UUID> = []
+    var committedCaptureIDs: Set<UUID> = []
+    var pendingRetirementTokens: Set<CaptureDraftToken> = []
+    private var activeSettlements: [UUID: UUID] = [:]
+    private var pendingPublication: PendingPublication?
 
-    private let draftImageName = "draft_capture.jpg"
-    private let draftMetadataKey = UDKey.captureDraftMetadata
-
-    /// 容器装配入口（S-D4-001：ServiceContainer 必需）
-    public init() {}
-
-    // MARK: - Models
-
-    /// 草稿数据结构，携带图片、识别文本、主分类和保存时间
-    public struct Draft {
-        /// 拍摄的原始图片（纯文字草稿为 nil）
-        public let image: UIImage?
-        /// OCR 识别文本（可为空字符串）
-        public let content: String
-        /// 草稿保存时间
-        public let date: Date
-        /// 保存时选中的主分类（用于恢复提示展示）
-        public let category: String?
+    /// Production composition entry point.
+    public init() {
+        do {
+            let storage = try AppOwnedStorage()
+            store = CaptureDraftStore(storage: storage)
+        } catch {
+            store = nil
+            SnapDrillLogger.capture.error(
+                "Capture draft storage unavailable: \(error.localizedDescription)"
+            )
+        }
+        now = Date.init
+        makeUUID = UUID.init
     }
 
-    private struct DraftMetadata: Codable {
-        let content: String
-        let timestamp: TimeInterval
-        /// 保存时选中的主分类
-        let category: String?
+    init(
+        store: CaptureDraftStore,
+        now: @escaping () -> Date = Date.init,
+        makeUUID: @escaping () -> UUID = UUID.init
+    ) {
+        self.store = store
+        self.now = now
+        self.makeUUID = makeUUID
     }
 
-    // MARK: - Public API
+    @discardableResult
+    public func saveDraft(
+        image: UIImage?,
+        content: String,
+        category: String?,
+        captureID: UUID?,
+        expected: CaptureDraftToken?
+    ) async throws -> CaptureDraftToken {
+        guard let store else {
+            throw CaptureDraftServiceError.storageUnavailable
+        }
 
-    /// 当前是否存在未保存的草稿（遵循 `CaptureDraftServiceProtocol`）
-    public var hasDraft: Bool {
-        return defaults.object(forKey: draftMetadataKey) != nil
-    }
-
-    /// 将图片和识别文本保存为草稿（遵循 `CaptureDraftServiceProtocol`）
-    ///
-    /// async 签名使调用方可在 Task 中执行（如 onDisappear），不直接阻塞 UI 事件循环。
-    /// UIImage 非 Sendable，JPEG 压缩和文件写入无法安全移至后台，仍在 MainActor 执行。
-    /// 草稿图片已压缩（JPEG 0.8），I/O 量小（通常 < 500KB），阻塞时间可接受。
-    public func saveDraft(image: UIImage? = nil, content: String, category: String? = nil) async {
-        // 1. 图片处理：有图片时写入文件，无图片时清理旧文件（防止上一张图片残留）
-        if let image,
-           let data = ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8),
-           let path = draftImagePath() {
+        let trimmedContent = content.trimmingCharacters(in: .whitespacesAndNewlines)
+        let imageJPEG = try CaptureDraftPayload.makeImageJPEG(image)
+        guard !trimmedContent.isEmpty || imageJPEG != nil else {
+            throw CaptureDraftServiceError.emptyDraft
+        }
+        if let reconciled = try reconcilePendingPublication(
+            requestedCaptureID: captureID,
+            expected: expected,
+            content: content,
+            category: category,
+            imageJPEG: imageJPEG
+        ) {
+            return reconciled
+        }
+        if expected == nil {
             do {
-                try data.write(to: path)
+                try store.removeOrphanedSettlementEvidence()
             } catch {
-                SnapDrillLogger.generic.warning("[DraftService] 草稿图片写入失败: \(error.localizedDescription)")
+                throw CaptureDraftServiceError.persistenceFailed
             }
-        } else if let path = draftImagePath() {
-            // best-effort: 纯文字草稿覆盖带图草稿时，删除残留图片文件
-            do {
-                try fileManager.removeItem(at: path)
-            } catch {
-                if (error as NSError).code != NSFileNoSuchFileError {
-                    SnapDrillLogger.generic.warning("[DraftService] 残留图片删除失败: \(error.localizedDescription)")
+        }
+        let resolvedCaptureID = try resolveCaptureID(
+            requested: captureID,
+            expected: expected
+        )
+        guard !closedCaptureIDs.contains(resolvedCaptureID),
+              !committedCaptureIDs.contains(resolvedCaptureID) else {
+            throw CaptureDraftServiceError.admissionClosed
+        }
+        try validateReplacement(expected: expected)
+
+        let token = CaptureDraftToken(
+            captureID: resolvedCaptureID,
+            generationID: makeUUID()
+        )
+        let stored = StoredCaptureDraft(
+            token: token,
+            timestamp: now(),
+            content: content,
+            category: category,
+            imageJPEG: imageJPEG
+        )
+        do {
+            try store.publish(stored)
+            finishPublishedDraft(token, replacing: expected, store: store)
+            SnapDrillLogger.capture.info(
+                "Capture draft generation committed: \(token.generationID)"
+            )
+            return token
+        } catch CaptureDraftStoreError.publicationOutcomeUncertain {
+            pendingPublication = PendingPublication(
+                draft: stored,
+                expected: expected
+            )
+            throw CaptureDraftServiceError.publicationOutcomeUncertain
+        } catch {
+            throw CaptureDraftServiceError.persistenceFailed
+        }
+    }
+
+    public func discard(_ revision: CaptureDraftRevision) throws {
+        guard let store else {
+            throw CaptureDraftServiceError.storageUnavailable
+        }
+        do {
+            try store.discard(revision)
+            suppressedRevisions.remove(revision)
+            if case .generation(let token) = revision {
+                pendingRetirementTokens.remove(token)
+                do {
+                    try store.discardSettlementMarker(token)
+                } catch {
+                    SnapDrillLogger.capture.warning(
+                        "Capture settlement marker cleanup deferred: \(error.localizedDescription)"
+                    )
                 }
             }
-        }
-
-        // 2. 元数据写入 UserDefaults
-        let metadata = DraftMetadata(content: content, timestamp: Date().timeIntervalSince1970, category: category)
-        do {
-            let data = try JSONEncoder().encode(metadata)
-            defaults.set(data, forKey: draftMetadataKey)
+            do {
+                try store.removeOrphanedSettlementEvidence()
+            } catch {
+                SnapDrillLogger.capture.warning(
+                    "Orphaned Capture settlement cleanup deferred: \(error.localizedDescription)"
+                )
+            }
+        } catch CaptureDraftStoreError.staleRevision {
+            throw CaptureDraftServiceError.staleGeneration
         } catch {
-            SnapDrillLogger.generic.error("[DraftService] 元数据编码失败: \(error.localizedDescription)")
+            throw CaptureDraftServiceError.discardFailed
         }
-
-        SnapDrillLogger.generic.info("[DraftService] Draft saved.")
     }
 
-    /// 读取已保存的草稿；不存在、数据损坏或超过 7 天时返回 `nil`
-    public func loadDraft() -> Draft? {
-        // 1. Load Metadata
-        guard let data = defaults.data(forKey: draftMetadataKey) else {
-            return nil
-        }
-        let metadata: DraftMetadata
-        do {
-            metadata = try JSONDecoder().decode(DraftMetadata.self, from: data)
-        } catch {
-            SnapDrillLogger.capture.warning("[DraftService] 草稿元数据解码失败（数据损坏）: \(error.localizedDescription)")
-            return nil
+    public func beginSettlement(
+        captureID: UUID,
+        expected: CaptureDraftToken?
+    ) async throws -> CaptureDraftSettlement {
+        guard activeSettlements[captureID] == nil,
+              !closedCaptureIDs.contains(captureID),
+              !committedCaptureIDs.contains(captureID) else {
+            throw CaptureDraftServiceError.admissionClosed
         }
 
-        // 2. 7 天过期检查——过期草稿静默清理，不打扰用户
-        let sevenDays: TimeInterval = 7 * 24 * 60 * 60
-        if Date().timeIntervalSince1970 - metadata.timestamp > sevenDays {
-            clearDraft()
-            SnapDrillLogger.generic.info("[DraftService] 草稿已超过 7 天，自动清理")
-            return nil
-        }
+        try validateSettlementAdmission(captureID: captureID, expected: expected)
 
-        // 3. 尝试加载图片（纯文字草稿无图片文件，image 为 nil 是合法状态）
-        // 纯文字草稿无图片文件，image 为 nil 是合法状态
-        var image: UIImage?
-        if let path = draftImagePath() {
+        if let expected {
+            guard let store else {
+                throw CaptureDraftServiceError.storageUnavailable
+            }
             do {
-                let imageData = try Data(contentsOf: path)
-                image = UIImage(data: imageData)
+                try store.markSettlement(expected)
+            } catch CaptureDraftStoreError.publicationOutcomeUncertain {
+                throw CaptureDraftServiceError.publicationOutcomeUncertain
             } catch {
-                if (error as NSError).code != NSFileReadNoSuchFileError {
-                    SnapDrillLogger.generic.warning("[DraftService] 草稿图片读取失败: \(error.localizedDescription)")
-                }
+                throw CaptureDraftServiceError.persistenceFailed
             }
         }
 
-        return Draft(
-            image: image,
-            content: metadata.content,
-            date: Date(timeIntervalSince1970: metadata.timestamp),
-            category: metadata.category
+        let settlementID = makeUUID()
+        closedCaptureIDs.insert(captureID)
+        activeSettlements[captureID] = settlementID
+        return CaptureDraftSettlement(
+            captureID: captureID,
+            token: expected,
+            id: settlementID
         )
     }
 
-    /// 清除已保存的草稿（遵循 `CaptureDraftServiceProtocol`）
-    public func clearDraft() {
-        defaults.removeObject(forKey: draftMetadataKey)
-        if let path = draftImagePath() {
-            try? fileManager.removeItem(at: path) // best-effort: 图片文件删除失败不影响草稿元数据已清理
+    public func abortSettlement(_ settlement: CaptureDraftSettlement) throws {
+        guard activeSettlements[settlement.captureID] == settlement.id else {
+            throw CaptureDraftServiceError.settlementMismatch
         }
-        SnapDrillLogger.generic.info("[DraftService] Draft cleared.")
+        if let token = settlement.token {
+            guard let store else {
+                throw CaptureDraftServiceError.storageUnavailable
+            }
+            do {
+                try store.abortSettlement(token)
+            } catch {
+                // Keep admission closed until the durable abort can be retried.
+                throw CaptureDraftServiceError.discardFailed
+            }
+        }
+        activeSettlements[settlement.captureID] = nil
+        closedCaptureIDs.remove(settlement.captureID)
     }
 
-    // MARK: - Private Helpers
-
-    private func draftImagePath() -> URL? {
-        // 数据安全：草稿图片存入 Application Support（持久），而非 Caches（系统可在低存储时清除）。
-        // 采集主路径要求原图在崩溃/终止后仍可恢复，半持久的 Caches 不满足该约束。
-        guard let supportDir = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-            return nil
+    public func retireCommittedDraft(_ settlement: CaptureDraftSettlement) throws {
+        guard activeSettlements[settlement.captureID] == settlement.id else {
+            throw CaptureDraftServiceError.settlementMismatch
         }
-        // 数据隔离：草稿图按 Profile 隔离（与 ProfileManager.perProfileKeys 已隔离的元数据对齐），
-        // 防切换孩子档案时 A 的草稿图配上 B 的元数据——这是撞儿童隐私隔离根基的敏感数据串档。
-        let profileId = defaults.string(forKey: UDKey.activeProfileId) ?? "default"
-        let draftDir = supportDir
-            .appendingPathComponent("CaptureDrafts", isDirectory: true)
-            .appendingPathComponent(profileId, isDirectory: true)
+
+        activeSettlements[settlement.captureID] = nil
+        committedCaptureIDs.insert(settlement.captureID)
+        if let token = settlement.token {
+            pendingRetirementTokens.insert(token)
+            let revision = CaptureDraftRevision.generation(token)
+            do {
+                try discard(revision)
+            } catch {
+                throw CaptureDraftServiceError.discardFailed
+            }
+        }
+    }
+
+    public func reconcileCommittedDraft(_ token: CaptureDraftToken) throws {
+        guard pendingSettlementToken() == token else {
+            throw CaptureDraftServiceError.staleGeneration
+        }
+        let revision = CaptureDraftRevision.generation(token)
+        committedCaptureIDs.insert(token.captureID)
+        pendingRetirementTokens.insert(token)
         do {
-            try fileManager.createDirectory(at: draftDir, withIntermediateDirectories: true)
+            try discard(revision)
+        } catch CaptureDraftServiceError.staleGeneration {
+            throw CaptureDraftServiceError.staleGeneration
         } catch {
-            SnapDrillLogger.generic.warning("[DraftService] 草稿目录创建失败: \(error.localizedDescription)")
+            throw CaptureDraftServiceError.discardFailed
+        }
+    }
+
+    public func reconcileUncommittedDraft(_ token: CaptureDraftToken) throws {
+        guard pendingSettlementToken() == token, let store else {
+            throw CaptureDraftServiceError.staleGeneration
+        }
+        do {
+            try store.abortSettlement(token)
+        } catch CaptureDraftStoreError.staleRevision {
+            throw CaptureDraftServiceError.staleGeneration
+        } catch {
+            throw CaptureDraftServiceError.discardFailed
+        }
+        activeSettlements[token.captureID] = nil
+        closedCaptureIDs.remove(token.captureID)
+        committedCaptureIDs.remove(token.captureID)
+        pendingRetirementTokens.remove(token)
+    }
+}
+
+private extension CaptureDraftService {
+    func validateSettlementAdmission(
+        captureID: UUID,
+        expected: CaptureDraftToken?
+    ) throws {
+        if let expected {
+            try validateExpectedSettlement(captureID: captureID, expected: expected)
+        } else {
+            try validateNewSettlement()
+        }
+    }
+
+    func validateExpectedSettlement(
+        captureID: UUID,
+        expected: CaptureDraftToken
+    ) throws {
+        guard expected.captureID == captureID else {
+            throw CaptureDraftServiceError.staleGeneration
+        }
+        switch state() {
+        case .recoverable(let current) where current.token == expected:
+            break
+        case .settlementPending(let pending) where pending == expected:
+            break
+        case .none, .recoverable, .durabilityPending, .settlementPending,
+             .committedPendingRetirement, .unrecoverable:
+            throw CaptureDraftServiceError.staleGeneration
+        }
+    }
+
+    func validateNewSettlement() throws {
+        switch state() {
+        case .none, .committedPendingRetirement:
+            break
+        case .durabilityPending, .settlementPending:
+            throw CaptureDraftServiceError.admissionClosed
+        case .recoverable, .unrecoverable:
+            throw CaptureDraftServiceError.draftAlreadyExists
+        }
+    }
+
+    private func resolveCaptureID(
+        requested: UUID?,
+        expected: CaptureDraftToken?
+    ) throws -> UUID {
+        guard let expected else {
+            return requested ?? makeUUID()
+        }
+        if let requested, requested != expected.captureID {
+            throw CaptureDraftServiceError.staleGeneration
+        }
+        return expected.captureID
+    }
+
+    private func validateReplacement(expected: CaptureDraftToken?) throws {
+        if let expected {
+            guard case .recoverable(let current) = state(),
+                  current.token == expected else {
+                throw CaptureDraftServiceError.staleGeneration
+            }
+        } else {
+            switch state() {
+            case .none, .committedPendingRetirement:
+                // A new logical Capture may replace committed cleanup residue.
+                break
+            case .durabilityPending, .settlementPending:
+                throw CaptureDraftServiceError.admissionClosed
+            case .recoverable, .unrecoverable:
+                throw CaptureDraftServiceError.draftAlreadyExists
+            }
+        }
+    }
+
+    private func reconcilePendingPublication(
+        requestedCaptureID: UUID?,
+        expected: CaptureDraftToken?,
+        content: String,
+        category: String?,
+        imageJPEG: Data?
+    ) throws -> CaptureDraftToken? {
+        guard let pending = pendingPublication else {
             return nil
         }
-        // 数据安全：草稿是瞬态可丢弃中间产物，排除 iCloud/iTunes 备份（避免无谓占用备份额度）。
-        // 仅作用于草稿目录——用户正式保存的错题图不受影响、仍正常备份。
-        var draftDirForBackup = draftDir
-        var resourceValues = URLResourceValues()
-        resourceValues.isExcludedFromBackup = true
-        try? draftDirForBackup.setResourceValues(resourceValues)
-        return draftDir.appendingPathComponent(draftImageName)
+        guard let store else {
+            throw CaptureDraftServiceError.storageUnavailable
+        }
+
+        switch store.state() {
+        case .recoverable(let current) where current.token == pending.draft.token:
+            try makePendingPublicationDurable(pending, store: store)
+            self.pendingPublication = nil
+            finishPublishedDraft(
+                pending.draft.token,
+                replacing: pending.expected,
+                store: store
+            )
+            if pending.matches(
+                requestedCaptureID: requestedCaptureID,
+                expected: expected,
+                content: content,
+                category: category,
+                imageJPEG: imageJPEG
+            ) {
+                return current.token
+            }
+            guard expected == current.token else {
+                throw CaptureDraftServiceError.staleGeneration
+            }
+            return nil
+        case .recoverable(let current) where current.token == pending.expected:
+            self.pendingPublication = nil
+            return nil
+        case .none where pending.expected == nil:
+            self.pendingPublication = nil
+            return nil
+        case .durabilityPending, .unrecoverable:
+            throw CaptureDraftServiceError.publicationOutcomeUncertain
+        case .none, .recoverable:
+            self.pendingPublication = nil
+            throw CaptureDraftServiceError.staleGeneration
+        }
     }
+
+    private func makePendingPublicationDurable(
+        _ pending: PendingPublication,
+        store: CaptureDraftStore
+    ) throws {
+        do {
+            try store.publish(pending.draft)
+        } catch CaptureDraftStoreError.publicationOutcomeUncertain {
+            throw CaptureDraftServiceError.publicationOutcomeUncertain
+        } catch {
+            throw CaptureDraftServiceError.persistenceFailed
+        }
+    }
+
+    private func finishPublishedDraft(
+        _ token: CaptureDraftToken,
+        replacing expected: CaptureDraftToken?,
+        store: CaptureDraftStore
+    ) {
+        suppressedRevisions.removeAll()
+        pendingRetirementTokens.removeAll()
+        guard let expected else {
+            return
+        }
+        do {
+            try store.discardSettlementMarker(expected)
+        } catch {
+            SnapDrillLogger.capture.warning(
+                "Stale Capture settlement marker cleanup deferred: \(error.localizedDescription)"
+            )
+        }
+        SnapDrillLogger.capture.info(
+            "Capture draft generation made durable: \(token.generationID)"
+        )
+    }
+
 }

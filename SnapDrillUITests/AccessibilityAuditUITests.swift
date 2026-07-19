@@ -27,6 +27,7 @@ final class AccessibilityAuditUITests: XCTestCase {
 
         auditPrimaryTabs()
         auditManualCaptureEditor()
+        auditCaptureDraftRecoveryAlerts()
         auditLibraryDetailAndExportPreview()
         auditSmartPaperConfig()
         auditStoreRecovery()
@@ -98,6 +99,40 @@ final class AccessibilityAuditUITests: XCTestCase {
         }
 
         app.terminate()
+    }
+
+    private func auditCaptureDraftRecoveryAlerts() {
+        let fixtures = [
+            (
+                argument: "--ui-test-capture-recoverable-draft",
+                screen: "Recoverable Capture Draft",
+                identifier: "capture.draft.continue"
+            ),
+            (
+                argument: "--ui-test-capture-corrupt-draft",
+                screen: "Corrupt Capture Draft",
+                identifier: "capture.draft.discard"
+            )
+        ]
+
+        for fixture in fixtures {
+            let app = launchApp(extraArguments: [fixture.argument])
+            guard openPrimaryTab(index: 2, root: "capture.root", in: app) else {
+                recordBlocked(screen: fixture.screen, reason: "capture.root did not appear.", app: app)
+                app.terminate()
+                continue
+            }
+            if waitForElement(fixture.identifier, in: app) {
+                recordAudit(screen: fixture.screen, rootIdentifier: fixture.identifier, app: app)
+            } else {
+                recordBlocked(
+                    screen: fixture.screen,
+                    reason: "\(fixture.identifier) did not appear.",
+                    app: app
+                )
+            }
+            app.terminate()
+        }
     }
 
     private func auditLibraryDetailAndExportPreview() {
