@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-15
+last_verified: 2026-07-19
 layer: pattern
 freshness:
   max_age_days: 180
@@ -42,7 +42,7 @@ freshness:
 | **单题均值** | OCR 文字 ~5KB + 压缩图片 ~200KB ≈ **205KB** |
 | **200 题** | ~40MB |
 | **2000 题** | ~400MB |
-| **图片压缩** | 长边限制 2000px，JPEG quality 0.8 |
+| **图片压缩** | normalized JPEG 的产品接受边界只见 [S1-A](local-library-data-contract.md#21-release-1-内容与图片接受边界s1-a)；JPEG quality 0.8 是当前实现基准，不是第二份产品上限 |
 | **草稿** | 最近 1 份，7 天过期自动清理 |
 | **缓存** | 临时文件 + OCR 中间产物；Release 1 用户可见手动清理入口隐藏，内部清理不得触碰 App-managed 主图或资料数据 |
 
@@ -66,7 +66,7 @@ freshness:
 | **最低 iOS** | 26.0 |
 | **设备** | Release 1 仅支持可运行 iOS 26 的 iPhone；退出 Apple Silicon Mac / Apple Vision Pro compatibility distribution；iPad 或兼容平台重入需新裁决 |
 | **屏幕尺寸** | Release 1 iPhone viewport 集合；现有 regular-size 代码不构成 iPad 支持声明 |
-| **方向** | iPhone 竖屏；其他方向须以发布构建和 Release Contract 为准 |
+| **方向** | 只消费 [Release 1 Contract ORI-A](release-1-contract.md#7-明确非目标与隐藏能力)；本表不另定义 shell 或媒体方向 |
 | **分屏** | 不属于 Release 1；iPad 重入时重新定义 |
 | **国际化** | 英文 + 简体中文，App 内可切换 |
 | **深色模式** | 跟随系统 / 浅色 / 深色 三选项 |
@@ -96,6 +96,7 @@ freshness:
 | **草稿恢复** | 意外退出后可恢复（S0 级防护） |
 | **删除安全** | 持久化五秒绝对撤销期限；后台 / 重启不缩短，期限后幂等硬删除 |
 | **备份完整性** | 恢复前按 [Local Library Data Contract](local-library-data-contract.md) 冻结并验证 D3-B prestate；失败时零 active mutation |
+| **完整操作隔离** | 只消费 [D4S-A complete-operation barrier](local-library-data-contract.md#43-complete-operation-与-mutation-barrierd4s-a)；partial export 不升级为完整资料库快照 |
 | **崩溃率** | < 0.1%（Xcode Organizer / MetricKit / App Store Connect） |
 
 ## 同步与网络

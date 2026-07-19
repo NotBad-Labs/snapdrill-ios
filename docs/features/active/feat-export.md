@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-15
+last_updated: 2026-07-19
 intent_refs:
   - vision:P2
   - vision:P4
@@ -15,11 +15,12 @@ release_refs:
   - release-1:C5-E
   - release-1:C5-S1
   - release-1:D2-A
+  - release-1:D4S-A
 ---
 
 # Feature: PDF 导出与打印
 
-> **产品重基线（2026-07-15）**：导出 / 打印与永久手动备份属于宪章核心承诺。C2-Core 要求打印作为独立正式终点，并把分享 / 保存视为并列出口；D2-A 固定基础 PDF 无封面及物理页数；PDF 增强按 C2-Optional 逐 build 冻结，SmartPaper 仅按 C5-E / C5-S1 的非公开实验边界复用管线。frontmatter 与技术章节仍只记录当前实现；旧 Profile / Pro 分层不得驱动新工作。
+> **产品重基线（2026-07-19）**：导出 / 打印与永久手动备份属于宪章核心承诺。C2-Core 要求打印作为独立正式终点，并把分享 / 保存视为并列出口；D2-A 固定基础 PDF 无封面及物理页数；D4S-A 将 selected PDF / CSV 明确归为 partial export，不等待完整资料库 barrier，也不冒充完整备份。PDF 增强按 C2-Optional 逐 build 冻结，SmartPaper 仅按 C5-E / C5-S1 的非公开实验边界复用管线。frontmatter 与技术章节仍只记录当前实现；旧 Profile / Pro 分层不得驱动新工作。
 
 > 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
@@ -33,6 +34,7 @@ release_refs:
 ## 2. 需求规则 (What)
 - **PDF 导出（基础，免费）**：资料库过滤后批量导出，含**导出前预览**，支持分享与打印。
 - **基础分页（D2-A）**：基础 PDF 不生成封面，物理页数严格为 `ceil(N / itemsPerPage)`；空选择在进入渲染器前失败。未来封面必须重新 shaping，不能作为默认版式元素引入。
+- **局部快照（D4S-A）**：selected PDF / CSV 只对调用时取得的稳定选择 / 查询快照负责，是 partial export；不关闭 complete-operation admission、不等待完整资料库 prestate，也不得使用“完整备份”表述。若 complete operation 已关闭 snapshot admission，请求立即 busy 失败而不是排队。
 - **PDF 增强（Candidate optional）**：默认隐藏，只有冻结 manifest 显式纳入并通过 PDF fidelity / 打印门禁才可见：
   - **去答案打印模式**：隐藏答案文字字段，只留题目内容，面向自测 / 回顾（布局层操作）。
   - **留白区**：题目下方留白供用户手写补充。
@@ -50,7 +52,7 @@ release_refs:
   - **实现现状（GAP-R5 已接入，剩余 dogfood）**：`LibraryDetailView` 单题快速打印生成 PDF 后调用 `PrintPresenting.present(...)`；`ExportPreviewView` 的批量打印同样通过 `PrintPresenting`。旧 spec 所称"经 ShareSheet 间接打印、尚未接入 `UIPrintInteractionController`"已过期。剩余真实缺口是无 AirPrint 打印机 / 真机 AirPrint 三态 dogfood 尚未完成。
 - **关键机制 / 数据流**：资料库过滤 / 选中结果集 → 资料快照 → PDFExportService 排版（去答案 / 留白 / 页眉页码为 Candidate optional）→ 生成 PDF → 预览 → 分享 / 保存 / 打印。C5-E 实验中的 SmartPaper 与未来可能重入的 Word 应优先复用管线而非重建 PDF 引擎。ShareCard 例外：用 SwiftUI `ImageRenderer`，不走 PDFExport 管线。
   - **实现偏差（D2-A）**：当前 `PDFExportService` 仍无条件生成一张标题页，并把内容页从 1 重新编号；这是待独立代码 slice 修复的现状，不是获准的 Release 1 输出。
-- **State & Concurrency**（Swift 6 strict）：导出/打印为只读编排。批量 PDF 渲染**逐页包 `autoreleasepool` 释放**控制峰值内存（防 OOM）；重活不阻塞主线程。PDF 导出预览经 `AppActivityTracker.begin(.exporting) → end(...)` 标记活动；单题快速打印与预览页打印经 `AppActivityTracker.begin(.printing) → end(...)` 标记活动——期间禁止切换 Profile（互斥），UI 显示对应忙碌提示。
+- **State & Concurrency**（Swift 6 strict）：导出/打印为只读编排。批量 PDF 渲染**逐页包 `autoreleasepool` 释放**控制峰值内存（防 OOM）；重活不阻塞主线程。PDF 导出预览经 `AppActivityTracker.begin(.exporting) → end(...)` 标记活动；单题快速打印与预览页打印经 `AppActivityTracker.begin(.printing) → end(...)` 标记活动。D4S-A 要求 selected export 使用稳定选择快照但不等待 complete-operation barrier；当前 Profile-switch 互斥只是实现事实，不能外推为目标 barrier。
   - **实现现状（GAP-R4 已接入，剩余 caveat）**：旧 spec 所称"快速打印未接入 tracker、`.printing` 生产代码零调用"已过期。当前剩余真实缺口是 `LibraryEditViewModel.save()` 仍使用 `.capturing` 标记编辑保存，需后续判断是否改为更准确的活动类型；另外真机 AirPrint dogfood 尚未完成。
 - **设计裁决（仅本模块）**：
   - **去答案是布局层操作**（隐藏答案文字字段后排版），不触碰原资料答案数据，与候选图片处理增强的技术路径完全分离。
@@ -64,10 +66,12 @@ release_refs:
   - 导出结果集为空 → 不生成空文件，提示"无可导出资料"（UC5 Exception）。
   - 文件写入失败 / 磁盘空间不足 → 不提示导出成功；已生成临时文件必须清理（UC5 Exception / Boundary B07）。
   - 无 AirPrint 打印机 → 停留在打印前状态并给出失败反馈，不得误记为已打印（UC5 Exception）。
+  - complete operation 正在建立或持有 barrier → 已 detached 的 selected PDF / CSV snapshot 可完成；尚未取得 snapshot 的新请求立即显示 busy 失败，不排队、不生成文件。
 - **数据保证**：
   - PDF 内容必须来自当前过滤结果或当前选择结果，不得夹带遗留容器或资料库外数据。
   - 若 manifest 纳入去答案模式，它只影响导出内容，**不改动原题答案数据**。
   - 导出与打印是**只读操作**，不得修改题目主数据、复习状态或统计。
+  - selected PDF / CSV 不声明或推断未选资料、完整 taxonomy inventory、恢复能力或完整资料库时间点。
 - **NFR**：
   - PDF 导出 < 5 秒（50 条资料，点击导出到预览页显示）；快速打印 < 3 秒只在 manifest 纳入该 optional 时适用。
   - PDF 批量导出内存 < 200MB（`autoreleasepool` 逐页释放）。
@@ -103,6 +107,7 @@ release_refs:
 | 空集合不导出 | Export service tests |
 | 无封面与物理页数 | PDF page-count / first-page content tests + 打印预览 dogfood |
 | 活动追踪 | AppActivityTracker 契约测试 + 编辑保存活动类型后续收敛 |
+| D4S-A partial export | barrier 前 detached snapshot 完成 + barrier 后新请求立即 busy 失败、零产物的并发契约测试 |
 | 真机打印 | dogfood 待验 |
 
 ## 意图追溯（永久保留）
@@ -110,7 +115,7 @@ release_refs:
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
 | Vision | `../../explanations/vision.md`（P4 用户拥有数据 / P2 简洁） | 导出/打印是价值链一等终点；数据可导出可打印可带走；不损害录入/管理简洁 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Optional / C5-E / C5-S1 / D2-A | 打印是独立终点，分享 / 保存不能替代；基础 PDF 无封面且页数闭合；增强项与 SmartPaper 不能顺带扩张 |
+| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Optional / C5-E / C5-S1 / D2-A / D4S-A | 打印是独立终点，分享 / 保存不能替代；基础 PDF 无封面且页数闭合；selected export 只作 partial snapshot；增强项与 SmartPaper 不能顺带扩张 |
 | 结果 / 发布证据消费者 | `../../reference/release-1-contract.md` C6-A | 真实打印结果可供发布 gate 取证；不表示本 feature 拥有 release-operations 裁决或已经完成验证 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | Release 1 免费、无广告、无 IAP；Word / 图片增强只作候选，不作为升级承诺 |
 | 待验证假设 | `../../explanations/assumptions.md` H3（导出/打印是归档后的高价值终点） | 导出/打印使用率验证 H3 |

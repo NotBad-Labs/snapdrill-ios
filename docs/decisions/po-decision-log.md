@@ -8,7 +8,7 @@
 > `AGENTS.md` 的裁决规则一致。更早的奠基性决策（2026-06-09 美国全球版 pivot、零后端、
 > iPhone-only 等）已在 ADR / positioning 固化，不重复收录。
 >
-> **范围**：2026-06-27 至 2026-07-16 的历史回执，加上此后具名 authority pointer；模型品牌
+> **范围**：2026-06-27 至 2026-07-19 的历史回执，加上此后具名 authority pointer；模型品牌
 > 不拥有决策或文件。
 
 ## 决策状态
@@ -33,6 +33,7 @@
 | 07-12 | **Gate B / Product Constitution v1：B1-A 至 B7-A 全部逐项批准**。首个切口 = 结构化纸张 / PDF 成人工作流；价值承诺 = 可搜索、可整理、可打印资料库；核心链 = 采集 → 整理 / 找回 → 导出 / 打印；local-first / 无 SnapDrill 账户 / 单资料库 / 永久手动备份；Release 1 免费无广告无 IAP；iPhone-only 美国主体全球版、英文 + 简体中文 | `docs/explanations/vision.md`（Product Constitution v1；本权威合入 `develop` 后 effective） |
 | 07-13 | **Gate C / C3 ratified：Release 1 普通启动默认进入 Dashboard**。Dashboard 只承担任务入口与可执行状态概览；不批准当前卡片 / 五 Tab，不允许 Profile / Pro / analytics / Review hero 主导首屏 | `docs/reference/release-1-contract.md` §4 |
 | 07-14 | **Gate C 四包全部批准**：C1-A；C2-Core / Image / Optional / Personalization；C4-D；C5-E / C5-S1；C6-A；DATA-1 / DATA-1-E / DATA-1-R。加上 07-13 的 C3，Release 1 Contract 全部 13 个精确 ID 已 ratified；本权威合入 `develop` 后 effective，且不自动授权实现、上传、开放 TestFlight 或发布 | `docs/reference/release-1-contract.md` |
+| 07-19 | **Release safety 四项 ratified**：S1-A 固定内容 / taxonomy / normalized JPEG 接受边界；M1-A 固定 taxonomy cardinality 转换的失败原子性；D4S-A 固定 complete / partial operation 与 shared prestate / barrier；ORI-A 固定 iPhone shell 与媒体内容方向边界。它们合入 owning authority 后才 effective，不批准 Backup v3 DDL / package、实现、合并、上传或发布 | `docs/reference/release-1-contract.md` + `docs/reference/local-library-data-contract.md`；来源 #918 / #884 / #950 |
 
 ## B. 质量门槛
 
@@ -88,7 +89,7 @@ live GitHub、Release Contract、owning feature spec 和当前审计入口重新
 
 ## 历史统计
 
-约 **33 组已拍 + 7 项在队**。计数口径按 PO 批准的决策包：Gate B 的 7 个关联选项计一组；C3 单独计一组；07-14 批准的 Gate C 其余 12 个精确 ID 按四包计四组。
+截至 2026-07-16 的历史估算约 **33 组已拍 + 7 项在队**。该旧统计不包含 07-19 的四项 Release safety 裁决，也不得用于当前排期；live 状态以 owning authority 与 GitHub 为准。
 
 草案中标记“待路由”的 5 项已随本文件入仓路由：
 

@@ -75,7 +75,7 @@ current_authority: docs/decisions/ADR-001-local-first.md
     def write_release_contract(
         self,
         frontmatter: str = (
-            'ratified_decisions: ["C1-A", "C2-Core", "C6-A", "#932-A"]\n'
+            'ratified_decisions: ["C1-A", "C2-Core", "C6-A", "#932-A", "ORI-A"]\n'
             'pending_decisions: ["C9-Pending"]\n'
         ),
         *,
@@ -275,6 +275,7 @@ release_refs:
                 "release-1:C2-Core",
                 "release-1:C6-A",
                 "release-1:#932-A",
+                "release-1:ORI-A",
                 "release-1:section-7",
             ],
         )
@@ -282,36 +283,76 @@ release_refs:
 
     def test_rejects_invalid_release_ref_shapes_and_values(self) -> None:
         cases = {
-            "non-list": "release_refs: release-1:C2-Core\n",
-            "empty": "release_refs: []\n",
-            "non-string": "release_refs:\n  - 42\n",
+            "non-list": (
+                "release_refs: release-1:C2-Core\n",
+                "release_refs must be a non-empty list",
+            ),
+            "empty": (
+                "release_refs: []\n",
+                "release_refs must be a non-empty list",
+            ),
+            "non-string": (
+                "release_refs:\n  - 42\n",
+                "release_refs entries must be non-empty strings",
+            ),
             "duplicate": (
                 "release_refs:\n"
                 "  - release-1:C2-Core\n"
-                "  - release-1:C2-Core\n"
+                "  - release-1:C2-Core\n",
+                "duplicate release_refs ['release-1:C2-Core']",
             ),
-            "unknown": "release_refs:\n  - release-1:C9-Unknown\n",
-            "pending": "release_refs:\n  - release-1:C9-Pending\n",
+            "unknown": (
+                "release_refs:\n"
+                "  - release-1:C2-Core\n"
+                "  - release-1:C9-Unknown\n",
+                "unknown release_refs ['release-1:C9-Unknown']",
+            ),
+            "pending": (
+                "release_refs:\n"
+                "  - release-1:C2-Core\n"
+                "  - release-1:C9-Pending\n",
+                "pending release_refs ['release-1:C9-Pending']",
+            ),
         }
 
-        for name, release_refs in cases.items():
+        self.write_feature(
+            """---
+id: feat-valid
+title: Valid Consumer
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:C2-Core
+---
+
+# Feature: Valid Consumer
+""",
+            name="feat-valid.md",
+        )
+
+        for name, (release_refs, expected_error) in cases.items():
             with self.subTest(name=name):
                 self.write_feature(
                     f"""---
-id: feat-capture
-title: Capture
+id: feat-invalid
+title: Invalid Consumer
 status: implemented
 tier: free
 intent_refs:
   - vision:P1
 {release_refs}---
 
-# Feature: Capture
-"""
+# Feature: Invalid Consumer
+""",
+                    directory="backlog",
+                    name="feat-invalid.md",
                 )
                 known_refs = self.module.collect_known_refs()
                 known_release_refs, pending_release_refs = self.module.collect_release_refs()
-                with redirect_stderr(io.StringIO()):
+                stderr = io.StringIO()
+                with redirect_stderr(stderr):
                     with self.assertRaises(SystemExit) as raised:
                         self.module.collect_features(
                             known_refs,
@@ -320,6 +361,7 @@ intent_refs:
                         )
 
                 self.assertEqual(raised.exception.code, 1)
+                self.assertIn(expected_error, stderr.getvalue())
 
     def test_active_feature_requires_exact_release_ref(self) -> None:
         self.write_feature(
@@ -420,7 +462,7 @@ release_refs:
 
         self.assertEqual(raised.exception.code, 1)
 
-    def test_release_operations_are_not_fabricated_as_feature_owners(self) -> None:
+    def test_release_operations_are_not_fabricated_as_feature_consumers(self) -> None:
         self.write_feature(
             """---
 id: feat-capture
@@ -458,8 +500,12 @@ release_refs:
             "| [`release-1:#932-A`](release-1-contract.md) | `release-operations` |",
             content,
         )
+        self.assertIn(
+            "| [`release-1:ORI-A`](release-1-contract.md) | `release-operations` |",
+            content,
+        )
 
-        for decision in ("C1-A", "C6-A", "#932-A"):
+        for decision in ("C1-A", "C6-A", "#932-A", "ORI-A"):
             with self.subTest(decision=decision):
                 self.write_feature(
                     f"""---
@@ -488,9 +534,9 @@ release_refs:
                 self.assertEqual(raised.exception.code, 1)
                 self.assertIn("release-operations-only", stderr.getvalue())
 
-    def test_rejects_ratified_release_decision_without_owner(self) -> None:
+    def test_rejects_ratified_release_decision_without_consumer(self) -> None:
         self.write_release_contract(
-            'ratified_decisions: ["C1-A", "C2-Core", "C6-A", "#932-A", "D4-B"]\n'
+            'ratified_decisions: ["C1-A", "C2-Core", "C6-A", "#932-A", "ORI-A", "D4-B"]\n'
             "pending_decisions: []\n"
         )
         self.write_feature(
@@ -523,9 +569,68 @@ release_refs:
         self.assertEqual(raised.exception.code, 1)
         self.assertIn(
             "ratified release refs require at least one Feature or "
-            "release-operations owner ['release-1:D4-B']",
+            "release-operations consumer ['release-1:D4-B']",
             stderr.getvalue(),
         )
+
+    def test_safety_decisions_require_feature_consumers(self) -> None:
+        safety_decisions = ("S1-A", "M1-A", "D4S-A")
+        self.write_release_contract(
+            'ratified_decisions: ["C1-A", "C2-Core", "C6-A", "#932-A", '
+            '"ORI-A", "S1-A", "M1-A", "D4S-A"]\n'
+            "pending_decisions: []\n"
+        )
+
+        def write_with_decisions(decisions: tuple[str, ...]) -> None:
+            refs = "\n".join(
+                f"  - release-1:{decision}"
+                for decision in ("C2-Core", *decisions)
+            )
+            self.write_feature(
+                f"""---
+id: feat-library
+title: Library
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+{refs}
+---
+
+# Feature: Library
+"""
+            )
+
+        known_refs = self.module.collect_known_refs()
+        known_release_refs, pending_release_refs = self.module.collect_release_refs()
+        write_with_decisions(safety_decisions)
+        self.module.collect_features(
+            known_refs,
+            known_release_refs,
+            pending_release_refs,
+        )
+
+        for omitted in safety_decisions:
+            with self.subTest(omitted=omitted):
+                write_with_decisions(
+                    tuple(
+                        decision
+                        for decision in safety_decisions
+                        if decision != omitted
+                    )
+                )
+                stderr = io.StringIO()
+                with redirect_stderr(stderr):
+                    with self.assertRaises(SystemExit) as raised:
+                        self.module.collect_features(
+                            known_refs,
+                            known_release_refs,
+                            pending_release_refs,
+                        )
+
+                self.assertEqual(raised.exception.code, 1)
+                self.assertIn(f"release-1:{omitted}", stderr.getvalue())
 
     def test_release_index_is_deterministic_and_disclaims_conformance(self) -> None:
         self.write_feature(
@@ -573,7 +678,7 @@ release_refs:
 
         self.assertEqual(first, second)
         self.assertIn("## Feature -> Release 1", first)
-        self.assertIn("## Release 1 -> Feature / Operations", first)
+        self.assertIn("## Release 1 -> Feature / Operations Consumers", first)
         self.assertIn("不证明语义正确、实现符合或候选纳入", first)
         self.assertIn("不证明 M1-M10 已有证据", first)
 

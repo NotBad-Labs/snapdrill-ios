@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-15
+last_verified: 2026-07-19
 layer: contract
 freshness:
   max_age_days: 180
@@ -18,6 +18,11 @@ freshness:
 > must be frozen below and separately approved before a writer/reader implementation starts. The
 > Profile-free semantic inventory and recovery lifetime are owned by
 > [Local Library Data Contract](local-library-data-contract.md), not duplicated here.
+>
+> **Release safety inputs (2026-07-19):** S1-A and D4S-A now constrain what a v3 writer / reader
+> must consume. Their product limits, complete-operation prestate and mutation barrier remain owned
+> by the Local Library Data Contract and are not duplicated here. They do not approve a v3 DDL,
+> SQLite package, object allowlist, journal operation or fixture.
 
 ## Format Version
 
@@ -49,8 +54,8 @@ these irreversible wire details:
   image decode/privacy validation and all-or-nothing semantic closure before active-library mutation;
 - incremental `sqlite3_blob` read/write under the <200 MiB process-memory NFR; no image set or whole
   database may be materialized as one `Data`;
-- writer-reader capacity closure for every library the same product supports creating, bounded by
-  available storage and platform primitives rather than an arbitrary product total cap;
+- writer-reader capacity closure for every library the same product supports creating, consuming
+  S1-A from the Local Library Data Contract rather than creating wire-local product limits;
 - transaction/finalization rules proving the exported artifact is exactly one closed file with no
   required WAL/journal sidecar, plus semantic golden fixtures, adversarial corpus and a documented
   standard-SQLite extraction recipe.
@@ -58,6 +63,12 @@ these irreversible wire details:
 Byte-for-byte SQLite determinism is not required. The schema and semantic fixtures are. D3-B's
 `missing-at-snapshot` state belongs only to an internal recovery-only artifact and must never appear
 as an accepted substitute for a complete external v3 backup.
+
+D4S-A classifies external `.snapdrillbackup` generation as a complete operation. The writer may
+continue after its immutable source snapshot is detached / finalized without holding active-library
+mutation admission closed. Settings JSON / CSV and selected PDF / CSV remain partial exports and do
+not inherit the complete-operation barrier. Exact lifecycle semantics remain in the Local Library
+Data Contract; this paragraph changes no v2 or v3 wire grammar.
 
 The former general-ZIP / ZIP32 / ZIP64 explorations are superseded by D1-B. ZIPFoundation remains
 only in the epoch-before v2 implementation until a separately authorized retirement slice; its

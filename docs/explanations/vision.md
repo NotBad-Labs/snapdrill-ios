@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-15
+last_verified: 2026-07-19
 layer: product-constitution
 authority: po
 constitution_version: 1
@@ -173,6 +173,6 @@ Product Constitution
 | [business-model.md](business-model.md) | 当前商业政策、商业假设与重入条件 |
 | [assumptions.md](assumptions.md) | 可证伪的产品假设及证据方法 |
 | [user-journeys.md](user-journeys.md) | 宪章约束内的代表性工作流 |
-| [Release 1 Product Contract](../reference/release-1-contract.md) | Release 1 范围、非目标和结果级验收；Gate C 与 2026-07-15 follow-up decisions 已 ratified，合入 `develop` 后 effective |
+| [Release 1 Product Contract](../reference/release-1-contract.md) | Release 1 范围、非目标和结果级验收；Gate C 与截至 2026-07-19 的 follow-up decisions 已 ratified，合入 `develop` 后 effective |
 | [../features/](../features/) | 单功能 Why / What / How / Verify |
 | [../reference/feature-status.md](../reference/feature-status.md) | 当前实现状态，仅属实证链 |
