@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-19
+last_verified: 2026-07-20
 layer: product-constitution
 authority: po
 constitution_version: 1
@@ -10,7 +10,9 @@ activation: effective_when_merged_to_develop
 
 > 本文件是 SnapDrill 第一层产品 SSOT，也是仓库内当前产品意图的最高权威。它在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective baseline。
 >
-> 第二层是一个有界、带日期的 Release Product Contract；第三层是各 feature spec。代码、测试、构建与真机证据只证明当前实现，不能反向改写这三层规范。
+> 第二层是一个有界、带日期的 Release Product Contract，同时承担该次发布的唯一 PRD 角色；
+> 第三层是各 feature spec。不得再建立一份平行 `PRD.md` 复制范围或需求。代码、测试、构建与
+> 真机证据只证明当前实现，不能反向改写这三层规范。
 
 ## v1 裁决摘要
 
@@ -157,7 +159,8 @@ Product Constitution
 ```
 
 1. Product Constitution 只定义耐久产品身份、原则和跨功能边界。
-2. Release Contract 定义一次发布的目标产物、Must outcomes、明确非目标和结果级验收。
+2. Release Contract 同时是该次发布的唯一 PRD，定义目标产物、Must outcomes、明确非目标和
+   结果级验收；不另建平行 PRD。
 3. Feature spec 定义单功能的可观察行为，不得创造上游产品不变量。
 4. 下游规范必须引用上游依据；找不到依据的需求是孤儿需求。
 5. 分支、PR、聊天、当前代码和测试都不能自行使产品裁决生效。
@@ -173,6 +176,6 @@ Product Constitution
 | [business-model.md](business-model.md) | 当前商业政策、商业假设与重入条件 |
 | [assumptions.md](assumptions.md) | 可证伪的产品假设及证据方法 |
 | [user-journeys.md](user-journeys.md) | 宪章约束内的代表性工作流 |
-| [Release 1 Product Contract](../reference/release-1-contract.md) | Release 1 范围、非目标和结果级验收；Gate C 与截至 2026-07-19 的 follow-up decisions 已 ratified，合入 `develop` 后 effective |
+| [Release 1 Product Contract](../reference/release-1-contract.md) | Release 1 唯一 PRD：范围、非目标和结果级验收 |
 | [../features/](../features/) | 单功能 Why / What / How / Verify |
 | [../reference/feature-status.md](../reference/feature-status.md) | 当前实现状态，仅属实证链 |

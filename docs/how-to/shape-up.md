@@ -32,7 +32,10 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 
 ## 制品（就这几样，AI 维护）
 
-- **Bet / Pitch** → PO 明确接受的 live GitHub issue / PR，或 PO 指定的具名范围文档；固定包含 Problem / Appetite / Solution / Rabbit holes / No-gos（原书 Ch.6）。
+- **Bet / Pitch** → PO 明确接受的 live GitHub issue / PR，或 PO 指定的具名范围文档；固定包含
+  Problem / Appetite / Solution / Rabbit holes / No-gos（原书 Ch.6）。P-A 常设委托不允许
+  Agent 自选 bet；它只允许 owning agent 在当前已接受 bet 内自主推进 Green bounded task 至
+  Draft PR。
 - **Scopes** → 在 bet 或 building 中，按产品结构竖切（非前后端分工，原书 Ch.12）。
 - **Hill chart** → 一段文本即可：每个 scope 标 `uphill(还在解未知)` / `downhill(只剩执行)`，AI 每 2-3 天更新（原书 Ch.13）。
 - 不需要 Basecamp 的专属工具；Markdown + git 即可。
@@ -48,16 +51,24 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 本文件**不固化某个具体周期的进行中赌注**——那会随时间过期且依赖「最新文件名胜出」的脆弱约定。当前赌注的唯一可信来源是**实证**：
 
 - **优先**：当前活跃且已被 PO 接受的 GitHub issue / PR；需要更长说明时，由 PO 明确指定一份具名范围文档。
-- 没有被接受的 live issue/PR 或具名范围文档时，先回到 shaping——别凭过期计划、文件名顺序或 agent 私有记忆开工。
+- 没有被接受的 live issue / PR、具名范围文档或 PO 明确批准的 Gate 时，先回到 shaping——
+  别凭过期计划、文件名顺序或 Agent 私有记忆开工。已批准 Gate 内仍须逐 task 通过 DoR
+  Green；Yellow / Red 继续请求裁决。
 - 任何 Agent 的全局架构 / 生命周期规划都只作为 shaping input；它不能自动变成 roadmap、
   当前 bet 或并行状态 SSOT，仍需 orchestrator 的 live repo 实证审查与 PO 拍板。
 - 逐功能**实现状态**以 [`../reference/feature-status.md`](../reference/feature-status.md)（自动生成）
   为准，不在本文件重复罗列；Release disposition 与合同符合性仍由 Release Contract、owning
   feature spec 和验证证据裁决。
 
+截至 2026-07-20，PO 接受的 live bet 是
+[Gate P / Issue #956](https://github.com/NotBad-Labs/snapdrill-ios/issues/956)。Issue 的 open /
+closed / superseded 状态及正文承担 Gate 生命周期；本文件只提供入口，不复制其 Problem、
+Appetite、Scopes、No-gos 或 Exit。P-A 控制面合入 `develop` 前，其他 lane 继续使用原授权规则。
+
 ### Parked（明确不赌、停止投入，但代码留着 · 取舍的牙齿）
 
-`feature-status.md` 只说明实现状态，不拥有投资范围。Product Constitution v1 已 effective；本更新中的 Release 1 Contract 已 ratified，并在合入 `develop` 后固定本次发布边界。代码投入仍需要独立 implementation bet：
+`feature-status.md` 只说明实现状态，不拥有投资范围。Product Constitution v1 与 Release 1
+Contract 均已 effective；代码投入仍需要当前已接受 bet，不能只凭合同存在自行启动：
 
 - Dashboard —— 默认首屏由 C3 固定；当前卡片 / 五 Tab 不自动获批，代码投入等待独立 implementation bet。
 - Review、SmartPaper —— 只允许 C4-D / C5-E 定义的 `po-only` / `research` 有界实验，公开候选隐藏；当前实现可作为偏差证据，任何对齐仍需独立 implementation bet。

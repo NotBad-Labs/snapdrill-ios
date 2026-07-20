@@ -3,7 +3,11 @@
 > 采用 **feature-spec 一元化 + Diátaxis 分层**（docs 重组 B，2026-05-30）。
 > 单个功能的 Why / What / How / Verify 高内聚在一个 feature spec；跨功能的解释/参考/操作按 Diátaxis 分层。
 >
-> **认知入口**：第一层 Product Constitution 位于 `explanations/vision.md`，第二层是当前 Release Product Contract，第三层是 feature spec。PO 对话先进入 `exploration -> shaped candidate -> ratified -> effective -> superseded`；只有归属权威合入 `develop` 后才替换 tracked baseline。实现状态由代码、测试、构建与发布实证确认，不能反向改写产品目标。
+> **认知入口**：第一层 Product Constitution 位于 `explanations/vision.md`，第二层是当前 Release
+> Product Contract（同时是该次发布的唯一 PRD），第三层是 feature spec；不另建平行 `PRD.md`。
+> PO 对话先进入 `exploration -> shaped candidate -> ratified -> effective -> superseded`；只有
+> 归属权威合入 `develop` 后才替换 tracked baseline。实现状态由代码、测试、构建与发布实证确认，
+> 不能反向改写产品目标。
 
 ## 结构
 
@@ -28,7 +32,8 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 ```
 
 - `vision.md` 是 Product Constitution 的固定路径，也是仓库内最高产品权威；PO ratify 后仍须合入该归属权威才 effective。
-- Release Contract 定义一次发布的 Must outcomes、非目标与结果级验收；feature-status 不能替代它。
+- Release Contract 同时承担该次发布的唯一 PRD，定义 Must outcomes、非目标与结果级验收；
+  feature-status、独立 `PRD.md` 或当前实现都不能替代它。
 - 下游文档必须指出其上游依据。找不到上游依据的需求是孤儿需求，不应直接实现。
 - 每个 feature spec 在 frontmatter 用 `intent_refs` 声明耐久 Vision / 产品政策 / ADR 归属，并用 `release_refs` 声明当前 Release Contract 消费边；生成器校验精确 ID、受限 §7 引用，并拒绝没有 Feature / operations consumer 的 ratified decision，但字段存在仍不证明语义正确、实现符合或候选纳入。
 - 代码与测试证明“现在是什么”；Product Constitution、Release Contract 与 spec 约束“应该是什么”。不一致时必须显式记录偏差。
@@ -56,7 +61,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 | 我想… | 去 |
 |---|---|
 | **人工复核 Product Constitution v1** | `explanations/vision.md` |
-| **人工复核当前 Release 1 Contract** | `reference/release-1-contract.md` |
+| **人工复核当前 Release 1 PRD / Contract** | `reference/release-1-contract.md` |
 | **查单一本地资料库路径、inventory 与恢复状态** | `reference/local-library-data-contract.md` |
 | **看当前生产基线 / 已落地架构事实** | 根 `README.md` + `explanations/architecture.md` + 当前代码 / 构建 / 发布实证；`AGENTS.md` 只作入口路由 |
 | **看 Agent / 窗口角色、文件边界与交接方式** | `how-to/parallel-lanes.md` |

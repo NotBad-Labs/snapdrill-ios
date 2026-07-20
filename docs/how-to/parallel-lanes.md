@@ -1,6 +1,6 @@
 # 多 Agent / 多窗口协作边界
 
-> 当前版本：2026-07-16。适用于 Codex Desktop 与经 PO / shaping 授权的 Claude、Gemini /
+> 当前版本：2026-07-20。适用于 Codex Desktop 与经 PO / shaping 授权的 Claude、Gemini /
 > Antigravity、Grok 或其他工具。目标是让角色、文件集、证据和授权清楚，不让模型品牌成为
 > 永久组织结构。
 
@@ -44,12 +44,14 @@ commit、PR、report、测试或 tracked docs，不能只留在私有会话。
   分配；默认模型角色不能反向拒绝；
 - PO 在当次会话中的明确指令可以分配本 slice 的调查 / 实施；它不使新的产品语义跨 lane
   effective，也不自动授权 merge、上传或发布；
+- 当前已接受 bet 内、通过 DoR 的 P-A Green 任务可由 owning agent 自主推进至 Draft PR，
+  不需要逐 slice 重新申请 branch、commit、push 或 Draft PR 操作授权；
 - 每刀都必须有独立 worktree / 分支、明确 owner、文件集、red lines 和验证方式；
 - 共享接缝先拆小契约 PR，冻结当前 slice 需要的接口后再并行。
 
 ### Operations
 
-- 负责 push、PR 状态、CI、rerun、授权后串行 merge 和 worktree / 分支卫生；
+- 负责 Green 任务的 push、Draft PR、CI、rerun，以及授权后串行 merge 和 worktree / 分支卫生；
 - 永不写产品代码或在合并时顺手修复；
 - 每次 merge 前重新确认授权 head、顺序、状态与 base。
 
@@ -79,6 +81,7 @@ Authority and decision state:
 Dependencies / merge order:
 Acceptance criteria:
 Validation level and commands:
+Delegation class and evidence:
 PO / legal / fact gates:
 ```
 
@@ -112,7 +115,7 @@ write slice 的状态必须写入 PR 描述或 handoff；GitHub 的 Draft / Read
 - 已 merged、closed 或明确 superseded 的 branch 不计入两类 WIP，但仍按 §8 做分支生命周期处置。
 
 该状态机只提高 pipeline 吞吐，不改变 Shape Up 的单一主 bet、文件集不相交准入、串行合并或
-逐次 PO 授权。
+逐次 PO merge 授权。
 
 并行构建沿用 `release-and-ci.md` 的 canonical 参数，并为每个 lane 追加独立 DerivedData：
 
@@ -122,9 +125,9 @@ xcodebuild <canonical arguments> -derivedDataPath /tmp/snapdrill-derived-<lane>
 
 ### PO 暂时不在线
 
-- 可继续已明确任务的调查、实现、测试和本地 commit；
-- 可准备 Draft PR / handoff，但不能自行改变产品、法律、商业或公开语义；
-- 不得自行 merge、上传、扩大 TestFlight 可用人群、提交审核或发布；
+- 可继续已明确 Green 任务的调查、实现、测试、commit、push、Draft PR 和 CI rerun；
+- 可准备 Yellow / Red handoff，但不能自行改变产品、法律、商业或公开语义；
+- 不得自行转 Ready、merge、删除未合并分支、上传、扩大 TestFlight 可用人群、提交审核或发布；
 - S0 / S1、安全或数据问题可立即分诊并准备独立 hotfix；不可逆处置和对外动作等待 PO。
 
 ## 5. 外部 Agent
@@ -182,14 +185,15 @@ UI / AX、archive、安装、网络和发布 lineage。完成报告必须区分�
 - 把私有仓库内容、用户数据、密钥、签名材料或非公开证据发送给外部模型 / 服务；
 - 上传、non-PO availability、go / no-go、提交审核或发布。
 
-纯工程实现、事实校准、测试补齐和 effective 方案的落地由 owning lane 自主完成。
+纯工程实现、事实校准、测试补齐和 effective 方案的落地由 owning lane 自主完成；执行范围与
+Green / Yellow / Red 判定见 `definition-of-ready.md`。
 
 ## 8. 提交、授权与分支生命周期
 
 - Agent 不直推 `develop` / `main`；所有写入在独立分支。
 - 本地交付至少包含 clean diff、commit hash、验证结果和未覆盖范围。
-- push、创建 / 关闭 PR、merge、部署和删分支按当次 PO 授权执行；授权不得从近似标题或旧
-  hash 推断。
+- P-A Green 任务可自主 push 并创建 / 更新 Draft PR；转 Ready、关闭 PR、merge、部署和
+  删除未合并分支按当次 PO 授权执行，授权不得从近似标题或旧 hash 推断。
 - 合并后删除分支前确认历史已进入目标分支；关闭未合并分支还需 unique-commit /
   supersession 校验和 PO 授权。
 - 不从私有记忆中的旧 hash 复活工作；先 fetch，核对 live Git / GitHub 后再决定恢复。

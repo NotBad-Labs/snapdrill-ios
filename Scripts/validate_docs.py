@@ -4,7 +4,8 @@
 This is intentionally narrow. It does not judge product strategy; it catches
 document states that have repeatedly misled agents: historical ADRs presented as
 current truth, stale Firebase-era claims outside historical records, product
-positioning resets, and feature specs without explicit intent traceability.
+positioning resets, duplicate release PRD authority, and feature specs without
+explicit intent traceability.
 """
 from __future__ import annotations
 
@@ -22,6 +23,7 @@ except ModuleNotFoundError:
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_ROOT = REPO_ROOT / "docs"
 PACKAGES_ROOT = REPO_ROOT / "Packages"
+RELEASE_ONE_CONTRACT = DOCS_ROOT / "reference" / "release-1-contract.md"
 
 HISTORICAL_ADRS = {
     DOCS_ROOT / "decisions" / "ADR-003-dual-region-release.md": "suspended",
@@ -61,6 +63,7 @@ FRONTMATTER_DATE_PATTERN = re.compile(
     r"^(last_verified|last_updated):\s*([0-9]{4}-[0-9]{2}-[0-9]{2})$",
     re.MULTILINE,
 )
+PRD_FILENAME_PATTERN = re.compile(r"(?:^|[-_.])prd(?:[-_.]|$)", re.IGNORECASE)
 
 POSITIONING_TERMS = {
     "儿童",
@@ -464,6 +467,55 @@ def validate_feature_intent(errors: list[str]) -> None:
             errors.append(f"{rel(path)}: missing intent traceability row '验收证据'")
 
 
+def validate_release_prd_authority(errors: list[str]) -> None:
+    contract_frontmatter, _ = parse_frontmatter(read(RELEASE_ONE_CONTRACT))
+    if contract_frontmatter.get("layer") != "release-contract":
+        errors.append(
+            "docs/reference/release-1-contract.md: layer must be 'release-contract'"
+        )
+    if str(contract_frontmatter.get("release")) != "1":
+        errors.append("docs/reference/release-1-contract.md: release must be 1")
+    if contract_frontmatter.get("product_role") != "release-prd":
+        errors.append(
+            "docs/reference/release-1-contract.md: product_role must be 'release-prd'"
+        )
+
+    release_one_prds: list[Path] = []
+    release_one_contracts: list[Path] = []
+    markdown_paths = validate_document_control.tracked_markdown_paths(REPO_ROOT)
+    for relative_path in sorted(markdown_paths):
+        path = REPO_ROOT / relative_path
+        frontmatter, _ = parse_frontmatter(read(path))
+        if (
+            frontmatter.get("product_role") == "release-prd"
+            and str(frontmatter.get("release")) == "1"
+        ):
+            release_one_prds.append(path)
+        if (
+            frontmatter.get("layer") == "release-contract"
+            and str(frontmatter.get("release")) == "1"
+        ):
+            release_one_contracts.append(path)
+        if PRD_FILENAME_PATTERN.search(path.stem):
+            errors.append(
+                f"{rel(path)}: PRD-named Markdown duplicates or obscures the owning "
+                "Release Product Contract"
+            )
+
+    if release_one_prds != [RELEASE_ONE_CONTRACT]:
+        rendered = ", ".join(rel(path) for path in release_one_prds) or "none"
+        errors.append(
+            "Release 1 must have exactly one declared PRD authority at "
+            f"docs/reference/release-1-contract.md; found: {rendered}"
+        )
+    if release_one_contracts != [RELEASE_ONE_CONTRACT]:
+        rendered = ", ".join(rel(path) for path in release_one_contracts) or "none"
+        errors.append(
+            "Release 1 must have exactly one release-contract layer at "
+            f"docs/reference/release-1-contract.md; found: {rendered}"
+        )
+
+
 def run_checks() -> list[str]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -472,6 +524,7 @@ def run_checks() -> list[str]:
     validate_positioning_resets(errors)
     validate_contextual_positioning_terms(errors, warnings)
     validate_taxonomy_canonical_terms(errors, warnings)
+    validate_release_prd_authority(errors)
     validate_feature_intent(errors)
     return errors
 
