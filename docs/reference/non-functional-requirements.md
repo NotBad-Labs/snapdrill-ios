@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-19
+last_verified: 2026-07-20
 layer: pattern
 freshness:
   max_age_days: 180
@@ -43,7 +43,7 @@ freshness:
 | **200 题** | ~40MB |
 | **2000 题** | ~400MB |
 | **图片压缩** | normalized JPEG 的产品接受边界只见 [S1-A](local-library-data-contract.md#21-release-1-内容与图片接受边界s1-a)；JPEG quality 0.8 是当前实现基准，不是第二份产品上限 |
-| **草稿** | 最近 1 份，7 天过期自动清理 |
+| **草稿** | 数量与生命周期只见 [Capture feature spec](../features/active/feat-capture.md#2-需求规则-what)；本表不另设过期或容量预算 |
 | **缓存** | 临时文件 + OCR 中间产物；Release 1 用户可见手动清理入口隐藏，内部清理不得触碰 App-managed 主图或资料数据 |
 
 ## 隐私与安全

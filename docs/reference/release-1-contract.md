@@ -8,8 +8,9 @@ ratified_at:
   remaining_12: 2026-07-14
   follow_up_contract_decisions: 2026-07-15
   release_safety_boundaries: 2026-07-19
+  capture_draft_retention: 2026-07-20
 activation: effective_when_merged_to_develop
-ratified_decisions: ["C1-A", "C2-Core", "C2-Image", "C2-Optional", "C2-Personalization", "C3", "C4-D", "C5-E", "C5-S1", "C6-A", "DATA-1", "DATA-1-E", "DATA-1-R", "D1-B", "D2-A", "D3-B", "D4-B", "D5-A", "#932-A", "#891-copy", "S1-A", "M1-A", "D4S-A", "ORI-A"]
+ratified_decisions: ["C1-A", "C2-Core", "C2-Image", "C2-Optional", "C2-Personalization", "C3", "C4-D", "C5-E", "C5-S1", "C6-A", "DATA-1", "DATA-1-E", "DATA-1-R", "D1-B", "D2-A", "D3-B", "D4-B", "D5-A", "#932-A", "#891-copy", "S1-A", "M1-A", "D4S-A", "ORI-A", "P1-A"]
 pending_decisions: []
 upstream:
   - ../explanations/vision.md
@@ -19,7 +20,7 @@ upstream:
 ---
 # Release 1 Product Contract
 
-> PO 于 2026-07-13 至 2026-07-19 ratify Gate C 与后续数据、导出、删除、安全边界和平台裁决。
+> PO 于 2026-07-13 至 2026-07-20 ratify Gate C 与后续数据、导出、删除、安全边界、平台和草稿保留裁决。
 > 本文在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective Release 1 权威。
 >
 > 本文同时承担 Release 1 的唯一 PRD 角色，不另建平行 `PRD.md`。`RATIFIED` 本身不决定投资
@@ -62,8 +63,9 @@ upstream:
 | M1-A | RATIFIED | taxonomy 单值 / 多值转换遵循失败原子性，不静默丢弃既有关联 |
 | D4S-A | RATIFIED | 完整操作共享稳定 prestate 与 mutation barrier；局部导出不冒充完整资料库快照 |
 | ORI-A | RATIFIED | iPhone App shell 采用竖屏，图片与文档内容保持自身方向 |
+| P1-A | RATIFIED | 未保存采集草稿不按时间自动删除；仅在正式保存成功或用户明确丢弃后删除 |
 
-后续裁决的 shaping 与 PO ratification 回执保留在 [#882](https://github.com/NotBad-Labs/snapdrill-ios/issues/882)、[#885](https://github.com/NotBad-Labs/snapdrill-ios/issues/885)、[#906](https://github.com/NotBad-Labs/snapdrill-ios/issues/906)、[#907](https://github.com/NotBad-Labs/snapdrill-ios/issues/907)、[#910](https://github.com/NotBad-Labs/snapdrill-ios/issues/910)、[#918](https://github.com/NotBad-Labs/snapdrill-ios/issues/918)、[#884](https://github.com/NotBad-Labs/snapdrill-ios/issues/884)、[#932](https://github.com/NotBad-Labs/snapdrill-ios/issues/932)、[#950](https://github.com/NotBad-Labs/snapdrill-ios/issues/950) 与 [#891](https://github.com/NotBad-Labs/snapdrill-ios/issues/891)。这些 issue 是来源证据；合入 `develop` 后的本文与 owning contract / feature spec 才是规范权威。
+后续裁决的 shaping 与 PO ratification 回执保留在 [#882](https://github.com/NotBad-Labs/snapdrill-ios/issues/882)、[#885](https://github.com/NotBad-Labs/snapdrill-ios/issues/885)、[#906](https://github.com/NotBad-Labs/snapdrill-ios/issues/906)、[#907](https://github.com/NotBad-Labs/snapdrill-ios/issues/907)、[#910](https://github.com/NotBad-Labs/snapdrill-ios/issues/910)、[#918](https://github.com/NotBad-Labs/snapdrill-ios/issues/918)、[#884](https://github.com/NotBad-Labs/snapdrill-ios/issues/884)、[#932](https://github.com/NotBad-Labs/snapdrill-ios/issues/932)、[#950](https://github.com/NotBad-Labs/snapdrill-ios/issues/950)、[#956](https://github.com/NotBad-Labs/snapdrill-ios/issues/956) 与 [#891](https://github.com/NotBad-Labs/snapdrill-ios/issues/891)。这些 issue 是来源证据；合入 `develop` 后的本文与 owning contract / feature spec 才是规范权威。
 
 ## 2. 目标产物
 
@@ -98,7 +100,7 @@ Release 1 服务处理结构化纸张、照片或 PDF 材料的成年人。考�
 3. 权限被拒绝、输入取消或 OCR 失败不会形成死路；至少存在一条仍可完成录入的替代路径。
 4. 用户可以在唯一资料库中搜索、查看、编辑、分类和删除资料；不可逆删除前提供清楚、可测试的五秒撤销机会。D4-B 要求该机会使用持久化绝对期限，后台与重启不得提前终止。
 5. 用户可以选择资料生成 PDF，并独立完成系统预览与打印；分享或保存是并列出口，不能替代打印验收。D2-A 要求基础 PDF 不含封面，物理页数严格为 `ceil(N / itemsPerPage)`，空选择在渲染前失败。每条选定资料恰好出现一次，每条资料的主要图片或文字至少有一种可读内容，不得出现空白、遗漏或重复资料。取消或失败不得留下损坏或部分的 App-owned 输出；用户已明确保存到 App 外部的副本不承诺回滚。
-6. 未保存采集被中断时，用户可以恢复或明确丢弃草稿；任何取消路径都不会留下不可理解的半成品。
+6. 未保存采集被中断时，用户可以恢复或明确丢弃草稿；任何取消路径都不会留下不可理解的半成品。P1-A 要求草稿不按时间自动删除，仅在正式保存成功或用户明确丢弃后删除。
 7. 用户可以创建并恢复完整的手动可携带备份；损坏、超限或恶意备份失败时不崩溃、不穿越文件边界、不静默覆盖现有资料。
 8. 本地 store 无法打开时，用户会看到可理解的恢复选择，可以从备份恢复，或在明确知情后以空资料库继续，而不是进入白屏或假空库。
 9. 产品清楚说明本地存储、卸载丢失和手动备份责任；实际构建不会意外上传用户内容，公开隐私声明与数据流一致。
@@ -256,7 +258,7 @@ Release 1 不包含：
 
 ## 10. 合同生效与退出条件
 
-1. PO 已于 2026-07-13 至 2026-07-19 批准摘要表列出的 Gate C 与后续精确决策；它们在本权威及 owning feature / Data Contract 同步合入后 effective。
+1. PO 已于 2026-07-13 至 2026-07-20 批准摘要表列出的 Gate C 与后续精确决策；它们在本权威及 owning feature / Data Contract 同步合入后 effective。
 2. 本文及必要 thin pointers 通过文档门禁和独立语义复核。
 3. PR 合并获得 PO 单独授权并进入 `develop`；合并前仍是 ratified candidate。
 4. 本合同 docs-only PR 同步对齐受 Gate C 与后续裁决直接影响的产品说明、feature spec、结果 oracle、发布 evidence plan、术语与导航索引；这些改动用于移除旧规范冲突并建立追溯，不授权或包含代码、导航、schema / wire 实现。

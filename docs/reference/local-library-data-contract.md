@@ -1,9 +1,9 @@
 ---
-last_verified: 2026-07-19
+last_verified: 2026-07-20
 layer: contract
 release: 1
 activation: effective_when_merged_to_develop
-ratified_inputs: ["B4-A", "B5-A", "DATA-1", "DATA-1-R", "D1-B", "D3-B", "D5-A", "S1-A", "M1-A", "D4S-A"]
+ratified_inputs: ["B4-A", "B5-A", "DATA-1", "DATA-1-R", "D1-B", "D3-B", "D5-A", "S1-A", "M1-A", "D4S-A", "P1-A"]
 freshness:
   max_age_days: 180
   decay_trigger: [local_library_layout_change, backup_schema_change, recovery_state_change, compatibility_epoch]
@@ -11,7 +11,7 @@ freshness:
 # Local Library Data Contract
 
 > 本文是 Release 1 **单一本地资料库**的存储所有权、生命周期、恢复状态与故障语义权威。
-> 它承接已批准的 DATA-1 / DATA-1-R / D1-B / D3-B / D5-A / S1-A / M1-A / D4S-A，合入 `develop` 后生效。
+> 它承接已批准的 DATA-1 / DATA-1-R / D1-B / D3-B / D5-A / S1-A / M1-A / D4S-A / P1-A，合入 `develop` 后生效。
 > 当前 Multi-Profile / ZIP v2 代码只作偏差证据，不能反向改写本文。
 
 ## 1. 权威边界
@@ -101,7 +101,7 @@ UI 文案、Swift 类型和数据库表达可以演进，但失败原子性、�
 | `AS/LocalLibrary/transactions/<uuid>/input.snapdrillbackup` | 用户选择文件的隔离副本 | operation 期间持久、排除设备备份；绝不是唯一 rollback 材料 |
 | `AS/LocalLibrary/transactions/<uuid>/candidate/` | 尚未发布的新 generation | operation 期间持久、排除设备备份；发布前移入 `generations/` |
 | `AS/RecoveryIncidents/<uuid>/` | incident metadata、journal、prestate、原始 / candidate 材料 | 未解决时不按时间、数量或空间自动淘汰；不得排除设备备份；仅 DATA-1-R 明确动作可删 |
-| `AS/Drafts/` | 未保存采集草稿 | 独立于资料库；崩溃可恢复；排除设备备份；叶子格式由 Capture contract 维护 |
+| `AS/Drafts/` | 未保存采集草稿 | 独立于资料库；崩溃可恢复；排除设备备份；不按时间自动删除，仅在正式保存成功或用户明确丢弃后删除；叶子格式由 Capture contract 维护 |
 | `AS/Diagnostics/MetricKit/` | 有界端侧诊断 | 排除设备备份；不依赖 App Group；不属于 Backup 或 Clear Library |
 | `Caches/com.snapdrill.global/` | 只含可重建派生物 | 系统管理且可清；删除不得影响任何已保存或可恢复内容 |
 | `temporaryDirectory/com.snapdrill.global/<uuid>/` | 可丢弃导出 / 导入 construction | terminal outcome 后删除；不得放唯一 rollback 副本或未解决 journal |
