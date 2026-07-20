@@ -115,6 +115,7 @@
         "docs/explanations/user-journeys.md",
         "docs/reference/api-pitfalls.md",
         "docs/reference/apple-platform-limits.md",
+        "docs/reference/audits/2026-07-release-1-contract-completeness.md",
         "docs/reference/audits/2026-07-repository/checkpoints/2026-07-16-rebaseline.md",
         "docs/reference/audits/2026-07-repository/findings.md"
       ],
