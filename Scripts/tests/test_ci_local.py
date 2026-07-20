@@ -257,6 +257,7 @@ class CILocalTests(unittest.TestCase):
             "test_doc_generators.py",
             "validate_docs.py",
             "validate_capture_contract.py",
+            "validate_release_configuration.py",
             "ci_github.py dependencies",
             "AllTests.xctestplan",
         )

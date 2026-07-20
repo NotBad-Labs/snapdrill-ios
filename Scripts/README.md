@@ -17,6 +17,7 @@
 | `validate_document_control.py` | 检查所有 repository Markdown 的角色 / 生命周期唯一归属、历史降级标识、本地链接 / anchor 与 alias |
 | `validate_docs.py` | 检查高风险文档漂移：历史 ADR 状态、过时 Firebase 路线陈述、产品定位回退、feature spec 意图追溯、`intent_refs` 目标存在性与验收证据行 |
 | `validate_capture_contract.py` | 递归检查 Capture 契约文案边界：Capture 暴露 L10n、权限用途串和 Capture View 用户可见字符串，避免回退到旧错题本 / 儿童教育定位 |
+| `validate_release_configuration.py` | 结构化检查 `SnapDrill` App target 的 Debug / Release 平台边界，阻止 iPhone-only 与 Mac / Vision compatibility opt-out 漂移 |
 | `tests/` | 脚本回归测试；覆盖文档 / Capture、local/GitHub CI failure oracles、workflow contract 和弱 lint 入口 |
 | `check_headers.py` | 检查 Swift 文件头部版权声明是否规范（手动工具，无 CI 调用） |
 | `add_assets.rb` | 向 Asset Catalog 批量添加资源（一次性 Xcode 工具） |
