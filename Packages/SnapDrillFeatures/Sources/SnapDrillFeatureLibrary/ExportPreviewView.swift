@@ -28,6 +28,7 @@ struct ExportPreviewView: View {
     @State private var tempPDFURL: URL?
     @State private var showingShareSheet = false
     @State private var showGenerateError = false
+    @State private var generateErrorMessage = L10n.Errors.pdfGenerateFailed
     @State private var showPrintError = false
     @State private var isPrinting = false
     @State private var printAnchorView: UIView?
@@ -56,7 +57,7 @@ struct ExportPreviewView: View {
                 ContentUnavailableView {
                     Label(L10n.Library.generateFailed, systemImage: "exclamationmark.triangle")
                 } description: {
-                    Text(L10n.Errors.pdfGenerateFailed)
+                    Text(generateErrorMessage)
                 } actions: {
                     Button(L10n.Common.retry) {
                         generatePDF()
@@ -120,9 +121,11 @@ struct ExportPreviewView: View {
                 }
             }
         }
-        .alert(L10n.Errors.pdfGenerateFailed, isPresented: $showGenerateError) {
+        .alert(L10n.Library.generateFailed, isPresented: $showGenerateError) {
             Button(L10n.Common.retry) { generatePDF() }
             Button(L10n.Common.cancel, role: .cancel) { dismiss() }
+        } message: {
+            Text(generateErrorMessage)
         }
         .alert(L10n.Library.printFailed, isPresented: $showPrintError) {
             Button(L10n.Common.ok, role: .cancel) {}
@@ -151,6 +154,7 @@ struct ExportPreviewView: View {
     private func generatePDF() {
         isLoading = true
         showGenerateError = false
+        generateErrorMessage = L10n.Errors.pdfGenerateFailed
         pdfData = nil
         tempPDFURL = nil
 
@@ -178,6 +182,7 @@ struct ExportPreviewView: View {
                     // 失败统一走与生成失败一致的错误路径（含重试）。
                     guard let tempURL = saveToTemp(pdfData: data) else {
                         self.isLoading = false
+                        self.generateErrorMessage = L10n.Errors.pdfGenerateFailed
                         self.showGenerateError = true
                         return
                     }
@@ -192,6 +197,7 @@ struct ExportPreviewView: View {
                 SnapDrillLogger.generic.error("PDF 生成失败: \(error.localizedDescription)")
                 await MainActor.run {
                     self.isLoading = false
+                    self.generateErrorMessage = error.localizedDescription
                     self.showGenerateError = true
                 }
             }

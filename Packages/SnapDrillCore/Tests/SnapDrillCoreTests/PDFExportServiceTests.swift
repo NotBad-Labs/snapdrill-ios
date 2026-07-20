@@ -11,6 +11,8 @@
 import Testing
 import Foundation
 import PDFKit
+import CoreImage
+import UIKit
 @testable import SnapDrillCore
 
 // MARK: - Test Double
@@ -44,17 +46,67 @@ struct PDFExportServiceTests {
         }
     }
 
+    private func makeSolidImage(color: UIColor) -> UIImage {
+        let bounds = CGRect(x: 0, y: 0, width: 100, height: 100)
+        return UIGraphicsImageRenderer(bounds: bounds).image { context in
+            color.setFill()
+            context.fill(bounds)
+        }
+    }
+
+    private func render(page: PDFPage) -> UIImage {
+        let bounds = page.bounds(for: .mediaBox)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        return UIGraphicsImageRenderer(bounds: bounds, format: format).image { context in
+            UIColor.white.setFill()
+            context.fill(bounds)
+            context.cgContext.saveGState()
+            context.cgContext.translateBy(x: 0, y: bounds.height)
+            context.cgContext.scaleBy(x: 1, y: -1)
+            page.draw(with: .mediaBox, to: context.cgContext)
+            context.cgContext.restoreGState()
+        }
+    }
+
+    private func averageLuminance(of image: UIImage) -> Double {
+        guard let inputImage = CIImage(image: image),
+              let filter = CIFilter(name: "CIAreaAverage") else {
+            return 255
+        }
+
+        filter.setValue(inputImage, forKey: kCIInputImageKey)
+        filter.setValue(CIVector(cgRect: inputImage.extent), forKey: kCIInputExtentKey)
+        guard let outputImage = filter.outputImage else {
+            return 255
+        }
+
+        var pixel = [UInt8](repeating: 0, count: 4)
+        CIContext().render(
+            outputImage,
+            toBitmap: &pixel,
+            rowBytes: 4,
+            bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+            format: .RGBA8,
+            colorSpace: nil
+        )
+        return (Double(pixel[0]) + Double(pixel[1]) + Double(pixel[2])) / 3
+    }
+
     // MARK: - Normal Generation
 
     @Test("验证正常的从单条和多条记录生成 PDF")
     func properGeneration() async throws {
         let service = PDFExportService.shared
 
-        let emptyData = try await service.createPDF(from: [], imageProvider: { _ in nil })
-        #expect(emptyData.isEmpty == false, "至少要生成标题页")
+        await #expect(throws: PDFExportError.emptyInput) {
+            try await service.createPDF(from: [], imageProvider: { _ in nil })
+        }
 
         let singleItemData = try await service.createPDF(from: createDummyItems(count: 1), imageProvider: { _ in nil })
-        #expect(singleItemData.count > emptyData.count, "多一个项目的 PDF 应该更大")
+        let document = try #require(PDFDocument(data: singleItemData))
+        #expect(document.pageCount == 1, "单条资料应直接位于第一页，不生成封面")
+        #expect(document.page(at: 0)?.string?.contains("测试题目 1") == true)
     }
 
     // MARK: - 多页分页
@@ -66,31 +118,168 @@ struct PDFExportServiceTests {
 
         let data = try await service.createPDF(from: items, imageProvider: { _ in nil })
 
-        // 5 items 应触发多页渲染（2 items/page + 1 标题页）
-        // 此处验证产出数据量显著大于单 item
-        let singleItemData = try await service.createPDF(from: createDummyItems(count: 1), imageProvider: { _ in nil })
-        #expect(data.count > singleItemData.count)
+        let document = try #require(PDFDocument(data: data))
+        #expect(document.pageCount == 3, "5 条资料按每页 2 条应生成 3 个物理页")
+        #expect(document.page(at: 0)?.string?.contains("测试题目 1") == true, "第一页必须直接包含资料，不得是封面")
     }
 
-    @Test("imageProvider 返回 nil 时不崩溃")
-    func imageNotFound_noCrash() async throws {
+    @Test("图片不可读但文字可读时仅使用文字")
+    func imageNotFound_usesTextFallback() async throws {
         let service = PDFExportService.shared
         let items = [MockPDFItem(content: "有图路径但图片不存在", imagePath: "nonexistent/image.jpg")]
+        let calls = LockedCounter()
 
-        let data = try await service.createPDF(from: items, imageProvider: { _ in nil })
+        let data = try await service.createPDF(from: items) { _ in
+            calls.increment()
+            return nil
+        }
 
-        #expect(data.isEmpty == false)
+        let text = try #require(PDFDocument(data: data)?.string)
+        #expect(text.contains("有图路径但图片不存在"))
+        #expect(calls.value == 1)
     }
 
-    @Test("content 和 image 均为空的题目不崩溃")
-    func emptyItem_noCrash() async throws {
+    @Test("空白文字且图片不可读时整体失败")
+    func emptyItem_failsClosed() async {
         let service = PDFExportService.shared
-        let items = [MockPDFItem(content: nil, imagePath: "some/image.jpg")]
+        let items = [MockPDFItem(content: " \n ", imagePath: "some/image.jpg")]
 
-        // content 为 nil 且 imageProvider 返回 nil——验证空白题目不崩溃
-        let data = try await service.createPDF(from: items, imageProvider: { _ in nil })
+        await #expect(throws: PDFExportError.unreadableItem(position: 1)) {
+            try await service.createPDF(from: items, imageProvider: { _ in UIImage() })
+        }
+    }
 
-        #expect(data.isEmpty == false)
+    @Test("无法保证可读布局的高密度在加载图片前失败")
+    func unsupportedItemDensity_failsBeforeImageLoading() async {
+        let calls = LockedCounter()
+        let items = [MockPDFItem(content: "密度边界", imagePath: "images/item.jpg")]
+        let options = PDFExportOptions(itemsPerPage: 100)
+
+        await #expect(throws: PDFExportError.unsupportedItemDensity(itemsPerPage: 100)) {
+            try await PDFExportService.shared.createPDF(
+                from: items,
+                options: options
+            ) { _ in
+                calls.increment()
+                return nil
+            }
+        }
+        #expect(calls.value == 0)
+    }
+
+    @Test(
+        "1/2/4 密度均精确分页且每条 marker 只出现一次",
+        arguments: [1, 2, 4]
+    )
+    func exactPaginationAndMarkerOrder(itemsPerPage: Int) async throws {
+        let markers = ["标记甲", "标记乙", "标记丙", "标记丁", "标记戊"]
+        let items = markers.map { MockPDFItem(content: $0, imagePath: nil) }
+        let options = PDFExportOptions(
+            showBlankAnswerArea: false,
+            showHeader: false,
+            itemsPerPage: itemsPerPage
+        )
+
+        let data = try await PDFExportService.shared.createPDF(
+            from: items,
+            options: options,
+            imageProvider: { _ in nil }
+        )
+        let document = try #require(PDFDocument(data: data))
+        let text = try #require(document.string)
+
+        #expect(document.pageCount == Int(ceil(Double(items.count) / Double(itemsPerPage))))
+        #expect(document.page(at: 0)?.string?.contains(markers[0]) == true)
+
+        var searchStart = text.startIndex
+        for marker in markers {
+            #expect(text.components(separatedBy: marker).count - 1 == 1)
+            guard let range = text.range(of: marker, range: searchStart..<text.endIndex) else {
+                Issue.record("未按冻结顺序找到 marker: \(marker)")
+                return
+            }
+            searchStart = range.upperBound
+        }
+    }
+
+    @Test("纯图片条目只加载一次且第一页像素非空")
+    func imageOnlyItemLoadsOnceAndRendersNonblankPixels() async throws {
+        let source = LockedImageProvider(
+            image: makeSolidImage(color: .black),
+            removeAfterRead: true
+        )
+        let item = MockPDFItem(content: nil, imagePath: "images/item.jpg")
+        let options = PDFExportOptions(
+            showBlankAnswerArea: false,
+            showHeader: false,
+            itemsPerPage: 1
+        )
+
+        let data = try await PDFExportService.shared.createPDF(
+            from: [item],
+            options: options
+        ) { _ in
+            source.load()
+        }
+        let document = try #require(PDFDocument(data: data))
+        let page = try #require(document.page(at: 0))
+        let renderedPage = render(page: page)
+
+        #expect(source.callCount == 1)
+        #expect(source.isAvailable == false, "准备完成后移除源图片不应影响已分离的页载荷")
+        #expect(averageLuminance(of: renderedPage) < 230, "纯图片页应包含明显的非白色像素")
+    }
+
+    @Test("加载下一页前释放上一页图片")
+    func releasesPreviousPageImageBeforeLoadingNextPage() async throws {
+        let probe = PageImageLifetimeProbe()
+        let items = [
+            MockPDFItem(content: nil, imagePath: "images/first.jpg"),
+            MockPDFItem(content: nil, imagePath: "images/second.jpg")
+        ]
+        let options = PDFExportOptions(
+            showBlankAnswerArea: false,
+            showHeader: false,
+            itemsPerPage: 1
+        )
+
+        _ = try await PDFExportService.shared.createPDF(
+            from: items,
+            options: options
+        ) { path in
+            probe.load(path: path)
+        }
+
+        #expect(probe.didReleaseFirstImageBeforeSecondLoad)
+    }
+
+    @Test("纯文字、纯图片和图文混合条目均可渲染")
+    func textImageAndMixedItemsRender() async throws {
+        let source = LockedImageProvider(image: makeSolidImage(color: .black))
+        let items = [
+            MockPDFItem(content: "纯文字甲", imagePath: nil),
+            MockPDFItem(content: nil, imagePath: "images/pure.jpg"),
+            MockPDFItem(content: "图文混合乙", imagePath: "images/mixed.jpg")
+        ]
+        let options = PDFExportOptions(
+            showBlankAnswerArea: false,
+            showHeader: false,
+            itemsPerPage: 2
+        )
+
+        let data = try await PDFExportService.shared.createPDF(
+            from: items,
+            options: options
+        ) { _ in
+            source.load()
+        }
+        let document = try #require(PDFDocument(data: data))
+        let text = try #require(document.string)
+
+        #expect(document.pageCount == 2)
+        #expect(text.contains("纯文字甲"))
+        #expect(text.contains("图文混合乙"))
+        #expect(source.callCount == 2)
     }
 
     // MARK: - Concurrency & Cancellation
@@ -136,21 +325,6 @@ struct PDFExportServiceTests {
         // 不传 options 参数（使用默认值）
         let data = try await service.createPDF(from: items, imageProvider: { _ in nil })
         #expect(data.isEmpty == false)
-    }
-
-    @Test("显示答案 vs 隐藏答案产生不同大小的 PDF")
-    func showAnswersVsHideAnswers() async throws {
-        let service = PDFExportService.shared
-        let items = createItemsWithAnswers(count: 3)
-
-        let hideOptions = PDFExportOptions(hideAnswers: true, showBlankAnswerArea: false, showHeader: false)
-        let showOptions = PDFExportOptions(hideAnswers: false, showBlankAnswerArea: false, showHeader: false)
-
-        let hiddenData = try await service.createPDF(from: items, options: hideOptions, imageProvider: { _ in nil })
-        let shownData = try await service.createPDF(from: items, options: showOptions, imageProvider: { _ in nil })
-
-        // 显示答案的 PDF 应该比隐藏答案的更大（包含更多渲染内容）
-        #expect(shownData.count > hiddenData.count)
     }
 
     @Test("hideAnswers=true 时答案文本不出现在 PDF 内容中（去答案打印硬需求）")
@@ -221,5 +395,79 @@ struct PDFExportServiceTests {
         #expect(category.isEmpty == false)
         #expect(category != "数学")
         #expect(category != "语文")
+    }
+}
+
+nonisolated private final class LockedCounter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var count = 0
+
+    var value: Int {
+        lock.withLock { count }
+    }
+
+    func increment() {
+        lock.withLock {
+            count += 1
+        }
+    }
+}
+
+nonisolated private final class LockedImageProvider: @unchecked Sendable {
+    private let lock = NSLock()
+    private var image: UIImage?
+    private var calls = 0
+    private let removeAfterRead: Bool
+
+    init(image: UIImage, removeAfterRead: Bool = false) {
+        self.image = image
+        self.removeAfterRead = removeAfterRead
+    }
+
+    var callCount: Int {
+        lock.withLock { calls }
+    }
+
+    var isAvailable: Bool {
+        lock.withLock { image != nil }
+    }
+
+    func load() -> UIImage? {
+        lock.withLock {
+            calls += 1
+            let loadedImage = image
+            if removeAfterRead {
+                image = nil
+            }
+            return loadedImage
+        }
+    }
+}
+
+nonisolated private final class PageImageLifetimeProbe: @unchecked Sendable {
+    private let lock = NSLock()
+    private weak var firstImage: UIImage?
+    private var firstImageReleasedBeforeSecondLoad = false
+
+    var didReleaseFirstImageBeforeSecondLoad: Bool {
+        lock.withLock { firstImageReleasedBeforeSecondLoad }
+    }
+
+    func load(path: String) -> UIImage? {
+        lock.withLock {
+            if path.hasSuffix("second.jpg") {
+                firstImageReleasedBeforeSecondLoad = firstImage == nil
+            }
+
+            let bounds = CGRect(x: 0, y: 0, width: 100, height: 100)
+            let image = UIGraphicsImageRenderer(bounds: bounds).image { context in
+                UIColor.black.setFill()
+                context.fill(bounds)
+            }
+            if path.hasSuffix("first.jpg") {
+                firstImage = image
+            }
+            return image
+        }
     }
 }

@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-19
+last_updated: 2026-07-20
 intent_refs:
   - vision:P2
   - vision:P4
@@ -51,7 +51,7 @@ release_refs:
 - **模块归属**：PDF 渲染/排版管线 `SnapDrillCore/Service/PDFExportService`（统一 PDF 引擎，注入于 `ServiceContainer.pdfExport`）；打印呈现走 `SnapDrillUI/PrintPresenting` adapter（生产默认 `LivePrintPresenter`，内部使用 `UIPrintInteractionController`，iPad 需要有效 anchor）。
   - **实现现状（GAP-R5 已接入，剩余 dogfood）**：`LibraryDetailView` 单题快速打印生成 PDF 后调用 `PrintPresenting.present(...)`；`ExportPreviewView` 的批量打印同样通过 `PrintPresenting`。旧 spec 所称"经 ShareSheet 间接打印、尚未接入 `UIPrintInteractionController`"已过期。剩余真实缺口是无 AirPrint 打印机 / 真机 AirPrint 三态 dogfood 尚未完成。
 - **关键机制 / 数据流**：资料库过滤 / 选中结果集 → 资料快照 → PDFExportService 排版（去答案 / 留白 / 页眉页码为 Candidate optional）→ 生成 PDF → 预览 → 分享 / 保存 / 打印。C5-E 实验中的 SmartPaper 与未来可能重入的 Word 应优先复用管线而非重建 PDF 引擎。ShareCard 例外：用 SwiftUI `ImageRenderer`，不走 PDFExport 管线。
-  - **实现偏差（D2-A）**：当前 `PDFExportService` 仍无条件生成一张标题页，并把内容页从 1 重新编号；这是待独立代码 slice 修复的现状，不是获准的 Release 1 输出。
+  - **实现现状（D2-A / D4S-A）**：资料库在呈现导出页前冻结当前完整选择及可见顺序，解析结果必须与冻结 ID 集合严格闭合；`PDFExportService` 不生成封面，物理页数按 `ceil(N / itemsPerPage)`，并在渲染前拒绝空选择、不可读条目和无法保证可读内容的页面密度。图片按页准备和释放，任一页失败时整次调用抛错且不返回部分 PDF 数据。
 - **State & Concurrency**（Swift 6 strict）：导出/打印为只读编排。批量 PDF 渲染**逐页包 `autoreleasepool` 释放**控制峰值内存（防 OOM）；重活不阻塞主线程。PDF 导出预览经 `AppActivityTracker.begin(.exporting) → end(...)` 标记活动；单题快速打印与预览页打印经 `AppActivityTracker.begin(.printing) → end(...)` 标记活动。D4S-A 要求 selected export 使用稳定选择快照但不等待 complete-operation barrier；当前 Profile-switch 互斥只是实现事实，不能外推为目标 barrier。
   - **实现现状（GAP-R4 已接入，剩余 caveat）**：旧 spec 所称"快速打印未接入 tracker、`.printing` 生产代码零调用"已过期。当前剩余真实缺口是 `LibraryEditViewModel.save()` 仍使用 `.capturing` 标记编辑保存，需后续判断是否改为更准确的活动类型；另外真机 AirPrint dogfood 尚未完成。
 - **设计裁决（仅本模块）**：

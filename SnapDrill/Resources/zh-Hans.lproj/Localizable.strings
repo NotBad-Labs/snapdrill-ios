@@ -512,6 +512,10 @@
 "errors.delete_failed" = "删除失败，请稍后重试";
 "errors.batch_tag_failed" = "标签操作失败，请稍后重试";
 "errors.pdf_generate_failed" = "PDF 生成失败，请稍后重试";
+"errors.pdf_empty_input" = "请选择至少一条资料后再导出";
+"errors.pdf_unsupported_item_density" = "每页 %d 条资料无法生成可读 PDF，请减少每页资料数后重试";
+"errors.pdf_unreadable_item" = "第 %d 条资料没有可读取的图片或文字，请检查后重试";
+"errors.export_selection_changed" = "资料选择已发生变化，请重新选择后再试";
 "errors.review_save_failed" = "复习记录保存失败，请重试";
 "errors.form_data_load_failed" = "表单数据加载失败，请返回重试";
 "errors.save_failed" = "保存失败，请检查存储空间后重试";

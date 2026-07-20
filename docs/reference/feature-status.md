@@ -9,7 +9,7 @@
 |---|---|---|---|---|---|
 | [备份与 CSV 导入导出](../features/active/feat-backup.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-19 |
 | [采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）](../features/active/feat-capture.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-20 |
-| [PDF 导出与打印](../features/active/feat-export.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-19 |
+| [PDF 导出与打印](../features/active/feat-export.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-20 |
 | [资料库管理 + 分享卡片](../features/active/feat-library.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-19 |
 | [Onboarding 新手引导](../features/active/feat-onboarding.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-14 |
 | [回顾（SM-2 间隔调度）](../features/active/feat-review.md) | 🧩 实现存在 | 免费 | — | full | 2026-07-14 |

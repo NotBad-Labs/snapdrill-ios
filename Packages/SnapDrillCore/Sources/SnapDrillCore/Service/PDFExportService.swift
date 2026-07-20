@@ -28,6 +28,7 @@ public final class PDFExportService: Sendable {
     private static let pageHeight: CGFloat = 841.8  // A4 height
     private static let margin: CGFloat = 40
     private static let headerHeight: CGFloat = 25   // 页眉占用高度（含分隔线）
+    private static let itemSpacing: CGFloat = 20
     // itemsPerPage 已移至 PDFExportOptions，此处不再硬编码
 
     // any PDFExportable：无 associated type / Self 约束的协议作为集合元素，
@@ -39,6 +40,16 @@ public final class PDFExportService: Sendable {
         options: PDFExportOptions = .default,
         imageProvider: @Sendable @escaping (String) -> UIImage?
     ) async throws -> Data {
+        guard !items.isEmpty else {
+            throw PDFExportError.emptyInput
+        }
+
+        let pageRect = CGRect(x: 0, y: 0, width: Self.pageWidth, height: Self.pageHeight)
+        let itemHeight = itemHeight(in: pageRect, options: options)
+        guard itemHeight - Self.itemSpacing >= UIFont.systemFont(ofSize: 14).lineHeight else {
+            throw PDFExportError.unsupportedItemDensity(itemsPerPage: options.itemsPerPage)
+        }
+
         let pdfMetaData = [
             kCGPDFContextCreator: "SnapDrill App",
             kCGPDFContextAuthor: "SnapDrill User"
@@ -46,10 +57,10 @@ public final class PDFExportService: Sendable {
         let format = UIGraphicsPDFRendererFormat()
         format.documentInfo = pdfMetaData as [String: Any]
 
-        let pageRect = CGRect(x: 0, y: 0, width: Self.pageWidth, height: Self.pageHeight)
         let renderer = UIGraphicsPDFRenderer(bounds: pageRect, format: format)
 
-        let totalPages = max(1, Int(ceil(Double(items.count) / Double(options.itemsPerPage))))
+        let chunks = items.chunked(into: options.itemsPerPage)
+        let totalPages = chunks.count
         let categoryText = resolveCategory(from: items)
         let dateText = Date().formatted(date: .abbreviated, time: .omitted)
 
@@ -57,22 +68,16 @@ public final class PDFExportService: Sendable {
         var renderError: Error?
 
         let data = renderer.pdfData { context in
-            do {
-                // 封面页
-                context.beginPage()
-                drawTitlePage(context: context.cgContext, rect: pageRect, options: options)
-
-                // 题目内容
-                let chunks = items.chunked(into: options.itemsPerPage)
-
-                for (pageIndex, chunk) in chunks.enumerated() {
-                    // 协作式取消检查
-                    if Task.isCancelled {
-                        throw CancellationError()
-                    }
-                    // autoreleasepool 确保每页渲染后释放图片位图和 CoreGraphics 临时对象，
-                    // 避免 50+ 题导出时全部堆积在内存导致 OOM
-                    autoreleasepool {
+            for (pageIndex, chunk) in chunks.enumerated() {
+                do {
+                    // 每页先完成可渲染性预检，再 beginPage；失败时不创建空白页。
+                    // 页级 autoreleasepool 保证已解码图片不会随整批导出持续累积。
+                    try autoreleasepool {
+                        let preparedItems = try prepareItems(
+                            chunk,
+                            startingAt: pageIndex * options.itemsPerPage,
+                            imageProvider: imageProvider
+                        )
                         context.beginPage()
 
                         // 页眉
@@ -89,14 +94,14 @@ public final class PDFExportService: Sendable {
                         drawItemsPage(
                             context: context.cgContext,
                             rect: pageRect,
-                            items: chunk,
-                            options: options,
-                            imageProvider: imageProvider
+                            items: preparedItems,
+                            options: options
                         )
                     }
+                } catch {
+                    renderError = error
+                    return
                 }
-            } catch {
-                renderError = error
             }
         }
 
@@ -105,6 +110,42 @@ public final class PDFExportService: Sendable {
         }
 
         return data
+    }
+
+    private func prepareItems(
+        _ items: [any PDFExportable],
+        startingAt startIndex: Int,
+        imageProvider: @Sendable (String) -> UIImage?
+    ) throws -> [PreparedPDFItem] {
+        try items.enumerated().map { offset, item in
+            if Task.isCancelled {
+                throw CancellationError()
+            }
+
+            let trimmedContent = item.content?.trimmingCharacters(in: .whitespacesAndNewlines)
+            let content = trimmedContent?.isEmpty == false ? trimmedContent : nil
+            let loadedImage = item.imagePath.flatMap(imageProvider)
+            let image = loadedImage.flatMap { image -> UIImage? in
+                let size = image.size
+                guard size.width.isFinite,
+                      size.height.isFinite,
+                      size.width > 0,
+                      size.height > 0 else {
+                    return nil
+                }
+                return image
+            }
+
+            guard content != nil || image != nil else {
+                throw PDFExportError.unreadableItem(position: startIndex + offset + 1)
+            }
+
+            return PreparedPDFItem(
+                content: content,
+                image: image,
+                answerText: item.answerText
+            )
+        }
     }
 
     // MARK: - Category 解析
@@ -170,38 +211,16 @@ public final class PDFExportService: Sendable {
         context.restoreGState()
     }
 
-    // MARK: - 封面页
-
-    private func drawTitlePage(context: CGContext, rect: CGRect, options: PDFExportOptions) {
-        let title = options.customTitle ?? L10n.Export.pdfTitle
-        let font = UIFont.systemFont(ofSize: 36, weight: .bold)
-        let attrs: [NSAttributedString.Key: Any] = [.font: font]
-
-        let size = title.size(withAttributes: attrs)
-        let x = (rect.width - size.width) / 2
-        let y = (rect.height - size.height) / 2
-
-        (title as NSString).draw(at: CGPoint(x: x, y: y), withAttributes: attrs)
-
-        let subtitle = L10n.Export.pdfGenerationDate(Date().formatted(date: .abbreviated, time: .shortened))
-        let subFont = UIFont.systemFont(ofSize: 14)
-        let subAttrs: [NSAttributedString.Key: Any] = [.font: subFont, .foregroundColor: UIColor.gray]
-        let subSize = subtitle.size(withAttributes: subAttrs)
-        (subtitle as NSString).draw(at: CGPoint(x: (rect.width - subSize.width) / 2, y: y + size.height + 10), withAttributes: subAttrs)
-    }
-
     // MARK: - 内容页
 
     private func drawItemsPage(
         context: CGContext,
         rect: CGRect,
-        items: [any PDFExportable],
-        options: PDFExportOptions,
-        imageProvider: @Sendable (String) -> UIImage?
+        items: [PreparedPDFItem],
+        options: PDFExportOptions
     ) {
         let topOffset = options.showHeader ? Self.margin + Self.headerHeight : Self.margin
-        let availableHeight = rect.height - topOffset - Self.margin
-        let itemHeight = availableHeight / CGFloat(options.itemsPerPage)
+        let itemHeight = itemHeight(in: rect, options: options)
 
         for (index, item) in items.enumerated() {
             let yOffset = topOffset + CGFloat(index) * itemHeight
@@ -209,17 +228,22 @@ public final class PDFExportService: Sendable {
                 x: Self.margin,
                 y: yOffset,
                 width: rect.width - Self.margin * 2,
-                height: itemHeight - 20
+                height: itemHeight - Self.itemSpacing
             )
 
             drawItem(
                 context: context,
                 rect: contentRect,
                 item: item,
-                options: options,
-                imageProvider: imageProvider
+                options: options
             )
         }
+    }
+
+    private func itemHeight(in rect: CGRect, options: PDFExportOptions) -> CGFloat {
+        let topOffset = options.showHeader ? Self.margin + Self.headerHeight : Self.margin
+        let availableHeight = rect.height - topOffset - Self.margin
+        return availableHeight / CGFloat(options.itemsPerPage)
     }
 
     // MARK: - 单题渲染
@@ -227,9 +251,8 @@ public final class PDFExportService: Sendable {
     private func drawItem(
         context: CGContext,
         rect: CGRect,
-        item: any PDFExportable,
-        options: PDFExportOptions,
-        imageProvider: @Sendable (String) -> UIImage?
+        item: PreparedPDFItem,
+        options: PDFExportOptions
     ) {
         // 根据渲染模式确定图片高度上限
         let imageMaxRatio: CGFloat
@@ -244,7 +267,7 @@ public final class PDFExportService: Sendable {
         // 绘制图片（如果有）
         var currentY = rect.minY
 
-        if let path = item.imagePath, let image = imageProvider(path) {
+        if let image = item.image {
             let imageMaxHeight = rect.height * imageMaxRatio
             let aspect = image.size.width / image.size.height
 
@@ -371,6 +394,12 @@ public final class PDFExportService: Sendable {
 
         context.restoreGState()
     }
+}
+
+private struct PreparedPDFItem {
+    let content: String?
+    let image: UIImage?
+    let answerText: String?
 }
 
 extension Array {

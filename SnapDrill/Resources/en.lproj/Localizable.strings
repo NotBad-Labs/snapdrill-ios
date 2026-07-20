@@ -531,6 +531,10 @@
 "errors.delete_failed" = "Delete failed. Please try again later.";
 "errors.batch_tag_failed" = "Tag operation failed. Please try again later.";
 "errors.pdf_generate_failed" = "PDF generation failed. Please try again later.";
+"errors.pdf_empty_input" = "Select at least one item before exporting.";
+"errors.pdf_unsupported_item_density" = "%d items per page cannot produce a readable PDF. Reduce the number of items per page and try again.";
+"errors.pdf_unreadable_item" = "Item %d has no readable image or text. Check it and try again.";
+"errors.export_selection_changed" = "The selection changed. Select the items again and retry.";
 "errors.review_save_failed" = "Failed to save review progress. Please try again.";
 "errors.form_data_load_failed" = "Failed to load form data. Please go back and try again.";
 "errors.save_failed" = "Save failed. Please check storage space and try again.";
