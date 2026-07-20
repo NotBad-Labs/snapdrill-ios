@@ -14,7 +14,7 @@ import SnapDrillData
 
 /// Helper to resolve IDs to Models for Export Sheet
 struct ResolvedExportSheet: View {
-    let ids: Set<UUID>
+    let request: LibraryExportRequest
     @Environment(\.repositories) private var repositories
     @State private var phase: ResolvePhase = .loading
 
@@ -45,7 +45,8 @@ struct ResolvedExportSheet: View {
     private func resolveItems() {
         phase = .loading
         do {
-            let resolvedItems = try repositories.archive.fetchModels(by: ids).map { $0.toExportSnapshot() }
+            let fetchedItems = try repositories.archive.fetchModels(by: request.idSet)
+            let resolvedItems = try request.resolve(fetchedItems).map { $0.toExportSnapshot() }
             phase = .loaded(resolvedItems)
         } catch {
             SnapDrillLogger.generic.error("解析导出题目失败: \(error.localizedDescription)")
@@ -58,8 +59,4 @@ private enum ResolvePhase {
     case loading
     case loaded([ArchiveExportSnapshot])
     case failed(String)
-}
-
-#Preview {
-    ResolvedExportSheet(ids: [])
 }

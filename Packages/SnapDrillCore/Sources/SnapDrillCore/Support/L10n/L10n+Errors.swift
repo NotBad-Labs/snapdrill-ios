@@ -48,6 +48,32 @@ nonisolated extension L10n {
         public static let deleteFailed = NSLocalizedString("errors.delete_failed", value: "删除失败，请稍后重试", comment: "题目删除失败")
         public static let batchTagFailed = NSLocalizedString("errors.batch_tag_failed", value: "标签操作失败，请稍后重试", comment: "批量打标签失败")
         public static let pdfGenerateFailed = NSLocalizedString("errors.pdf_generate_failed", value: "PDF 生成失败，请稍后重试", comment: "PDF 生成失败")
+        public static let pdfEmptyInput = NSLocalizedString("errors.pdf_empty_input", value: "请选择至少一条资料后再导出", comment: "PDF 导出输入为空")
+        public static func pdfUnsupportedItemDensity(_ itemsPerPage: Int) -> String {
+            String(
+                format: NSLocalizedString(
+                    "errors.pdf_unsupported_item_density",
+                    value: "每页 %d 条资料无法生成可读 PDF，请减少每页资料数后重试",
+                    comment: "PDF 每页资料数过高"
+                ),
+                itemsPerPage
+            )
+        }
+        public static func pdfUnreadableItem(_ position: Int) -> String {
+            String(
+                format: NSLocalizedString(
+                    "errors.pdf_unreadable_item",
+                    value: "第 %d 条资料没有可读取的图片或文字，请检查后重试",
+                    comment: "PDF 导出条目不可渲染"
+                ),
+                position
+            )
+        }
+        public static let exportSelectionChanged = NSLocalizedString(
+            "errors.export_selection_changed",
+            value: "资料选择已发生变化，请重新选择后再试",
+            comment: "导出解析期间选择与资料不一致"
+        )
         public static let reviewSaveFailed = NSLocalizedString("errors.review_save_failed", value: "复习记录保存失败，请重试", comment: "复习评分持久化失败")
         public static let formDataLoadFailed = NSLocalizedString("errors.form_data_load_failed", value: "表单数据加载失败，请返回重试", comment: "采集表单下拉数据加载失败")
 

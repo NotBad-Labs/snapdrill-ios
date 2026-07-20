@@ -36,6 +36,7 @@ struct LibraryDetailView: View {
     @State private var isPrinting = false
     @State private var showShareError = false
     @State private var showPrintError = false
+    @State private var printErrorMessage = L10n.Library.printFailed
 
     @Environment(\.profileManager) private var profileManager
     @Environment(\.services) private var services
@@ -306,7 +307,10 @@ struct LibraryDetailView: View {
             Button(L10n.Common.ok, role: .cancel) {}
         }
         .alert(L10n.Library.printFailed, isPresented: $showPrintError) {
-            Button(L10n.Common.ok, role: .cancel) {}
+            Button(L10n.Common.retry) { printSingleItem() }
+            Button(L10n.Common.cancel, role: .cancel) {}
+        } message: {
+            Text(printErrorMessage)
         }
     }
 
@@ -359,6 +363,7 @@ struct LibraryDetailView: View {
 
     private func printSingleItem() {
         guard !isPrinting else { return }
+        printErrorMessage = L10n.Library.printFailed
         Task {
             let snapshot = item.toExportSnapshot()
             let storage = imageStorage
@@ -388,6 +393,9 @@ struct LibraryDetailView: View {
                 )
             } catch {
                 SnapDrillLogger.generic.error("单题打印失败: \(error.localizedDescription)")
+                if let exportError = error as? PDFExportError {
+                    printErrorMessage = exportError.localizedDescription
+                }
                 showPrintError = true
             }
         }

@@ -27,7 +27,7 @@ public struct LibraryView: View {
     
     // 原生选择状态
     @State private var selectedItemIDs: Set<UUID> = []
-    @State private var isExportSheetPresented = false
+    @State private var exportRequest: LibraryExportRequest?
     @State private var editMode: EditMode = .inactive
     @State private var showDeleteConfirmation = false
     @State private var isFilterPresented = false
@@ -193,7 +193,15 @@ public struct LibraryView: View {
                         Spacer()
 
                         Button {
-                            isExportSheetPresented = true
+                            guard let vm = viewModel else { return }
+                            do {
+                                exportRequest = try LibraryExportRequest(
+                                    visibleIDs: vm.filteredItems.map(\.id),
+                                    selectedIDs: selectedItemIDs
+                                )
+                            } catch {
+                                vm.operationError = error.localizedDescription
+                            }
                         } label: {
                             Label(L10n.Library.export, systemImage: "square.and.arrow.up")
                         }
@@ -207,8 +215,8 @@ public struct LibraryView: View {
                     LibraryFilterSheet(viewModel: vm)
                 }
             }
-            .sheet(isPresented: $isExportSheetPresented) {
-                ResolvedExportSheet(ids: selectedItemIDs)
+            .sheet(item: $exportRequest) { request in
+                ResolvedExportSheet(request: request)
             }
             .sheet(isPresented: $isBatchTagPresented) {
                 if let vm = viewModel {
