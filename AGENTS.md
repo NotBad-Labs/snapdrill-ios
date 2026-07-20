@@ -56,6 +56,10 @@ Claude、Gemini / Antigravity、Grok 等默认是独立只读 reviewer，只有 
 独立 write lane 时才能写入。角色、文件集和验证责任以当次 task brief 为准。
 当次 task brief 已明确要求某窗口实施并给出 scope / acceptance 时，即完成该窗口的 write
 lane 分配；模型默认角色不能反向拒绝已明确的实施任务。
+在 PO 已接受的当前 bet 内，任务若按 `docs/how-to/definition-of-ready.md` 分类为 Green，owning agent
+可以自主完成 shaping、独立 worktree / 分支、实现、验证、commit、push 和 Draft PR，无需
+逐 slice 再次索取操作授权。该常设委托不允许 agent 自选产品优先级、把 Yellow / Red 问题
+降级，或自行将 PR 转 Ready、merge、删除未合并分支、上传和发布。
 PO 在当次会话中的明确指令可以分配本 slice 的调查 / 实施；它不使新的产品语义跨 lane
 effective，也不自动授权 merge、上传或发布。
 
@@ -75,8 +79,9 @@ effective，也不自动授权 merge、上传或发布。
 - 把私有仓库内容、用户数据、密钥、签名材料或其他非公开证据发送给外部模型 / 服务；
 - 上传 TestFlight、扩大可用人群、go / no-go、App Store 提交或正式发布。
 
-纯工程实现、事实校准、测试补齐和已 effective 方案的落地由 owning lane 自主完成。任何 push、
-PR、分支删除或 merge 仍服从 `parallel-lanes.md` 的显式授权规则。
+纯工程实现、事实校准、测试补齐和已 effective 方案的落地由 owning lane 自主完成。Green
+任务的 push 与 Draft PR 服从 P-A 常设委托；转 Ready、分支删除、merge、上传和发布仍服从
+`parallel-lanes.md` 的显式 PO 授权规则。
 
 ## 5. 项目不变量
 

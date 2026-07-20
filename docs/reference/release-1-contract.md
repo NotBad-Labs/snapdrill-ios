@@ -1,7 +1,8 @@
 ---
-last_verified: 2026-07-19
+last_verified: 2026-07-20
 layer: release-contract
 release: 1
+product_role: release-prd
 ratified_at:
   C3: 2026-07-13
   remaining_12: 2026-07-14
@@ -18,11 +19,18 @@ upstream:
 ---
 # Release 1 Product Contract
 
-> PO 于 2026-07-13 至 2026-07-19 ratify Gate C 与后续数据、导出、删除、安全边界和平台裁决。本文在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective Release 1 权威。`RATIFIED` 不授权代码实现、构建上传、开放 TestFlight、发布或合并；每次合并和发布动作仍需 PO 单独明确授权。
+> PO 于 2026-07-13 至 2026-07-19 ratify Gate C 与后续数据、导出、删除、安全边界和平台裁决。
+> 本文在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective Release 1 权威。
+>
+> 本文同时承担 Release 1 的唯一 PRD 角色，不另建平行 `PRD.md`。`RATIFIED` 本身不决定投资
+> 顺序或执行权限；具体委托边界由 DoR 与协作协议维护。每次合并、构建上传、开放 TestFlight
+> 和发布动作仍需 PO 单独明确授权。
 
 ## 1. 合同职责
 
-本文承接 [Product Constitution v1](../explanations/vision.md)，只定义 Release 1 的目标产物、Must outcomes、可见能力、明确非目标、数据兼容边界与结果级验收。它不冻结具体卡片、像素布局、类型名、package 边界或当前实现，也不允许通过“代码已经存在”反向扩大范围。
+本文承接 [Product Constitution v1](../explanations/vision.md)，作为 Release 1 的唯一 PRD，只定义
+目标产物、Must outcomes、可见能力、明确非目标、数据兼容边界与结果级验收。它不冻结具体
+卡片、像素布局、类型名、package 边界或当前实现，也不允许通过“代码已经存在”反向扩大范围。
 
 发生冲突时：Product Constitution 决定耐久产品方向；本文决定 Release 1；feature spec 细化单功能；代码、测试和发布实证只证明当前实现。
 

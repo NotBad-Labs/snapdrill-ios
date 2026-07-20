@@ -91,6 +91,137 @@ class ValidateDocsTests(unittest.TestCase):
             errors,
         )
 
+    def test_release_one_contract_is_the_only_declared_prd(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_release_prd_authority(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_missing_release_prd_role_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.RELEASE_ONE_CONTRACT:
+                return text.replace("product_role: release-prd\n", "")
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_release_prd_authority(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/reference/release-1-contract.md: "
+            "product_role must be 'release-prd'",
+            errors,
+        )
+        self.assertTrue(
+            any(
+                "Release 1 must have exactly one declared PRD authority" in error
+                for error in errors
+            )
+        )
+
+    def test_duplicate_release_prd_role_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        duplicate_path = (
+            validate_docs.DOCS_ROOT / "explanations" / "vision.md"
+        )
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == duplicate_path:
+                return text.replace(
+                    "layer: product-constitution\n",
+                    "layer: product-constitution\n"
+                    "release: 1\n"
+                    "product_role: release-prd\n",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_release_prd_authority(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                "Release 1 must have exactly one declared PRD authority" in error
+                and "docs/explanations/vision.md" in error
+                for error in errors
+            )
+        )
+
+    def test_duplicate_release_contract_layer_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        duplicate_path = (
+            validate_docs.DOCS_ROOT / "explanations" / "vision.md"
+        )
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == duplicate_path:
+                return text.replace(
+                    "layer: product-constitution\n",
+                    "layer: release-contract\nrelease: 1\n",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_release_prd_authority(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                "Release 1 must have exactly one release-contract layer" in error
+                and "docs/explanations/vision.md" in error
+                for error in errors
+            )
+        )
+
+    def test_root_prd_filename_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        original_tracked_paths = (
+            validate_docs.validate_document_control.tracked_markdown_paths
+        )
+        root_prd = validate_docs.REPO_ROOT / "PRD.md"
+
+        def fake_read(path: Path) -> str:
+            if path == root_prd:
+                return "# Parallel PRD\n"
+            return original_read(path)
+
+        def fake_tracked_paths(root: Path) -> set[str]:
+            return original_tracked_paths(root) | {"PRD.md"}
+
+        validate_docs.read = fake_read
+        validate_docs.validate_document_control.tracked_markdown_paths = (
+            fake_tracked_paths
+        )
+        try:
+            validate_docs.validate_release_prd_authority(errors)
+        finally:
+            validate_docs.read = original_read
+            validate_docs.validate_document_control.tracked_markdown_paths = (
+                original_tracked_paths
+            )
+
+        self.assertIn(
+            "PRD.md: PRD-named Markdown duplicates or obscures the owning "
+            "Release Product Contract",
+            errors,
+        )
+
     def test_competitive_analysis_does_not_reset_product_category(self) -> None:
         text = validate_docs.read(
             validate_docs.DOCS_ROOT / "explanations" / "competitive-analysis.md"
