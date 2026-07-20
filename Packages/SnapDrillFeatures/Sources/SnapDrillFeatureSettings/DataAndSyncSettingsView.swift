@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  数据设置页面，管理备份恢复和缓存清理。
+//  数据设置页面，管理备份、恢复和 CSV 导入。
 //
 
 import SwiftUI
@@ -21,12 +21,6 @@ struct DataAndSyncSettingsView: View {
 
     @Bindable var viewModel: SettingsViewModel
     @State private var activeOperation: DataOperation?
-
-    // 存储缓存
-    @State private var showingClearCacheAlert = false
-    @State private var cacheSize: String = L10n.Settings.calculating
-    @State private var cacheCalculateTask: Task<Void, Never>?
-    @State private var cacheClearTask: Task<Void, Never>?
 
     // 备份 / 恢复
     @State private var backupTask: Task<Void, Never>?
@@ -153,53 +147,18 @@ struct DataAndSyncSettingsView: View {
             } footer: {
                 Text(L10n.Settings.importCSVFormat)
             }
-
-            // 缓存存储
-            Section {
-                HStack {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(L10n.Settings.mediaCacheUsage)
-                        Text(L10n.Settings.mediaCacheSubtitle)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Text(cacheSize)
-                        .foregroundStyle(.secondary)
-                }
-
-                Button(role: .destructive) {
-                    showingClearCacheAlert = true
-                } label: {
-                    Label(L10n.Settings.clearCache, systemImage: "trash")
-                }
-                .accessibilityIdentifier("settings.dataAndSync.clearCache")
-            } header: {
-                Text(L10n.Settings.storageSpace)
-            }
         }
         .listStyle(.insetGrouped)
         .accessibilityIdentifier("settings.dataAndSync.root")
         .navigationTitle(L10n.Settings.dataAndSync)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
-        .alert(L10n.Settings.clearCacheTitle, isPresented: $showingClearCacheAlert) {
-            Button(L10n.Settings.clearCacheAction, role: .destructive) {
-                clearCache()
-            }
-            Button(L10n.Common.cancel, role: .cancel) {}
-        } message: {
-            Text(L10n.Settings.clearCacheMessage)
-        }
-        .onAppear {
 #if DEBUG
+        .onAppear {
             applyUITestOperationIfNeeded()
-#endif
-            calculateCacheSize()
         }
+#endif
         .onDisappear {
-            cacheCalculateTask?.cancel()
-            cacheClearTask?.cancel()
             backupTask?.cancel()
             restoreTask?.cancel()
             importTask?.cancel()
@@ -309,83 +268,6 @@ struct DataAndSyncSettingsView: View {
 
     private func isOperationActive(_ operation: DataOperation) -> Bool {
         viewModel.isBackupInProgress && activeOperation == operation
-    }
-
-    private func calculateCacheSize() {
-        cacheCalculateTask?.cancel()
-        cacheCalculateTask = Task {
-            let size = await getCacheSize()
-            await MainActor.run {
-                cacheSize = formatBytes(size)
-            }
-        }
-    }
-
-    private func clearCache() {
-        cacheClearTask?.cancel()
-        cacheClearTask = Task {
-            do {
-                // 清理临时目录
-                let tmpDir = FileManager.default.temporaryDirectory
-                let tmpContents = try FileManager.default.contentsOfDirectory(at: tmpDir, includingPropertiesForKeys: nil)
-                for url in tmpContents {
-                    try? FileManager.default.removeItem(at: url) // best-effort: 单文件删除失败不中断整批清理
-                }
-
-                // 清理缓存目录
-                if let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
-                    let cacheContents = try FileManager.default.contentsOfDirectory(at: cacheDir, includingPropertiesForKeys: nil)
-                    for url in cacheContents {
-                        try? FileManager.default.removeItem(at: url) // best-effort: 单文件删除失败不中断整批清理
-                    }
-                }
-
-                await MainActor.run {
-                    cacheSize = "0 MB"
-                }
-            } catch {
-                SnapDrillLogger.generic.error("Failed to clear cache: \(error.localizedDescription)")
-            }
-        }
-    }
-
-    private func getCacheSize() async -> Int64 {
-        var totalSize: Int64 = 0
-
-        // 计算临时目录大小
-        let tmpDir = FileManager.default.temporaryDirectory
-        totalSize += directorySize(at: tmpDir)
-
-        // 计算缓存目录大小
-        if let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
-            totalSize += directorySize(at: cacheDir)
-        }
-
-        return totalSize
-    }
-
-    private func directorySize(at url: URL) -> Int64 {
-        guard let enumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.fileSizeKey]) else {
-            return 0
-        }
-
-        var size: Int64 = 0
-        for case let fileURL as URL in enumerator {
-            guard let resourceValues = try? fileURL.resourceValues(forKeys: [.fileSizeKey]),
-                  let fileSize = resourceValues.fileSize else {
-                continue
-            }
-            size += Int64(fileSize)
-        }
-
-        return size
-    }
-
-    private func formatBytes(_ bytes: Int64) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useKB, .useMB, .useGB]
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: bytes)
     }
 
 #if DEBUG
