@@ -20,6 +20,7 @@ REQUIRED_SETTINGS = {
     "TARGETED_DEVICE_FAMILY": "1",
     "SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD": "NO",
     "SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD": "NO",
+    "INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone": "UIInterfaceOrientationPortrait",
 }
 
 

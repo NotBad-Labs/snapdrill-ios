@@ -26,6 +26,7 @@ EXPECTED_SETTINGS = {
     "TARGETED_DEVICE_FAMILY": "1",
     "SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD": "NO",
     "SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD": "NO",
+    "INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone": "UIInterfaceOrientationPortrait",
 }
 
 
@@ -175,6 +176,30 @@ class ValidateReleaseConfigurationTests(unittest.TestCase):
                                 for error in errors
                             )
                         )
+
+    def test_landscape_orientation_fails_in_each_configuration(self) -> None:
+        key = "INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone"
+        value = (
+            "UIInterfaceOrientationPortrait "
+            "UIInterfaceOrientationLandscapeLeft "
+            "UIInterfaceOrientationLandscapeRight"
+        )
+
+        for configuration_id in ("APP_DEBUG", "APP_RELEASE"):
+            with self.subTest(configuration=configuration_id):
+                project = valid_project()
+                project["objects"][configuration_id]["buildSettings"][key] = value
+
+                errors = validator.validate_project(project)
+
+                self.assertTrue(
+                    any(
+                        configuration_id.removeprefix("APP_").title() in error
+                        and key in error
+                        and value in error
+                        for error in errors
+                    )
+                )
 
     def test_malformed_object_graph_fails_closed(self) -> None:
         cases = (
