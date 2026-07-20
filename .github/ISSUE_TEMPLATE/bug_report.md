@@ -28,6 +28,18 @@ assignees: ""
 
 <!-- 期望来自哪一条 Release Contract、feature/data/privacy contract、平台规范或回归测试？ -->
 
+## Current Admission
+
+<!-- 历史 issue / PR / 审计只作证据；按 docs/how-to/definition-of-ready.md#current-admission 重建。 -->
+
+- **Exact live base**：`origin/develop@<full-sha>`
+- **Effective SSOT anchors**：
+- **Current live / reproducible evidence**：
+- **Inherited assumptions accepted**：
+- **Inherited assumptions rejected**：
+- **Owner / delegation class**：
+- **Dependencies / merge order**：
+
 ## Severity
 
 - [ ] S0（数据不可逆丢失）/ [ ] S1（流程完全阻断）/ [ ] S2（能完成但有摩擦）/ [ ] S3（更好但不紧急）

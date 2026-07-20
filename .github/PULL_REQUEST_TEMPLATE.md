@@ -2,14 +2,23 @@
 
 <!-- 1-3 句话描述本次变更目的 -->
 
-## T0 / Authority
+## Current Admission / T0
 
-- Base / head：
+- Current admission brief / URL：
+- Exact live base：`origin/develop@<full-sha>`
+- Effective SSOT anchors：
+- Current live / reproducible evidence：
+- Inherited assumptions accepted：
+- Inherited assumptions rejected：
+- Owner / delegation class：
+- Dependencies / merge order：
+- PR head：
 - 主 checkout dirty files：
 - 独立 worktree / branch：
-- Owning authority / current operations doc：
 - Decision lifecycle：effective / candidate / not applicable
 - WIP state：active write / frozen merge queue（冻结时说明满足条件）
+
+<!-- 历史 issue / PR / 审计、旧授权和旧 CI 只作证据；Draft / Ready 本身不构成准入或合并授权。 -->
 
 ## Scope
 

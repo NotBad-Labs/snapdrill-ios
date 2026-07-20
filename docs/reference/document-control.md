@@ -46,6 +46,19 @@ Markdown，避免新文件在首次 commit 时绕过分类。
 5. UI 历史证据继续保留截图与缺陷记录，但当前 UI 验收必须从 Release Contract、owning feature
    spec、设计原则与 live UI / AX 证据重新生成。
 
+## 历史工作制品与当前准入
+
+GitHub issue / PR、审计、报告、聊天交接、label、历史 PO 评论 / 授权和旧 CI 不是本 registry
+中的产品权威；无论编号、时间、作者、open / closed、Draft / Ready 或旧绿色状态，都
+默认只作证据。它们可以帮助定位 live path、回归风险和被否定过的方案，但不能单独定义
+当前 scope、bet 或执行授权。
+
+任务只有通过
+[`Current Admission`](../how-to/definition-of-ready.md#current-admission)，以精确 live base、
+effective SSOT anchors、当前实证和显式接受 / 拒绝的继承假设重建后，才能进入 bet、active
+write 或 frozen merge queue。准入记录只路由执行，不新增产品 SSOT，不把历史材料升级为
+authority，也不替代 PO 对产品、merge 或发布的裁决。
+
 ## 门禁
 
 ```bash

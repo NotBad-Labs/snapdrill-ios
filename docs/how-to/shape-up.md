@@ -32,7 +32,9 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 
 ## 制品（就这几样，AI 维护）
 
-- **Bet / Pitch** → PO 明确接受的 live GitHub issue / PR，或 PO 指定的具名范围文档；固定包含
+- **Bet / Pitch** → PO 明确接受、并通过
+  [`Current Admission`](definition-of-ready.md#current-admission) 的 live GitHub issue / PR，
+  或 PO 指定的具名范围文档；固定包含
   Problem / Appetite / Solution / Rabbit holes / No-gos（原书 Ch.6）。P-A 常设委托不允许
   Agent 自选 bet；它只允许 owning agent 在当前已接受 bet 内自主推进 Green bounded task 至
   Draft PR。
@@ -51,6 +53,9 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 本文件**不固化某个具体周期的进行中赌注**——那会随时间过期且依赖「最新文件名胜出」的脆弱约定。当前赌注的唯一可信来源是**实证**：
 
 - **优先**：当前活跃且已被 PO 接受的 GitHub issue / PR；需要更长说明时，由 PO 明确指定一份具名范围文档。
+- issue / PR / 审计 / 报告 / 聊天交接默认只作历史证据；无论编号、时间、open / closed、
+  Draft / Ready、label、作者、旧授权或旧 CI 状态，都不能绕过 Current Admission。当前 bet
+  必须记录精确 live base、effective SSOT、当前实证和明确接受 / 拒绝的继承假设。
 - 没有被接受的 live issue / PR、具名范围文档或 PO 明确批准的 Gate 时，先回到 shaping——
   别凭过期计划、文件名顺序或 Agent 私有记忆开工。已批准 Gate 内仍须逐 task 通过 DoR
   Green；Yellow / Red 继续请求裁决。
@@ -60,10 +65,10 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
   为准，不在本文件重复罗列；Release disposition 与合同符合性仍由 Release Contract、owning
   feature spec 和验证证据裁决。
 
-截至 2026-07-20，PO 接受的 live bet 是
-[Gate P / Issue #956](https://github.com/NotBad-Labs/snapdrill-ios/issues/956)。Issue 的 open /
-closed / superseded 状态及正文承担 Gate 生命周期；本文件只提供入口，不复制其 Problem、
-Appetite、Scopes、No-gos 或 Exit。P-A 控制面合入 `develop` 前，其他 lane 继续使用原授权规则。
+Gate P 起源记录见
+[Issue #956](https://github.com/NotBad-Labs/snapdrill-ios/issues/956)，但该编号和历史接受状态只作
+定位证据。剩余 slice 仍须以当前 base 通过 Current Admission；本文件不复制其 Problem、
+Appetite、Scopes、No-gos 或 Exit。
 
 ### Parked（明确不赌、停止投入，但代码留着 · 取舍的牙齿）
 
