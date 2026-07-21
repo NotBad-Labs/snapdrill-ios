@@ -29,6 +29,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 ```text
 规范链：PO exploration → shaped candidate → ratified → Product Constitution effective → Release Contract → Feature Spec → 验收标准
 实证链：代码 → 测试 / 构建 / 真机 / 发布证据 → 实现状态文档
+执行链：历史工作制品（证据）→ Current Admission → bet / write / frozen queue
 ```
 
 - `vision.md` 是 Product Constitution 的固定路径，也是仓库内最高产品权威；PO ratify 后仍须合入该归属权威才 effective。
@@ -37,6 +38,11 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 - 下游文档必须指出其上游依据。找不到上游依据的需求是孤儿需求，不应直接实现。
 - 每个 feature spec 在 frontmatter 用 `intent_refs` 声明耐久 Vision / 产品政策 / ADR 归属，并用 `release_refs` 声明当前 Release Contract 消费边；生成器校验精确 ID、受限 §7 引用，并拒绝没有 Feature / operations consumer 的 ratified decision，但字段存在仍不证明语义正确、实现符合或候选纳入。
 - 代码与测试证明“现在是什么”；Product Constitution、Release Contract 与 spec 约束“应该是什么”。不一致时必须显式记录偏差。
+- issue、PR、审计、报告、聊天交接、label、历史评论 / 授权和旧 CI 无论编号、时间或状态，
+  默认都只提供证据。任务只有通过
+  [`Current Admission`](how-to/definition-of-ready.md#current-admission)，以精确 live base、effective
+  SSOT、当前实证和显式接受 / 拒绝的继承假设重建后，才能进入执行队列；该准入不新增产品
+  SSOT，也不替代 PO 的 bet、merge 或发布裁决。
 - [Release 1 Contract](reference/release-1-contract.md) 承载截至 2026-07-19 ratify 的 Gate C 与后续精确裁决；[Local Library Data Contract](reference/local-library-data-contract.md) 承接单一本地资料库的 inventory、接受边界、路径、generation / journal、complete-operation barrier 与恢复生命周期。分支 / PR 副本仍是批准候选，合入 `develop` 后才 effective。feature spec 中旧 Multi-Profile、Pro、CloudKit、Word、iPad、五 Tab 或公开可达 Review / SmartPaper 仍属于已知下游漂移 / 实现刻画，不得覆盖合同，也不得在没有独立实现授权时启动投入。
 - 私有记忆、历史研究、旧 pitch 和关闭任务不参与当前裁决；需要历史证据（含已删除的 research/ 与历史 pitch）时使用 Git 历史或 GitHub 记录。
 
@@ -66,8 +72,9 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 | **看当前生产基线 / 已落地架构事实** | 根 `README.md` + `explanations/architecture.md` + 当前代码 / 构建 / 发布实证；`AGENTS.md` 只作入口路由 |
 | **看 Agent / 窗口角色、文件边界与交接方式** | `how-to/parallel-lanes.md` |
 | **看历史 UI 实现和截图证据** | `ui-redesign/`；当前要求仍从 Release Contract + owning feature spec 读取 |
-| **怎么工作 / 决定下一步做什么** | **`how-to/shape-up.md`**（Shape Up 单人版：shaping→betting→building→cool-down；当前赌注由 PO 明确接受的 live GitHub issue/PR 或具名范围文档决定，不靠"最新文件名胜出"）|
+| **怎么工作 / 决定下一步做什么** | **`how-to/shape-up.md`**（Shape Up 单人版：shaping→betting→building→cool-down；PO 接受 bet 后，每个执行 slice 仍须通过 Current Admission）|
 | **开工前确认目标、scope、验收和验证等级** | `how-to/definition-of-ready.md` |
+| **判断旧 issue / PR / 审计能否进入当前执行队列** | `how-to/definition-of-ready.md#current-admission`；默认只作证据，按当前 base 重建 |
 | 看某功能完整规格 | `features/active\|backlog/feat-*.md` |
 | 查所有功能当前实现状态 | `reference/feature-status.md`（自动生成，**勿手改**；不等于合同符合或发布就绪）|
 | 判断一份文档能否指导当前工作 | `reference/document-control.md` + `reference/document-control.json` |

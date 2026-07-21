@@ -71,9 +71,17 @@ commit、PR、report、测试或 tracked docs，不能只留在私有会话。
 4. 重开规划引用的 live path:line，确认根因与接口仍成立；
 5. 把结果写入 task brief、PR 描述或 report，不新增并行状态 SSOT。
 
-任务还必须通过 `definition-of-ready.md`，至少写清：
+T0 是当前实证刷新，不会让历史工作项自动恢复执行权。issue、PR、审计、报告、聊天交接、
+label、历史评论 / 授权和旧 CI 默认只作证据；编号、时间、open / closed、Draft / Ready 或
+绿色状态不能单独准入。任务进入 bet、active write 或 frozen queue 前，必须通过
+[`Current Admission`](definition-of-ready.md#current-admission) 并至少写清：
 
 ```text
+Current admission brief / URL:
+Exact live base:
+Effective SSOT anchors:
+Current live / reproducible evidence:
+Inherited assumptions accepted / rejected:
 Outcome:
 Scope / owned files:
 Out of scope / red lines:
@@ -81,7 +89,7 @@ Authority and decision state:
 Dependencies / merge order:
 Acceptance criteria:
 Validation level and commands:
-Delegation class and evidence:
+Owner / delegation class:
 PO / legal / fact gates:
 ```
 
@@ -102,9 +110,11 @@ PO / legal / fact gates:
 write slice 的状态必须写入 PR 描述或 handoff；GitHub 的 Draft / Ready 标签本身不决定 WIP
 归类，也不构成合并授权。
 
-- **active write**：head 仍可能变化，或实现、必需验证、冲突处理、必需复核仍未完成；总数不超过 2。
+- **active write**：已通过 Current Admission，且 head 仍可能变化，或实现、必需验证、冲突处理、
+  必需复核仍未完成；总数不超过 2。
 - **frozen merge queue**：不计入 active write，但总数不超过 2。只有同时满足以下条件才能进入：
-  1. owned changes 已全部 commit / push，worktree clean，精确 head 与 scope 已冻结；
+  1. current admission brief 与最新 T0 仍覆盖 live target；owned changes 已全部 commit / push，
+     worktree clean，精确 head 与 scope 已冻结；
   2. task brief 要求的本地门禁已绿，PR 记录实际运行、未运行项和剩余风险；
   3. 必需复核已完成，且没有未解决 finding、合并冲突、上游 contract 或 PO 决策 blocker；
   4. 依赖与合并顺序已明确，只剩精确 head 授权或串行 merge slot。

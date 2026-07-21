@@ -20,6 +20,7 @@ release_refs:             # 当前 effective Release Contract 的精确消费边
 > `mode: lightweight`（backlog 用）时，How / Verify 可只写"待实现补"，仅 Why + What 必填——避免给未实现功能写"假设计"。
 > `tier: undecided` 表示商业归属尚未裁决；候选功能不得为了填字段而默认归入 Pro。
 > `release_refs` 只表示 Feature 消费 / 追溯边，不把 Feature 变成上游裁决 owner，也不证明实现符合、候选纳入、公开可达或发布就绪。
+> `blocked_by` 的 issue 编号只表示依赖元数据，不构成当前 bet、scope 或执行授权。
 
 ## 1. 为什么做 (Why) — 纯 why，不混实现/UI 细节
 - **痛点 / 价值**：用户的什么痛点，本功能带来什么价值。
@@ -54,6 +55,26 @@ release_refs:             # 当前 effective Release Contract 的精确消费边
 | 验收证据 | 测试 / 构建 / 真机 / 发布证据 | 如何证明实现满足上游意图 |
 
 找不到上游依据的需求是孤儿需求，不应直接实现。历史迁移来源由 Git 记录，不在当前 spec 中保留旧体系编号。
+
+## 当前执行准入（非产品 SSOT）
+
+<!-- 仅当本 spec 被指定为具名执行 brief 时填写；否则指向独立的当前 issue / PR brief。 -->
+
+- **Current admission brief / URL**：
+- **Exact live base**：`origin/develop@<full-sha>`
+- **Effective SSOT anchors**：
+- **Current live / reproducible evidence**：
+- **Inherited assumptions accepted**：
+- **Inherited assumptions rejected**：
+- **Owner / delegation class**：
+- **Owned scope / red lines**：
+- **Acceptance / validation level**：
+- **Dependencies / merge order**：
+- **PO / legal / fact gates**：
+
+历史 issue / PR / 审计 / 报告只作证据；编号、时间、open / closed、Draft / Ready、label、旧授权
+或旧 CI 不构成当前执行权。准入规则见
+[`definition-of-ready.md#current-admission`](../how-to/definition-of-ready.md#current-admission)。
 
 ## 关联
 - 原则：`../../explanations/vision.md`

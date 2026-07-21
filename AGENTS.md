@@ -42,6 +42,10 @@
 开工先读 `docs/how-to/definition-of-ready.md`，再按
 `docs/how-to/parallel-lanes.md` 做 T0：
 
+- 旧 issue、PR、审计、报告、聊天交接、label、历史评论 / 授权和旧 CI 默认只作证据；
+  只有自包含记录通过 [`Current Admission`](docs/how-to/definition-of-ready.md#current-admission)
+  后，任务才能进入 bet、active write 或 frozen merge queue；编号、时间和 GitHub 状态本身
+  不授予当前执行权；
 - 确认目标分支、`origin/develop` HEAD、dirty files、未合并工作与引用的 live path:line；
 - 使用独立 worktree / 分支，不修改或清理主 checkout、其他 worktree、stash 或未知文件；
 - shaping 明确 outcome、scope、red lines、owner、acceptance、验证等级和 PO / legal / fact gate；

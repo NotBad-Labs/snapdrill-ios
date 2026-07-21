@@ -65,6 +65,107 @@ FRONTMATTER_DATE_PATTERN = re.compile(
 )
 PRD_FILENAME_PATTERN = re.compile(r"(?:^|[-_.])prd(?:[-_.]|$)", re.IGNORECASE)
 
+CURRENT_ADMISSION_POLICY_REQUIREMENTS = {
+    REPO_ROOT / "AGENTS.md": {
+        "Current Admission owner link": ("definition-of-ready.md#current-admission",),
+        "historical artifacts are evidence only": ("默认只作证据",),
+        "queue entry requires current admission": (
+            "bet、active write 或 frozen merge queue",
+        ),
+    },
+    DOCS_ROOT / "README.md": {
+        "Current Admission owner link": ("definition-of-ready.md#current-admission",),
+        "historical artifacts are evidence only": ("默认都只提供证据",),
+        "admission is not product authority": ("不新增产品",),
+    },
+    DOCS_ROOT / "how-to" / "definition-of-ready.md": {
+        "historical artifacts are evidence only": ("are evidence by default",),
+        "age or number does not authorize": ("Age, number",),
+        "workflow state does not authorize": (
+            "open / closed state, Draft / Ready state",
+        ),
+        "label or author does not authorize": ("label, author",),
+        "prior authorization does not authorize": ("prior authorization",),
+        "historical CI does not authorize": ("historical CI success",),
+        "queue entry requires current admission": (
+            "bet, active write, or frozen merge queue",
+        ),
+    },
+    DOCS_ROOT / "how-to" / "parallel-lanes.md": {
+        "Current Admission owner link": ("definition-of-ready.md#current-admission",),
+        "historical artifacts are evidence only": ("默认只作证据",),
+        "artifact metadata does not admit work": ("不能单独准入",),
+    },
+    DOCS_ROOT / "how-to" / "shape-up.md": {
+        "Current Admission owner link": ("definition-of-ready.md#current-admission",),
+        "historical artifacts are evidence only": ("默认只作历史证据",),
+        "accepted bet still requires admission": ("不能绕过 Current Admission",),
+    },
+    DOCS_ROOT / "reference" / "document-control.md": {
+        "Current Admission owner link": ("definition-of-ready.md#current-admission",),
+        "historical artifacts are evidence only": ("默认只作", "证据"),
+        "admission is not product authority": ("不新增产品 SSOT",),
+    },
+}
+
+CURRENT_ADMISSION_COMMON_TEMPLATE_FIELDS = {
+    "exact live base": ("Exact live base",),
+    "effective SSOT anchors": ("Effective SSOT anchors",),
+    "current live evidence": ("Current live / reproducible evidence",),
+    "accepted inherited assumptions": ("Inherited assumptions accepted",),
+    "rejected inherited assumptions": ("Inherited assumptions rejected",),
+    "owner and delegation class": ("Owner / delegation class",),
+    "dependencies and merge order": ("Dependencies / merge order",),
+}
+
+CURRENT_ADMISSION_TEMPLATE_REQUIREMENTS = {
+    REPO_ROOT / ".github" / "ISSUE_TEMPLATE" / "bug_report.md": {
+        "current admission section": ("## Current Admission",),
+        **CURRENT_ADMISSION_COMMON_TEMPLATE_FIELDS,
+        "outcome": ("## 期望行为",),
+        "scope": ("## Scope（做什么）",),
+        "red lines": ("## No-Go（不做什么）",),
+        "acceptance criteria": ("## 验收标准",),
+        "validation level": ("## 验证等级",),
+    },
+    REPO_ROOT / ".github" / "ISSUE_TEMPLATE" / "chore.md": {
+        "current admission section": ("## Current Admission",),
+        **CURRENT_ADMISSION_COMMON_TEMPLATE_FIELDS,
+        "outcome": ("## 任务描述",),
+        "scope": ("## Scope（做什么）",),
+        "red lines": ("## No-Go（不做什么）",),
+        "acceptance criteria": ("## 验收标准",),
+        "validation level": ("## 验证等级",),
+    },
+    REPO_ROOT / ".github" / "ISSUE_TEMPLATE" / "feature_request.md": {
+        "current admission section": ("## Current Admission",),
+        **CURRENT_ADMISSION_COMMON_TEMPLATE_FIELDS,
+        "outcome": ("## Repo-visible Outcome",),
+        "scope": ("## Scope（做什么）",),
+        "red lines": ("## No-Go（不做什么）",),
+        "acceptance criteria": ("## 验收标准",),
+        "validation level": ("## 验证等级",),
+    },
+    REPO_ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md": {
+        "current admission section": ("## Current Admission / T0",),
+        **CURRENT_ADMISSION_COMMON_TEMPLATE_FIELDS,
+        "outcome": ("## Summary",),
+        "scope": ("## Scope",),
+        "red lines": ("## Out of Scope / Red Lines",),
+        "acceptance criteria": ("验收标准（Given-When-Then）",),
+        "validation level": ("## Validation",),
+    },
+    DOCS_ROOT / "features" / "template.md": {
+        "current admission section": ("## 当前执行准入（非产品 SSOT）",),
+        **CURRENT_ADMISSION_COMMON_TEMPLATE_FIELDS,
+        "outcome": ("## 1. 为什么做",),
+        "scope": ("## 2. 需求规则",),
+        "red lines": ("**边界 / 不做**",),
+        "acceptance criteria": ("## 4. 验证标准",),
+        "validation level": ("Acceptance / validation level",),
+    },
+}
+
 POSITIONING_TERMS = {
     "儿童",
     "学生",
@@ -516,6 +617,36 @@ def validate_release_prd_authority(errors: list[str]) -> None:
         )
 
 
+def validate_required_markers(
+    path: Path,
+    requirements: dict[str, tuple[str, ...]],
+    error_prefix: str,
+    errors: list[str],
+) -> None:
+    text = read(path)
+    for field, markers in requirements.items():
+        if all(marker in text for marker in markers):
+            continue
+        errors.append(f"{rel(path)}: {error_prefix} missing requirement: {field}")
+
+
+def validate_current_admission(errors: list[str]) -> None:
+    for path, requirements in CURRENT_ADMISSION_POLICY_REQUIREMENTS.items():
+        validate_required_markers(
+            path,
+            requirements,
+            "current admission policy",
+            errors,
+        )
+    for path, requirements in CURRENT_ADMISSION_TEMPLATE_REQUIREMENTS.items():
+        validate_required_markers(
+            path,
+            requirements,
+            "current admission template",
+            errors,
+        )
+
+
 def run_checks() -> list[str]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -526,6 +657,7 @@ def run_checks() -> list[str]:
     validate_taxonomy_canonical_terms(errors, warnings)
     validate_release_prd_authority(errors)
     validate_feature_intent(errors)
+    validate_current_admission(errors)
     return errors
 
 

@@ -7,31 +7,73 @@
 Use this gate before implementation work starts. If a task fails any required
 check, shape the task further or ask PO instead of silently choosing.
 
+## Current Admission
+
+Every task entering the bet, active write, or frozen merge queue needs one
+self-contained **current admission brief**. This is an execution gate, not a
+fourth product SSOT: it must point to effective authority rather than restating
+or replacing Product Constitution, Release Product Contract, or feature specs.
+
+An issue, PR, audit, report, chat handoff, label, historical PO comment or
+authorization, and an old CI result are evidence by default. Age, number,
+open / closed state, Draft / Ready state, label, author, prior authorization,
+or historical CI success cannot by themselves grant current execution
+authority. A previously known defect or accepted idea may proceed only after
+its assumptions are rebuilt against live facts.
+
+The current admission brief records:
+
+1. **Exact live base**: target branch and full commit SHA used for admission.
+2. **Effective SSOT anchors**: product and owning technical / operations
+   authority that bounds the task.
+3. **Current evidence**: live path:line, reproducible command, fixture, test,
+   device evidence, or other presently verified fact.
+4. **Inherited assumptions**: historical assumptions explicitly accepted and
+   rejected after current verification.
+5. **Ownership and scope**: owner, owned files / boundaries, outcome, in-scope
+   work, and exclusions / red lines.
+6. **Completion contract**: acceptance criteria, T0-T4 validation level, and
+   planned evidence.
+7. **Execution routing**: delegation class, dependencies, merge order, and
+   unresolved PO / legal / fact gates.
+
+An existing current task remains admissible only when its present brief already
+contains equivalent fields and the latest T0 confirms they still hold against
+the live target. There is no bulk grandfathering based on an issue or PR already
+being open, accepted, labeled, green, Draft, or Ready. The exact admission base
+remains recorded; if the target advances, T0 records the newer target head and
+whether the existing head, assumptions, merge order, and validation remain
+sufficient. A changed authority, root cause, scope, or inherited assumption must
+be reflected before queue entry or continued execution.
+
 ## Ready Checklist
 
-1. **Outcome**: the task states the user-visible or repo-visible outcome, not
+1. **Current admission**: the task has a self-contained current admission brief
+   with exact live base, effective anchors, current evidence, inherited
+   assumptions, ownership, dependencies, and merge order.
+2. **Outcome**: the task states the user-visible or repo-visible outcome, not
    only a file list.
-2. **Scope**: in-scope and out-of-scope work are explicit. Adjacent cleanup is
+3. **Scope**: in-scope and out-of-scope work are explicit. Adjacent cleanup is
    not implied.
-3. **Authority**: product intent links through the three-layer SSOT: Product
+4. **Authority**: product intent links through the three-layer SSOT: Product
    Constitution (`vision.md`) -> current Release Product Contract -> owning
    feature spec. Product policy or a typed decision may refine its assigned
    question but cannot bypass those layers.
-4. **Decision state**: every upstream product decision is identified as
+5. **Decision state**: every upstream product decision is identified as
    exploration, shaped candidate, ratified, effective, or superseded. Only an
    effective authority on `develop` may replace the current cross-lane baseline.
-5. **Contract first**: cross-feature, data/wire, public, business, or platform
+6. **Contract first**: cross-feature, data/wire, public, business, or platform
    changes name the upstream product or release contract required before merge.
-6. **Acceptance criteria**: the task names observable pass/fail checks. At
+7. **Acceptance criteria**: the task names observable pass/fail checks. At
    least one check must be a command, fixture, test, screenshot/evidence path,
    or direct PO-verifiable behavior.
-7. **Validation level**: the task declares a T0-T4 level from
+8. **Validation level**: the task declares a T0-T4 level from
    `parallel-lanes.md` and lists the commands or manual evidence required.
-8. **Red lines**: files, product meanings, legal/fact-gated content, release
+9. **Red lines**: files, product meanings, legal/fact-gated content, release
    resources, or user data that must not be changed are named.
-9. **Decision gates**: unresolved PO, legal, fact, App Store, or irreversible
+10. **Decision gates**: unresolved PO, legal, fact, App Store, or irreversible
    data decisions are called out before coding.
-10. **Delegation class**: the task is classified Green, Yellow, or Red using
+11. **Delegation class**: the task is classified Green, Yellow, or Red using
     the P-A matrix below. Uncertain classification fails closed to Yellow.
 
 ## Stop And Ask
@@ -68,7 +110,7 @@ Release scope。
 
 | Class | 判定 | Agent 权限 | 必须停下 |
 |---|---|---|---|
-| **Green** | effective SSOT、当前 bet、outcome、唯一语义、scope、red lines、acceptance 和 T0-T4 均明确；改动可由 Git 回滚；无 Yellow / Red gate | 自主审计、shaping、独立 worktree / branch、实现、验证、commit、push、创建或更新 Draft PR、观察 / rerun CI | 不得转 Ready、merge、删未合并分支、上传或发布 |
+| **Green** | 已通过 Current Admission；effective SSOT、当前 bet、outcome、唯一语义、scope、red lines、acceptance 和 T0-T4 均明确；改动可由 Git 回滚；无 Yellow / Red gate | 自主审计、shaping、独立 worktree / branch、实现、验证、commit、push、创建或更新 Draft PR、观察 / rerun CI | 不得转 Ready、merge、删未合并分支、上传或发布 |
 | **Yellow** | 存在两个以上会改变用户结果的合理方案；规范、术语、验收或 owner 含糊；需要新的公开事实、外部 reviewer 或跨 lane 契约 | 只读核实、形成选项 / 推荐 / 影响和 bounded candidate；可以在任务明确允许时做隔离原型 | 产品语义、用户结果、Release scope 或外部 reviewer 只能请 PO 裁决；只有不改变产品结果的纯技术、事实或操作契约歧义可交 owning authority；不能静默选择或降级成 Green |
 | **Red** | 产品定位、Release 纳入 / 排除、默认行为、商业化、法律 / 公开承诺、不可逆数据 / wire、账号签名、外部可用人群、go / no-go、上传或发布 | 收集事实、提出可逆方案和风险；不得代替 owner 决策 | 必须由 PO；法律充分性或平台事实还需对应专业 / 一手来源 |
 
@@ -115,13 +157,20 @@ P-A 只授权 Green 执行至 Draft PR。产品裁决仍走五态生命周期；
 ## Minimal Task Brief
 
 ```text
+Current admission brief / URL:
+Exact live base:
+Effective SSOT anchors:
+Current live / reproducible evidence:
+Inherited assumptions accepted:
+Inherited assumptions rejected:
 Outcome:
-Scope:
+Owner / delegation class:
+Scope / owned files:
 Out of scope / red lines:
 Authority:
 Decision state and required upstream contract:
 Acceptance criteria:
 Validation level and commands:
-Delegation class and evidence:
+Dependencies / merge order:
 PO/legal/fact gates:
 ```

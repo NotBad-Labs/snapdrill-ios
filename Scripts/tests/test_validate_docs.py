@@ -23,6 +23,28 @@ validate_docs = load_validate_docs()
 
 
 class ValidateDocsTests(unittest.TestCase):
+    def current_admission_errors_after_removing(
+        self,
+        path: Path,
+        markers: tuple[str, ...],
+    ) -> list[str]:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(candidate: Path) -> str:
+            text = original_read(candidate)
+            if candidate == path:
+                for marker in markers:
+                    text = text.replace(marker, "")
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_current_admission(errors)
+        finally:
+            validate_docs.read = original_read
+        return errors
+
     def test_vision_principle_ref_resolves(self) -> None:
         target, anchor = validate_docs.resolve_doc_ref("vision:P4")
 
@@ -219,6 +241,96 @@ class ValidateDocsTests(unittest.TestCase):
         self.assertIn(
             "PRD.md: PRD-named Markdown duplicates or obscures the owning "
             "Release Product Contract",
+            errors,
+        )
+
+    def test_current_admission_policy_and_templates_are_complete(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_current_admission(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_current_admission_template_requires_exact_live_base(self) -> None:
+        path = (
+            validate_docs.REPO_ROOT
+            / ".github"
+            / "ISSUE_TEMPLATE"
+            / "bug_report.md"
+        )
+
+        errors = self.current_admission_errors_after_removing(
+            path,
+            ("Exact live base",),
+        )
+
+        self.assertIn(
+            ".github/ISSUE_TEMPLATE/bug_report.md: current admission template "
+            "missing requirement: exact live base",
+            errors,
+        )
+
+    def test_current_admission_template_requires_authority_anchors(self) -> None:
+        path = (
+            validate_docs.REPO_ROOT
+            / ".github"
+            / "ISSUE_TEMPLATE"
+            / "chore.md"
+        )
+
+        errors = self.current_admission_errors_after_removing(
+            path,
+            ("Effective SSOT anchors",),
+        )
+
+        self.assertIn(
+            ".github/ISSUE_TEMPLATE/chore.md: current admission template "
+            "missing requirement: effective SSOT anchors",
+            errors,
+        )
+
+    def test_current_admission_template_requires_live_evidence(self) -> None:
+        path = (
+            validate_docs.REPO_ROOT
+            / ".github"
+            / "ISSUE_TEMPLATE"
+            / "feature_request.md"
+        )
+
+        errors = self.current_admission_errors_after_removing(
+            path,
+            ("Current live / reproducible evidence",),
+        )
+
+        self.assertIn(
+            ".github/ISSUE_TEMPLATE/feature_request.md: current admission template "
+            "missing requirement: current live evidence",
+            errors,
+        )
+
+    def test_current_admission_rejects_number_and_state_only_authority(self) -> None:
+        path = (
+            validate_docs.DOCS_ROOT
+            / "how-to"
+            / "definition-of-ready.md"
+        )
+
+        errors = self.current_admission_errors_after_removing(
+            path,
+            (
+                "Age, number",
+                "open / closed state, Draft / Ready state",
+            ),
+        )
+
+        self.assertIn(
+            "docs/how-to/definition-of-ready.md: current admission policy "
+            "missing requirement: age or number does not authorize",
+            errors,
+        )
+        self.assertIn(
+            "docs/how-to/definition-of-ready.md: current admission policy "
+            "missing requirement: workflow state does not authorize",
             errors,
         )
 

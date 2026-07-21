@@ -23,6 +23,18 @@ assignees: ""
 
 <!-- 未经 effective authority 不要把建议自行标成 Release Must。 -->
 
+## Current Admission
+
+<!-- 历史 issue / PR / 审计只作证据；按 docs/how-to/definition-of-ready.md#current-admission 重建。 -->
+
+- **Exact live base**：`origin/develop@<full-sha>`
+- **Effective SSOT anchors**：
+- **Current live / reproducible evidence**：
+- **Inherited assumptions accepted**：
+- **Inherited assumptions rejected**：
+- **Owner / delegation class**：
+- **Dependencies / merge order**：
+
 ## Repo-visible Outcome
 
 <!-- 完成后用户或仓库中可观察到什么结果？ -->
