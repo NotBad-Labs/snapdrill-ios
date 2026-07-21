@@ -162,6 +162,7 @@ extension MetricDiagnosticsStoreTests {
     }
 
     enum FixedNodeAttack: String, CaseIterable, CustomTestStringConvertible {
+        case applicationSupportSymlink
         case rootSymlink
         case diagnosticsFile
         case diagnosticsSymlink
@@ -172,6 +173,12 @@ extension MetricDiagnosticsStoreTests {
 
         func install(in fixture: Fixture, outside: URL) throws {
             switch self {
+            case .applicationSupportSymlink:
+                try FileManager.default.removeItem(at: fixture.container)
+                try FileManager.default.createSymbolicLink(
+                    at: fixture.container,
+                    withDestinationURL: outside
+                )
             case .rootSymlink:
                 try FileManager.default.createSymbolicLink(at: fixture.root, withDestinationURL: outside)
             case .diagnosticsFile:

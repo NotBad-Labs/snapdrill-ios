@@ -100,4 +100,56 @@ extension MetricDiagnosticsStoreTests {
         #expect(FileManager.default.fileExists(atPath: original.path))
         #expect(FileManager.default.fileExists(atPath: fixture.stagingURL.path) == false)
     }
+
+    @Test("Secure unlink rejects a hard-link target replaced after inspection")
+    func secureUnlinkRejectsLateHardLinkReplacement() throws {
+        let fixture = try Fixture()
+        defer { fixture.remove() }
+        let initialIdentifier = IdentifierSequence(count: 1)
+        try fixture.store(maxStoredFiles: 1, makeIdentifier: initialIdentifier.next).persist(
+            Data("oldest".utf8),
+            kind: .metric,
+            receivedAt: Date(timeIntervalSince1970: 20)
+        )
+        let original = try #require(fixture.payloadFiles().first)
+        let displaced = fixture.container.appendingPathComponent("late-displaced-payload")
+        let sentinel = fixture.container.appendingPathComponent("late-rotation-sentinel")
+        try Data("sentinel".utf8).write(to: sentinel)
+
+        var replaced = false
+        var fileSystem = MetricDiagnosticsFileSystem.live
+        let unlinkLive = fileSystem.unlinkAt
+        fileSystem.unlinkAt = { parent, name, flags in
+            guard name != MetricDiagnosticsStore.stagingFileName, !replaced else {
+                return unlinkLive(parent, name, flags)
+            }
+            replaced = true
+            do {
+                try FileManager.default.moveItem(at: original, to: displaced)
+                try HostileStaging.hardLink.install(at: original, sentinel: sentinel)
+            } catch {
+                errno = EIO
+                return -1
+            }
+            return unlinkLive(parent, name, flags)
+        }
+
+        do {
+            try fixture.store(maxStoredFiles: 1, fileSystem: fileSystem).persist(
+                Data("new".utf8),
+                kind: .metric,
+                receivedAt: Date(timeIntervalSince1970: 21)
+            )
+            Issue.record("Expected secure unlink to reject the replacement")
+        } catch let error as MetricDiagnosticsStoreError {
+            #expect(error.outcome == .notPersisted)
+            #expect(error.step == .rotate)
+        }
+
+        #expect(replaced)
+        #expect(try Data(contentsOf: sentinel) == Data("sentinel".utf8))
+        #expect(try Data(contentsOf: displaced) == Data("oldest".utf8))
+        #expect(FileManager.default.fileExists(atPath: original.path))
+        #expect(FileManager.default.fileExists(atPath: fixture.stagingURL.path) == false)
+    }
 }

@@ -14,6 +14,9 @@ final class MetricDiagnosticsStore: @unchecked Sendable {
     nonisolated static let diagnosticsDirectoryName = "Diagnostics"
     nonisolated static let metricKitDirectoryName = "MetricKit"
     nonisolated static let stagingFileName = ".payload.pending"
+    nonisolated static let secureUnlinkFlags = Int32(
+        AT_SYMLINK_NOFOLLOW_ANY | AT_RESOLVE_BENEATH | AT_UNIQUE
+    )
 
     private nonisolated let rootURL: URL?
     nonisolated let maxStoredFiles: Int
@@ -170,7 +173,11 @@ final class MetricDiagnosticsStore: @unchecked Sendable {
               node.identity == expectedIdentity else {
             return
         }
-        guard fileSystem.unlinkAt(descriptor, Self.stagingFileName) == 0 else {
+        guard fileSystem.unlinkAt(
+            descriptor,
+            Self.stagingFileName,
+            Self.secureUnlinkFlags
+        ) == 0 else {
             SnapDrillLogger.generic.warning("MetricKit staging cleanup failed")
             return
         }

@@ -17,6 +17,7 @@ nonisolated extension MetricDiagnosticsStore {
         directories: MetricDiagnosticsBoundDirectories
     ) throws {
         try verifyPathBinding(directories)
+        try validateIncomingOrder(destinationName, inventory: inventory)
         let stagingDescriptor = try createStagingFile(in: directories.metricKitDescriptor)
         defer { _ = fileSystem.close(stagingDescriptor) }
 
@@ -49,6 +50,18 @@ nonisolated extension MetricDiagnosticsStore {
                 code: EIO
             )
         }
+    }
+
+    private func validateIncomingOrder(
+        _ destinationName: String,
+        inventory: MetricDiagnosticsInventory
+    ) throws {
+        guard inventory.payloadNames.count == maxStoredFiles,
+              let oldest = inventory.payloadNames.min(),
+              destinationName < oldest else {
+            return
+        }
+        throw failure(step: .validateBound, code: ESTALE)
     }
 
     private func performPublication(
@@ -165,13 +178,23 @@ nonisolated extension MetricDiagnosticsStore {
         do {
             try fileAttributes.apply(descriptor)
             try synchronizeRegularFile(descriptor, step: .synchronizeStaging)
+        } catch let error as MetricDiagnosticsStoreError {
+            throw error
+        } catch let error as MetricDiagnosticsPOSIXError {
+            throw failure(step: .applyFileAttributes, code: error.code)
+        } catch {
+            throw failure(step: .applyFileAttributes, code: EIO)
+        }
+        do {
             guard try fileAttributes.verify(descriptor) else {
                 throw failure(step: .verifyFileAttributes, code: EIO)
             }
         } catch let error as MetricDiagnosticsStoreError {
             throw error
+        } catch let error as MetricDiagnosticsPOSIXError {
+            throw failure(step: .verifyFileAttributes, code: error.code)
         } catch {
-            throw failure(step: .applyFileAttributes, code: EIO)
+            throw failure(step: .verifyFileAttributes, code: EIO)
         }
         node = try inspectRegularDescriptor(
             descriptor,
@@ -227,9 +250,19 @@ nonisolated extension MetricDiagnosticsStore {
             expectedByteCount: expectedBytes.count,
             step: .verifyPublishedFile
         )
-        guard finalNode.identity == stagingNode.identity,
-              try fileAttributes.verify(descriptor) else {
+        guard finalNode.identity == stagingNode.identity else {
             throw failure(step: .verifyPublishedFile, code: EIO)
+        }
+        do {
+            guard try fileAttributes.verify(descriptor) else {
+                throw failure(step: .verifyFileAttributes, code: EIO)
+            }
+        } catch let error as MetricDiagnosticsStoreError {
+            throw error
+        } catch let error as MetricDiagnosticsPOSIXError {
+            throw failure(step: .verifyFileAttributes, code: error.code)
+        } catch {
+            throw failure(step: .verifyFileAttributes, code: EIO)
         }
         try verifyBytes(expectedBytes, from: descriptor)
         try verifyFileBinding(

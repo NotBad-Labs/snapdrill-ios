@@ -60,7 +60,11 @@ struct MetricDiagnosticsStoreTests {
     func fixedNodeAttackFailsClosed(attack: FixedNodeAttack) throws {
         let fixture = try Fixture()
         defer { fixture.remove() }
-        let outside = fixture.container.appendingPathComponent("outside", isDirectory: true)
+        let outside = fixture.container.deletingLastPathComponent().appendingPathComponent(
+            "MetricDiagnosticsOutside-\(UUID().uuidString)",
+            isDirectory: true
+        )
+        defer { try? FileManager.default.removeItem(at: outside) }
         try FileManager.default.createDirectory(at: outside, withIntermediateDirectories: false)
         let sentinel = outside.appendingPathComponent("sentinel")
         try Data("sentinel".utf8).write(to: sentinel)
@@ -161,6 +165,43 @@ struct MetricDiagnosticsStoreTests {
         try fixture.expectSentinelsUnchanged(sentinels)
     }
 
+    @Test("An older incoming payload cannot evict a newer retained payload")
+    func olderIncomingPayloadIsRejectedAtCapacity() throws {
+        let fixture = try Fixture()
+        defer { fixture.remove() }
+        let identifiers = IdentifierSequence(count: 3)
+        let store = fixture.store(maxStoredFiles: 2, makeIdentifier: identifiers.next)
+        try store.persist(
+            Data("newer-1".utf8),
+            kind: .metric,
+            receivedAt: Date(timeIntervalSince1970: 100)
+        )
+        try store.persist(
+            Data("newer-2".utf8),
+            kind: .metric,
+            receivedAt: Date(timeIntervalSince1970: 200)
+        )
+        let before = try fixture.entryNames()
+
+        do {
+            try store.persist(
+                Data("stale".utf8),
+                kind: .metric,
+                receivedAt: Date(timeIntervalSince1970: 50)
+            )
+            Issue.record("Expected the older payload to be rejected")
+        } catch let error as MetricDiagnosticsStoreError {
+            #expect(error.outcome == .notPersisted)
+            #expect(error.step == .validateBound)
+            #expect(error.code == ESTALE)
+        }
+        #expect(try fixture.entryNames() == before)
+        let retained = try fixture.payloadFiles().map { try Data(contentsOf: $0) }
+        #expect(retained.contains(Data("newer-1".utf8)))
+        #expect(retained.contains(Data("newer-2".utf8)))
+        #expect(!retained.contains(Data("stale".utf8)))
+    }
+
     @Test("An over-limit inventory is preserved and refuses another payload")
     func overLimitInventoryRefusesWrite() throws {
         let fixture = try Fixture()
@@ -222,14 +263,19 @@ struct MetricDiagnosticsStoreTests {
         )
         let before = try fixture.entryNames()
         var attributes = MetricDiagnosticsDirectoryAttributes.live
-        attributes.apply = { _ in throw POSIXError(.EACCES) }
+        attributes.apply = { _ in throw MetricDiagnosticsPOSIXError(code: EACCES) }
 
-        #expect(throws: MetricDiagnosticsStoreError.self) {
+        do {
             try fixture.store(fileAttributes: attributes).persist(
                 Data("blocked".utf8),
                 kind: .metric,
                 receivedAt: Date(timeIntervalSince1970: 42)
             )
+            Issue.record("Expected directory attribute application to fail")
+        } catch let error as MetricDiagnosticsStoreError {
+            #expect(error.outcome == .notPersisted)
+            #expect(error.step == .applyDirectoryAttributes)
+            #expect(error.code == EACCES)
         }
         #expect(try fixture.entryNames() == before)
     }
@@ -249,17 +295,22 @@ struct MetricDiagnosticsStoreTests {
         let applyLive = attributes.apply
         attributes.apply = { descriptor in
             guard !thirdInvocation.isTargetInvocation() else {
-                throw POSIXError(.EACCES)
+                throw MetricDiagnosticsPOSIXError(code: EACCES)
             }
             try applyLive(descriptor)
         }
 
-        #expect(throws: MetricDiagnosticsStoreError.self) {
+        do {
             try fixture.store(fileAttributes: attributes).persist(
                 Data("blocked".utf8),
                 kind: .metric,
                 receivedAt: Date(timeIntervalSince1970: 44)
             )
+            Issue.record("Expected payload attribute application to fail")
+        } catch let error as MetricDiagnosticsStoreError {
+            #expect(error.outcome == .notPersisted)
+            #expect(error.step == .applyFileAttributes)
+            #expect(error.code == EACCES)
         }
         #expect(try fixture.entryNames() == before)
     }

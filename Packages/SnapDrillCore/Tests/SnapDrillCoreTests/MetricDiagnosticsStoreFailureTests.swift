@@ -57,9 +57,9 @@ struct MetricDiagnosticsStoreFailureTests {
         let before = try fixture.entryNames()
         var fileSystem = MetricDiagnosticsFileSystem.live
         let unlinkLive = fileSystem.unlinkAt
-        fileSystem.unlinkAt = { parent, name in
+        fileSystem.unlinkAt = { parent, name, flags in
             if name == MetricDiagnosticsStore.stagingFileName {
-                return unlinkLive(parent, name)
+                return unlinkLive(parent, name, flags)
             }
             errno = EACCES
             return -1
@@ -115,6 +115,127 @@ struct MetricDiagnosticsStoreFailureTests {
         }
         #expect(try fixture.entryNames() == before)
         #expect(FileManager.default.fileExists(atPath: fixture.stagingURL.path) == false)
+    }
+
+    @Test("A commit failure after rotation reports uncertainty and preserves the hard bound")
+    func commitFailureAfterRotationIsUncertain() throws {
+        let fixture = try Fixture()
+        defer { fixture.remove() }
+        let baselineStore = fixture.store(maxStoredFiles: 2)
+        try baselineStore.persist(
+            Data("first".utf8),
+            kind: .metric,
+            receivedAt: Date(timeIntervalSince1970: 10)
+        )
+        try baselineStore.persist(
+            Data("second".utf8),
+            kind: .metric,
+            receivedAt: Date(timeIntervalSince1970: 11)
+        )
+        var fileSystem = MetricDiagnosticsFileSystem.live
+        fileSystem.renameAt = { _, _, _, _ in
+            errno = EIO
+            return -1
+        }
+
+        do {
+            try fixture.store(maxStoredFiles: 2, fileSystem: fileSystem).persist(
+                Data("third".utf8),
+                kind: .metric,
+                receivedAt: Date(timeIntervalSince1970: 12)
+            )
+            Issue.record("Expected the post-rotation commit to fail")
+        } catch let error as MetricDiagnosticsStoreError {
+            #expect(error.outcome == .persistenceOutcomeUncertain)
+            #expect(error.step == .commit)
+            #expect(error.code == EIO)
+        }
+        #expect(try fixture.payloadFiles().count == 1)
+        #expect(FileManager.default.fileExists(atPath: fixture.stagingURL.path) == false)
+    }
+
+    @Test("Creating each fixed directory synchronizes its bound parent")
+    func firstInstallParentSyncFailureIsExplicit() throws {
+        let fixture = try Fixture(createContainer: false)
+        defer { fixture.remove() }
+        var fileSystem = MetricDiagnosticsFileSystem.live
+        fileSystem.synchronize = { _ in
+            errno = EIO
+            return -1
+        }
+
+        do {
+            try fixture.store(fileSystem: fileSystem).persist(
+                Data("blocked".utf8),
+                kind: .metric,
+                receivedAt: Date(timeIntervalSince1970: 12)
+            )
+            Issue.record("Expected the parent directory sync to fail")
+        } catch let error as MetricDiagnosticsStoreError {
+            #expect(error.outcome == .notPersisted)
+            #expect(error.step == .synchronizeDirectory)
+            #expect(error.code == EIO)
+        }
+        #expect(FileManager.default.fileExists(atPath: fixture.container.path))
+        #expect(FileManager.default.fileExists(atPath: fixture.root.path) == false)
+    }
+
+    @Test("A staging attribute verification error keeps its POSIX identity")
+    func stagingAttributeVerificationPreservesError() throws {
+        let fixture = try Fixture()
+        defer { fixture.remove() }
+        let thirdInvocation = MetricDiagnosticsStoreTests.InvocationGate(target: 3)
+        var attributes = MetricDiagnosticsDirectoryAttributes.live
+        let verifyLive = attributes.verify
+        attributes.verify = { descriptor in
+            guard !thirdInvocation.isTargetInvocation() else {
+                throw MetricDiagnosticsPOSIXError(code: EACCES)
+            }
+            return try verifyLive(descriptor)
+        }
+
+        do {
+            try fixture.store(fileAttributes: attributes).persist(
+                Data("blocked".utf8),
+                kind: .metric,
+                receivedAt: Date(timeIntervalSince1970: 12)
+            )
+            Issue.record("Expected staging attribute verification to fail")
+        } catch let error as MetricDiagnosticsStoreError {
+            #expect(error.outcome == .notPersisted)
+            #expect(error.step == .verifyFileAttributes)
+            #expect(error.code == EACCES)
+        }
+        #expect(try fixture.payloadFiles().isEmpty)
+    }
+
+    @Test("A published attribute verification error is outcome-uncertain")
+    func publishedAttributeVerificationPreservesError() throws {
+        let fixture = try Fixture()
+        defer { fixture.remove() }
+        let fourthInvocation = MetricDiagnosticsStoreTests.InvocationGate(target: 4)
+        var attributes = MetricDiagnosticsDirectoryAttributes.live
+        let verifyLive = attributes.verify
+        attributes.verify = { descriptor in
+            guard !fourthInvocation.isTargetInvocation() else {
+                throw MetricDiagnosticsPOSIXError(code: EACCES)
+            }
+            return try verifyLive(descriptor)
+        }
+
+        do {
+            try fixture.store(fileAttributes: attributes).persist(
+                Data("persisted".utf8),
+                kind: .metric,
+                receivedAt: Date(timeIntervalSince1970: 12)
+            )
+            Issue.record("Expected published attribute verification to fail")
+        } catch let error as MetricDiagnosticsStoreError {
+            #expect(error.outcome == .persistenceOutcomeUncertain)
+            #expect(error.step == .verifyFileAttributes)
+            #expect(error.code == EACCES)
+        }
+        #expect(try fixture.payloadFiles().count == 1)
     }
 
     @Test("A directory sync failure after rename reports an uncertain outcome")
