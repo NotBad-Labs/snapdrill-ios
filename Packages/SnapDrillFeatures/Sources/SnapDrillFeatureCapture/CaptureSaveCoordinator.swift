@@ -41,7 +41,7 @@ struct CaptureSaveCoordinator {
 
     /// 保存题目：校验 → 标签 → 存图 → 插入 → saveContext。
     /// 失败时回滚 context + 清理孤儿图片，再抛错供调用方处理 UI 反馈。
-    func save(_ form: CaptureFormSnapshot) async throws {
+    func save(_ form: CaptureFormSnapshot, itemID: UUID) async throws {
         // 声明在 do 块外，确保 catch 中可访问以清理孤儿文件
         var savedImagePath: String?
         var savedAnswerImagePath: String?
@@ -66,6 +66,7 @@ struct CaptureSaveCoordinator {
             // 构造 @Model 对象并插入（纯内存），再统一 saveContext。
             // L3：分类经动态维度值（categoryValues）；旧裸字符串字段已不再写入。
             let model = ArchiveItemModel(
+                id: itemID,
                 content: contentValue,
                 imagePath: savedImagePath,
                 answerText: form.answerText.isEmpty ? nil : form.answerText,

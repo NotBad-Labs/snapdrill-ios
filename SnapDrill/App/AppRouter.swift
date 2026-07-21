@@ -138,7 +138,7 @@ final class AppRouter {
         Task {
             // best-effort: 等待 Tab 切换动画完成，取消不影响正确性
             try? await Task.sleep(for: .milliseconds(100))
-            captureRouter.push(.scannerResult(content: "", image: image))
+            captureRouter.push(.scannerResult(content: "", image: image, draftToken: nil))
         }
     }
 

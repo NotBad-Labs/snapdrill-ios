@@ -48,6 +48,7 @@ final class CaptureResultViewModelTests {
     private func createVM(
         content: String = "测试文本",
         image: UIImage? = nil,
+        draftToken: CaptureDraftToken? = nil,
         draftService: CaptureDraftServiceProtocol = CaptureDraftServiceMock()
     ) -> TestContext {
         let analytics = AnalyticsServiceMock()
@@ -55,12 +56,14 @@ final class CaptureResultViewModelTests {
         let vm = CaptureResultViewModel(
             content: content,
             image: image,
+            draftToken: draftToken,
             repositories: repos,
             ocrService: MockOCRServiceShared(),
             analyticsService: analytics,
             contentTaggingService: ContentTaggingServiceMock(),
             router: router,
-            draftService: draftService
+            draftService: draftService,
+            activityTracker: AppActivityTracker()
         )
         return TestContext(vm: vm, repos: repos, analytics: analytics)
     }
@@ -88,6 +91,18 @@ final class CaptureResultViewModelTests {
         #expect(ctx.vm.isSaved == false)
         #expect(ctx.vm.showErrorAlert == true)
         #expect(ctx.vm.errorMessage != nil)
+    }
+
+    @Test("saveResult 仅空白文字时使用空内容错误")
+    func saveResult_whitespaceOnly_showsEmptyContentError() async throws {
+        let draftService = CaptureDraftServiceMock()
+        let ctx = createVM(content: " \n\t ", image: nil, draftService: draftService)
+
+        await ctx.vm.saveResult()
+
+        #expect(ctx.vm.isSaved == false)
+        #expect(ctx.vm.errorMessage == L10n.Errors.contentAndImageEmpty)
+        #expect(draftService.saveCalls.isEmpty)
     }
 
     @Test("saveResult 纯文字成功保存")
@@ -125,7 +140,7 @@ final class CaptureResultViewModelTests {
 
         await ctx.vm.generateDraftIfNeeded()
 
-        #expect(draftService.hasDraft == true)
+        #expect(recoverableDraft(in: draftService) != nil)
     }
 
     @Test("generateDraftIfNeeded 已保存时不生成草稿")
@@ -137,7 +152,7 @@ final class CaptureResultViewModelTests {
 
         await ctx.vm.generateDraftIfNeeded()
 
-        #expect(draftService.hasDraft == false)
+        #expect(isNone(draftService.state))
     }
 
     @Test("generateDraftIfNeeded 无内容且无图片时不生成草稿")
@@ -149,7 +164,7 @@ final class CaptureResultViewModelTests {
 
         await ctx.vm.generateDraftIfNeeded()
 
-        #expect(draftService.hasDraft == false)
+        #expect(isNone(draftService.state))
     }
 
     // MARK: - handleImageCrop
@@ -162,11 +177,14 @@ final class CaptureResultViewModelTests {
         let vm = CaptureResultViewModel(
             content: "原始文本",
             image: createTestImage(),
+            draftToken: nil,
             repositories: repos,
             ocrService: mockOCR,
             analyticsService: AnalyticsServiceMock(),
             contentTaggingService: ContentTaggingServiceMock(),
-            router: router
+            router: router,
+            draftService: CaptureDraftServiceMock(),
+            activityTracker: AppActivityTracker()
         )
 
         let croppedImage = createTestImage()
@@ -204,14 +222,14 @@ final class CaptureResultViewModelTests {
 
     @Test("save 成功后再次调用被忽略")
     func save_afterSuccessIgnored() async throws {
-        let draft = CaptureDraftService.Draft(
-            image: nil,
-            content: "保存前草稿",
-            date: Date(),
-            category: nil
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "保存前草稿")
+        let token = recoverableDraft(in: draftService)?.token
+        let ctx = createVM(
+            content: "保存后幂等测试",
+            draftToken: token,
+            draftService: draftService
         )
-        let draftService = CaptureDraftServiceMock(initialDraft: draft)
-        let ctx = createVM(content: "保存后幂等测试", draftService: draftService)
 
         ctx.vm.save()
         try await waitUntil("首次保存完成") { ctx.vm.isSaved && !ctx.vm.isSaving }
@@ -220,43 +238,114 @@ final class CaptureResultViewModelTests {
         try await waitUntil("重复保存调用结束") { !ctx.vm.isSaving }
 
         #expect(try ctx.repos.archive.totalCount() == 1)
-        #expect(draftService.clearCallCount == 1)
+        #expect(draftService.settlementCompleteCallCount == 1)
     }
 
     @Test("saveResult 成功后再次调用被忽略")
     func saveResult_afterSuccessIgnored() async throws {
-        let draft = CaptureDraftService.Draft(
-            image: nil,
-            content: "保存前草稿",
-            date: Date(),
-            category: nil
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "保存前草稿")
+        let token = recoverableDraft(in: draftService)?.token
+        let ctx = createVM(
+            content: "直接保存幂等测试",
+            draftToken: token,
+            draftService: draftService
         )
-        let draftService = CaptureDraftServiceMock(initialDraft: draft)
-        let ctx = createVM(content: "直接保存幂等测试", draftService: draftService)
 
         await ctx.vm.saveResult()
         await ctx.vm.saveResult()
 
         #expect(try ctx.repos.archive.totalCount() == 1)
-        #expect(draftService.clearCallCount == 1)
+        #expect(draftService.settlementCompleteCallCount == 1)
     }
 
     @Test("saveResult 正式保存成功后清除持久草稿")
     func saveResult_successClearsDraft() async throws {
-        let draft = CaptureDraftService.Draft(
-            image: nil,
-            content: "未完成内容",
-            date: Date(),
-            category: nil
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "未完成内容")
+        let token = recoverableDraft(in: draftService)?.token
+        let ctx = createVM(
+            content: "正式保存内容",
+            draftToken: token,
+            draftService: draftService
         )
-        let draftService = CaptureDraftServiceMock(initialDraft: draft)
-        let ctx = createVM(content: "正式保存内容", draftService: draftService)
 
         await ctx.vm.saveResult()
 
         #expect(ctx.vm.isSaved == true)
-        #expect(draftService.hasDraft == false)
-        #expect(draftService.clearCallCount == 1)
+        #expect(isNone(draftService.state))
+        #expect(draftService.settlementCompleteCallCount == 1)
+    }
+
+    @Test("saveResult uses the draft capture ID as the formal item ID")
+    func saveResult_preservesCaptureIdentity() async throws {
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "identity")
+        let token = try #require(recoverableDraft(in: draftService)?.token)
+        let ctx = createVM(
+            content: "formal item",
+            draftToken: token,
+            draftService: draftService
+        )
+
+        await ctx.vm.saveResult()
+
+        let item = try #require(ctx.repos.archive.fetchAllModels().first)
+        #expect(item.id == token.captureID)
+        #expect(ctx.vm.isSaved)
+        #expect(isNone(draftService.state))
+    }
+
+    @Test("settlement preparation failure preserves draft and writes no item")
+    func settlementPreparationFailurePreservesDraft() async throws {
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "retry me")
+        let token = try #require(recoverableDraft(in: draftService)?.token)
+        draftService.settlementPrepareError = .storageFailure
+        let ctx = createVM(
+            content: "must not commit",
+            draftToken: token,
+            draftService: draftService
+        )
+
+        await ctx.vm.saveResult()
+
+        #expect(!ctx.vm.isSaved)
+        #expect(ctx.vm.showErrorAlert)
+        #expect(try ctx.repos.archive.totalCount() == 0)
+        #expect(recoverableDraft(in: draftService)?.token == token)
+    }
+
+    @Test("retirement failure commits once and root reconciliation removes the matching draft")
+    func retirementFailureIsReconciledByCaptureID() async throws {
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "commit once")
+        let initialToken = try #require(recoverableDraft(in: draftService)?.token)
+        draftService.settlementCompleteError = .storageFailure
+        let ctx = createVM(
+            content: "committed",
+            draftToken: initialToken,
+            draftService: draftService
+        )
+
+        await ctx.vm.saveResult()
+
+        let item = try #require(ctx.repos.archive.fetchAllModels().first)
+        #expect(item.id == initialToken.captureID)
+        #expect(ctx.vm.isSaved)
+        #expect(recoverableDraft(in: draftService)?.token.captureID == item.id)
+        #expect(draftService.settlementAbortCallCount == 1)
+
+        let captureViewModel = CaptureViewModel(
+            ocrService: MockOCRServiceShared(),
+            draftService: draftService,
+            activityTracker: AppActivityTracker()
+        )
+        await captureViewModel.checkDraftOnAppear(router: CaptureRouter()) {
+            try ctx.repos.archive.fetchModel(by: $0) != nil
+        }
+        #expect(isNone(draftService.state))
+        #expect(!captureViewModel.showDraftAlert)
     }
 
     @Test("saveResult 保存失败时设置 showErrorAlert 和 errorMessage")
@@ -363,11 +452,14 @@ final class CaptureResultViewModelTests {
         let vm = CaptureResultViewModel(
             content: "一道关于函数的数学题",   // 非空，触发 AI 标注
             image: nil,
+            draftToken: nil,
             repositories: repos,
             ocrService: MockOCRServiceShared(),
             analyticsService: AnalyticsServiceMock(),
             contentTaggingService: tagging,
-            router: CaptureRouter()
+            router: CaptureRouter(),
+            draftService: CaptureDraftServiceMock(),
+            activityTracker: AppActivityTracker()
         )
 
         vm.loadFormData()   // 触发异步 AI 标注 Task
@@ -381,4 +473,14 @@ final class CaptureResultViewModelTests {
     // 字段配置引导由 ProfileTipState 管理（per-profile UserDefaults 隔离），
     // ViewModel 通过 showFieldConfigTip / dismissFieldConfigTip() 控制展示。
     // ProfileTipState 的状态依赖 UserDefaults，集成测试在 Profile 切换场景中覆盖。
+}
+
+private func recoverableDraft(in service: CaptureDraftServiceMock) -> CaptureDraft? {
+    guard case .recoverable(let draft) = service.state else { return nil }
+    return draft
+}
+
+private func isNone(_ state: CaptureDraftReadState) -> Bool {
+    if case .none = state { return true }
+    return false
 }

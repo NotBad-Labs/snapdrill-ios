@@ -89,8 +89,8 @@ release_outcomes:
   - 连续保存重复点击 → 忽略重复或 disable 保存按钮，不产生重复资料记录（B13）。
   - 采集中意外退出（来电 / 崩溃 / 强退）→ 下次进入采集提示恢复最近一份 draft（B03 / B11）。
   - 未裁剪直接保存整页大图 → 给裁剪引导提示或保留更高清晰度，满足再次放大查看（B22）。
-- **数据保证**：未点击保存前不产生正式资料记录；保存成功后记录必须包含主内容载体、必要元数据与可检索 OCR 文本；图片资料必须保留裁剪后的副本，OCR 不是唯一数据来源；S1-A 校验失败必须在正式 mutation 前拒绝且不得截断；任何写入失败不得产生半写入记录；Draft 隔离策略等待单资料库实现收敛，成功保存后清除、用户明确丢弃后清除、不按时间自动删除与 EXIF GPS 剥离保证不变。
-  - **实现现状（GAP-R2 已缓解，剩余 caveat）**：草稿图片不再使用全局 `Caches/draft_capture.jpg`，而是按 `activeProfileId` 写入 `Application Support/CaptureDrafts/<profileId>/draft_capture.jpg`；草稿元数据仍写 `UserDefaults.standard`，但 `UDKey.captureDraftMetadata` 已列入 `ProfileManager.perProfileKeys`，切换 Profile 时随偏好保存 / 加载。剩余 caveat：`CaptureDraftService` 仍通过 `UserDefaults.standard` 读取 active profile 与元数据，尚未显式接收 `ProfileScope`。
+- **数据保证**：未点击保存前不产生正式资料记录；保存成功后记录必须包含主内容载体、必要元数据与可检索 OCR 文本；图片资料必须保留裁剪后的副本，OCR 不是唯一数据来源；S1-A 校验失败必须在正式 mutation 前拒绝且不得截断；任何写入失败不得产生半写入记录；草稿成功保存后清除、用户明确丢弃后清除、不按时间自动删除与 EXIF GPS 剥离保证不变。
+  - **实现现状（GAP-R2 已关闭）**：单一 Profile-free 草稿以完整 JSON envelope 固定写入 `Application Support/com.snapdrill.global/Drafts/current.v1`，不再消费 active Profile 或 `UserDefaults` 元数据。存储以 payload / 文本 / 图片字节数和 SHA-256 校验完整性，经原子发布、CAS generation 与精确 ArchiveItem ID settlement 防止半代、迟到写入和错误删除；草稿无时间过期，只能在正式保存成功或用户明确丢弃后移除。
 - **NFR**：OCR 识别响应 < 2 秒（印刷体中英文，拍照到文字出现在编辑区）；图片裁剪内存 < 300MB（Mantis 内部管理）；单题存储均值 ~205KB（OCR ~5KB + 压缩图 ~200KB）；草稿恢复为 S0 级数据丢失防护（意外退出后可恢复）；OCR 端上执行、图片不上传云端。
 
 ## 5. Contracts（状态 / 错误 / 文案 / L10n 归属）

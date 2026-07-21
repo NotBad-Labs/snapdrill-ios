@@ -30,20 +30,35 @@ public struct CaptureView: View {
     @Environment(\.analyticsService) private var analyticsService
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     
-    @State private var viewModel = CaptureViewModel()
+    @State private var viewModel: CaptureViewModel
+    private let draftService: CaptureDraftServiceProtocol
+    private let activityTracker: AppActivityTracker
     /// 连续裁剪模式：是否正在显示裁剪器
     @State private var isShowingContinuousCropper = false
     @State private var activeMethod: CaptureMethod?
 #if DEBUG
     @State private var didOpenUITestImageResult = false
     @State private var didOpenUITestPagePicker = false
+    @State private var didPrepareUITestDraft = false
 #endif
     private let tabBarBreathingRoom: CGFloat = 180
     
-    /// 初始化采集视图
-    /// - Parameter router: 注入的路由器
-    public init(router: CaptureRouter) {
+    public init(
+        router: CaptureRouter,
+        ocrService: OCRServiceProtocol,
+        draftService: CaptureDraftServiceProtocol,
+        activityTracker: AppActivityTracker
+    ) {
         self.router = router
+        self.draftService = draftService
+        self.activityTracker = activityTracker
+        _viewModel = State(
+            initialValue: CaptureViewModel(
+                ocrService: ocrService,
+                draftService: draftService,
+                activityTracker: activityTracker
+            )
+        )
     }
 
     private var methodColumns: [GridItem] {
@@ -122,7 +137,9 @@ public struct CaptureView: View {
                                 isDisabled: isInteractionDisabled
                             ) {
                                 // 以空状态导航到结果编辑页
-                                router.push(.scannerResult(content: "", image: nil))
+                                router.push(
+                                    .scannerResult(content: "", image: nil, draftToken: nil)
+                                )
                             }
                             
                             // 4. 剪贴板粘贴
@@ -210,23 +227,36 @@ public struct CaptureView: View {
                 switch destination {
                 case .placeholder:
                     ContentUnavailableView(L10n.Common.comingSoon, systemImage: "clock")
-                case .scannerResult(let content, let image):
+                case .scannerResult(let content, let image, let draftToken):
                     let resultViewModel = CaptureResultViewModel(
                         content: content,
                         image: image,
+                        draftToken: draftToken,
                         repositories: repositories,
                         ocrService: viewModel.ocrService,
                         analyticsService: analyticsService,
                         imageStorage: profileManager.activeImageStorage,
-                        router: router
+                        router: router,
+                        draftService: draftService,
+                        activityTracker: activityTracker
                     )
                     CaptureResultView(viewModel: resultViewModel)
 
                 case .pdfPagePicker:
-                    PDFPagePickerView(router: router, ocrService: viewModel.ocrService)
+                    PDFPagePickerView(
+                        router: router,
+                        ocrService: viewModel.ocrService,
+                        draftService: draftService,
+                        activityTracker: activityTracker
+                    )
 
                 case .scanPagePicker:
-                    ScanPagePickerView(router: router, ocrService: viewModel.ocrService)
+                    ScanPagePickerView(
+                        router: router,
+                        ocrService: viewModel.ocrService,
+                        draftService: draftService,
+                        activityTracker: activityTracker
+                    )
                 }
             }
             // 扫描器全屏覆盖
@@ -279,11 +309,21 @@ public struct CaptureView: View {
                     activeMethod = nil
                 }
             }
+            .task(id: router.path.count) {
+                await checkDraftAdmission()
+            }
             .onAppear {
-                viewModel.checkDraftOnAppear(router: router)
 #if DEBUG
-                openUITestImageResultIfNeeded()
-                openUITestPagePickerIfNeeded()
+                if !didOpenUITestImageResult {
+                    didOpenUITestImageResult = CaptureUITestFixtures.openImageResultIfRequested(
+                        router: router
+                    )
+                }
+                if !didOpenUITestPagePicker {
+                    didOpenUITestPagePicker = CaptureUITestFixtures.openPagePickerIfRequested(
+                        router: router
+                    )
+                }
 #endif
             }
             // 连续录入：保存成功后自动重新打开摄像头（拍照模式）
@@ -348,11 +388,26 @@ public struct CaptureView: View {
                 Button(L10n.Capture.draftContinue) {
                     viewModel.startEditingDraft(router: router)
                 }
+                .accessibilityIdentifier("capture.draft.continue")
                 Button(L10n.Common.discard, role: .destructive) {
-                    viewModel.clearDraft()
+                    Task { await viewModel.clearDraft() }
                 }
+                .accessibilityIdentifier("capture.draft.discard")
             } message: {
                 Text(viewModel.draftAlertMessage)
+            }
+            .alert(
+                L10n.Capture.draftUnrecoverableTitle,
+                isPresented: $viewModel.showUnrecoverableDraftAlert
+            ) {
+                if viewModel.pendingDraftFailure?.discardToken != nil {
+                    Button(L10n.Common.discard, role: .destructive) {
+                        Task { await viewModel.clearDraft() }
+                    }
+                }
+                Button(L10n.Common.cancel, role: .cancel) { }
+            } message: {
+                Text(L10n.Capture.draftUnrecoverableMessage)
             }
             .fileImporter(
                 isPresented: $viewModel.isShowingPDFPicker,
@@ -370,6 +425,11 @@ public struct CaptureView: View {
                 }
             }
             .alert(L10n.Common.error, isPresented: $viewModel.showErrorAlert) {
+                if viewModel.draftCheckNeedsRetry {
+                    Button(L10n.Common.retry) {
+                        Task { await checkDraftAdmission() }
+                    }
+                }
                 Button(L10n.Common.ok, role: .cancel) { }
             } message: {
                 Text(viewModel.errorMessage)
@@ -408,74 +468,27 @@ public struct CaptureView: View {
         }
     }
 
-    private var isInteractionDisabled: Bool {
-        viewModel.isProcessing || activeMethod != nil
+}
+
+private extension CaptureView {
+    var isInteractionDisabled: Bool {
+        viewModel.isProcessing || activeMethod != nil || viewModel.isDraftAdmissionBlocked
     }
 
+    func checkDraftAdmission() async {
 #if DEBUG
-    private static let uiTestCaptureImageResultArgument = "--ui-test-capture-image-result"
-    private static let uiTestCaptureContinuousCropResultArgument = "--ui-test-capture-continuous-crop-result"
-    private static let uiTestCapturePDFPagePickerArgument = "--ui-test-capture-pdf-page-picker"
-    private static let uiTestCaptureScanPagePickerArgument = "--ui-test-capture-scan-page-picker"
-
-    @MainActor
-    private func openUITestImageResultIfNeeded() {
-        let arguments = ProcessInfo.processInfo.arguments
-        guard !didOpenUITestImageResult,
-              arguments.contains("--uitesting"),
-              arguments.contains(Self.uiTestCaptureImageResultArgument)
-                || arguments.contains(Self.uiTestCaptureContinuousCropResultArgument) else {
-            return
+        if !didPrepareUITestDraft {
+            didPrepareUITestDraft = true
+            if await CaptureUITestFixtures.openDurableDraftIfRequested(
+                router: router,
+                draftService: draftService
+            ) {
+                return
+            }
         }
-        didOpenUITestImageResult = true
-        let image = CaptureUITestFixtures.makeCaptureImage()
-        if arguments.contains(Self.uiTestCaptureContinuousCropResultArgument) {
-            router.originalAlbumImage = image
-        }
-        router.push(
-            .scannerResult(
-                content: "Capture image fixture text",
-                image: image
-            )
-        )
-    }
-
-    @MainActor
-    private func openUITestPagePickerIfNeeded() {
-        let arguments = ProcessInfo.processInfo.arguments
-        guard !didOpenUITestPagePicker,
-              arguments.contains("--uitesting") else {
-            return
-        }
-
-        if arguments.contains(Self.uiTestCapturePDFPagePickerArgument),
-           let document = CaptureUITestFixtures.makePDFDocument() {
-            didOpenUITestPagePicker = true
-            router.pdfDocument = document
-            router.push(.pdfPagePicker)
-        } else if arguments.contains(Self.uiTestCaptureScanPagePickerArgument) {
-            didOpenUITestPagePicker = true
-            router.scannedPages = CaptureUITestFixtures.makeScanPages()
-            router.push(.scanPagePicker)
-        }
-    }
 #endif
-}
-
-private enum CaptureMethod {
-    case camera
-    case clipboard
-    case documentScan
-    case pdf
-}
-
-enum ContinuousCropperPresentationPolicy {
-    static func shouldPresent<Image>(originalAlbumImage: Image?) -> Bool {
-        originalAlbumImage != nil
+        await viewModel.checkDraftOnAppear(router: router) { captureID in
+            try repositories.archive.fetchModel(by: captureID) != nil
+        }
     }
-}
-
-#Preview {
-    @Bindable var router = CaptureRouter()
-    return CaptureView(router: router)
 }

@@ -8,10 +8,92 @@
 
 #if DEBUG
 import PDFKit
+import SnapDrillCore
 import UIKit
 
 @MainActor
 enum CaptureUITestFixtures {
+    private static let imageResultArgument = "--ui-test-capture-image-result"
+    private static let continuousCropResultArgument = "--ui-test-capture-continuous-crop-result"
+    private static let pdfPagePickerArgument = "--ui-test-capture-pdf-page-picker"
+    private static let scanPagePickerArgument = "--ui-test-capture-scan-page-picker"
+    private static let durableDraftSeedArgument = "--ui-test-seed-durable-capture-draft"
+
+    static func openDurableDraftIfRequested(
+        router: CaptureRouter,
+        draftService: CaptureDraftServiceProtocol
+    ) async -> Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard arguments.contains("--uitesting"),
+              arguments.contains(durableDraftSeedArgument) else {
+            return false
+        }
+
+        do {
+            try await discardExistingDraft(using: draftService)
+            let image = makeCaptureImage()
+            let token = try await draftService.saveDraft(
+                image: image,
+                content: "Durable relaunch fixture",
+                category: "UI Test",
+                expectedToken: nil
+            )
+            router.push(
+                .scannerResult(
+                    content: "Durable relaunch fixture",
+                    image: image,
+                    draftToken: token
+                )
+            )
+            return true
+        } catch {
+            SnapDrillLogger.capture.error(
+                "Durable draft UI fixture failed: \(error.localizedDescription)"
+            )
+            return false
+        }
+    }
+
+    static func openImageResultIfRequested(router: CaptureRouter) -> Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard arguments.contains("--uitesting"),
+              arguments.contains(imageResultArgument)
+                || arguments.contains(continuousCropResultArgument) else {
+            return false
+        }
+
+        let image = makeCaptureImage()
+        if arguments.contains(continuousCropResultArgument) {
+            router.originalAlbumImage = image
+        }
+        router.push(
+            .scannerResult(
+                content: "Capture image fixture text",
+                image: image,
+                draftToken: nil
+            )
+        )
+        return true
+    }
+
+    static func openPagePickerIfRequested(router: CaptureRouter) -> Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard arguments.contains("--uitesting") else { return false }
+
+        if arguments.contains(pdfPagePickerArgument),
+           let document = makePDFDocument() {
+            router.pdfDocument = document
+            router.push(.pdfPagePicker)
+            return true
+        }
+        if arguments.contains(scanPagePickerArgument) {
+            router.scannedPages = makeScanPages()
+            router.push(.scanPagePicker)
+            return true
+        }
+        return false
+    }
+
     static func makeCaptureImage() -> UIImage {
         let size = CGSize(width: 900, height: 620)
         let renderer = UIGraphicsImageRenderer(size: size)
@@ -51,6 +133,22 @@ enum CaptureUITestFixtures {
             makeScanPage(number: 1, color: .systemGreen),
             makeScanPage(number: 2, color: .systemTeal)
         ]
+    }
+
+    private static func discardExistingDraft(
+        using draftService: CaptureDraftServiceProtocol
+    ) async throws {
+        switch await draftService.loadDraftState() {
+        case .none:
+            break
+        case .recoverable(let draft):
+            try await draftService.discardDraft(expectedToken: draft.token)
+        case .unrecoverable(let failure):
+            guard let token = failure.discardToken else {
+                throw CaptureDraftError.storageFailure
+            }
+            try await draftService.discardUnrecoverableDraft(expectedToken: token)
+        }
     }
 
     private static func makeScanPage(number: Int, color: UIColor) -> UIImage {

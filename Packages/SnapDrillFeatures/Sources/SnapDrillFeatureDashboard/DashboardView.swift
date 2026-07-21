@@ -61,7 +61,7 @@ public struct DashboardView: View {
                                     actionTitle: L10n.Dashboard.goCapture,
                                     actionSystemImage: "camera.viewfinder"
                                 ) {
-                                    viewModel.checkDraftAndCapture(router: router)
+                                    Task { await viewModel.checkDraftAndCapture(router: router) }
                                 }
                                 .accessibilityIdentifier("dashboard.empty.capture")
                                 .padding(.top, 40)
@@ -71,7 +71,9 @@ public struct DashboardView: View {
                                     dueCount: viewModel.dueCount,
                                     reviewedTodayCount: viewModel.reviewedTodayCount,
                                     onStartReview: { router.navigateToReview() },
-                                    onStartCapture: { viewModel.checkDraftAndCapture(router: router) }
+                                    onStartCapture: {
+                                        Task { await viewModel.checkDraftAndCapture(router: router) }
+                                    }
                                 )
 
                                 LazyVGrid(columns: columns, spacing: 12) {
@@ -81,7 +83,7 @@ public struct DashboardView: View {
                                         icon: "camera.viewfinder",
                                         gradient: DashboardTone.capture
                                     ) {
-                                        viewModel.checkDraftAndCapture(router: router)
+                                        Task { await viewModel.checkDraftAndCapture(router: router) }
                                     }
                                     .accessibilityIdentifier("dashboard.bento.capture")
 
@@ -134,6 +136,7 @@ public struct DashboardView: View {
                 if viewModel == nil {
                     viewModel = DashboardViewModel(
                         repositories: repositories,
+                        draftService: services.captureDraft,
                         deletionScheduler: services.deletionScheduler
                     )
                 }
@@ -163,7 +166,7 @@ public struct DashboardView: View {
             set: { viewModel?.isShowingDraftAlert = $0 }
         )) {
             Button(L10n.Dashboard.draftStartNew) {
-                viewModel?.startNewCapture(router: router)
+                Task { await viewModel?.startNewCapture(router: router) }
             }
             Button(L10n.Dashboard.draftRestore) {
                 viewModel?.restoreDraft(router: router)
@@ -171,6 +174,30 @@ public struct DashboardView: View {
             Button(L10n.Common.cancel, role: .cancel) { }
         } message: {
             Text(viewModel?.draftAlertMessage ?? L10n.Dashboard.draftAlertMessage)
+        }
+        .alert(L10n.Capture.draftUnrecoverableTitle, isPresented: Binding(
+            get: { viewModel?.isShowingUnrecoverableDraftAlert ?? false },
+            set: { viewModel?.isShowingUnrecoverableDraftAlert = $0 }
+        )) {
+            if viewModel?.pendingDraftFailure?.discardToken != nil {
+                Button(L10n.Dashboard.draftStartNew, role: .destructive) {
+                    Task { await viewModel?.startNewCapture(router: router) }
+                }
+            }
+            Button(L10n.Common.cancel, role: .cancel) { }
+        } message: {
+            Text(L10n.Capture.draftUnrecoverableMessage)
+        }
+        .alert(L10n.Common.error, isPresented: Binding(
+            get: { viewModel?.isShowingDraftVerificationError ?? false },
+            set: { viewModel?.isShowingDraftVerificationError = $0 }
+        )) {
+            Button(L10n.Common.retry) {
+                Task { await viewModel?.checkDraftAndCapture(router: router) }
+            }
+            Button(L10n.Common.cancel, role: .cancel) { }
+        } message: {
+            Text(L10n.Capture.draftVerificationFailed)
         }
         .sheet(isPresented: Binding(
             get: { viewModel?.isShowingCategoryManager ?? false },

@@ -26,6 +26,7 @@ public struct SettingsView: View {
     @Bindable private var router: SettingsRouter
     @Environment(\.repositories) private var repositories
     @Environment(\.profileManager) private var profileManager
+    @Environment(\.services) private var services
     // 仅用于 #if DEBUG DataSeeder，正式功能通过 RepositoryContainer 访问
     @Environment(\.modelContext) private var modelContext
 
@@ -307,7 +308,10 @@ public struct SettingsView: View {
                 case .termsOfService:
                     TermsOfServiceView()
                 case .profileList:
-                    ProfileListView(profileManager: profileManager)
+                    ProfileListView(
+                        profileManager: profileManager,
+                        draftService: services.captureDraft
+                    )
                 }
             }
             .alert(L10n.Settings.clearConfirmTitle, isPresented: $showingClearAlert) {

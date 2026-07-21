@@ -31,7 +31,7 @@
 
 ### 服务（`Service/` 子目录）
 
-- ``CaptureDraftService`` — 跨域草稿缓存（Dashboard 检测 / Capture 消费），`@MainActor` 单例
+- ``CaptureDraftService`` — Profile-free 单槽草稿服务，由 composition root 以 App 生命周期实例注入 Dashboard 与 Capture
 - ``PDFExportService`` — 从 `[any PDFExportable]` 生成 PDF Data
 - ``PDFExportOptions`` — PDF 导出配置（去答案、留白答题区、页眉页码等）
 - ``PrivacyConsentService`` — 隐私授权服务（ATT 已移除，ADR-002）

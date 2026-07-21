@@ -5,294 +5,275 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  CaptureViewModel 核心路径单元测试：草稿、OCR 扫描处理。
-//
 
 import Testing
 import UIKit
 @testable import SnapDrillFeatureCapture
 @testable import SnapDrillCore
 
-// MARK: - Mocks
-
 @MainActor
 final class MockOCRService: OCRServiceProtocol {
-    var recognizeTextResult: String = ""
+    var recognizeTextResult = ""
     var recognizeTextError: Error?
-
     var recognizeTextCallCount = 0
     var lastImage: CGImage?
 
     func recognizeText(from image: CGImage) async throws -> String {
         recognizeTextCallCount += 1
         lastImage = image
-
-        if let error = recognizeTextError {
-            throw error
-        }
+        if let recognizeTextError { throw recognizeTextError }
         return recognizeTextResult
     }
 
     var recognizeDocumentResult: DocumentRecognitionResult = .empty
+    var recognizeDocumentCallCount = 0
+
     func recognizeDocument(from cgImage: CGImage) async throws -> DocumentRecognitionResult {
-        if let error = recognizeTextError {
-            throw error
-        }
+        recognizeDocumentCallCount += 1
+        if let recognizeTextError { throw recognizeTextError }
         return recognizeDocumentResult
     }
 }
 
-@Suite("CaptureViewModel 草稿与扫描测试")
+@Suite("CaptureViewModel draft checkpoint flow")
 @MainActor
 struct CaptureViewModelTests {
-
-    // MARK: - 草稿
-
-    @Test("checkDraftOnAppear 有草稿时显示弹窗")
-    func testCheckDraftOnAppear_WithDraft_ShowsAlert() {
-        let draft = CaptureDraftService.Draft(
-            image: createTestImage(),
-            content: "Draft Content",
-            date: Date(),
-            category: nil
-        )
-        let draftService = CaptureDraftServiceMock(initialDraft: draft)
-        let viewModel = CaptureViewModel(ocrService: MockOCRService(), draftService: draftService)
+    @Test("recoverable draft prompts and restore routes its exact token")
+    func recoverableDraftPromptsAndRestoresExactToken() async {
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(image: createTestImage(), content: "Draft Content")
+        let expected = recoverableDraft(in: draftService)?.token
+        let viewModel = makeViewModel(draftService: draftService)
         let router = CaptureRouter()
+        var routedToken: CaptureDraftToken?
+        router.onPush = { destination in
+            if case .scannerResult(let content, _, let token) = destination {
+                #expect(content == "Draft Content")
+                routedToken = token
+            }
+        }
 
-        viewModel.checkDraftOnAppear(router: router)
+        await viewModel.checkDraftOnAppear(router: router) { _ in false }
+        #expect(viewModel.showDraftAlert)
+        viewModel.startEditingDraft(router: router)
 
-        #expect(viewModel.showDraftAlert == true)
-        #expect(viewModel.pendingDraft != nil)
-        #expect(viewModel.pendingDraft?.content == "Draft Content")
+        #expect(routedToken == expected)
+        #expect(viewModel.pendingDraft == nil)
+        #expect(recoverableDraft(in: draftService) != nil)
     }
 
-    @Test("checkDraftOnAppear 已在恢复编辑页时不重复显示弹窗")
-    func testCheckDraftOnAppear_RestoredRoute_DoesNotShowAlert() {
-        let draft = CaptureDraftService.Draft(
-            image: createTestImage(),
-            content: "Draft Content",
-            date: Date(),
-            category: nil
-        )
-        let draftService = CaptureDraftServiceMock(initialDraft: draft)
-        let viewModel = CaptureViewModel(ocrService: MockOCRService(), draftService: draftService)
+    @Test("returning from a restored draft immediately reopens the root decision gate")
+    func restoredRouteRepromptsOnReturn() async {
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "Draft Content")
+        guard let draft = recoverableDraft(in: draftService) else {
+            Issue.record("Expected seeded draft")
+            return
+        }
+        let viewModel = makeViewModel(draftService: draftService)
         let router = CaptureRouter()
         router.restoreDraft(draft)
 
-        viewModel.checkDraftOnAppear(router: router)
-
-        #expect(viewModel.showDraftAlert == false)
-        #expect(viewModel.pendingDraft == nil)
-        #expect(draftService.hasDraft == true)
-        #expect(router.shouldSuppressNextDraftPrompt == true)
-
+        await viewModel.checkDraftOnAppear(router: router) { _ in false }
+        #expect(!viewModel.showDraftAlert)
         router.path.removeLast()
-        viewModel.checkDraftOnAppear(router: router)
-
-        #expect(viewModel.showDraftAlert == false)
-        #expect(router.shouldSuppressNextDraftPrompt == false)
-        #expect(draftService.hasDraft == true)
-
-        viewModel.checkDraftOnAppear(router: router)
-
-        #expect(viewModel.showDraftAlert == true)
-        #expect(viewModel.pendingDraft?.content == "Draft Content")
+        await viewModel.checkDraftOnAppear(router: router) { _ in false }
+        #expect(viewModel.showDraftAlert)
+        #expect(viewModel.isDraftAdmissionBlocked)
     }
 
-    @Test("startEditingDraft 推送路由并保留持久草稿")
-    func testStartEditingDraft_PushesToRouterAndRetainsDraft() {
-        let draft = CaptureDraftService.Draft(
-            image: createTestImage(),
-            content: "Draft Content",
-            date: Date(),
-            category: nil
-        )
-        let draftService = CaptureDraftServiceMock(initialDraft: draft)
-        let viewModel = CaptureViewModel(ocrService: MockOCRService(), draftService: draftService)
-        let router = CaptureRouter()
-        viewModel.checkDraftOnAppear(router: router)
-        var pushCalled = false
-        router.onPush = { destination in
-            pushCalled = true
-            if case let .scannerResult(content, _) = destination {
-                #expect(content == "Draft Content")
-            } else {
-                Issue.record("Expected .scannerResult destination")
-            }
+    @Test("draft whose capture ID is already committed is retired without prompting")
+    func committedDraftIsReconciled() async {
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "already saved")
+        let captureID = recoverableDraft(in: draftService)?.token.captureID
+        let viewModel = makeViewModel(draftService: draftService)
+
+        await viewModel.checkDraftOnAppear(router: CaptureRouter()) { $0 == captureID }
+
+        #expect(!viewModel.showDraftAlert)
+        #expect(draftService.discardCallCount == 1)
+        #expect(isNone(draftService.state))
+    }
+
+    @Test("committed-item lookup failure keeps recovery and new capture closed")
+    func committedLookupFailureFailsClosed() async {
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "possibly committed")
+        let viewModel = makeViewModel(draftService: draftService)
+
+        await viewModel.checkDraftOnAppear(router: CaptureRouter()) { _ in
+            throw TestLookupError.failed
         }
 
-        viewModel.startEditingDraft(router: router)
-
-        #expect(pushCalled == true)
-        #expect(viewModel.pendingDraft == nil)
-        #expect(draftService.hasDraft == true)
-        #expect(router.shouldSuppressNextDraftPrompt == true)
+        #expect(!viewModel.showDraftAlert)
+        #expect(viewModel.showErrorAlert)
+        #expect(viewModel.draftCheckNeedsRetry)
+        #expect(viewModel.isDraftAdmissionBlocked)
+        #expect(draftService.discardCallCount == 0)
     }
 
-    @Test("clearDraft 清除草稿")
-    func testClearDraft_RemovesDraft() {
-        let draft = CaptureDraftService.Draft(
-            image: createTestImage(),
-            content: "Draft Content",
-            date: Date(),
-            category: nil
-        )
-        let draftService = CaptureDraftServiceMock(initialDraft: draft)
-        let viewModel = CaptureViewModel(ocrService: MockOCRService(), draftService: draftService)
+    @Test("an occupied draft returns a multi-page picker to the root decision gate")
+    func occupiedDraftClosesPagePicker() async {
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "unfinished page")
         let router = CaptureRouter()
-        viewModel.checkDraftOnAppear(router: router)
+        router.push(.pdfPagePicker)
 
-        viewModel.clearDraft()
+        await CaptureDraftPickerAdmission.returnToRootIfOccupied(
+            router: router,
+            draftService: draftService
+        )
 
-        #expect(viewModel.pendingDraft == nil)
-        #expect(draftService.hasDraft == false)
-        #expect(draftService.clearCallCount == 1)
+        #expect(router.path.isEmpty)
     }
 
-    // MARK: - OCR 扫描
+    @Test("an empty draft slot leaves a multi-page picker open")
+    func emptyDraftSlotKeepsPagePickerOpen() async {
+        let router = CaptureRouter()
+        router.push(.scanPagePicker)
 
-    @Test("processScannedImage 成功时推送识别结果")
-    func testProcessScannedImage_Success_PushesResult() async throws {
-        let mockOCR = MockOCRService()
-        mockOCR.recognizeTextResult = "Recognized Text"
-
-        let viewModel = CaptureViewModel(
-            ocrService: mockOCR,
+        await CaptureDraftPickerAdmission.returnToRootIfOccupied(
+            router: router,
             draftService: CaptureDraftServiceMock()
         )
-        let router = CaptureRouter()
 
-        var pushCalled = false
+        #expect(router.path.count == 1)
+    }
+
+    @Test("unrecoverable artifact gets a distinct prompt and explicit discard")
+    func unrecoverableDraftIsNotCollapsedToNone() async {
+        let discardToken = CaptureDraftDiscardToken(storageObservation: "node")
+        let failure = CaptureDraftFailure(
+            reason: .integrityCheckFailed,
+            discardToken: discardToken
+        )
+        let draftService = CaptureDraftServiceMock(initialState: .unrecoverable(failure))
+        let viewModel = makeViewModel(draftService: draftService)
+
+        await viewModel.checkDraftOnAppear(router: CaptureRouter()) { _ in false }
+        #expect(viewModel.showUnrecoverableDraftAlert)
+        #expect(!viewModel.showDraftAlert)
+
+        await viewModel.clearDraft()
+        #expect(isNone(draftService.state))
+        #expect(draftService.discardCallCount == 1)
+    }
+
+    @Test("camera image is checkpointed before OCR and enriched by CAS")
+    func successfulOCRCheckpointsThenEnriches() async throws {
+        let ocr = MockOCRService()
+        ocr.recognizeTextResult = "Recognized Text"
+        let draftService = CaptureDraftServiceMock()
+        let viewModel = makeViewModel(ocr: ocr, draftService: draftService)
+        let router = CaptureRouter()
+        var routedToken: CaptureDraftToken?
         router.onPush = { destination in
-            if case let .scannerResult(content, _) = destination {
+            if case .scannerResult(let content, _, let token) = destination {
                 #expect(content == "Recognized Text")
-                pushCalled = true
+                routedToken = token
             }
         }
 
         viewModel.processScannedImage(createTestImage(), router: router)
+        try await waitUntil { routedToken != nil }
 
-        // 轮询等待内部嵌套 Task 完成（替代 yield + 固定 sleep）
-        try await waitUntil { pushCalled }
-        #expect(mockOCR.recognizeTextCallCount == 1)
-        #expect(viewModel.isProcessing == false)
+        #expect(ocr.recognizeTextCallCount == 1)
+        #expect(draftService.saveCalls.count == 2)
+        #expect(draftService.saveCalls[0].content.isEmpty)
+        #expect(draftService.saveCalls[0].expectedToken == nil)
+        #expect(draftService.saveCalls[1].content == "Recognized Text")
+        #expect(draftService.saveCalls[1].expectedToken != nil)
+        #expect(routedToken == recoverableDraft(in: draftService)?.token)
     }
 
-    @Test("processScannedImage 失败时弹出重试 alert")
-    func testProcessScannedImage_Error_ShowsRetryAlert() async throws {
-        let mockOCR = MockOCRService()
-        mockOCR.recognizeTextError = NSError(domain: "test", code: -1, userInfo: nil)
-
-        let viewModel = CaptureViewModel(
-            ocrService: mockOCR,
-            draftService: CaptureDraftServiceMock()
-        )
+    @Test("OCR failure retains checkpoint and continue-edit routes its token")
+    func failedOCRRetainsCheckpoint() async throws {
+        let ocr = MockOCRService()
+        ocr.recognizeTextError = NSError(domain: "test", code: -1)
+        let draftService = CaptureDraftServiceMock()
+        let viewModel = makeViewModel(ocr: ocr, draftService: draftService)
         let router = CaptureRouter()
-
-        viewModel.processScannedImage(createTestImage(), router: router)
-
-        // OCR 失败时弹出重试 alert（#462 OCR 重试功能），不直接 push
-        try await waitUntil(timeout: .seconds(5)) { viewModel.showOCRRetryAlert }
-        #expect(mockOCR.recognizeTextCallCount == 1)
-        #expect(viewModel.isProcessing == false)
-    }
-
-    @Test("processScannedImage 空 OCR 结果仍推送可编辑结果")
-    func testProcessScannedImage_EmptyOCR_PushesEditableResult() async throws {
-        let mockOCR = MockOCRService()
-        mockOCR.recognizeTextResult = ""
-
-        let draftMock = CaptureDraftServiceMock()
-        let viewModel = CaptureViewModel(ocrService: mockOCR, draftService: draftMock)
-        let router = CaptureRouter()
-
-        var pushedContent: String?
-        var pushedImage: UIImage?
+        var routedToken: CaptureDraftToken?
         router.onPush = { destination in
-            if case let .scannerResult(content, image) = destination {
-                pushedContent = content
-                pushedImage = image
+            if case .scannerResult(_, _, let token) = destination {
+                routedToken = token
             }
         }
 
         viewModel.processScannedImage(createTestImage(), router: router)
-
-        try await waitUntil(timeout: .seconds(5)) { pushedImage != nil }
-        #expect(pushedContent == "")
-        #expect(viewModel.showOCRRetryAlert == false)
-        #expect(viewModel.isProcessing == false)
-        #expect(draftMock.saveCalls.contains { $0.image != nil && $0.content.isEmpty })
-    }
-
-    @Test("skipOCRAndEdit OCR 失败后保留图片并进入空文本编辑")
-    func testSkipOCRAndEdit_AfterOCRFailure_PushesEmptyEditableResult() async throws {
-        let mockOCR = MockOCRService()
-        mockOCR.recognizeTextError = NSError(domain: "test", code: -1, userInfo: nil)
-
-        let draftMock = CaptureDraftServiceMock()
-        let viewModel = CaptureViewModel(ocrService: mockOCR, draftService: draftMock)
-        let router = CaptureRouter()
-
-        var pushedContent: String?
-        var pushedImage: UIImage?
-        router.onPush = { destination in
-            if case let .scannerResult(content, image) = destination {
-                pushedContent = content
-                pushedImage = image
-            }
-        }
-
-        viewModel.processScannedImage(createTestImage(), router: router)
-        try await waitUntil(timeout: .seconds(5)) { viewModel.showOCRRetryAlert }
-
+        try await waitUntil { viewModel.showOCRRetryAlert }
+        let checkpoint = recoverableDraft(in: draftService)?.token
         viewModel.skipOCRAndEdit()
 
-        #expect(pushedContent == "")
-        #expect(pushedImage != nil)
-        #expect(viewModel.pendingOCRImage == nil)
-        #expect(viewModel.pendingOCRRouter == nil)
+        #expect(draftService.saveCalls.count == 1)
+        #expect(routedToken == checkpoint)
+        #expect(viewModel.pendingOCRDraftToken == nil)
     }
 
-    // MARK: - 数据安全：原图在 OCR 之前落盘（防采集丢失，GUI 第一性原理「主路径崩溃原子性」）
-
-    @Test("OCR 失败时原图已在 OCR 之前落盘为草稿（防数据丢失）")
-    func testProcessScannedImage_persistsImageBeforeOCR() async throws {
-        let mockOCR = MockOCRService()
-        mockOCR.recognizeTextError = NSError(domain: "test", code: -1, userInfo: nil)
-
-        let draftMock = CaptureDraftServiceMock()
-        let viewModel = CaptureViewModel(ocrService: mockOCR, draftService: draftMock)
+    @Test("checkpoint failure prevents OCR and navigation")
+    func checkpointFailureStopsBeforeOCR() async throws {
+        let ocr = MockOCRService()
+        let draftService = CaptureDraftServiceMock()
+        draftService.saveError = .storageFailure
+        let viewModel = makeViewModel(ocr: ocr, draftService: draftService)
         let router = CaptureRouter()
+        var didPush = false
+        router.onPush = { _ in didPush = true }
 
         viewModel.processScannedImage(createTestImage(), router: router)
+        try await waitUntil { viewModel.showErrorAlert }
 
-        // 即使 OCR 失败，原图也必须已在 OCR 之前落盘为草稿——否则进程终止会丢失采集。
-        // 守护「OCR 是可重跑富化步骤，不是持久化前置闸门」这条不变量。
-        try await waitUntil(timeout: .seconds(5)) { viewModel.showOCRRetryAlert }
-        #expect(
-            draftMock.saveCalls.contains { $0.image != nil && $0.content.isEmpty },
-            "OCR 之前必须先把原图落盘为草稿，否则崩溃/上滑/OOM 会丢失这次采集"
+        #expect(ocr.recognizeTextCallCount == 0)
+        #expect(!didPush)
+        #expect(!viewModel.isProcessing)
+    }
+
+    @Test("empty OCR result remains editable and durable")
+    func emptyOCRResultRoutesEnrichedDraft() async throws {
+        let ocr = MockOCRService()
+        let draftService = CaptureDraftServiceMock()
+        let viewModel = makeViewModel(ocr: ocr, draftService: draftService)
+        let router = CaptureRouter()
+        var didPush = false
+        router.onPush = { destination in
+            if case .scannerResult(let content, let image, let token) = destination {
+                #expect(content.isEmpty)
+                #expect(image != nil)
+                #expect(token != nil)
+                didPush = true
+            }
+        }
+
+        viewModel.processScannedImage(createTestImage(), router: router)
+        try await waitUntil { didPush }
+
+        #expect(draftService.saveCalls.count == 2)
+        #expect(!viewModel.showOCRRetryAlert)
+    }
+
+    private func makeViewModel(
+        ocr: MockOCRService = MockOCRService(),
+        draftService: CaptureDraftServiceMock
+    ) -> CaptureViewModel {
+        CaptureViewModel(
+            ocrService: ocr,
+            draftService: draftService,
+            activityTracker: AppActivityTracker()
         )
     }
+}
 
-    @Test("OCR 成功后识别文本富化回草稿（OCR 结果也具备崩溃恢复能力）")
-    func testProcessScannedImage_enrichesDraftWithOCRText() async throws {
-        let mockOCR = MockOCRService()
-        mockOCR.recognizeTextResult = "识别文本"
+private enum TestLookupError: Error {
+    case failed
+}
 
-        let draftMock = CaptureDraftServiceMock()
-        let viewModel = CaptureViewModel(ocrService: mockOCR, draftService: draftMock)
-        let router = CaptureRouter()
+private func recoverableDraft(in service: CaptureDraftServiceMock) -> CaptureDraft? {
+    guard case .recoverable(let draft) = service.state else { return nil }
+    return draft
+}
 
-        var pushed = false
-        router.onPush = { _ in pushed = true }
-
-        viewModel.processScannedImage(createTestImage(), router: router)
-        try await waitUntil(timeout: .seconds(5)) { pushed }
-
-        // OCR 前先落盘（content 为空）+ OCR 后把识别文本富化回草稿（content=识别文本）
-        #expect(draftMock.saveCalls.contains { $0.image != nil && $0.content.isEmpty })
-        #expect(draftMock.saveCalls.contains { $0.content == "识别文本" })
-    }
+private func isNone(_ state: CaptureDraftReadState) -> Bool {
+    if case .none = state { return true }
+    return false
 }

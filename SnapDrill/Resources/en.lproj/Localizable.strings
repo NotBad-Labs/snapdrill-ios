@@ -71,6 +71,11 @@
 "capture.draft_alert_title" = "Restore Draft";
 "capture.draft_continue" = "Continue Editing";
 "capture.draft_alert_message" = "Unsaved capture content detected. Would you like to restore it?";
+"capture.draft_unrecoverable_title" = "Draft Can’t Be Restored";
+"capture.draft_unrecoverable_message" = "This unsaved content is damaged or unreadable. Discard it to start capturing again.";
+"capture.draft_save_failed" = "Draft Couldn’t Be Saved";
+"capture.draft_save_failed_message" = "This capture couldn’t be saved safely. Try again before continuing.";
+"capture.draft_verification_failed" = "The unsaved item couldn’t be verified. Try again.";
 "capture.preview_and_edit" = "Preview & Edit";
 "capture.question_content" = "Content";
 "capture.copy_content" = "Copy Text";

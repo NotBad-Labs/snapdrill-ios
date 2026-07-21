@@ -5,27 +5,121 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  定义采集草稿服务协议，支持图片裁剪与临时状态管理。跨域共用（Dashboard 检测、Capture 消费）。
-//
 
+import Foundation
 import UIKit
 
-/// 采集草稿服务协议
-///
-/// 定义拍摄草稿的保存、读取与清除契约，便于在生产代码和测试中替换实现。
-public protocol CaptureDraftServiceProtocol {
-    /// 当前是否存在未保存的草稿
-    var hasDraft: Bool { get }
-    /// 将图片和已识别文本保存为草稿
+/// Identifies one committed draft generation. Callers must return the latest token to mutate it.
+public nonisolated struct CaptureDraftToken: Hashable, Sendable {
+    public let captureID: UUID
+    public let generationID: UUID
+    let storageRevision: String
+
+}
+
+/// Opaque compare-and-delete token for an unreadable draft artifact.
+public nonisolated struct CaptureDraftDiscardToken: Hashable, Sendable {
+    let storageObservation: String
+
+}
+
+/// A complete, recoverable capture draft.
+public struct CaptureDraft {
+    public let image: UIImage?
+    public let content: String
+    public let date: Date
+    public let category: String?
+    public let token: CaptureDraftToken
+
+    public init(
+        image: UIImage?,
+        content: String,
+        date: Date,
+        category: String?,
+        token: CaptureDraftToken
+    ) {
+        self.image = image
+        self.content = content
+        self.date = date
+        self.category = category
+        self.token = token
+    }
+}
+
+public nonisolated enum CaptureDraftFailureReason: Equatable, Sendable {
+    case unsupportedVersion
+    case malformedEnvelope
+    case integrityCheckFailed
+    case emptyDraft
+    case imageDecodeFailed
+    case storageUnavailable
+}
+
+/// A persisted artifact exists, but it cannot safely be restored as a draft.
+public nonisolated struct CaptureDraftFailure: Equatable, Sendable {
+    public let reason: CaptureDraftFailureReason
+    public let discardToken: CaptureDraftDiscardToken?
+
+}
+
+/// Distinguishes a clean absence from recoverable and fail-closed corrupt states.
+public enum CaptureDraftReadState {
+    case none
+    case recoverable(CaptureDraft)
+    case unrecoverable(CaptureDraftFailure)
+}
+
+public nonisolated enum CaptureDraftError: Error, Equatable, Sendable {
+    case draftAlreadyExists
+    case draftChanged
+    case draftMissing
+    case settlementInProgress
+    case emptyDraft
+    case imageEncodingFailed
+    case envelopeTooLarge
+    case storageFailure
+}
+
+/// Manages the single Profile-free capture draft under `AS/Drafts`.
+public protocol CaptureDraftServiceProtocol: AnyObject {
+    /// Reads the current state without collapsing corrupt or unreadable storage into `none`.
+    func loadDraftState() async -> CaptureDraftReadState
+
+    /// Publishes one complete old-or-new draft generation.
     ///
-    /// JPEG 压缩和文件写入为异步操作，避免阻塞主线程。
-    /// - Parameters:
-    ///   - image: 拍摄的原始图片（纯文字草稿可为 nil）
-    ///   - content: OCR 识别文本（可为空字符串）
-    ///   - category: 当前选中的主分类（用于恢复提示展示）
-    func saveDraft(image: UIImage?, content: String, category: String?) async
-    /// 读取已保存的草稿；不存在或数据损坏时返回 `nil`
-    func loadDraft() -> CaptureDraftService.Draft?
-    /// 清除已保存的草稿（删除磁盘文件和 UserDefaults 记录）
-    func clearDraft()
+    /// `expectedToken == nil` creates only when no artifact exists. Updates must return the latest
+    /// token, preventing late OCR or `onDisappear` work from overwriting a newer generation.
+    func saveDraft(
+        image: UIImage?,
+        content: String,
+        category: String?,
+        expectedToken: CaptureDraftToken?
+    ) async throws -> CaptureDraftToken
+
+    /// Publishes the final draft generation and atomically closes write admission.
+    func saveDraftAndBeginSettlement(
+        image: UIImage?,
+        content: String,
+        category: String?,
+        expectedToken: CaptureDraftToken?
+    ) async throws -> CaptureDraftToken
+
+    /// Explicitly discards the exact recoverable generation the user saw.
+    func discardDraft(expectedToken: CaptureDraftToken) async throws
+
+    /// Explicitly discards an unreadable artifact only if its observed node is unchanged.
+    func discardUnrecoverableDraft(expectedToken: CaptureDraftDiscardToken) async throws
+
+    /// Closes draft-write admission for a generation that is already durable.
+    func beginSettlement(expectedToken: CaptureDraftToken) async throws
+
+    /// Retires the exact settled generation after the formal item transaction commits.
+    ///
+    /// The formal item ID must equal `expectedToken.captureID`. If the process exits after the
+    /// database commit but before this call completes, launch-time reconciliation must detect that
+    /// committed ID and explicitly discard the matching draft generation.
+    func completeSettlement(expectedToken: CaptureDraftToken) async throws
+
+    /// Reopens draft-write admission after the formal item transaction fails.
+    func abortSettlement(expectedToken: CaptureDraftToken) async
 }
