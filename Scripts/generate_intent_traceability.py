@@ -39,6 +39,7 @@ STATIC_REFS = {
 RELEASE_REF_PREFIX = "release-1:"
 SECTION_7_REF = f"{RELEASE_REF_PREFIX}section-7"
 SECTION_7_HEADING = "## 7. 明确非目标与隐藏能力"
+RELEASE_ORACLE_HEADING = "### M1-M10 双向追溯"
 SECTION_7_FEATURE_IDS = frozenset(
     {
         "feat-advanced-stats",
@@ -214,13 +215,42 @@ def collect_release_operations_refs(
 
 def collect_release_oracles(outcomes: list[str]) -> dict[str, dict[str, str]]:
     path = DOCS_ROOT / "how-to" / "release-and-ci.md"
-    pattern = re.compile(
-        r"^\|\s*(M(?:10|[1-9]))\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|$",
-        re.MULTILINE,
-    )
-    rows = pattern.findall(path.read_text(encoding="utf-8"))
-    row_ids = [row[0] for row in rows]
+    lines = path.read_text(encoding="utf-8").splitlines()
+    heading_indexes = [
+        index for index, line in enumerate(lines) if line == RELEASE_ORACLE_HEADING
+    ]
+    if len(heading_indexes) != 1:
+        fail(
+            [
+                f"{rel(path)}: requires exactly one exact heading "
+                f"'{RELEASE_ORACLE_HEADING}'"
+            ]
+        )
+
+    section: list[str] = []
+    for line in lines[heading_indexes[0] + 1 :]:
+        if line.startswith("#"):
+            break
+        section.append(line)
+
+    rows: list[tuple[str, str, str]] = []
     errors: list[str] = []
+    for line in section:
+        if not line.startswith("|"):
+            continue
+        raw_cells = line.split("|")
+        outcome = raw_cells[1].strip() if len(raw_cells) > 1 else ""
+        if re.fullmatch(r"M\d+", outcome) is None:
+            continue
+        if len(raw_cells) != 5 or raw_cells[0] or raw_cells[-1]:
+            errors.append(
+                f"{rel(path)}: {outcome} oracle row must contain exactly 3 columns"
+            )
+            continue
+        cells = [cell.strip() for cell in raw_cells[1:-1]]
+        rows.append((cells[0], cells[1], cells[2]))
+
+    row_ids = [row[0] for row in rows]
     if row_ids != outcomes:
         errors.append(
             f"{rel(path)}: M1-M10 oracle rows must match Contract order exactly; "

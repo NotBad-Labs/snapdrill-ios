@@ -19,8 +19,10 @@ no fourth SSOT layer.
 - main checkout: detached with only its pre-existing untracked `agent-reports/`; untouched
 - open PRs at admission: none
 - Current Admission: issue #956 comment `5029782729`
-- write WIP: Gate P is the control-plane lane; the file-disjoint Capture draft S0 review remains a
-  separate lane and does not edit feature or release documents before this candidate is effective
+- write WIP: Gate P is the control-plane lane and Capture draft S0 is a separate implementation
+  lane. Their completed candidates overlap only in `feat-capture.md`: Gate P owns the
+  `release_outcomes` frontmatter, while S0 updates the implementation-status paragraph. A merge-tree
+  preflight is clean, but S0 must rebase after Gate P becomes effective and rerun its T4 evidence.
 
 The admission explicitly rejected direct merge or cherry-pick of the older completeness candidate
 based on `4fb6eecc`. Historical issues, PRs, reports, labels, and CI are evidence only; every claim
@@ -56,8 +58,9 @@ These are traceability and validation gaps, not unresolved product semantics.
 - Update the feature template and operator documentation so future edits use the same fields.
 
 The generator has focused negative tests for missing Must identity, invalid or non-active ownership,
-unowned outcomes, missing or empty oracle / DRI rows, invalid operations consumers, decision-table
-drift, ratified / pending overlap, and a missing exact §7 boundary.
+unowned outcomes, missing or empty oracle / DRI rows, malformed or out-of-section oracle rows,
+invalid operations consumers, decision-table drift, ratified / pending overlap, and a missing exact
+§7 boundary.
 
 ## Independent Challenge
 
@@ -71,12 +74,19 @@ table, adding the missing negative tests, freezing the superseded 2026-07-16 sch
 and correcting the ratification cutoff. The external review is challenge evidence only; local source
 and tests remain the acceptance authority.
 
+A follow-up Fable 5 challenge compared the completed Gate P and S0 refs. It found that the original
+file-disjoint admission assumption no longer described the live candidates and that oracle rows were
+harvested document-wide with permissive column parsing. This revision records the one-file overlap,
+requires post-Gate-P S0 rebase/revalidation, scopes oracle parsing to the exact owning section, and
+rejects malformed column counts. The S0 spec closure statement remains candidate evidence only until
+that rebased implementation passes its own T4 gates.
+
 ## Validation
 
 - `swiftlint --strict`: 260 Swift files, 0 violations
 - `python3 Scripts/generate_feature_status.py --check`: passed
 - `python3 Scripts/generate_intent_traceability.py --check`: passed
-- `python3 Scripts/test_doc_generators.py`: 32 tests passed
+- `python3 Scripts/test_doc_generators.py`: 35 tests passed
 - `python3 Scripts/validate_document_control.py --check`: passed
 - `python3 Scripts/validate_docs.py --check`: passed with the existing legal / fact owner warnings
 - `python3 Scripts/validate_capture_contract.py --check`: passed
@@ -93,5 +103,5 @@ distribution, and PO release decisions remain downstream gates.
 After this candidate becomes effective, the next admitted implementation is the Capture draft S0
 conformance repair reconstructed against the same live base. Its old issue number is only a routing
 handle; scope and acceptance come from P1-A, M6, the active Capture spec, the Local Library Data
-Contract, and a fresh Current Admission. It must remain file-disjoint from this Gate P branch and
-requires its own T4 evidence and Draft PR.
+Contract, and a fresh Current Admission. It must rebase after Gate P, preserve both sides of the
+single `feat-capture.md` overlap, and produce its own T4 evidence and Draft PR.

@@ -120,6 +120,7 @@ current_authority: docs/decisions/ADR-001-local-first.md
         path.write_text(
             f"---\nrelease_refs:\n{release_refs}\n---\n"
             "# Release operations\n\n"
+            "### M1-M10 双向追溯\n\n"
             "| Must | Result oracle | Evidence owner |\n"
             "|---|---|---|\n"
             f"{oracle_rows}\n",
@@ -589,6 +590,64 @@ release_outcomes: [M1]
 
                 self.assertEqual(raised.exception.code, 1)
                 self.assertIn(expected_error, stderr.getvalue())
+
+    def test_release_oracle_rows_are_scoped_to_exact_section(self) -> None:
+        path = self.write_release_operations()
+        content = path.read_text(encoding="utf-8")
+        path.write_text(
+            content.replace(
+                "### M1-M10 双向追溯",
+                "| M11 | unrelated table row | unrelated owner |\n\n"
+                "### M1-M10 双向追溯",
+            ),
+            encoding="utf-8",
+        )
+
+        rows = self.module.collect_release_oracles(
+            self.module.collect_release_outcomes(),
+        )
+
+        self.assertEqual(list(rows), [f"M{index}" for index in range(1, 11)])
+
+    def test_release_oracle_rows_reject_extra_columns(self) -> None:
+        path = self.write_release_operations()
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                "| M4 | M4 result oracle | M4 owner |",
+                "| M4 | M4 result oracle | M4 owner | unexpected |",
+            ),
+            encoding="utf-8",
+        )
+
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_release_oracles(
+                    self.module.collect_release_outcomes(),
+                )
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("M4 oracle row must contain exactly 3 columns", stderr.getvalue())
+
+    def test_release_oracle_requires_one_exact_section_heading(self) -> None:
+        path = self.write_release_operations()
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                "### M1-M10 双向追溯",
+                "### M1-M10 evidence",
+            ),
+            encoding="utf-8",
+        )
+
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_release_oracles(
+                    self.module.collect_release_outcomes(),
+                )
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("requires exactly one exact heading", stderr.getvalue())
 
     def test_release_operations_consumers_come_from_frontmatter(self) -> None:
         self.write_release_operations(refs=("C1-A",))
