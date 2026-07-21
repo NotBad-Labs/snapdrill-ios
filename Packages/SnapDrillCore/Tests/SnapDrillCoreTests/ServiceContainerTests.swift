@@ -44,7 +44,7 @@ struct ServiceContainerTests {
         _ = container.proEntitlement
         _ = container.activityTracker
         _ = container.reviewScheduler
-        _ = container.metricService
+        #expect(container.metricService is LiveMetricService)
     }
 
     @Test("LiveServiceContainer @Observable 服务单例语义（容器生命周期内同实例）")

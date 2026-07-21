@@ -77,18 +77,30 @@ struct LiveMetricServiceTests {
             .appendingPathComponent("metrickit-test-\(UUID().uuidString)", isDirectory: true)
     }
 
+    private func makeStore(root: URL, maxStoredFiles: Int = 30) -> MetricDiagnosticsStore {
+        MetricDiagnosticsStore(rootURL: root, maxStoredFiles: maxStoredFiles)
+    }
+
+    private func metricDirectory(root: URL) -> URL {
+        root.appendingPathComponent("Diagnostics", isDirectory: true)
+            .appendingPathComponent("MetricKit", isDirectory: true)
+    }
+
     @Test("诊断快照含 JSON → 落盘到注入目录")
     func handlePersistsDiagnosticJSON() throws {
         let tempDir = makeTempDir()
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let service = LiveMetricService(storageDirectory: tempDir)
+        let service = LiveMetricService(store: makeStore(root: tempDir))
         let json = Data(#"{"crash":1}"#.utf8)
         service.handle(MetricPayloadSnapshot(
             kind: .diagnostic, crashCount: 1, jsonRepresentation: json, receivedAt: Date(timeIntervalSince1970: 0)
         ))
 
-        let files = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
+        let files = try FileManager.default.contentsOfDirectory(
+            at: metricDirectory(root: tempDir),
+            includingPropertiesForKeys: nil
+        ).filter { MetricDiagnosticsStore.isPayloadFileName($0.lastPathComponent) }
         #expect(files.count == 1)
         let written = try #require(files.first)
         #expect(try Data(contentsOf: written) == json)
@@ -99,16 +111,19 @@ struct LiveMetricServiceTests {
         let tempDir = makeTempDir()
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let service = LiveMetricService(storageDirectory: tempDir)
+        let service = LiveMetricService(store: makeStore(root: tempDir))
         service.handle(MetricPayloadSnapshot(kind: .metric, receivedAt: Date(timeIntervalSince1970: 0)))
 
-        let files = (try? FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)) ?? []
+        let files = (try? FileManager.default.contentsOfDirectory(
+            at: metricDirectory(root: tempDir),
+            includingPropertiesForKeys: nil
+        )) ?? []
         #expect(files.isEmpty)
     }
 
     @Test("nil 落盘目录 → 不崩溃、不落盘")
     func handleToleratesNilDirectory() {
-        let service = LiveMetricService(storageDirectory: nil)
+        let service = LiveMetricService(store: nil)
         // 不应抛出/崩溃
         service.handle(MetricPayloadSnapshot(
             kind: .diagnostic, crashCount: 1, jsonRepresentation: Data("x".utf8), receivedAt: Date(timeIntervalSince1970: 0)
@@ -120,7 +135,7 @@ struct LiveMetricServiceTests {
         let tempDir = makeTempDir()
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let service = LiveMetricService(storageDirectory: tempDir, maxStoredFiles: 2)
+        let service = LiveMetricService(store: makeStore(root: tempDir, maxStoredFiles: 2))
         for index in 0..<5 {
             service.handle(MetricPayloadSnapshot(
                 kind: .diagnostic, crashCount: 1,
@@ -129,7 +144,10 @@ struct LiveMetricServiceTests {
             ))
         }
 
-        let files = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
+        let files = try FileManager.default.contentsOfDirectory(
+            at: metricDirectory(root: tempDir),
+            includingPropertiesForKeys: nil
+        ).filter { MetricDiagnosticsStore.isPayloadFileName($0.lastPathComponent) }
         #expect(files.count == 2)
     }
 
@@ -138,7 +156,7 @@ struct LiveMetricServiceTests {
         let tempDir = makeTempDir()
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let service = LiveMetricService(storageDirectory: tempDir, maxStoredFiles: 30)
+        let service = LiveMetricService(store: makeStore(root: tempDir, maxStoredFiles: 30))
         let sameTime = Date(timeIntervalSince1970: 100)
         service.handle(MetricPayloadSnapshot(
             kind: .diagnostic, crashCount: 1, jsonRepresentation: Data("a".utf8), receivedAt: sameTime
@@ -147,13 +165,16 @@ struct LiveMetricServiceTests {
             kind: .diagnostic, crashCount: 1, jsonRepresentation: Data("b".utf8), receivedAt: sameTime
         ))
 
-        let files = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
+        let files = try FileManager.default.contentsOfDirectory(
+            at: metricDirectory(root: tempDir),
+            includingPropertiesForKeys: nil
+        ).filter { MetricDiagnosticsStore.isPayloadFileName($0.lastPathComponent) }
         #expect(files.count == 2)
     }
 
     @Test("MetricKit subscriber 回调选择子存在（防 ObjC 可选方法静默错名）")
     func metricKitSubscriberSelectorsExist() {
-        let service = LiveMetricService(storageDirectory: nil)
+        let service = LiveMetricService(store: nil)
         #expect(service.responds(to: NSSelectorFromString("didReceiveMetricPayloads:")))
         #expect(service.responds(to: NSSelectorFromString("didReceiveDiagnosticPayloads:")))
     }

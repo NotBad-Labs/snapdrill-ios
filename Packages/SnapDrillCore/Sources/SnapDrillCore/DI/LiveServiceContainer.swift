@@ -69,6 +69,8 @@ public final class LiveServiceContainer: ServiceContainer {
         // 此处 composition 层引用 .shared 可接受（包内无 treat-warnings-as-errors）。
         self.activityTracker = activityTracker ?? AppActivityTracker.shared
         self.reviewScheduler = reviewScheduler ?? ReviewScheduler()
-        self.metricService = metricService ?? LiveMetricService()
+        self.metricService = metricService ?? LiveMetricService(
+            store: MetricDiagnosticsStore.production()
+        )
     }
 }
