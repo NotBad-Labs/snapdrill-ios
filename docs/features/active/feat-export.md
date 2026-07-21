@@ -16,6 +16,10 @@ release_refs:
   - release-1:C5-S1
   - release-1:D2-A
   - release-1:D4S-A
+release_outcomes:
+  - M5
+  - M9
+  - M10
 ---
 
 # Feature: PDF 导出与打印

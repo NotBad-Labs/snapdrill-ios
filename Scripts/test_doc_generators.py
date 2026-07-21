@@ -17,6 +17,8 @@ from contextlib import redirect_stderr
 from pathlib import Path
 from unittest.mock import patch
 
+import yaml
+
 
 SCRIPTS_DIR = Path(__file__).resolve().parent
 
@@ -41,6 +43,7 @@ class IntentTraceabilityTests(unittest.TestCase):
         (self.docs / "decisions").mkdir()
         (self.docs / "features" / "active").mkdir(parents=True)
         (self.docs / "features" / "backlog").mkdir()
+        (self.docs / "how-to").mkdir()
         (self.docs / "reference").mkdir()
 
         (self.docs / "explanations" / "vision.md").write_text(
@@ -62,6 +65,7 @@ current_authority: docs/decisions/ADR-001-local-first.md
             encoding="utf-8",
         )
         self.write_release_contract()
+        self.write_release_operations()
 
         self.module = load_script("generate_intent_traceability")
         self.module.REPO_ROOT = self.root
@@ -81,10 +85,45 @@ current_authority: docs/decisions/ADR-001-local-first.md
         *,
         include_section_7: bool = True,
     ) -> Path:
+        ratified = yaml.safe_load(frontmatter)["ratified_decisions"]
+        decision_rows = "\n".join(
+            f"| {decision} | RATIFIED | Decision {decision} |"
+            for decision in ratified
+        )
         section_7 = "\n## 7. 明确非目标与隐藏能力\n" if include_section_7 else ""
+        outcomes = "\n".join(
+            f"{index}. **M{index}** — Outcome {index}"
+            for index in range(1, 11)
+        )
         path = self.docs / "reference" / "release-1-contract.md"
         path.write_text(
-            f"---\n{frontmatter}---\n# Release 1 Product Contract\n{section_7}",
+            f"---\n{frontmatter}---\n# Release 1 Product Contract\n\n"
+            "| ID | 状态 | 结论 |\n|---|---|---|\n"
+            f"{decision_rows}\n\n"
+            f"## 3.1 Must outcomes\n\n{outcomes}\n{section_7}",
+            encoding="utf-8",
+        )
+        return path
+
+    def write_release_operations(
+        self,
+        *,
+        refs: tuple[str, ...] = ("C1-A", "C6-A", "#932-A", "ORI-A"),
+        outcomes: tuple[str, ...] = tuple(f"M{index}" for index in range(1, 11)),
+    ) -> Path:
+        release_refs = "\n".join(f"  - release-1:{ref}" for ref in refs)
+        oracle_rows = "\n".join(
+            f"| {outcome} | {outcome} result oracle | {outcome} owner |"
+            for outcome in outcomes
+        )
+        path = self.docs / "how-to" / "release-and-ci.md"
+        path.write_text(
+            f"---\nrelease_refs:\n{release_refs}\n---\n"
+            "# Release operations\n\n"
+            "### M1-M10 双向追溯\n\n"
+            "| Must | Result oracle | Evidence owner |\n"
+            "|---|---|---|\n"
+            f"{oracle_rows}\n",
             encoding="utf-8",
         )
         return path
@@ -95,7 +134,18 @@ current_authority: docs/decisions/ADR-001-local-first.md
         *,
         directory: str = "active",
         name: str = "feat-capture.md",
+        include_release_outcomes: bool = True,
     ) -> Path:
+        if (
+            directory == "active"
+            and include_release_outcomes
+            and "release_outcomes:" not in body
+        ):
+            closing = body.find("\n---", 4)
+            if closing == -1:
+                raise ValueError("feature fixture requires closing frontmatter")
+            outcomes = ", ".join(f"M{index}" for index in range(1, 11))
+            body = body[:closing] + f"\nrelease_outcomes: [{outcomes}]" + body[closing:]
         path = self.docs / "features" / directory / name
         path.write_text(body, encoding="utf-8")
         return path
@@ -280,6 +330,364 @@ release_refs:
             ],
         )
         self.assertEqual(pending_release_refs, {"release-1:C9-Pending"})
+
+    def test_rejects_ratified_frontmatter_body_drift(self) -> None:
+        path = self.docs / "reference" / "release-1-contract.md"
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                "| ORI-A | RATIFIED | Decision ORI-A |\n",
+                "",
+            ),
+            encoding="utf-8",
+        )
+
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_release_refs()
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn(
+            "frontmatter must match RATIFIED decision-summary rows exactly",
+            stderr.getvalue(),
+        )
+
+    def test_rejects_ratified_pending_overlap(self) -> None:
+        self.write_release_contract(
+            'ratified_decisions: ["C1-A"]\n'
+            'pending_decisions: ["C1-A"]\n'
+        )
+
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_release_refs()
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("cannot be both ratified and pending", stderr.getvalue())
+
+    def test_rejects_missing_release_contract_section_7(self) -> None:
+        self.write_release_contract(include_section_7=False)
+
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_release_refs()
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("missing exact heading", stderr.getvalue())
+
+    def test_rejects_missing_must_outcome_identity(self) -> None:
+        path = self.docs / "reference" / "release-1-contract.md"
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                "10. **M10** — Outcome 10\n",
+                "",
+            ),
+            encoding="utf-8",
+        )
+
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_release_outcomes()
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("labeled exactly M1-M10 in order", stderr.getvalue())
+
+    def test_active_feature_requires_explicit_must_ownership(self) -> None:
+        self.write_feature(
+            """---
+id: feat-capture
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:C2-Core
+---
+
+# Feature: Capture
+""",
+            include_release_outcomes=False,
+        )
+
+        known_refs = self.module.collect_known_refs()
+        known_release_refs, pending_release_refs = self.module.collect_release_refs()
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_features(
+                    known_refs,
+                    known_release_refs,
+                    pending_release_refs,
+                )
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("active feature release_outcomes must be a list", stderr.getvalue())
+
+    def test_rejects_unknown_and_duplicate_release_outcomes(self) -> None:
+        all_outcomes = [f"M{index}" for index in range(1, 11)]
+        cases = {
+            "unknown": (
+                [*all_outcomes, "M11"],
+                "unknown release_outcomes ['M11']",
+            ),
+            "duplicate": (
+                [*all_outcomes, "M1"],
+                "duplicate release_outcomes ['M1']",
+            ),
+        }
+
+        for name, (outcomes, expected_error) in cases.items():
+            with self.subTest(name=name):
+                values = ", ".join(outcomes)
+                self.write_feature(
+                    f"""---
+id: feat-capture
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:C2-Core
+release_outcomes: [{values}]
+---
+
+# Feature: Capture
+"""
+                )
+                stderr = io.StringIO()
+                with redirect_stderr(stderr):
+                    with self.assertRaises(SystemExit) as raised:
+                        self.collect_traceability()
+
+                self.assertEqual(raised.exception.code, 1)
+                self.assertIn(expected_error, stderr.getvalue())
+
+    def test_rejects_must_ownership_on_non_active_feature(self) -> None:
+        self.write_feature(
+            """---
+id: feat-capture
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:C2-Core
+---
+
+# Feature: Capture
+"""
+        )
+        self.write_feature(
+            """---
+id: feat-candidate
+title: Candidate
+status: backlog
+tier: undecided
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:C2-Core
+release_outcomes: [M1]
+---
+
+# Feature: Candidate
+""",
+            directory="backlog",
+            name="feat-candidate.md",
+        )
+
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.collect_traceability()
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn(
+            "release_outcomes may be non-empty only for active features",
+            stderr.getvalue(),
+        )
+
+    def test_rejects_unowned_must_outcome(self) -> None:
+        self.write_feature(
+            """---
+id: feat-capture
+title: Capture
+status: implemented
+tier: free
+intent_refs:
+  - vision:P1
+release_refs:
+  - release-1:C2-Core
+release_outcomes: [M1]
+---
+
+# Feature: Capture
+"""
+        )
+
+        known_refs = self.module.collect_known_refs()
+        known_release_refs, pending_release_refs = self.module.collect_release_refs()
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_features(
+                    known_refs,
+                    known_release_refs,
+                    pending_release_refs,
+                )
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("['M2', 'M3', 'M4', 'M5', 'M6'", stderr.getvalue())
+
+    def test_release_oracle_rows_must_cover_all_outcomes(self) -> None:
+        self.write_release_operations(
+            outcomes=tuple(f"M{index}" for index in range(1, 10)),
+        )
+
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_release_oracles(
+                    self.module.collect_release_outcomes(),
+                )
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("oracle rows must match Contract order exactly", stderr.getvalue())
+
+    def test_release_oracle_rows_require_oracle_and_dri(self) -> None:
+        cases = {
+            "oracle": (
+                "| M4 | M4 result oracle | M4 owner |",
+                "| M4 | — | M4 owner |",
+                "M4 requires a non-empty outcome oracle",
+            ),
+            "dri": (
+                "| M4 | M4 result oracle | M4 owner |",
+                "| M4 | M4 result oracle | — |",
+                "M4 requires a non-empty DRI",
+            ),
+        }
+
+        for name, (original, replacement, expected_error) in cases.items():
+            with self.subTest(name=name):
+                path = self.write_release_operations()
+                path.write_text(
+                    path.read_text(encoding="utf-8").replace(original, replacement),
+                    encoding="utf-8",
+                )
+                stderr = io.StringIO()
+                with redirect_stderr(stderr):
+                    with self.assertRaises(SystemExit) as raised:
+                        self.module.collect_release_oracles(
+                            self.module.collect_release_outcomes(),
+                        )
+
+                self.assertEqual(raised.exception.code, 1)
+                self.assertIn(expected_error, stderr.getvalue())
+
+    def test_release_oracle_rows_are_scoped_to_exact_section(self) -> None:
+        path = self.write_release_operations()
+        content = path.read_text(encoding="utf-8")
+        path.write_text(
+            content.replace(
+                "### M1-M10 双向追溯",
+                "| M11 | unrelated table row | unrelated owner |\n\n"
+                "### M1-M10 双向追溯",
+            ),
+            encoding="utf-8",
+        )
+
+        rows = self.module.collect_release_oracles(
+            self.module.collect_release_outcomes(),
+        )
+
+        self.assertEqual(list(rows), [f"M{index}" for index in range(1, 11)])
+
+    def test_release_oracle_rows_reject_extra_columns(self) -> None:
+        path = self.write_release_operations()
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                "| M4 | M4 result oracle | M4 owner |",
+                "| M4 | M4 result oracle | M4 owner | unexpected |",
+            ),
+            encoding="utf-8",
+        )
+
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_release_oracles(
+                    self.module.collect_release_outcomes(),
+                )
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("M4 oracle row must contain exactly 3 columns", stderr.getvalue())
+
+    def test_release_oracle_requires_one_exact_section_heading(self) -> None:
+        path = self.write_release_operations()
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                "### M1-M10 双向追溯",
+                "### M1-M10 evidence",
+            ),
+            encoding="utf-8",
+        )
+
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                self.module.collect_release_oracles(
+                    self.module.collect_release_outcomes(),
+                )
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("requires exactly one exact heading", stderr.getvalue())
+
+    def test_release_operations_consumers_come_from_frontmatter(self) -> None:
+        self.write_release_operations(refs=("C1-A",))
+
+        known_release_refs, _ = self.module.collect_release_refs()
+
+        self.assertEqual(
+            known_release_refs["release-1:C1-A"]["operations_consumer"],
+            "release-operations",
+        )
+        self.assertIsNone(
+            known_release_refs["release-1:C6-A"]["operations_consumer"]
+        )
+
+    def test_rejects_invalid_release_operations_refs(self) -> None:
+        cases = {
+            "pending": (
+                ("C1-A", "C9-Pending"),
+                "pending release_refs ['release-1:C9-Pending']",
+            ),
+            "unknown": (
+                ("C1-A", "C9-Unknown"),
+                "unknown release_refs ['release-1:C9-Unknown']",
+            ),
+            "section-7": (
+                ("C1-A", "section-7"),
+                "release-1:section-7 is not an operations decision",
+            ),
+        }
+
+        for name, (refs, expected_error) in cases.items():
+            with self.subTest(name=name):
+                self.write_release_operations(refs=refs)
+                stderr = io.StringIO()
+                with redirect_stderr(stderr):
+                    with self.assertRaises(SystemExit) as raised:
+                        self.module.collect_release_refs()
+
+                self.assertEqual(raised.exception.code, 1)
+                self.assertIn(expected_error, stderr.getvalue())
 
     def test_rejects_invalid_release_ref_shapes_and_values(self) -> None:
         cases = {
@@ -679,8 +1087,9 @@ release_refs:
         self.assertEqual(first, second)
         self.assertIn("## Feature -> Release 1", first)
         self.assertIn("## Release 1 -> Feature / Operations Consumers", first)
-        self.assertIn("不证明语义正确、实现符合或候选纳入", first)
-        self.assertIn("不证明 M1-M10 已有证据", first)
+        self.assertIn("## Release 1 Must Outcome -> Feature / Proof Plan", first)
+        self.assertIn("不证明语义正确、实现符合", first)
+        self.assertIn("M1-M10 已执行证据", first)
 
 
 class FeatureStatusTests(unittest.TestCase):

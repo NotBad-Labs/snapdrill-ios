@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-19
+last_verified: 2026-07-21
 layer: roadmap
 derived_from:
   - ../explanations/vision.md
@@ -8,7 +8,7 @@ derived_from:
 
 > 本文件只维护跨功能候选、重入边界和投资状态，不定义当前实现，也不充当 Release Product Contract。
 >
-> 当前实现见自动生成的 [feature-status.md](feature-status.md)；单功能行为见 feature spec；Release 1 的 Must outcomes、明确非目标和验收由 [Release 1 Product Contract](release-1-contract.md) 单独定义。Gate C 与截至 2026-07-19 的 follow-up decisions 已 ratified，合入 `develop` 后 effective。
+> 当前实现见自动生成的 [feature-status.md](feature-status.md)；单功能行为见 feature spec；Release 1 的 Must outcomes、明确非目标和验收由 [Release 1 Product Contract](release-1-contract.md) 单独定义。Gate C 与截至 2026-07-20 的 follow-up decisions 已 ratified，合入 `develop` 后 effective。
 
 ## 当前上游边界
 
@@ -82,7 +82,7 @@ Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在�
 | 文档 | 单一职责 |
 |---|---|
 | [../explanations/vision.md](../explanations/vision.md) | Product Constitution 与最高产品边界 |
-| [release-1-contract.md](release-1-contract.md) | Gate C 与截至 2026-07-19 的 follow-up decisions 已 ratified；合入 `develop` 后为 current effective Release 1 Contract |
+| [release-1-contract.md](release-1-contract.md) | Gate C 与截至 2026-07-20 的 follow-up decisions 已 ratified；合入 `develop` 后为 current effective Release 1 Contract |
 | [local-library-data-contract.md](local-library-data-contract.md) | 单一本地资料库 inventory、路径、generation / journal 与恢复生命周期 |
 | [feature-status.md](feature-status.md) | 自动生成的当前实现状态 |
 | [../features/](../features/) | 单功能 Why / What / How / Verify |

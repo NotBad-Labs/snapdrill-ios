@@ -2,9 +2,10 @@
 """Generate the feature intent traceability index.
 
 The source of truth is each `docs/features/**/feat-*.md` frontmatter
-`intent_refs` and `release_refs` fields. This script renders read-only forward
-and reverse indexes for durable intent and the effective Release Product
-Contract without hand-syncing another status document.
+`intent_refs`, `release_refs`, and active-feature `release_outcomes` fields.
+This script renders read-only forward and reverse indexes for durable intent,
+the effective Release Product Contract, and Release 1 Must ownership without
+hand-syncing another status document.
 """
 from __future__ import annotations
 
@@ -38,6 +39,7 @@ STATIC_REFS = {
 RELEASE_REF_PREFIX = "release-1:"
 SECTION_7_REF = f"{RELEASE_REF_PREFIX}section-7"
 SECTION_7_HEADING = "## 7. 明确非目标与隐藏能力"
+RELEASE_ORACLE_HEADING = "### M1-M10 双向追溯"
 SECTION_7_FEATURE_IDS = frozenset(
     {
         "feat-advanced-stats",
@@ -45,7 +47,11 @@ SECTION_7_FEATURE_IDS = frozenset(
         "feat-word-export",
     }
 )
-RELEASE_OPERATIONS_DECISIONS = frozenset({"C1-A", "C6-A", "#932-A", "ORI-A"})
+MUST_OUTCOME_PATTERN = re.compile(r"^\d+\. \*\*(M(?:10|[1-9]))\*\* — .+$", re.MULTILINE)
+RATIFIED_DECISION_PATTERN = re.compile(
+    r"^\|\s*([^|]+?)\s*\|\s*RATIFIED\s*\|",
+    re.MULTILINE,
+)
 
 
 def rel(path: Path) -> str:
@@ -161,6 +167,108 @@ def parse_contract_list(
     return values, errors
 
 
+def collect_release_outcomes() -> list[str]:
+    path = DOCS_ROOT / "reference" / "release-1-contract.md"
+    outcomes = MUST_OUTCOME_PATTERN.findall(path.read_text(encoding="utf-8"))
+    expected = [f"M{index}" for index in range(1, 11)]
+    if outcomes != expected:
+        fail(
+            [
+                f"{rel(path)}: Must outcomes must be labeled exactly M1-M10 "
+                f"in order; found {outcomes}"
+            ]
+        )
+    return outcomes
+
+
+def collect_release_operations_refs(
+    known_release_refs: set[str],
+    pending_release_refs: set[str],
+) -> set[str]:
+    path = DOCS_ROOT / "how-to" / "release-and-ci.md"
+    fm = parse_frontmatter(path)
+    if fm is None:
+        fail([f"{rel(path)}: missing frontmatter"])
+
+    refs, errors = parse_contract_list(
+        fm.get("release_refs"),
+        field="release_refs",
+        path=path,
+        allow_empty=False,
+    )
+    pending = sorted(ref for ref in refs if ref in pending_release_refs)
+    if pending:
+        errors.append(f"{rel(path)}: pending release_refs {pending}")
+    unknown = sorted(
+        ref
+        for ref in refs
+        if ref not in known_release_refs and ref not in pending_release_refs
+    )
+    if unknown:
+        errors.append(f"{rel(path)}: unknown release_refs {unknown}")
+    if SECTION_7_REF in refs:
+        errors.append(f"{rel(path)}: {SECTION_7_REF} is not an operations decision")
+    if errors:
+        fail(errors)
+    return set(refs)
+
+
+def collect_release_oracles(outcomes: list[str]) -> dict[str, dict[str, str]]:
+    path = DOCS_ROOT / "how-to" / "release-and-ci.md"
+    lines = path.read_text(encoding="utf-8").splitlines()
+    heading_indexes = [
+        index for index, line in enumerate(lines) if line == RELEASE_ORACLE_HEADING
+    ]
+    if len(heading_indexes) != 1:
+        fail(
+            [
+                f"{rel(path)}: requires exactly one exact heading "
+                f"'{RELEASE_ORACLE_HEADING}'"
+            ]
+        )
+
+    section: list[str] = []
+    for line in lines[heading_indexes[0] + 1 :]:
+        if line.startswith("#"):
+            break
+        section.append(line)
+
+    rows: list[tuple[str, str, str]] = []
+    errors: list[str] = []
+    for line in section:
+        if not line.startswith("|"):
+            continue
+        raw_cells = line.split("|")
+        outcome = raw_cells[1].strip() if len(raw_cells) > 1 else ""
+        if re.fullmatch(r"M\d+", outcome) is None:
+            continue
+        if len(raw_cells) != 5 or raw_cells[0] or raw_cells[-1]:
+            errors.append(
+                f"{rel(path)}: {outcome} oracle row must contain exactly 3 columns"
+            )
+            continue
+        cells = [cell.strip() for cell in raw_cells[1:-1]]
+        rows.append((cells[0], cells[1], cells[2]))
+
+    row_ids = [row[0] for row in rows]
+    if row_ids != outcomes:
+        errors.append(
+            f"{rel(path)}: M1-M10 oracle rows must match Contract order exactly; "
+            f"found {row_ids}"
+        )
+    for outcome, oracle, owner in rows:
+        if not oracle or oracle == "—":
+            errors.append(f"{rel(path)}: {outcome} requires a non-empty outcome oracle")
+        if not owner or owner == "—":
+            errors.append(f"{rel(path)}: {outcome} requires a non-empty DRI")
+    if errors:
+        fail(errors)
+    return {
+        outcome: {"oracle": oracle, "owner": owner}
+        for outcome, oracle, owner in rows
+    }
+
+
 def collect_release_refs() -> tuple[dict[str, dict[str, str | None]], set[str]]:
     path = DOCS_ROOT / "reference" / "release-1-contract.md"
     fm = parse_frontmatter(path)
@@ -185,14 +293,13 @@ def collect_release_refs() -> tuple[dict[str, dict[str, str | None]], set[str]]:
     if overlap:
         errors.append(f"{rel(path)}: decisions cannot be both ratified and pending {overlap}")
 
-    missing_operations = sorted(RELEASE_OPERATIONS_DECISIONS - set(ratified))
-    if missing_operations:
-        errors.append(
-            f"{rel(path)}: release-operations decisions are not ratified "
-            f"{missing_operations}"
-        )
-
     contract_text = path.read_text(encoding="utf-8")
+    body_ratified = RATIFIED_DECISION_PATTERN.findall(contract_text)
+    if body_ratified != ratified:
+        errors.append(
+            f"{rel(path)}: ratified_decisions frontmatter must match RATIFIED "
+            f"decision-summary rows exactly; frontmatter={ratified}, body={body_ratified}"
+        )
     if SECTION_7_HEADING not in contract_text.splitlines():
         errors.append(f"{rel(path)}: missing exact heading '{SECTION_7_HEADING}'")
 
@@ -205,11 +312,7 @@ def collect_release_refs() -> tuple[dict[str, dict[str, str | None]], set[str]]:
         known_refs[ref] = {
             "label": decision,
             "path": "release-1-contract.md",
-            "operations_consumer": (
-                "release-operations"
-                if decision in RELEASE_OPERATIONS_DECISIONS
-                else None
-            ),
+            "operations_consumer": None,
         }
     known_refs[SECTION_7_REF] = {
         "label": "§7 明确非目标与隐藏能力",
@@ -217,6 +320,9 @@ def collect_release_refs() -> tuple[dict[str, dict[str, str | None]], set[str]]:
         "operations_consumer": None,
     }
     pending_refs = {f"{RELEASE_REF_PREFIX}{decision}" for decision in pending}
+    operations_refs = collect_release_operations_refs(set(known_refs), pending_refs)
+    for ref in operations_refs:
+        known_refs[ref]["operations_consumer"] = "release-operations"
     return known_refs, pending_refs
 
 
@@ -227,6 +333,7 @@ def collect_features(
 ) -> list[dict]:
     features: list[dict] = []
     errors: list[str] = []
+    known_outcomes = collect_release_outcomes()
     operations_refs = {
         ref
         for ref, info in known_release_refs.items()
@@ -319,6 +426,38 @@ def collect_features(
                     f"{rel(path)}: {SECTION_7_REF} is allowed only for "
                     f"{sorted(SECTION_7_FEATURE_IDS)}"
                 )
+
+        release_outcomes = fm.get("release_outcomes")
+        if is_active and not isinstance(release_outcomes, list):
+            errors.append(f"{rel(path)}: active feature release_outcomes must be a list")
+            release_outcomes = []
+        elif release_outcomes is None:
+            release_outcomes = []
+        elif not isinstance(release_outcomes, list):
+            errors.append(f"{rel(path)}: release_outcomes must be a list")
+            release_outcomes = []
+
+        invalid_outcomes = [
+            outcome
+            for outcome in release_outcomes
+            if not isinstance(outcome, str) or outcome not in known_outcomes
+        ]
+        if invalid_outcomes:
+            errors.append(f"{rel(path)}: unknown release_outcomes {invalid_outcomes}")
+        duplicate_outcomes = sorted(
+            {
+                outcome
+                for outcome in release_outcomes
+                if release_outcomes.count(outcome) > 1
+            }
+        )
+        if duplicate_outcomes:
+            errors.append(f"{rel(path)}: duplicate release_outcomes {duplicate_outcomes}")
+        if not is_active and release_outcomes:
+            errors.append(
+                f"{rel(path)}: release_outcomes may be non-empty only for active features"
+            )
+        fm["release_outcomes"] = release_outcomes
         features.append(fm)
 
     consumed_release_refs = set(operations_refs)
@@ -338,6 +477,22 @@ def collect_features(
         errors.append(
             "ratified release refs require at least one Feature or "
             f"release-operations consumer {unconsumed_release_refs}"
+        )
+
+    owned_outcomes = {
+        outcome
+        for feature in features
+        if feature["__path"].parent.name == "active"
+        for outcome in feature.get("release_outcomes", [])
+        if isinstance(outcome, str)
+    }
+    unowned_outcomes = [
+        outcome for outcome in known_outcomes if outcome not in owned_outcomes
+    ]
+    if unowned_outcomes:
+        errors.append(
+            "Release 1 Must outcomes require at least one active Feature owner "
+            f"{unowned_outcomes}"
         )
 
     if errors:
@@ -431,8 +586,8 @@ def render_release_feature_table(
     lines = [
         "## Feature -> Release 1",
         "",
-        "| Feature | Release 1 消费引用 |",
-        "|---|---|",
+        "| Feature | Release 1 消费引用 | Must outcome owner / contributor |",
+        "|---|---|---|",
     ]
     for feature in features:
         path = "../" + feature["__path"].relative_to(DOCS_ROOT).as_posix()
@@ -443,7 +598,42 @@ def render_release_feature_table(
                 known_release_refs,
             )
         )
-        lines.append(f"| [{feature['title']}]({path}) | {refs} |")
+        outcomes = " / ".join(f"`{value}`" for value in feature["release_outcomes"])
+        lines.append(
+            f"| [{feature['title']}]({path}) | {refs} | {outcomes or '—'} |"
+        )
+    lines.append("")
+    return lines
+
+
+def render_release_outcome_index(
+    features: list[dict],
+    outcomes: list[str],
+    oracles: dict[str, dict[str, str]],
+) -> list[str]:
+    by_outcome: dict[str, list[dict]] = {outcome: [] for outcome in outcomes}
+    for feature in features:
+        if feature["__path"].parent.name != "active":
+            continue
+        for outcome in feature["release_outcomes"]:
+            by_outcome[outcome].append(feature)
+
+    lines = [
+        "## Release 1 Must Outcome -> Feature / Proof Plan",
+        "",
+        "| Must | Owning / contributing active Feature | Operational outcome oracle | DRI |",
+        "|---|---|---|---|",
+    ]
+    for outcome in outcomes:
+        linked_features = " / ".join(
+            f"[{feature['title']}](../{feature['__path'].relative_to(DOCS_ROOT).as_posix()})"
+            for feature in by_outcome[outcome]
+        )
+        oracle = oracles[outcome]
+        lines.append(
+            f"| [`{outcome}`](release-1-contract.md#31-must-outcomes) | "
+            f"{linked_features} | {oracle['oracle']} | {oracle['owner']} |"
+        )
     lines.append("")
     return lines
 
@@ -483,16 +673,18 @@ def render(
     known_refs: dict[str, dict[str, str]],
     known_release_refs: dict[str, dict[str, str | None]],
 ) -> str:
+    outcomes = collect_release_outcomes()
+    oracles = collect_release_oracles(outcomes)
     lines = [
         "# 意图追溯索引（自动生成）",
         "",
         "> ⚠️ 本文件由 `Scripts/generate_intent_traceability.py` 自动生成，**禁止手动编辑**。",
-        "> 来源 = 各 `docs/features/**/feat-*.md` frontmatter 的 `intent_refs` / `release_refs`；",
+        "> 来源 = 各 `docs/features/**/feat-*.md` frontmatter 的 `intent_refs` / `release_refs` / `release_outcomes`；",
         "> Release 1 精确 ID 从 effective `release-1-contract.md` 的 `ratified_decisions` 读取。",
         "> 实现状态只描述代码路径，不证明 Release 1 合同符合、公开可达或发布就绪。",
         "> `release_refs` 只表示 Feature 消费 / 追溯边，不把 Feature 变成上游裁决 owner；",
-        "> 它不证明语义正确、实现符合或候选纳入；",
-        "> 也不证明 M1-M10 已有证据、Capability Manifest inclusion 或发布授权。",
+        "> `release_outcomes` 与 operational oracle 行只证明 owner / proof-plan 声明完整；",
+        "> 它们不证明语义正确、实现符合、M1-M10 已执行证据、Capability Manifest inclusion 或发布授权。",
         "",
     ]
     lines.extend(render_known_refs(known_refs))
@@ -500,6 +692,7 @@ def render(
     lines.extend(render_reverse_index(features, known_refs))
     lines.extend(render_release_feature_table(features, known_release_refs))
     lines.extend(render_release_reverse_index(features, known_release_refs))
+    lines.extend(render_release_outcome_index(features, outcomes, oracles))
     return "\n".join(lines)
 
 

@@ -17,6 +17,9 @@ release_refs:
   - release-1:C3
   - release-1:C4-D
   - release-1:C5-E
+release_outcomes:
+  - M1
+  - M10
 ---
 
 # Feature: Onboarding 新手引导

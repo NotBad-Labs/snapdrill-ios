@@ -20,6 +20,9 @@ release_refs:
   - release-1:S1-A
   - release-1:M1-A
   - release-1:D4S-A
+release_outcomes:
+  - M4
+  - M10
 ---
 
 # Feature: 资料库管理 + 分享卡片
