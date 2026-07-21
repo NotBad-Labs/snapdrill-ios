@@ -1,9 +1,14 @@
 ---
-last_verified: 2026-07-19
+last_verified: 2026-07-21
 layer: pattern
 freshness:
   max_age_days: 60
   decay_trigger: [ci_change, distribution_change]
+release_refs:
+  - release-1:C1-A
+  - release-1:C6-A
+  - release-1:#932-A
+  - release-1:ORI-A
 ---
 # SnapDrill 部署与运维
 

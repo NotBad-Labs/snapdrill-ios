@@ -43,7 +43,7 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
   [`Current Admission`](how-to/definition-of-ready.md#current-admission)，以精确 live base、effective
   SSOT、当前实证和显式接受 / 拒绝的继承假设重建后，才能进入执行队列；该准入不新增产品
   SSOT，也不替代 PO 的 bet、merge 或发布裁决。
-- [Release 1 Contract](reference/release-1-contract.md) 承载截至 2026-07-19 ratify 的 Gate C 与后续精确裁决；[Local Library Data Contract](reference/local-library-data-contract.md) 承接单一本地资料库的 inventory、接受边界、路径、generation / journal、complete-operation barrier 与恢复生命周期。分支 / PR 副本仍是批准候选，合入 `develop` 后才 effective。feature spec 中旧 Multi-Profile、Pro、CloudKit、Word、iPad、五 Tab 或公开可达 Review / SmartPaper 仍属于已知下游漂移 / 实现刻画，不得覆盖合同，也不得在没有独立实现授权时启动投入。
+- [Release 1 Contract](reference/release-1-contract.md) 承载截至 2026-07-20 ratify 的 Gate C 与后续精确裁决；[Local Library Data Contract](reference/local-library-data-contract.md) 承接单一本地资料库的 inventory、接受边界、路径、generation / journal、complete-operation barrier 与恢复生命周期。分支 / PR 副本仍是批准候选，合入 `develop` 后才 effective。feature spec 中旧 Multi-Profile、Pro、CloudKit、Word、iPad、五 Tab 或公开可达 Review / SmartPaper 仍属于已知下游漂移 / 实现刻画，不得覆盖合同，也不得在没有独立实现授权时启动投入。
 - 私有记忆、历史研究、旧 pitch 和关闭任务不参与当前裁决；需要历史证据（含已删除的 research/ 与历史 pitch）时使用 Git 历史或 GitHub 记录。
 
 ## 私有记忆与文档边界
@@ -96,8 +96,8 @@ SnapDrill 同时维护两条链，避免把产品目标和当前实现混为一�
 未裁决候选必须用 `undecided`。`reference/feature-status.md` 由
 `Scripts/generate_feature_status.py` 扫描 frontmatter **自动生成**。
 
-意图追溯写在各 feature spec 的 frontmatter `intent_refs` / `release_refs`；`reference/intent-traceability.md` 由 `Scripts/generate_intent_traceability.py` 扫描 frontmatter **自动生成**。Release 精确 ID 从 effective contract 的 `ratified_decisions` 读取；索引只证明“已声明消费 / 追溯边”，不替代人工语义 review、实现实证或候选 inclusion。
+意图追溯写在各 feature spec 的 frontmatter `intent_refs` / `release_refs` / `release_outcomes`；发布运维消费边与 M1-M10 结果 oracle / DRI 写在 `how-to/release-and-ci.md`。`reference/intent-traceability.md` 由 `Scripts/generate_intent_traceability.py` **自动生成**。Release 精确决策 ID 与 Must ID 从 effective contract 读取；索引只证明消费边、active owner 与 proof-plan 声明完整，不替代人工语义 review、实现实证、候选 inclusion 或已执行证据。
 
 改状态 = 改对应 spec 的 frontmatter → 重跑 `python3 Scripts/generate_feature_status.py`（pre-commit 自动校验是否最新）。
 
-改意图引用 = 改对应 spec 的 `intent_refs` / `release_refs` → 重跑 `python3 Scripts/generate_intent_traceability.py`（pre-commit 自动校验是否最新）。
+改意图 / Release 追溯 = 改对应 spec 的 `intent_refs` / `release_refs` / `release_outcomes`，或发布运维文档的 `release_refs` / M1-M10 oracle 表 → 重跑 `python3 Scripts/generate_intent_traceability.py`（pre-commit 自动校验是否最新）。

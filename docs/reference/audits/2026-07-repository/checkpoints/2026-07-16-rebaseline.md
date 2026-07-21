@@ -1,5 +1,8 @@
 # 2026-07-16 Repository Audit Rebaseline
 
+> 文档状态：固定基线历史证据。恢复命令、风险排序和下一 write slice 已由
+> [2026-07-21 Gate P Closeout](2026-07-21-gate-p-closeout.md) 取代；本文仅保留当时实证。
+
 ## T0
 
 - base: `origin/develop@41a389583a5edeb4304d751e8894cf9843238d83`

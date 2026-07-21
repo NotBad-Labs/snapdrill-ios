@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-19
+last_verified: 2026-07-21
 layer: product-policy
 derived_from:
   - vision.md#商业定位
@@ -116,4 +116,4 @@ Release 1 没有订阅，本节不是当前功能承诺。若未来订阅获批�
 | [assumptions.md](assumptions.md) | 产品假设 H1-H3、H9-H12 |
 | [competitive-analysis.md](competitive-analysis.md) | 可更新的竞品证据，不定义当前商业政策 |
 | [../decisions/ADR-001-smart-paper-analytics-pricing.md](../decisions/ADR-001-smart-paper-analytics-pricing.md) | 已被 B6-A 取代的历史商业决策 |
-| [Release 1 Product Contract](../reference/release-1-contract.md) | Release 1 功能可见性、非目标与验收；Gate C 与截至 2026-07-19 的 follow-up decisions 已 ratified，合入 `develop` 后 effective |
+| [Release 1 Product Contract](../reference/release-1-contract.md) | Release 1 功能可见性、非目标与验收；Gate C 与截至 2026-07-20 的 follow-up decisions 已 ratified，合入 `develop` 后 effective |

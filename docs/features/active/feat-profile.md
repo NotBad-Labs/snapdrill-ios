@@ -15,6 +15,10 @@ release_refs:
   - release-1:DATA-1
   - release-1:DATA-1-E
   - release-1:DATA-1-R
+release_outcomes:
+  - M1
+  - M8
+  - M10
 ---
 
 # Feature: 单一本地资料库（Multi-Profile 退场）

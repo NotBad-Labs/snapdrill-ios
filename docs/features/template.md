@@ -10,6 +10,7 @@ intent_refs:              # 至少一项 Vision / 产品政策 / ADR 引用
   - vision:P1
 release_refs:             # 当前 effective Release Contract 的精确消费边；非目标仅按受限 section-7 规则
   - release-1:C2-Core
+release_outcomes: []      # active feature 直接拥有 / 承接的 M1-M10；无 Must owner 时保持空列表
 ---
 
 # Feature: [功能名称]
@@ -20,6 +21,7 @@ release_refs:             # 当前 effective Release Contract 的精确消费边
 > `mode: lightweight`（backlog 用）时，How / Verify 可只写"待实现补"，仅 Why + What 必填——避免给未实现功能写"假设计"。
 > `tier: undecided` 表示商业归属尚未裁决；候选功能不得为了填字段而默认归入 Pro。
 > `release_refs` 只表示 Feature 消费 / 追溯边，不把 Feature 变成上游裁决 owner，也不证明实现符合、候选纳入、公开可达或发布就绪。
+> `release_outcomes` 只声明本 spec 对 Must outcome 的产品 owner / 直接承接关系；它不证明实现或候选证据已通过。
 > `blocked_by` 的 issue 编号只表示依赖元数据，不构成当前 bet、scope 或执行授权。
 
 ## 1. 为什么做 (Why) — 纯 why，不混实现/UI 细节

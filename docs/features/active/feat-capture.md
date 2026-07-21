@@ -18,6 +18,13 @@ release_refs:
   - release-1:C2-Optional
   - release-1:S1-A
   - release-1:P1-A
+release_outcomes:
+  - M1
+  - M2
+  - M3
+  - M6
+  - M9
+  - M10
 ---
 
 # Feature: 采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）

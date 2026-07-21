@@ -115,7 +115,7 @@
         "docs/explanations/user-journeys.md",
         "docs/reference/api-pitfalls.md",
         "docs/reference/apple-platform-limits.md",
-        "docs/reference/audits/2026-07-repository/checkpoints/2026-07-16-rebaseline.md",
+        "docs/reference/audits/2026-07-repository/checkpoints/2026-07-21-gate-p-closeout.md",
         "docs/reference/audits/2026-07-repository/findings.md"
       ],
       "patterns": [
@@ -137,7 +137,8 @@
       "lifecycle": "frozen",
       "paths": [
         "docs/reference/audits/2026-07-agent-control-plane-review.md",
-        "docs/reference/audits/2026-07-repository/rebaseline-contract.md"
+        "docs/reference/audits/2026-07-repository/rebaseline-contract.md",
+        "docs/reference/audits/2026-07-repository/checkpoints/2026-07-16-rebaseline.md"
       ],
       "patterns": [
         "docs/reference/audits/2026-07-repository/checkpoints/phase-*.md",

@@ -13,6 +13,7 @@ intent_refs:
 release_refs:
   - release-1:C3
   - release-1:C4-D
+release_outcomes: []
 ---
 
 # Feature: 回顾（SM-2 间隔调度）

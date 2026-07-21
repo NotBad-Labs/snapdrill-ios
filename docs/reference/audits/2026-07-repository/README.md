@@ -47,7 +47,7 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 |---|---|---|---|
 | 00 Control plane | T0、工具链、模型、报告协议、恢复演练 | `00a` 基线；`00b` 小范围盲审 | complete |
 | 01 History | issue/PR 生命周期、CI 失败分类、返工热点 | `01a` lifecycle；`01b` CI；`01c` churn；`01d-f` 证伪 | complete |
-| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a-c` truth；`02d` constitution；`02e` PO workshop；`02f` impact map | complete; 三层 SSOT、Release 1 follow-up 与 Agent control plane 已 effective |
+| 02 Truth | 意图链、状态 SSOT、生成物、流程与脚本漂移 | `02a-c` truth；`02d` constitution；`02e` PO workshop；`02f` impact map | complete; 三层 SSOT 与 Agent control plane 已 effective，Gate P 的 M1-M10 owner / proof-plan 机械闭环见当前 checkpoint |
 | 03 Architecture | package 依赖、DI、并发、共享接缝、废弃代码 | `03a` graph；`03b` runtime flow；`03c` debt | complete |
 | 04 Data safety | SwiftData、repository、单资料库重基线、备份、图片 | `04a` models；`04b` single library；`04c` backup；`04d` images | in progress; contracts effective，#919/#880/#889 与 Backup v3 wire/实现待收敛 |
 | 05 Capture | camera、scanner、album/PDF、crop、OCR、save | `05a` input；`05b` processing；`05c` persistence | in progress; 5 个 P1 已修，6 个 candidate oracle 待执行 |
@@ -61,9 +61,10 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 
 ## Recovery
 
-- **当前恢复基线**：`develop@41a389583a5edeb4304d751e8894cf9843238d83`
-  （#937 merge commit；恢复时仍须先 fetch 并核对 live `origin/develop`）
-- **当前 checkpoint**：[`checkpoints/2026-07-16-rebaseline.md`](checkpoints/2026-07-16-rebaseline.md)
+- **当前恢复基线**：Gate P admission 时的
+  `origin/develop@ad6534dab06a4d4dad1aca702be47816692a672d`；恢复时仍须先 fetch 并核对 live
+  `origin/develop`，不得把该 hash 当作永久 base
+- **当前 checkpoint**：[`checkpoints/2026-07-21-gate-p-closeout.md`](checkpoints/2026-07-21-gate-p-closeout.md)
 - **恢复方式**：从最新 `origin/develop` 新建独立 worktree / 分支；不要依赖本文件中的历史临时
   worktree、私有记忆或旧 fixed-base head
 - **方法**：`docs/how-to/repository-audit.md`
@@ -85,9 +86,9 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **当前产品治理状态**：Product Constitution、Release 1 Product Contract、Local Library Data
   Contract 与 Agent control plane 已在 `develop` effective；#868 已关闭且不得复活，后续单资料库
   实现必须从当前合同和最新 `develop` 重新 shaping
-- **下一步**：先落地 #919 的两文件 S0 no-prune 止损；随后按文件与契约边界串行处理 #880、
-  #889，并单独冻结 Backup v3 精确 SQLite wire。Phase 05 的 6 个 candidate oracle 保留为可并行
-  只读/测试输入，不得阻塞数据安全止损
+- **下一步**：Gate P 候选合入后，按 P1-A / M6 和 live Capture / Data Contract 执行已重新准入的
+  Capture draft S0 修复；旧 issue 只作路由 handle，不继承旧 scope。其他历史编号只有经新的
+  Current Admission 复核后才能进入 write 或冻结队列
 
 历史 phase 结果保持其 fixed-base 原文。报告中的“未合并”“待授权”“当前 worktree”等语句只描述
 当时状态；恢复和排期一律以本节当前 checkpoint、live Git/GitHub 与 effective SSOT 为准。
