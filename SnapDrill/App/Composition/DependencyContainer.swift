@@ -38,7 +38,13 @@ final class DependencyContainer {
     private init() {
         // UI 测试模式：使用 mock services 与 in-memory 存储。
         if Self.isUITesting {
-            self.services = MockServiceContainer()
+            let draftService: any CaptureDraftServiceProtocol
+            if ProcessInfo.processInfo.arguments.contains("--ui-test-durable-capture-draft") {
+                draftService = CaptureDraftService()
+            } else {
+                draftService = CaptureDraftServiceMock()
+            }
+            self.services = MockServiceContainer(captureDraft: draftService)
             self.router = AppRouter()
             // 引导页通过 launch argument -hasCompletedOnboarding YES 跳过（进程级，不持久化）
             SnapDrillLogger.generic.info("DependencyContainer: UI 测试模式初始化完成")

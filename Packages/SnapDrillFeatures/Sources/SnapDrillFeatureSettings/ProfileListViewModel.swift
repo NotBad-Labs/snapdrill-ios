@@ -28,6 +28,8 @@ final class ProfileListViewModel {
     var profileToDelete: Profile?
     /// 草稿存在时暂存目标 Profile ID，等用户确认后再切换
     var pendingSwitchProfileId: UUID?
+    private var pendingDraft: CaptureDraft?
+    private var pendingDraftFailure: CaptureDraftFailure?
     /// 切换被阻塞时的错误提示
     var switchError: String?
     /// 删除失败时的错误提示（如最后一个 Profile 无法删除）
@@ -36,16 +38,21 @@ final class ProfileListViewModel {
     // MARK: - Dependencies
 
     let profileManager: ProfileManager
-    private let draftService: CaptureDraftService
+    private let draftService: CaptureDraftServiceProtocol
+    private let switchProfile: (UUID) async throws -> Void
 
     // MARK: - Init
 
     init(
         profileManager: ProfileManager,
-        draftService: CaptureDraftService = .shared
+        draftService: CaptureDraftServiceProtocol,
+        switchProfile: ((UUID) async throws -> Void)? = nil
     ) {
         self.profileManager = profileManager
         self.draftService = draftService
+        self.switchProfile = switchProfile ?? { [profileManager] profileID in
+            try await profileManager.switchProfile(to: profileID)
+        }
     }
 
     // MARK: - Derived
@@ -79,12 +86,20 @@ final class ProfileListViewModel {
     @discardableResult
     func switchToProfile(_ profileId: UUID) async -> Bool {
         guard profileId != profileManager.activeProfileId else { return false }
-        if draftService.hasDraft {
+        switch await draftService.loadDraftState() {
+        case .none:
+            break
+        case .recoverable(let draft):
+            pendingDraft = draft
+            pendingSwitchProfileId = profileId
+            return false
+        case .unrecoverable(let failure):
+            pendingDraftFailure = failure
             pendingSwitchProfileId = profileId
             return false
         }
         do {
-            try await profileManager.switchProfile(to: profileId)
+            try await switchProfile(profileId)
             return true
         } catch {
             switchError = error.localizedDescription
@@ -92,14 +107,23 @@ final class ProfileListViewModel {
         }
     }
 
-    /// 放弃草稿后执行切换（先切换再清草稿，避免切换失败时草稿已丢）
+    /// 用户明确放弃当前精确草稿后执行切换。
     @discardableResult
     func discardDraftAndSwitch() async -> Bool {
         guard let profileId = pendingSwitchProfileId else { return false }
         do {
-            try await profileManager.switchProfile(to: profileId)
-            draftService.clearDraft()
+            if let draft = pendingDraft {
+                try await draftService.discardDraft(expectedToken: draft.token)
+            } else if let token = pendingDraftFailure?.discardToken {
+                try await draftService.discardUnrecoverableDraft(expectedToken: token)
+            } else {
+                switchError = L10n.Capture.draftUnrecoverableMessage
+                return false
+            }
+            pendingDraft = nil
+            pendingDraftFailure = nil
             pendingSwitchProfileId = nil
+            try await switchProfile(profileId)
             return true
         } catch {
             switchError = error.localizedDescription

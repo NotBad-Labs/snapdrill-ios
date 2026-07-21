@@ -89,6 +89,8 @@ public final class CaptureResultViewModel {
     private let draftService: CaptureDraftServiceProtocol
     /// 活动追踪器（S-D4-001 起注入，避免静态单例污染测试）
     private let activityTracker: AppActivityTracker
+    @ObservationIgnored
+    private var currentDraftToken: CaptureDraftToken?
     /// 相册数据加载入口；注入后可确定性验证选择图片与保存的时序。
     private let photoDataLoader: @Sendable (PhotosPickerItem) async throws -> Data?
 
@@ -118,34 +120,36 @@ public final class CaptureResultViewModel {
     public init(
         content: String,
         image: UIImage?,
+        draftToken: CaptureDraftToken?,
         repositories: RepositoryContainer,
         ocrService: OCRServiceProtocol,
         analyticsService: AnalyticsServiceProtocol,
         imageStorage: ImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory),
         contentTaggingService: ContentTaggingServiceProtocol = ContentTaggingService(),
         router: CaptureRouter,
-        draftService: CaptureDraftServiceProtocol? = nil,
-        activityTracker: AppActivityTracker? = nil,
+        draftService: CaptureDraftServiceProtocol,
+        activityTracker: AppActivityTracker,
         photoDataLoader: @escaping @Sendable (PhotosPickerItem) async throws -> Data? = {
             try await $0.loadTransferable(type: Data.self)
         }
     ) {
         self.content = content
         self.image = image
+        currentDraftToken = draftToken
         self.repositories = repositories
         self.ocrService = ocrService
         self.analyticsService = analyticsService
         self.imageStorage = imageStorage
         self.contentTaggingService = contentTaggingService
         self.router = router
-        self.draftService = draftService ?? CaptureDraftService.shared
-        self.activityTracker = activityTracker ?? AppActivityTracker.shared
+        self.draftService = draftService
+        self.activityTracker = activityTracker
         self.photoDataLoader = photoDataLoader
     }
 
     // MARK: - Public API
 
-    /// 取消进行中的异步任务（由 View 的 onDisappear 调用）
+    /// 取消页面生命周期任务；退出时启动的 durable draft flush 必须继续运行。
     public func cancelTasks() {
         recognitionTask?.cancel()
         recognitionTask = nil
@@ -276,7 +280,20 @@ public final class CaptureResultViewModel {
         let hasContent = !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         if !isSaved, image != nil || hasContent {
             let categoryName = selectedName(forSystemKey: CategorySystemKey.category)
-            await draftService.saveDraft(image: image, content: content, category: categoryName.isEmpty ? nil : categoryName)
+            do {
+                currentDraftToken = try await draftService.saveDraft(
+                    image: image,
+                    content: content,
+                    category: categoryName.isEmpty ? nil : categoryName,
+                    expectedToken: currentDraftToken
+                )
+            } catch is CancellationError {
+                return
+            } catch {
+                SnapDrillLogger.capture.error("Draft save failed: \(error.localizedDescription)")
+                errorMessage = L10n.Capture.draftSaveFailed
+                showErrorAlert = true
+            }
         }
     }
 
@@ -317,8 +334,42 @@ public final class CaptureResultViewModel {
             answerText: answerText,
             answerImage: answerImage
         )
+        let hasContent = !form.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        guard hasContent || form.image != nil else {
+            errorMessage = L10n.Errors.contentAndImageEmpty
+            showErrorAlert = true
+            return
+        }
+
+        let pendingDraftSave = draftSaveTask
+        pendingDraftSave?.cancel()
+        draftSaveTask = nil
+        await pendingDraftSave?.value
+        let categoryName = selectedName(forSystemKey: CategorySystemKey.category)
         do {
-            try await coordinator.save(form)
+            let settlementToken = try await draftService.saveDraftAndBeginSettlement(
+                image: image,
+                content: content,
+                category: categoryName.isEmpty ? nil : categoryName,
+                expectedToken: currentDraftToken
+            )
+            currentDraftToken = settlementToken
+            do {
+                try await coordinator.save(form, itemID: settlementToken.captureID)
+            } catch {
+                await draftService.abortSettlement(expectedToken: settlementToken)
+                throw error
+            }
+
+            do {
+                try await draftService.completeSettlement(expectedToken: settlementToken)
+            } catch {
+                await draftService.abortSettlement(expectedToken: settlementToken)
+                SnapDrillLogger.capture.error(
+                    "Committed draft retirement failed; reconciliation required: \(error.localizedDescription)"
+                )
+            }
+            currentDraftToken = nil
             handleSaveSuccess()
         } catch {
             SnapDrillLogger.generic.error("保存失败: \(error.localizedDescription)")
@@ -359,7 +410,6 @@ public final class CaptureResultViewModel {
     /// 保存成功后的善后：通知、埋点、引导检查
     private func handleSaveSuccess() {
         isSaved = true
-        draftService.clearDraft()
         NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
 
         analyticsService.track(.captureSaved, parameters: [

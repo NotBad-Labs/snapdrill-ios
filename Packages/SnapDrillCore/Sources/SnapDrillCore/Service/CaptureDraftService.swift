@@ -5,173 +5,313 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  采集草稿服务，负责暂时保存未确认的拍摄内容。跨域共用（Dashboard 检测、Capture 消费）。
-//
 
+import CryptoKit
+import Foundation
 import UIKit
 
-/// 负责管理拍照识题的草稿缓存
-///
-/// 当用户意外退出编辑界面时，用于恢复之前的图片和识别文字。
+/// Persists the single Profile-free capture draft as one integrity-checked generation.
 public final class CaptureDraftService: CaptureDraftServiceProtocol {
+    private nonisolated static let schemaVersion = 1
 
-    @available(*, deprecated, message: "通过 @Environment(\\.services).captureDraft 注入，避免静态单例耦合（S-D4-001）")
-    public static let shared = CaptureDraftService()
-
-    private let fileManager = FileManager.default
-    private let defaults = UserDefaults.standard
-
-    private let draftImageName = "draft_capture.jpg"
-    private let draftMetadataKey = UDKey.captureDraftMetadata
-
-    /// 容器装配入口（S-D4-001：ServiceContainer 必需）
-    public init() {}
-
-    // MARK: - Models
-
-    /// 草稿数据结构，携带图片、识别文本、主分类和保存时间
-    public struct Draft {
-        /// 拍摄的原始图片（纯文字草稿为 nil）
-        public let image: UIImage?
-        /// OCR 识别文本（可为空字符串）
-        public let content: String
-        /// 草稿保存时间
-        public let date: Date
-        /// 保存时选中的主分类（用于恢复提示展示）
-        public let category: String?
+    private nonisolated struct Envelope: Codable, Sendable {
+        let schemaVersion: Int
+        let payloadByteCount: Int
+        let payload: Data
+        let payloadSHA256: Data
     }
 
-    private struct DraftMetadata: Codable {
+    private nonisolated struct Payload: Codable, Sendable {
+        let captureID: UUID
+        let generationID: UUID
+        let timestampMilliseconds: Int64
         let content: String
-        let timestamp: TimeInterval
-        /// 保存时选中的主分类
+        let contentUTF8ByteCount: Int
         let category: String?
+        let imageJPEG: Data?
+        let imageByteCount: Int
     }
 
-    // MARK: - Public API
+    private let fileStore: CaptureDraftFileStore
+    private let now: () -> Date
 
-    /// 当前是否存在未保存的草稿（遵循 `CaptureDraftServiceProtocol`）
-    public var hasDraft: Bool {
-        return defaults.object(forKey: draftMetadataKey) != nil
-    }
-
-    /// 将图片和识别文本保存为草稿（遵循 `CaptureDraftServiceProtocol`）
-    ///
-    /// async 签名使调用方可在 Task 中执行（如 onDisappear），不直接阻塞 UI 事件循环。
-    /// UIImage 非 Sendable，JPEG 压缩和文件写入无法安全移至后台，仍在 MainActor 执行。
-    /// 草稿图片已压缩（JPEG 0.8），I/O 量小（通常 < 500KB），阻塞时间可接受。
-    public func saveDraft(image: UIImage? = nil, content: String, category: String? = nil) async {
-        // 1. 图片处理：有图片时写入文件，无图片时清理旧文件（防止上一张图片残留）
-        if let image,
-           let data = ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8),
-           let path = draftImagePath() {
-            do {
-                try data.write(to: path)
-            } catch {
-                SnapDrillLogger.generic.warning("[DraftService] 草稿图片写入失败: \(error.localizedDescription)")
-            }
-        } else if let path = draftImagePath() {
-            // best-effort: 纯文字草稿覆盖带图草稿时，删除残留图片文件
-            do {
-                try fileManager.removeItem(at: path)
-            } catch {
-                if (error as NSError).code != NSFileNoSuchFileError {
-                    SnapDrillLogger.generic.warning("[DraftService] 残留图片删除失败: \(error.localizedDescription)")
-                }
-            }
-        }
-
-        // 2. 元数据写入 UserDefaults
-        let metadata = DraftMetadata(content: content, timestamp: Date().timeIntervalSince1970, category: category)
+    /// Production composition entry point.
+    public convenience init(fileManager: FileManager = .default) {
+        let rootURL: URL?
         do {
-            let data = try JSONEncoder().encode(metadata)
-            defaults.set(data, forKey: draftMetadataKey)
+            rootURL = try AppOwnedStorage(fileManager: fileManager).rootURL
         } catch {
-            SnapDrillLogger.generic.error("[DraftService] 元数据编码失败: \(error.localizedDescription)")
+            rootURL = nil
+            SnapDrillLogger.capture.error(
+                "[DraftService] Application Support unavailable: \(error.localizedDescription)"
+            )
         }
-
-        SnapDrillLogger.generic.info("[DraftService] Draft saved.")
-    }
-
-    /// 读取已保存的草稿；不存在、数据损坏或超过 7 天时返回 `nil`
-    public func loadDraft() -> Draft? {
-        // 1. Load Metadata
-        guard let data = defaults.data(forKey: draftMetadataKey) else {
-            return nil
-        }
-        let metadata: DraftMetadata
-        do {
-            metadata = try JSONDecoder().decode(DraftMetadata.self, from: data)
-        } catch {
-            SnapDrillLogger.capture.warning("[DraftService] 草稿元数据解码失败（数据损坏）: \(error.localizedDescription)")
-            return nil
-        }
-
-        // 2. 7 天过期检查——过期草稿静默清理，不打扰用户
-        let sevenDays: TimeInterval = 7 * 24 * 60 * 60
-        if Date().timeIntervalSince1970 - metadata.timestamp > sevenDays {
-            clearDraft()
-            SnapDrillLogger.generic.info("[DraftService] 草稿已超过 7 天，自动清理")
-            return nil
-        }
-
-        // 3. 尝试加载图片（纯文字草稿无图片文件，image 为 nil 是合法状态）
-        // 纯文字草稿无图片文件，image 为 nil 是合法状态
-        var image: UIImage?
-        if let path = draftImagePath() {
-            do {
-                let imageData = try Data(contentsOf: path)
-                image = UIImage(data: imageData)
-            } catch {
-                if (error as NSError).code != NSFileReadNoSuchFileError {
-                    SnapDrillLogger.generic.warning("[DraftService] 草稿图片读取失败: \(error.localizedDescription)")
-                }
-            }
-        }
-
-        return Draft(
-            image: image,
-            content: metadata.content,
-            date: Date(timeIntervalSince1970: metadata.timestamp),
-            category: metadata.category
+        self.init(
+            fileStore: CaptureDraftFileStore(trustRootURL: rootURL),
+            now: Date.init
         )
     }
 
-    /// 清除已保存的草稿（遵循 `CaptureDraftServiceProtocol`）
-    public func clearDraft() {
-        defaults.removeObject(forKey: draftMetadataKey)
-        if let path = draftImagePath() {
-            try? fileManager.removeItem(at: path) // best-effort: 图片文件删除失败不影响草稿元数据已清理
-        }
-        SnapDrillLogger.generic.info("[DraftService] Draft cleared.")
+    init(
+        fileStore: CaptureDraftFileStore,
+        now: @escaping () -> Date = Date.init
+    ) {
+        self.fileStore = fileStore
+        self.now = now
     }
 
-    // MARK: - Private Helpers
+    public func loadDraftState() async -> CaptureDraftReadState {
+        switch await fileStore.load() {
+        case .missing:
+            return .none
+        case .unreadable(let observation):
+            SnapDrillLogger.capture.error("[DraftService] Draft storage is unreadable")
+            return .unrecoverable(
+                failure(reason: .storageUnavailable, observation: observation)
+            )
+        case .bytes(let bytes, let revision):
+            return decodeDraft(bytes, revision: revision)
+        }
+    }
 
-    private func draftImagePath() -> URL? {
-        // 数据安全：草稿图片存入 Application Support（持久），而非 Caches（系统可在低存储时清除）。
-        // 采集主路径要求原图在崩溃/终止后仍可恢复，半持久的 Caches 不满足该约束。
-        guard let supportDir = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-            return nil
+    public func saveDraft(
+        image: UIImage?,
+        content: String,
+        category: String?,
+        expectedToken: CaptureDraftToken?
+    ) async throws -> CaptureDraftToken {
+        let generation = try encodeGeneration(
+            image: image,
+            content: content,
+            category: category,
+            expectedToken: expectedToken
+        )
+        let revision = try await fileStore.replace(
+            generation.bytes,
+            expectedRevision: expectedToken?.storageRevision
+        )
+        return generation.token(storageRevision: revision)
+    }
+
+    public func saveDraftAndBeginSettlement(
+        image: UIImage?,
+        content: String,
+        category: String?,
+        expectedToken: CaptureDraftToken?
+    ) async throws -> CaptureDraftToken {
+        let generation = try encodeGeneration(
+            image: image,
+            content: content,
+            category: category,
+            expectedToken: expectedToken
+        )
+        let revision = try await fileStore.replaceAndBeginSettlement(
+            generation.bytes,
+            expectedRevision: expectedToken?.storageRevision
+        )
+        return generation.token(storageRevision: revision)
+    }
+
+    private struct EncodedGeneration {
+        let bytes: Data
+        let captureID: UUID
+        let generationID: UUID
+
+        func token(storageRevision: String) -> CaptureDraftToken {
+            CaptureDraftToken(
+                captureID: captureID,
+                generationID: generationID,
+                storageRevision: storageRevision
+            )
         }
-        // 数据隔离：草稿图按 Profile 隔离（与 ProfileManager.perProfileKeys 已隔离的元数据对齐），
-        // 防切换孩子档案时 A 的草稿图配上 B 的元数据——这是撞儿童隐私隔离根基的敏感数据串档。
-        let profileId = defaults.string(forKey: UDKey.activeProfileId) ?? "default"
-        let draftDir = supportDir
-            .appendingPathComponent("CaptureDrafts", isDirectory: true)
-            .appendingPathComponent(profileId, isDirectory: true)
+    }
+
+    private func encodeGeneration(
+        image: UIImage?,
+        content: String,
+        category: String?,
+        expectedToken: CaptureDraftToken?
+    ) throws -> EncodedGeneration {
+        let imageData = try encodeImage(image)
+
+        guard imageData != nil
+                || !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw CaptureDraftError.emptyDraft
+        }
+
+        let captureID = expectedToken?.captureID ?? UUID()
+        let generationID = UUID()
+        let timestamp = Int64((now().timeIntervalSince1970 * 1_000).rounded())
+        let payload = Payload(
+            captureID: captureID,
+            generationID: generationID,
+            timestampMilliseconds: timestamp,
+            content: content,
+            contentUTF8ByteCount: content.utf8.count,
+            category: category,
+            imageJPEG: imageData,
+            imageByteCount: imageData?.count ?? 0
+        )
+
+        let payloadBytes: Data
+        let envelopeBytes: Data
         do {
-            try fileManager.createDirectory(at: draftDir, withIntermediateDirectories: true)
+            payloadBytes = try Self.encoder().encode(payload)
+            envelopeBytes = try Self.encoder().encode(
+                Envelope(
+                    schemaVersion: Self.schemaVersion,
+                    payloadByteCount: payloadBytes.count,
+                    payload: payloadBytes,
+                    payloadSHA256: Self.digest(payloadBytes)
+                )
+            )
         } catch {
-            SnapDrillLogger.generic.warning("[DraftService] 草稿目录创建失败: \(error.localizedDescription)")
-            return nil
+            SnapDrillLogger.capture.error(
+                "[DraftService] Draft encoding failed: \(error.localizedDescription)"
+            )
+            throw CaptureDraftError.storageFailure
         }
-        // 数据安全：草稿是瞬态可丢弃中间产物，排除 iCloud/iTunes 备份（避免无谓占用备份额度）。
-        // 仅作用于草稿目录——用户正式保存的错题图不受影响、仍正常备份。
-        var draftDirForBackup = draftDir
-        var resourceValues = URLResourceValues()
-        resourceValues.isExcludedFromBackup = true
-        try? draftDirForBackup.setResourceValues(resourceValues)
-        return draftDir.appendingPathComponent(draftImageName)
+
+        guard case .recoverable(let roundTrip) = decodeDraft(
+            envelopeBytes,
+            revision: "preflight"
+        ),
+        roundTrip.token.captureID == captureID,
+        roundTrip.token.generationID == generationID else {
+            SnapDrillLogger.capture.error("[DraftService] Encoded draft failed read-back validation")
+            throw CaptureDraftError.storageFailure
+        }
+
+        return EncodedGeneration(
+            bytes: envelopeBytes,
+            captureID: captureID,
+            generationID: generationID
+        )
+    }
+
+    private func encodeImage(_ image: UIImage?) throws -> Data? {
+        guard let image else { return nil }
+        guard let encoded = ImageStorage.compressedJPEGData(
+            from: image,
+            maxLongSide: 2_000,
+            quality: 0.8
+        ) else {
+            throw CaptureDraftError.imageEncodingFailed
+        }
+        return encoded
+    }
+
+    public func discardDraft(expectedToken: CaptureDraftToken) async throws {
+        try await fileStore.discard(expectedObservation: expectedToken.storageRevision)
+    }
+
+    public func discardUnrecoverableDraft(
+        expectedToken: CaptureDraftDiscardToken
+    ) async throws {
+        try await fileStore.discard(expectedObservation: expectedToken.storageObservation)
+    }
+
+    public func beginSettlement(expectedToken: CaptureDraftToken) async throws {
+        try await fileStore.beginSettlement(expectedRevision: expectedToken.storageRevision)
+    }
+
+    public func completeSettlement(expectedToken: CaptureDraftToken) async throws {
+        try await fileStore.completeSettlement(expectedRevision: expectedToken.storageRevision)
+    }
+
+    public func abortSettlement(expectedToken: CaptureDraftToken) async {
+        await fileStore.abortSettlement(expectedRevision: expectedToken.storageRevision)
+    }
+
+    private func decodeDraft(_ bytes: Data, revision: String) -> CaptureDraftReadState {
+        let envelope: Envelope
+        do {
+            envelope = try Self.decoder().decode(Envelope.self, from: bytes)
+        } catch {
+            return decodeFailure(.malformedEnvelope, revision: revision)
+        }
+        guard envelope.schemaVersion == Self.schemaVersion else {
+            return decodeFailure(.unsupportedVersion, revision: revision)
+        }
+        guard envelope.payloadByteCount == envelope.payload.count else {
+            return decodeFailure(.integrityCheckFailed, revision: revision)
+        }
+        guard envelope.payloadSHA256 == Self.digest(envelope.payload) else {
+            return decodeFailure(.integrityCheckFailed, revision: revision)
+        }
+
+        let payload: Payload
+        do {
+            payload = try Self.decoder().decode(Payload.self, from: envelope.payload)
+        } catch {
+            return decodeFailure(.malformedEnvelope, revision: revision)
+        }
+        guard payload.contentUTF8ByteCount == payload.content.utf8.count,
+              payload.imageByteCount == (payload.imageJPEG?.count ?? 0) else {
+            return decodeFailure(.integrityCheckFailed, revision: revision)
+        }
+        guard payload.imageJPEG != nil
+                || !payload.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return decodeFailure(.emptyDraft, revision: revision)
+        }
+
+        let image: UIImage?
+        if let imageData = payload.imageJPEG {
+            guard let decoded = UIImage(data: imageData) else {
+                return decodeFailure(.imageDecodeFailed, revision: revision)
+            }
+            image = decoded
+        } else {
+            image = nil
+        }
+
+        let token = CaptureDraftToken(
+            captureID: payload.captureID,
+            generationID: payload.generationID,
+            storageRevision: revision
+        )
+        return .recoverable(
+            CaptureDraft(
+                image: image,
+                content: payload.content,
+                date: Date(
+                    timeIntervalSince1970: TimeInterval(payload.timestampMilliseconds) / 1_000
+                ),
+                category: payload.category,
+                token: token
+            )
+        )
+    }
+
+    private func decodeFailure(
+        _ reason: CaptureDraftFailureReason,
+        revision: String
+    ) -> CaptureDraftReadState {
+        SnapDrillLogger.capture.error("[DraftService] Draft decode failed: \(String(describing: reason))")
+        return .unrecoverable(failure(reason: reason, observation: revision))
+    }
+
+    private func failure(
+        reason: CaptureDraftFailureReason,
+        observation: String?
+    ) -> CaptureDraftFailure {
+        CaptureDraftFailure(
+            reason: reason,
+            discardToken: observation.map(CaptureDraftDiscardToken.init)
+        )
+    }
+
+    private nonisolated static func encoder() -> JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        return encoder
+    }
+
+    private nonisolated static func decoder() -> JSONDecoder {
+        JSONDecoder()
+    }
+
+    private nonisolated static func digest(_ data: Data) -> Data {
+        Data(SHA256.hash(data: data))
     }
 }

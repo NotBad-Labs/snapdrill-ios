@@ -66,7 +66,12 @@ struct AppRootView: View {
                 }
 
                 Tab(L10n.Capture.title, systemImage: "camera", value: AppTab.capture) {
-                    CaptureView(router: router.captureRouter)
+                    CaptureView(
+                        router: router.captureRouter,
+                        ocrService: services.ocr,
+                        draftService: services.captureDraft,
+                        activityTracker: services.activityTracker
+                    )
                 }
 
                 Tab(L10n.Review.title, systemImage: "clock.arrow.circlepath", value: AppTab.review) {

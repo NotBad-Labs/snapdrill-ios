@@ -44,7 +44,7 @@ public final class DashboardRouter: @MainActor FeatureRouter {
     public var onNavigateToReview: (() -> Void)?
     
     /// 跳转到采集模块的回调 (Optional draft to restore)
-    public var onNavigateToCapture: ((CaptureDraftService.Draft?) -> Void)?
+    public var onNavigateToCapture: ((CaptureDraft?) -> Void)?
     
     /// 创建首页看板路由器
     public init() {}
@@ -57,7 +57,7 @@ public final class DashboardRouter: @MainActor FeatureRouter {
     }
     
     /// 请求导航到采集页面
-    public func navigateToCapture(withDraft draft: CaptureDraftService.Draft? = nil) {
+    public func navigateToCapture(withDraft draft: CaptureDraft? = nil) {
         onNavigateToCapture?(draft)
     }
 }

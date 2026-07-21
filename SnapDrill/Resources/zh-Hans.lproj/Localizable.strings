@@ -71,6 +71,11 @@
 "capture.draft_alert_title" = "恢复草稿";
 "capture.draft_continue" = "继续编辑";
 "capture.draft_alert_message" = "检测到未保存的采集内容，是否恢复？";
+"capture.draft_unrecoverable_title" = "草稿无法恢复";
+"capture.draft_unrecoverable_message" = "这份未保存内容已损坏或无法读取。你可以丢弃它后重新采集。";
+"capture.draft_save_failed" = "无法保存草稿";
+"capture.draft_save_failed_message" = "无法安全保存本次采集，请重试后再继续。";
+"capture.draft_verification_failed" = "无法确认未保存资料的状态，请重试。";
 "capture.preview_and_edit" = "预览与编辑";
 "capture.question_content" = "内容";
 "capture.copy_content" = "复制文本";

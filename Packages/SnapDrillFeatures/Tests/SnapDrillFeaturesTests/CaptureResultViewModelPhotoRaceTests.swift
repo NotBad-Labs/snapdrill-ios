@@ -75,12 +75,14 @@ final class CaptureResultViewModelPhotoRaceTests {
         CaptureResultViewModel(
             content: content,
             image: nil,
+            draftToken: nil,
             repositories: repositories,
             ocrService: MockOCRServiceShared(),
             analyticsService: AnalyticsServiceMock(),
             contentTaggingService: ContentTaggingServiceMock(),
             router: CaptureRouter(),
             draftService: CaptureDraftServiceMock(),
+            activityTracker: AppActivityTracker(),
             photoDataLoader: photoDataLoader
         )
     }

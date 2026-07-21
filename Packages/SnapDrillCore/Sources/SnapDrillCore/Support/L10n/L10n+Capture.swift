@@ -34,6 +34,31 @@ nonisolated extension L10n {
         public static let draftAlertTitle = NSLocalizedString("capture.draft_alert_title", value: "恢复草稿", comment: "草稿恢复弹窗标题")
         public static let draftContinue = NSLocalizedString("capture.draft_continue", value: "继续编辑", comment: "继续编辑草稿")
         public static let draftAlertMessage = NSLocalizedString("capture.draft_alert_message", value: "检测到未保存的采集内容，是否恢复？", comment: "草稿恢复提示")
+        public static let draftUnrecoverableTitle = NSLocalizedString(
+            "capture.draft_unrecoverable_title",
+            value: "草稿无法恢复",
+            comment: "草稿损坏或无法读取时的标题"
+        )
+        public static let draftUnrecoverableMessage = NSLocalizedString(
+            "capture.draft_unrecoverable_message",
+            value: "这份未保存内容已损坏或无法读取。你可以丢弃它后重新采集。",
+            comment: "草稿损坏或无法读取时的说明"
+        )
+        public static let draftSaveFailed = NSLocalizedString(
+            "capture.draft_save_failed",
+            value: "无法保存草稿",
+            comment: "采集内容无法形成安全草稿时的标题"
+        )
+        public static let draftSaveFailedMessage = NSLocalizedString(
+            "capture.draft_save_failed_message",
+            value: "无法安全保存本次采集，请重试后再继续。",
+            comment: "采集内容无法形成安全草稿时的说明"
+        )
+        public static let draftVerificationFailed = NSLocalizedString(
+            "capture.draft_verification_failed",
+            value: "无法确认未保存资料的状态，请重试。",
+            comment: "无法核实草稿是否已正式保存时的说明"
+        )
 
         // 结果编辑页
         public static let previewAndEdit = NSLocalizedString("capture.preview_and_edit", value: "预览与编辑", comment: "预览与编辑页标题")

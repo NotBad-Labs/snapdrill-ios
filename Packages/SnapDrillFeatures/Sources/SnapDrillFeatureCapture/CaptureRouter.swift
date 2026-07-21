@@ -20,7 +20,7 @@ public enum CaptureDestination: Hashable {
     /// 占位页面
     case placeholder
     /// 扫描结果预览/编辑页面 (含图片)
-    case scannerResult(content: String, image: UIImage?)
+    case scannerResult(content: String, image: UIImage?, draftToken: CaptureDraftToken?)
     /// PDF 页面选择器（文档存储在 CaptureRouter.pdfDocument 中）
     case pdfPagePicker
     /// 文档扫描页面选择器（扫描页存储在 CaptureRouter.scannedPages 中）
@@ -56,8 +56,6 @@ public final class CaptureRouter: @MainActor FeatureRouter {
     public var pdfDocument: PDFDocument?
     /// 文档扫描的多页图片（VNDocumentCameraScan 非 Hashable，无法通过 NavigationPath 传递）
     public var scannedPages: [UIImage]?
-    /// 恢复编辑结束后首次回根时不立即重复弹出同一草稿
-    public var shouldSuppressNextDraftPrompt = false
     /// 目标类型别名
     public typealias Destination = CaptureDestination
     
@@ -76,10 +74,15 @@ public final class CaptureRouter: @MainActor FeatureRouter {
     }
 
     /// 恢复草稿（清空已有导航栈，重新推入编辑页）
-    public func restoreDraft(_ draft: CaptureDraftService.Draft) {
-        shouldSuppressNextDraftPrompt = true
+    public func restoreDraft(_ draft: CaptureDraft) {
         path = NavigationPath()
-        path.append(CaptureDestination.scannerResult(content: draft.content, image: draft.image))
+        path.append(
+            CaptureDestination.scannerResult(
+                content: draft.content,
+                image: draft.image,
+                draftToken: draft.token
+            )
+        )
     }
 
     /// 保存成功后的退栈导航（导航策略从 CaptureResultViewModel 迁入，归 router 自身）
@@ -99,6 +102,24 @@ public final class CaptureRouter: @MainActor FeatureRouter {
             // 拍照/手动/粘贴板：退栈并重开摄像头
             if !path.isEmpty { path.removeLast() }
             if !isUITesting { shouldReopenScanner = true }
+        }
+    }
+}
+
+@MainActor
+enum CaptureDraftPickerAdmission {
+    /// A picker may remain visible after its editor is popped. Return to the root decision gate
+    /// instead of letting a second page collide with the one-latest durable draft.
+    static func returnToRootIfOccupied(
+        router: CaptureRouter,
+        draftService: CaptureDraftServiceProtocol
+    ) async {
+        guard router.path.count == 1 else { return }
+        switch await draftService.loadDraftState() {
+        case .none:
+            break
+        case .recoverable, .unrecoverable:
+            router.path = NavigationPath()
         }
     }
 }

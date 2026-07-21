@@ -26,6 +26,10 @@ public final class DashboardViewModel {
     public var isShowingCategoryManager = false
     /// 是否正在显示草稿恢复提示 Alert
     public var isShowingDraftAlert = false
+    public var isShowingUnrecoverableDraftAlert = false
+    public var isShowingDraftVerificationError = false
+    public private(set) var pendingDraft: CaptureDraft?
+    public private(set) var pendingDraftFailure: CaptureDraftFailure?
 
     /// 今日新增资料数
     public var todayItemsCount: Int = 0
@@ -53,11 +57,11 @@ public final class DashboardViewModel {
     /// 创建仪表盘 ViewModel
     /// - Parameters:
     ///   - repositories: 应用的数据仓库容器
-    ///   - draftService: 草稿服务，默认使用 `CaptureDraftService.shared`
+    ///   - draftService: App 生命周期共享的草稿服务
     ///   - deletionScheduler: 软删调度器，默认空实例（测试无 pending 时不过滤）
     public init(
         repositories: RepositoryContainer,
-        draftService: CaptureDraftServiceProtocol = CaptureDraftService.shared,
+        draftService: CaptureDraftServiceProtocol,
         deletionScheduler: DeletionScheduler = DeletionScheduler()
     ) {
         self.repositories = repositories
@@ -100,7 +104,7 @@ public final class DashboardViewModel {
 
     /// 草稿提示详情文案（含分类和编辑时间）
     public var draftAlertMessage: String {
-        guard let draft = draftService.loadDraft() else {
+        guard let draft = pendingDraft else {
             return L10n.Dashboard.draftAlertMessage
         }
         let timeAgo = draft.date.relativeDescription()
@@ -111,23 +115,74 @@ public final class DashboardViewModel {
     }
 
     /// 检查是否有未完成草稿；若有则弹出提示，否则直接导航到采集页
-    public func checkDraftAndCapture(router: DashboardRouter) {
-        if draftService.hasDraft {
-            isShowingDraftAlert = true
-        } else {
+    public func checkDraftAndCapture(router: DashboardRouter) async {
+        await checkDraftAndCapture(router: router) { [repositories] captureID in
+            try repositories.archive.fetchModel(by: captureID) != nil
+        }
+    }
+
+    func checkDraftAndCapture(
+        router: DashboardRouter,
+        savedItemExists: (UUID) throws -> Bool
+    ) async {
+        isShowingDraftVerificationError = false
+        switch await draftService.loadDraftState() {
+        case .none:
             router.navigateToCapture()
+        case .recoverable(let draft):
+            let isAlreadyCommitted: Bool
+            do {
+                isAlreadyCommitted = try savedItemExists(draft.token.captureID)
+            } catch {
+                SnapDrillLogger.capture.error(
+                    "Dashboard draft reconciliation lookup failed: \(error.localizedDescription)"
+                )
+                isShowingDraftVerificationError = true
+                return
+            }
+            if isAlreadyCommitted {
+                do {
+                    try await draftService.discardDraft(expectedToken: draft.token)
+                } catch {
+                    SnapDrillLogger.capture.error(
+                        "Dashboard draft reconciliation failed: \(error.localizedDescription)"
+                    )
+                    isShowingDraftVerificationError = true
+                    return
+                }
+                router.navigateToCapture()
+                return
+            }
+            pendingDraft = draft
+            isShowingDraftAlert = true
+        case .unrecoverable(let failure):
+            pendingDraftFailure = failure
+            isShowingUnrecoverableDraftAlert = true
         }
     }
 
     /// 丢弃现有草稿并开始新建采集
-    public func startNewCapture(router: DashboardRouter) {
-        draftService.clearDraft()
-        router.navigateToCapture()
+    public func startNewCapture(router: DashboardRouter) async {
+        do {
+            if let draft = pendingDraft {
+                try await draftService.discardDraft(expectedToken: draft.token)
+            } else if let token = pendingDraftFailure?.discardToken {
+                try await draftService.discardUnrecoverableDraft(expectedToken: token)
+            } else {
+                return
+            }
+            pendingDraft = nil
+            pendingDraftFailure = nil
+            router.navigateToCapture()
+        } catch {
+            SnapDrillLogger.capture.error("Dashboard draft discard failed: \(error.localizedDescription)")
+            isShowingDraftVerificationError = true
+        }
     }
 
     /// 恢复草稿并导航到采集编辑页（无草稿时直接跳转采集页）
     public func restoreDraft(router: DashboardRouter) {
-        if let draft = draftService.loadDraft() {
+        if let draft = pendingDraft {
             router.navigateToCapture(withDraft: draft)
         } else {
             router.navigateToCapture()

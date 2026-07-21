@@ -25,8 +25,15 @@ final class ProfileListViewModelTests {
         profileManager = ProfileManager(inMemory: true)
     }
 
-    private func makeVM() -> ProfileListViewModel {
-        ProfileListViewModel(profileManager: profileManager)
+    private func makeVM(
+        draftService: CaptureDraftServiceProtocol = CaptureDraftServiceMock(),
+        switchProfile: ((UUID) async throws -> Void)? = nil
+    ) -> ProfileListViewModel {
+        ProfileListViewModel(
+            profileManager: profileManager,
+            draftService: draftService,
+            switchProfile: switchProfile
+        )
     }
 
     // MARK: - 初始状态
@@ -159,4 +166,61 @@ final class ProfileListViewModelTests {
         #expect(vm.switchError == nil)
         #expect(vm.pendingSwitchProfileId == nil)
     }
+
+    @Test("recoverable draft blocks switching until the exact draft is discarded")
+    func recoverableDraftRequiresExplicitDiscard() async throws {
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "keep")
+        let target = try #require(profileManager.createProfile(name: "Target"))
+        let vm = makeVM(draftService: draftService)
+
+        #expect(await vm.switchToProfile(target.id) == false)
+        #expect(vm.pendingSwitchProfileId == target.id)
+        #expect(draftService.discardCallCount == 0)
+
+        #expect(await vm.discardDraftAndSwitch())
+        #expect(draftService.discardCallCount == 1)
+        #expect(vm.pendingSwitchProfileId == nil)
+        #expect(vm.switchError == nil)
+    }
+
+    @Test("switch failure after explicit discard clears the consumed draft decision")
+    func failedSwitchAfterDiscardClearsPendingDecision() async {
+        let draftService = CaptureDraftServiceMock()
+        draftService.seedDraft(content: "discarded by user")
+        let missingProfileID = UUID()
+        let vm = makeVM(
+            draftService: draftService,
+            switchProfile: { _ in throw TestProfileSwitchError.failed }
+        )
+
+        #expect(await vm.switchToProfile(missingProfileID) == false)
+        #expect(await vm.discardDraftAndSwitch() == false)
+
+        #expect(draftService.discardCallCount == 1)
+        #expect(vm.pendingSwitchProfileId == nil)
+        #expect(vm.switchError != nil)
+    }
+
+    @Test("unrecoverable draft without a discard token keeps switching blocked")
+    func undiscardableFailureBlocksSwitching() async throws {
+        let failure = CaptureDraftFailure(
+            reason: .storageUnavailable,
+            discardToken: nil
+        )
+        let draftService = CaptureDraftServiceMock(initialState: .unrecoverable(failure))
+        let target = try #require(profileManager.createProfile(name: "Target"))
+        let original = profileManager.activeProfileId
+        let vm = makeVM(draftService: draftService)
+
+        #expect(await vm.switchToProfile(target.id) == false)
+        #expect(await vm.discardDraftAndSwitch() == false)
+        #expect(profileManager.activeProfileId == original)
+        #expect(vm.switchError != nil)
+        #expect(draftService.discardCallCount == 0)
+    }
+}
+
+private enum TestProfileSwitchError: Error {
+    case failed
 }
