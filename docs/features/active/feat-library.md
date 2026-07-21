@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-19
+last_updated: 2026-07-21
 intent_refs:
   - vision:P1
   - vision:P2
@@ -20,6 +20,9 @@ release_refs:
   - release-1:S1-A
   - release-1:M1-A
   - release-1:D4S-A
+  - release-1:P2-B-A
+  - release-1:P2-C-A
+  - release-1:P2-G-A
 release_outcomes:
   - M4
   - M10

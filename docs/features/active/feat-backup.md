@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-19
+last_updated: 2026-07-21
 intent_refs:
   - vision:P4
 release_refs:
@@ -18,6 +18,12 @@ release_refs:
   - release-1:#891-copy
   - release-1:S1-A
   - release-1:D4S-A
+  - release-1:P2-B-A
+  - release-1:P2-C-A
+  - release-1:P2-D-A
+  - release-1:P2-E-A
+  - release-1:P2-F-A
+  - release-1:P2-G-A
 release_outcomes:
   - M7
   - M8
@@ -45,6 +51,7 @@ release_outcomes:
 - **兼容生命周期**：DATA-1 定义正式兼容 epoch 与 epoch 前开发格式处置；不得把当前 v1 / v2 fixture 或“无测试用户”外推成永久兼容或任意破坏授权。本地 inventory / 恢复生命周期与外部 wire 分别下沉各自 Data Contract。
 - **完整备份语义**：外部完整备份严格 all-or-nothing，损坏 store 的部分 salvage 是独立路径。当前元数据原子、图片 best-effort 只作实现偏差证据。
 - **统一接受边界（S1-A）**：正式 writer / reader、恢复和 CSV / JSON import 必须消费 [Local Library Data Contract](../../reference/local-library-data-contract.md) §2.1；超限或无效输入在 mutation 前拒绝，不得截断或另设更小产品总量 cap。
+- **v3 语义闭包（P2-B...P2-G）**：taxonomy 身份 / 显示字段、正文 / 答案空值、Review 保真、图片 canonicalization / role 基数和 Backup terminal lifecycle 只消费 [Local Library Data Contract](../../reference/local-library-data-contract.md) §2.3–§2.8 与 §8；Backup 不修复 active 数据或把 timeout 伪装成损坏。
 - **完整与局部操作（D4S-A）**：外部 `.snapdrillbackup` 与 restore 是 complete operations；它们使用稳定 inventory / immutable snapshot 与 mutation barrier。CSV / JSON export 是 partial，不等待 complete-operation barrier，也不得表述为完整资料库备份。
 - **内部恢复快照（D3-B）**：外部完整备份仍不得缺图。内部 pre-restore recovery artifact 可以精确记录当前资料库在快照时已经缺失的图片，但必须有 recovery-only marker 和闭合的 `present` / `missing-at-snapshot` inventory；外部 reader 不得接受它作为完整备份。
 - **不可打开 store 的恢复材料**：`storeRecovery` 不得伪造健康 checkpoint 或数据库引用闭包；它只消费 Data Contract 的 unavailable-store raw prestate，把 source generation 与 sidecar 原样保留到 incident，且不把该内部材料交给外部 Backup reader。
@@ -104,8 +111,8 @@ release_outcomes:
 
 ### A. 操作状态
 
-- 备份、恢复、CSV 导入、CSV 导出必须区分 idle / running / success / failure；运行中要有可见进度或明确等待反馈。
-- 用户取消不等于失败；系统失败必须展示可理解错误，不只写日志。
+- Backup / restore 必须区分 `idle` / `running` 和 terminal `completed` / `cancelled` / `failed`；运行中要有可见进度或明确等待反馈。CSV 导入导出沿用相同的取消非错误原则，但不据此扩大 Backup wire。
+- 用户取消不等于失败；校验 timeout 是可重试失败且不等于文件损坏；系统失败必须展示可理解错误，不只写日志。selector commit barrier 后的取消 / timeout 由恢复协调收敛，不能覆盖已发生的 publication 结果。
 - 同一时间只能有一个破坏性或长耗时数据操作；并发请求应禁用或排队。
 
 ### B. 数据边界
@@ -127,7 +134,7 @@ release_outcomes:
 
 | 契约项 | Enforcement |
 |---|---|
-| 备份/恢复四态 | Settings UI test / 手动实测 |
+| Backup / restore 五态 | Settings UI test / 手动实测；取消非错误、timeout 可重试、commit barrier 后 reconciliation |
 | schema/version 预校验 | Data 层契约测试 |
 | D1-B SQLite hostile-file / capacity closure | exact-schema、integrity、FK/reference、sidecar/symlink、incremental BLOB、writer-reader round-trip 与 adversarial corpus |
 | D3-B degraded snapshot | recovery-only marker/inventory contract tests + pre-mutation fault tests |

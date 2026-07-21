@@ -129,6 +129,9 @@
       "lifecycle": "candidate",
       "paths": [
         "docs/reference/release-1-capability-manifest.md"
+      ],
+      "patterns": [
+        "docs/reference/backup-wire-v3/*.md"
       ]
     },
     {
