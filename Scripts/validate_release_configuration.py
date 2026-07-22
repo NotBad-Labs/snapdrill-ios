@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import subprocess
 import sys
 from collections.abc import Iterable, Mapping
@@ -180,13 +179,6 @@ def validate_effective_release_settings(payload: object) -> list[str]:
     return errors
 
 
-def _unsafe_flags_define_debug(flags: list[object]) -> bool:
-    if not all(isinstance(flag, str) for flag in flags):
-        return False
-    joined = " ".join(flags)
-    return re.search(r"(?:^|\s)-D\s*DEBUG(?:$|\s|=)", joined) is not None
-
-
 def validate_effective_package_settings(payload: object) -> list[str]:
     """Validate effective Swift settings emitted by swift package dump-package."""
 
@@ -282,10 +274,10 @@ def validate_effective_package_settings(payload: object) -> list[str]:
                         f"effective package target {name} unsafeFlags must be a "
                         "string list"
                     )
-                elif _unsafe_flags_define_debug(flags):
+                else:
                     errors.append(
-                        f"effective package target {name} unsafeFlags must not define "
-                        "DEBUG in Release"
+                        f"effective package target {name} must not use unsafeFlags "
+                        "in Release"
                     )
 
     if regular_target_count == 0:

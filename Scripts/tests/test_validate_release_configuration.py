@@ -54,7 +54,12 @@ def valid_effective_package_settings() -> dict[str, object]:
                         "tool": "swift",
                         "condition": {"config": "debug", "platformNames": []},
                         "kind": {"define": {"_0": "DEBUG"}},
-                    }
+                    },
+                    {
+                        "tool": "swift",
+                        "condition": {"config": "debug", "platformNames": []},
+                        "kind": {"unsafeFlags": {"_0": ["-DDEBUG"]}},
+                    },
                 ],
             },
             {"name": "LibraryTests", "type": "test", "settings": []},
@@ -288,6 +293,9 @@ class ValidateReleaseConfigurationTests(unittest.TestCase):
             ["-DDEBUG"],
             ["-D", "DEBUG"],
             ["$(inherited)", "-DDEBUG=1"],
+            ["-Xfrontend", "-D", "-Xfrontend", "DEBUG"],
+            ["@compiler-flags.rsp"],
+            ["-warnings-as-errors"],
         )
         for flags in unsafe_flag_cases:
             with self.subTest(flags=flags):
