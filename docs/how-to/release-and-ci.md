@@ -186,8 +186,8 @@ gh api repos/NotBad-Labs/snapdrill-ios/actions/runners \
   --jq '.runners[] | {name, status, busy, labels: [.labels[].name]}'
 ```
 
-健康判定至少包含：GitHub 显示 `online`、最近 job 的 `runner_name` 符合预期、runner 版本不高于
-官方稳定版一个补丁、Xcode 满足 workflow 固定版本、磁盘有足够空间，且 runner 主机不会在任务中
+健康判定至少包含：GitHub 显示 `online`、最近 job 的 `runner_name` 符合预期、runner 与官方稳定版
+一致或至多落后一个补丁版本、Xcode 满足 workflow 固定版本、磁盘有足够空间，且 runner 主机不会在任务中
 休眠。Mac mini 离线时任务会排队等待；确认不是短暂重连后，再人工启动 MacBook Air listener。
 备用机器执行的 runner-local evidence 留在备用机器，不会自动复制回 Mac mini。
 
