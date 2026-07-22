@@ -19,7 +19,7 @@ struct PrivacySettingsView: View {
     // MARK: - Properties
 
     @Environment(\.repositories) private var repositories
-    @Environment(\.analyticsService) private var analyticsService
+    @Environment(\.services) private var services
 
     @State private var showingExportOptions = false
     @State private var viewModel: PrivacySettingsViewModel?
@@ -113,7 +113,7 @@ struct PrivacySettingsView: View {
             if viewModel == nil {
                 viewModel = PrivacySettingsViewModel(
                     repositories: repositories,
-                    analyticsService: analyticsService
+                    analyticsService: services.analytics
                 )
             }
         }
@@ -123,8 +123,11 @@ struct PrivacySettingsView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     NavigationStack {
         PrivacySettingsView()
     }
+    .environment(\.services, MockServiceContainer())
 }
+#endif

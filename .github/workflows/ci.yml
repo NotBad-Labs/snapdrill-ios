@@ -65,6 +65,7 @@ jobs:
           python3 Scripts/test_doc_generators.py
           python3 Scripts/validate_docs.py --check
           python3 Scripts/validate_capture_contract.py --check
+          python3 Scripts/validate_release_test_overrides.py --check
 
       - name: Check Package Dependencies
         run: python3 Scripts/ci_github.py dependencies --root "$GITHUB_WORKSPACE"

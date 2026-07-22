@@ -1367,6 +1367,14 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertNotIn("grep ", dependency_step)
         self.assertNotIn("2>/dev/null", dependency_step)
 
+    def test_build_job_enforces_release_test_override_boundary(self) -> None:
+        docs_step = self.step_body(self.build, "Validate docs")
+
+        self.assertIn(
+            "python3 Scripts/validate_release_test_overrides.py --check",
+            docs_step,
+        )
+
     def test_both_jobs_bind_tools_checkout_and_simulator_through_contract(self) -> None:
         for job in (self.build, self.ui):
             with self.subTest(job=job[:30]):

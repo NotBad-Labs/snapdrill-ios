@@ -77,12 +77,9 @@ struct SnapDrillApp: App {
                     router: container.router,
                     makeProfileManager: { await container.createProfileManager() }
                 )
-                    .environment(\.services, container.services)
-                    // analyticsService 单独注入：5 个 View 直接使用 \.analyticsService，
-                    // 虽然 \.services 已包含 analytics，但移除此行会让它们回退到 Mock 默认值
-                    .environment(\.analyticsService, container.services.analytics)
                     .preferredColorScheme(colorScheme)
             }
+                .environment(\.services, container.services)
                 .fullScreenCover(isPresented: $onboardingManager.shouldShowOnboarding) {
                     OnboardingView(pages: OnboardingPage.defaultPages) {
                         onboardingManager.completeOnboarding()

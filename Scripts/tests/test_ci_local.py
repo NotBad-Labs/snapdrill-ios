@@ -258,6 +258,7 @@ class CILocalTests(unittest.TestCase):
             "validate_docs.py",
             "validate_capture_contract.py",
             "validate_release_configuration.py",
+            "validate_release_test_overrides.py",
             "ci_github.py dependencies",
             "AllTests.xctestplan",
         )
@@ -375,6 +376,18 @@ class CILocalTests(unittest.TestCase):
         self.assertIn("privacy/network", result.stdout)
         self.assertIn("candidate conformance", result.stdout)
         self.assertIn("does not authorize merge, upload, TestFlight, go/no-go, or release", result.stdout)
+
+    def test_release_test_override_gate_is_in_the_canonical_path(self) -> None:
+        result = self.run_gate()
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue(
+            any(
+                line.startswith("python3|")
+                and "Scripts/validate_release_test_overrides.py --check" in line
+                for line in self.command_log()
+            )
+        )
 
     def test_default_plan_and_readme_cannot_select_snapshot_record(self) -> None:
         plan = json.loads(TEST_PLAN.read_text(encoding="utf-8"))

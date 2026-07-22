@@ -479,6 +479,7 @@ private struct ShareSheet: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
+#if DEBUG
 #Preview {
     let schema = Schema(SnapDrillSchemaV1.models)
     // swiftlint:disable:next force_try
@@ -492,4 +493,6 @@ private struct ShareSheet: UIViewControllerRepresentable {
         LibraryDetailView(router: LibraryRouter(), item: item)
     }
     .modelContainer(container)
+    .environment(\.services, MockServiceContainer())
 }
+#endif

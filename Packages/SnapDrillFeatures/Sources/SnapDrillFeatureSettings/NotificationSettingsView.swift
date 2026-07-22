@@ -163,8 +163,11 @@ struct NotificationSettingsView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     NavigationStack {
         NotificationSettingsView()
     }
+    .environment(\.services, MockServiceContainer())
 }
+#endif

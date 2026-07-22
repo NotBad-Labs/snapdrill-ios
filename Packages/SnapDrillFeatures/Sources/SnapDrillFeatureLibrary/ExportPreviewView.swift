@@ -21,7 +21,6 @@ struct ExportPreviewView: View {
     let items: [ArchiveExportSnapshot]
     var options: PDFExportOptions = .default
     var onExport: (() -> Void)?
-    @Environment(\.analyticsService) private var analyticsService
 
     @State private var pdfData: Data?
     @State private var isLoading = true
@@ -189,7 +188,7 @@ struct ExportPreviewView: View {
                     self.tempPDFURL = tempURL
                     self.pdfData = data
                     self.isLoading = false
-                    analyticsService.track(.pdfExported, parameters: [
+                    services.analytics.track(.pdfExported, parameters: [
                         "item_count": "\(items.count)"
                     ])
                 }
@@ -307,6 +306,9 @@ struct PDFKitRepresentedView: UIViewRepresentable {
     }
 }
 
+#if DEBUG
 #Preview {
     ExportPreviewView(items: [])
+        .environment(\.services, MockServiceContainer())
 }
+#endif
