@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-21
+last_verified: 2026-07-22
 layer: pattern
 freshness:
   max_age_days: 60
@@ -58,7 +58,8 @@ bash Scripts/ci-local.sh
 ```yaml
 # .github/workflows/ci.yml
 触发条件：同仓 PR → develop/main，push → develop/main，手动触发（workflow_dispatch），或每日清理调度
-Runner：Mac mini 自托管（self-hosted, macOS）。两个测试 job + 一个清理 job：
+Runner：自托管 macOS；Mac mini 为常驻主 runner，MacBook Air 为默认离线的按需备用 runner。
+两个测试 job + 一个清理 job：
   - `build`（Build & Test，timeout 60min）：同仓 PR/push 跑——门禁；fork PR 与清理调度不进入。
   - `ui-tests`（UI Tests，timeout 45min）：仅 develop push（合并）或手动触发，且 `needs: build`。
   - `evidence-janitor`（timeout 5min）：仅每日调度，执行受管 evidence root 的 age/size 清理，不构建或测试。
@@ -157,10 +158,38 @@ security add-generic-password -a "$USER" -s snapdrill-github-token -w "$GITHUB_T
 export GITHUB_TOKEN="$(security find-generic-password -a "$USER" -s snapdrill-github-token -w)"
 ```
 
-### Mac mini Runner
+### Self-hosted runner 拓扑与故障切换
 
-- 自托管 runner（self-hosted, macOS）
-- 离线时任务排队等待
+| 角色 | GitHub 名称 | 标签 | 运行策略 |
+|---|---|---|---|
+| 主 runner | `mac-mini` | `self-hosted`, `macOS`, `ARM64` | 常驻在线，正常承接 CI |
+| 按需备用 | `macbook-air-fallback` | `self-hosted`, `macOS`, `ARM64`, `fallback` | 默认离线；仅在主 runner 不可用时人工启动 |
+
+workflow 当前使用 `runs-on: [self-hosted, macOS]`。GitHub 标签是全部匹配条件，不是优先级；
+`fallback` 标签不会阻止备用机器接走只要求 `self-hosted` + `macOS` 的任务。因此不得把两台机器
+长期同时在线并误称为主备：MacBook Air 保持 listener 停止，才是当前最小且可预测的故障切换契约。
+
+在 MacBook Air 启动备用 runner：
+
+```bash
+cd ~/actions-runner-snapdrill
+caffeinate -dimsu ./run.sh
+```
+
+确认排队任务结束后用 `Ctrl+C` 停止 listener。备用 runner 不安装为常驻服务；若未来需要自动
+故障切换，应先设计明确的调度契约，而不是让两台通用标签 runner 隐式竞争任务。
+
+只读检查注册状态：
+
+```bash
+gh api repos/NotBad-Labs/snapdrill-ios/actions/runners \
+  --jq '.runners[] | {name, status, busy, labels: [.labels[].name]}'
+```
+
+健康判定至少包含：GitHub 显示 `online`、最近 job 的 `runner_name` 符合预期、runner 版本不高于
+官方稳定版一个补丁、Xcode 满足 workflow 固定版本、磁盘有足够空间，且 runner 主机不会在任务中
+休眠。Mac mini 离线时任务会排队等待；确认不是短暂重连后，再人工启动 MacBook Air listener。
+备用机器执行的 runner-local evidence 留在备用机器，不会自动复制回 Mac mini。
 
 ---
 
