@@ -39,8 +39,12 @@ or a general ZIP. Ordinary ZIP extraction is not a Release 1 requirement. Files,
 system share sheet still treat the result as one portable document.
 
 Before writer, reader, schema or fixture implementation, the Data / Security DRI must shape, obtain
-PO approval for, and make effective all of the following in this document. D1-B did not approve
-these irreversible wire details:
+PO approval for, and make effective all of the following through this document. Exact DDL, fixtures,
+validators and hostile corpora may live in an immutable evidence package incorporated here by one
+manifest SHA-256; that package is never a second lifecycle or product authority. Its manifest may
+record freeze-time provenance and integrity, but `ratified`, `effective` and implementation
+authorization remain owned here and by the normal PO / merge workflow. D1-B did not approve these
+irreversible wire details:
 
 - versioned DDL, a SnapDrill-specific `application_id`, `user_version`, exact allowed objects and
   migration / rejection rules;

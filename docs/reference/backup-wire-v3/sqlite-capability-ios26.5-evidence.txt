@@ -1,0 +1,14 @@
+SnapDrill Backup v3 SQLite capability probe evidence
+generated_at_utc=2026-07-18T15:13:20Z
+runtime=iOS 26.5 Simulator 23F77
+simulator=iPhone 17 EA64436C-339E-4F0A-A731-4ECAB1D68D95
+sdk=iPhoneSimulator26.5.sdk
+minimum_target=arm64-apple-ios26.0-simulator
+compiler=Apple clang 21.0.0 (clang-2100.1.1.101)
+source=sqlite-capability-probe.c
+source_sha256=0627a15b8f1dd8f5a3f70654fe22394f8ede487c5e2edacd42ce8fee47ec1869
+replay_binary_sha256=199b4b3e80293672cef4d2b865e294006c934f09a4277aa008e1e35a63137232
+retained_output=sqlite-capability-ios26.5.txt
+retained_output_line_count=33
+retained_output_sha256=4fa8d915f83ab03630645ecc972f9215da81a5493f898bcf89a0c16cbe4c2202
+replay_output_matches_retained=true

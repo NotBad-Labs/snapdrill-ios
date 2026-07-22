@@ -9,8 +9,9 @@ ratified_at:
   follow_up_contract_decisions: 2026-07-15
   release_safety_boundaries: 2026-07-19
   capture_draft_retention: 2026-07-20
+  backup_v3_product_semantics: 2026-07-21
 activation: effective_when_merged_to_develop
-ratified_decisions: ["C1-A", "C2-Core", "C2-Image", "C2-Optional", "C2-Personalization", "C3", "C4-D", "C5-E", "C5-S1", "C6-A", "DATA-1", "DATA-1-E", "DATA-1-R", "D1-B", "D2-A", "D3-B", "D4-B", "D5-A", "#932-A", "#891-copy", "S1-A", "M1-A", "D4S-A", "ORI-A", "P1-A"]
+ratified_decisions: ["C1-A", "C2-Core", "C2-Image", "C2-Optional", "C2-Personalization", "C3", "C4-D", "C5-E", "C5-S1", "C6-A", "DATA-1", "DATA-1-E", "DATA-1-R", "D1-B", "D2-A", "D3-B", "D4-B", "D5-A", "#932-A", "#891-copy", "S1-A", "M1-A", "D4S-A", "ORI-A", "P1-A", "P2-B-A", "P2-C-A", "P2-D-A", "P2-E-A", "P2-F-A", "P2-G-A"]
 pending_decisions: []
 upstream:
   - ../explanations/vision.md
@@ -64,6 +65,12 @@ upstream:
 | D4S-A | RATIFIED | 完整操作共享稳定 prestate 与 mutation barrier；局部导出不冒充完整资料库快照 |
 | ORI-A | RATIFIED | iPhone App shell 采用竖屏，图片与文档内容保持自身方向 |
 | P1-A | RATIFIED | 未保存采集草稿不按时间自动删除；仅在正式保存成功或用户明确丢弃后删除 |
+| P2-B-A | RATIFIED | taxonomy 身份由 UUID 决定；非空名称按 UTF-8 字节精确判重，四个内建维度及其 cardinality 不可变 |
+| P2-C-A | RATIFIED | 资料正文保留空字符串与 NULL 的区别，但资料必须有非空正文或主图片之一 |
+| P2-D-A | RATIFIED | Review 字段独立保真；间隔只接受 0...365 天，超界拒绝且不得静默截断或改写 |
+| P2-E-A | RATIFIED | 图片保存时生成 canonical JPEG；方向与颜色先烘焙，透明像素铺白；Backup 不修图，非 canonical active image 拒绝导出 |
+| P2-F-A | RATIFIED | Backup 生命周期为 idle / running / completed / cancelled / failed；取消非错误，校验超时可重试且不等于损坏 |
+| P2-G-A | RATIFIED | 答案文字保留空字符串与 NULL；taxonomy icon / color 保存时规范化且必填；每条资料最多一张主图和一张答案图 |
 
 后续裁决的 shaping 与 PO ratification 回执保留在 [#882](https://github.com/NotBad-Labs/snapdrill-ios/issues/882)、[#885](https://github.com/NotBad-Labs/snapdrill-ios/issues/885)、[#906](https://github.com/NotBad-Labs/snapdrill-ios/issues/906)、[#907](https://github.com/NotBad-Labs/snapdrill-ios/issues/907)、[#910](https://github.com/NotBad-Labs/snapdrill-ios/issues/910)、[#918](https://github.com/NotBad-Labs/snapdrill-ios/issues/918)、[#884](https://github.com/NotBad-Labs/snapdrill-ios/issues/884)、[#932](https://github.com/NotBad-Labs/snapdrill-ios/issues/932)、[#950](https://github.com/NotBad-Labs/snapdrill-ios/issues/950)、[#956](https://github.com/NotBad-Labs/snapdrill-ios/issues/956) 与 [#891](https://github.com/NotBad-Labs/snapdrill-ios/issues/891)。这些 issue 是来源证据；合入 `develop` 后的本文与 owning contract / feature spec 才是规范权威。
 
@@ -210,6 +217,8 @@ Release 1 必须让产品所支持创建的任意资料库都能生成一个同�
 **RATIFIED M1-A**：taxonomy 从单值转多值可以直接进行；反向转换必须先证明所有受影响资料满足目标 cardinality，否则整体拒绝并报告违反数量，不自动删值或部分修改。精确数据不变量由 [Local Library Data Contract](local-library-data-contract.md) §2.2 拥有。
 
 **RATIFIED D4S-A**：只有外部完整 `.snapdrillbackup` 以及 `restore` / `clearLibrary` / `storeRecovery` 属于 contract-defined complete operations；它们消费 [Local Library Data Contract](local-library-data-contract.md) §4.3 的 operation-specific prestate 与 mutation barrier。健康 closed generation 与 unavailable store 的内部证明路径不同，不能用假空库替代。Settings JSON / CSV 与 selected PDF / CSV 是 partial exports；它们不排队等待该 barrier，也不得宣称代表完整资料库。该裁决不批准 Backup v3 DDL、package、journal operation 或实现。
+
+**RATIFIED P2-B-A / P2-C-A / P2-D-A / P2-E-A / P2-F-A / P2-G-A**：taxonomy 身份与显示字段、资料正文与答案文字空值、已有 Review 状态、active-image canonicalization、Backup terminal lifecycle 与图片基数的产品语义由 [Local Library Data Contract](local-library-data-contract.md) §2.3–§2.8 和 §8 唯一拥有。Backup v3 必须保真消费这些语义；这些裁决不批准任何具体 DDL、reader / writer 实现或证据包。
 
 ### 6.2 资料库清除边界
 

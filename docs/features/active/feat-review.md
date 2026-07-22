@@ -13,6 +13,7 @@ intent_refs:
 release_refs:
   - release-1:C3
   - release-1:C4-D
+  - release-1:P2-D-A
 release_outcomes: []
 ---
 

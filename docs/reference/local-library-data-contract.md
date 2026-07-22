@@ -1,9 +1,9 @@
 ---
-last_verified: 2026-07-20
+last_verified: 2026-07-21
 layer: contract
 release: 1
 activation: effective_when_merged_to_develop
-ratified_inputs: ["B4-A", "B5-A", "DATA-1", "DATA-1-R", "D1-B", "D3-B", "D5-A", "S1-A", "M1-A", "D4S-A", "P1-A"]
+ratified_inputs: ["B4-A", "B5-A", "DATA-1", "DATA-1-R", "D1-B", "D3-B", "D5-A", "S1-A", "M1-A", "D4S-A", "P1-A", "P2-B-A", "P2-C-A", "P2-D-A", "P2-E-A", "P2-F-A", "P2-G-A"]
 freshness:
   max_age_days: 180
   decay_trigger: [local_library_layout_change, backup_schema_change, recovery_state_change, compatibility_epoch]
@@ -11,7 +11,7 @@ freshness:
 # Local Library Data Contract
 
 > 本文是 Release 1 **单一本地资料库**的存储所有权、生命周期、恢复状态与故障语义权威。
-> 它承接已批准的 DATA-1 / DATA-1-R / D1-B / D3-B / D5-A / S1-A / M1-A / D4S-A / P1-A，合入 `develop` 后生效。
+> 它承接已批准的 DATA-1 / DATA-1-R / D1-B / D3-B / D5-A / S1-A / M1-A / D4S-A / P1-A / P2-B-A / P2-C-A / P2-D-A / P2-E-A / P2-F-A / P2-G-A，合入 `develop` 后生效。
 > 当前 Multi-Profile / ZIP v2 代码只作偏差证据，不能反向改写本文。
 
 ## 1. 权威边界
@@ -84,6 +84,36 @@ recovery incident、外部用户文件。D5-A 的 Clear Library 只能删除资�
   不得自动选择、删除或合并值，也不得只修改已满足条件的资料。
 
 UI 文案、Swift 类型和数据库表达可以演进，但失败原子性、违反数量和关联保留语义不得改变。
+
+### 2.3 Taxonomy 身份与内建基数（P2-B-A）
+
+- taxonomy 字段与可选值的身份只由稳定 UUID 决定；名称不是关系键，也不得用于恢复时合并、覆盖或重连记录。
+- 字段名与可选值名必须非空。字段名在资料库内、可选值名在所属字段内按保存的 UTF-8 字节精确唯一；不做大小写折叠或 Unicode normalization。字节不同但视觉近似的合法名称可以并存，UI 与 wire 必须逐字节保留。
+- 资料库恰有 `category`、`source`、`level`、`tag` 四个内建 system key，各一个且不可删除或替换。`tag` 固定为多值；其余三个固定为单值。内建基数不可编辑；未来改变必须先升级产品与 wire contract。
+
+默认显示名称、默认图标、默认颜色和排序值不由本项决定；显示字段的保存语法见 §2.8。
+
+### 2.4 资料正文空值（P2-C-A）
+
+`content = NULL` 表示用户未提供正文，`content = ""` 表示用户明确保存了空正文，两者必须可区分并原样往返。每条资料仍必须至少具有一个非空 UTF-8 正文或一张 App-managed 主图片；空字符串只有在主图片存在时合法。答案文字的语义见 §2.7。
+
+### 2.5 Review 状态保真（P2-D-A）
+
+已有 Review 字段分别保真：`lastReviewedAt` 与 `nextReviewAt` 独立可空，不要求彼此或与次数、间隔满足额外跨字段组合；`easeFactor` 必须是有限数，`repetitions` 必须非负，`interval` 只接受 `0...365` 天。现存值超过 365 天时，正式 writer 必须在报告用户备份成功前拒绝并给出可修复结果；不得静默 clamp、改写或丢弃 Review 状态。reader 对同版 artifact 执行相同边界。
+
+### 2.6 Active image canonicalization（P2-E-A）
+
+- 图片在进入正式资料库前完成方向烘焙与颜色管理：三通道输出转为 8-bit sRGB，单通道输出转为 DeviceGray；带透明度的输入以不透明纯白背景合成后再编码。保存结果必须满足 owning Backup Wire 版本冻结的 metadata-free canonical JPEG grammar。
+- Backup 只读取并验证 active image，不重新编码、修复、补 metadata 或改变像素。任何非 canonical active image 都使完整备份在报告成功前失败，并保留原资料库不变。
+- SnapDrill 仍处于零上架、零用户 epoch；不建立旧图片迁移或用户可见 repair surface。production switch 的顺序必须先让所有正式图片 writer 只产出 canonical JPEG，并用 fixture 证明方向、颜色与透明度路径，再允许 v3 Backup writer 对外可达。此后违反项是内部一致性错误，不得用导出时修复掩盖。
+
+### 2.7 答案文字与图片基数（P2-G-A）
+
+`answer_text = NULL` 表示未提供答案文字，`answer_text = ""` 表示用户明确保存了空答案文字；两者必须按 UTF-8 字节原样往返。每条资料最多关联一张主图片和一张答案图片；两种 role 各自可缺省，不能用数组顺序、文件名或重复 role 猜测身份。未知 role 或同一 role 重复必须在 mutation 前拒绝。
+
+### 2.8 Taxonomy 显示字段（P2-G-A）
+
+每个 taxonomy 字段和可选值都必须保存非空 SF Symbol 名称；可选值还必须保存非空颜色。保存入口先规范化并只持久化以下形式：symbol 匹配 ASCII `[a-z0-9.]+` 且不超过 §2.1 上限，颜色为大写 `#RRGGBB`。读取和 Backup 不做二次修复。设备或 OS 不认识一个语法合法的 symbol 时，UI 使用固定 fallback 显示，但不得改写已存 symbol、digest 或 wire bytes。
 
 ## 3. 路径与生命周期
 
@@ -285,12 +315,18 @@ mutation 或 active-library mutation 前，以稳定的 `developmentBackupUnsupp
 | `backupFormatUnsupported` | 外部 application ID / version 不受支持 |
 | `backupIntegrityFailed` | 外部文件结构、schema、digest 或图片解码失败 |
 | `backupReferenceMismatch` | duplicate / dangling / nil taxonomy 或图片关系 |
+| `backupValidationTimedOut` | 校验在持续无进展期限内未完成；可重试，不把源文件永久判为损坏 |
 | `insufficientStorage` | checked capacity preflight 或写入遇到空间不足 |
 | `publicationFailed` | new generation 未能 durable 发布；尝试确定性 rollback |
 | `rollbackFailed` | old generation 也无法恢复；创建 blocking incident |
 | `recoveryDecisionRequired` | incident 必须由用户选择后才能继续普通启动 |
 
 原始底层错误只进入隐私安全日志 / incident metadata，不直接代替可理解的用户结果。
+
+Backup / restore 的可观察生命周期固定为 `idle`、`running`，以及 terminal
+`completed` / `cancelled` / `failed`。`cancelled` 是非错误终态；进入 selector commit barrier 后才观察到
+的取消或 timeout 必须由 transaction reconciliation 吸收并返回已证明的 publication / rollback 结果，
+不能覆盖成 `cancelled` 或 `backupValidationTimedOut`。
 
 ## 9. 验证与实现 DoR
 
