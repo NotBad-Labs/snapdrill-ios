@@ -54,8 +54,20 @@ FORBIDDEN_PROCESS_IDENTIFIERS = frozenset({"CommandLine", "ProcessInfo"})
 CUSTOM_TOKEN_PATTERN = re.compile(r"--uitesting|--ui-test-[A-Za-z0-9_-]+")
 POLICY_SOURCE_PATHS = frozenset(
     {
+        ".github/workflows/ci.yml",
+        "Configs/Debug.xcconfig",
+        "Configs/Release.xcconfig",
+        "Configs/Shared.xcconfig",
+        "Packages/SnapDrillCore/Package.swift",
+        "Packages/SnapDrillData/Package.swift",
+        "Packages/SnapDrillFeatures/Package.swift",
+        "Packages/SnapDrillUI/Package.swift",
+        "Scripts/ci-local.sh",
+        "Scripts/pre-commit",
         "Scripts/swift_source_lexer.py",
+        "Scripts/validate_release_configuration.py",
         "Scripts/validate_release_test_overrides.py",
+        "SnapDrill.xcodeproj/project.pbxproj",
     }
 )
 

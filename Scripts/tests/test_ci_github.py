@@ -1378,10 +1378,15 @@ class WorkflowContractTests(unittest.TestCase):
         release_step = self.step_body(
             self.build, "Validate effective Release Swift conditions"
         )
+        self.assertIn("-scheme SnapDrillShare", release_step)
         self.assertIn("-configuration Release", release_step)
+        self.assertIn("-destination 'generic/platform=iOS Simulator'", release_step)
         self.assertIn("-showBuildSettings", release_step)
         self.assertIn("-json", release_step)
         self.assertIn("--effective-release-settings-stdin", release_step)
+        self.assertIn("for package in Packages/*", release_step)
+        self.assertIn('swift package --package-path "$package" dump-package', release_step)
+        self.assertIn("--effective-package-settings-stdin", release_step)
         self.assertIn(
             '-clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill"',
             release_step,

@@ -86,6 +86,19 @@ class CILocalTests(unittest.TestCase):
             """,
         )
         self.write_executable(
+            "swift",
+            r"""
+            #!/bin/bash
+            set -euo pipefail
+            printf 'swift|%s|%s\n' "$PWD" "$*" >> "$FAKE_COMMAND_LOG"
+            if [[ "$*" == package\ --package-path\ *\ dump-package ]]; then
+              printf '%s\n' '{"targets":[{"name":"Fixture","type":"regular","settings":[]}]}'
+              exit 0
+            fi
+            exit 96
+            """,
+        )
+        self.write_executable(
             "python3",
             r"""
             #!/bin/bash
@@ -96,6 +109,9 @@ class CILocalTests(unittest.TestCase):
             fi
             if [[ -n "${FAKE_FAIL_PATTERN:-}" && "$*" == *"$FAKE_FAIL_PATTERN"* ]]; then
               exit 22
+            fi
+            if [[ "$*" == *"--effective-"* ]]; then
+              /bin/cat >/dev/null
             fi
             exit 0
             """,
@@ -124,7 +140,11 @@ class CILocalTests(unittest.TestCase):
             fi
 
             if [[ "$*" == *"-showBuildSettings"* && "$*" == *"-json"* ]]; then
-              printf '%s\n' '[{"target":"SnapDrill","buildSettings":{"CONFIGURATION":"Release"}}]'
+              payload='[{"target":"SnapDrill",'
+              payload+='"buildSettings":{"CONFIGURATION":"Release"}},'
+              payload+='{"target":"SnapDrillShare",'
+              payload+='"buildSettings":{"CONFIGURATION":"Release"}}]'
+              printf '%s\n' "$payload"
               exit 0
             fi
 
@@ -243,7 +263,9 @@ class CILocalTests(unittest.TestCase):
         self.assertTrue(
             any(
                 line.startswith("xcodebuild|")
+                and "-scheme SnapDrillShare" in line
                 and "-configuration Release" in line
+                and "-destination generic/platform=iOS Simulator" in line
                 and "-showBuildSettings -json" in line
                 for line in log
             )
@@ -254,6 +276,19 @@ class CILocalTests(unittest.TestCase):
                 and "--effective-release-settings-stdin" in line
                 for line in log
             )
+        )
+        package_dumps = [
+            line
+            for line in log
+            if line.startswith("swift|") and " dump-package" in line
+        ]
+        self.assertEqual(len(package_dumps), 4)
+        self.assertTrue(
+            all("package --package-path Packages/" in line for line in package_dumps)
+        )
+        self.assertEqual(
+            sum("--effective-package-settings-stdin" in line for line in log),
+            4,
         )
         self.assertTrue(sentinel.exists())
         self.assertEqual(list(self.tmp_dir.glob("snapdrill-ci-local.*")), [])

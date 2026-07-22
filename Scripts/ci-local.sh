@@ -28,6 +28,7 @@ for variable in XCODE_VERSION XCODE_BUILD_VERSION SWIFTLINT_VERSION; do
 done
 
 require_command xcodebuild
+require_command swift
 require_command swiftlint
 require_command python3
 require_command find
@@ -76,11 +77,17 @@ python3 Scripts/validate_docs.py --check
 python3 Scripts/validate_capture_contract.py --check
 python3 Scripts/validate_release_configuration.py --check
 xcodebuild -project SnapDrill.xcodeproj \
-  -target SnapDrill \
+  -scheme SnapDrillShare \
   -configuration Release \
+  -destination 'generic/platform=iOS Simulator' \
   -showBuildSettings \
   -json | python3 Scripts/validate_release_configuration.py \
     --effective-release-settings-stdin
+for package in Packages/*; do
+  swift package --package-path "$package" dump-package | \
+    python3 Scripts/validate_release_configuration.py \
+      --effective-package-settings-stdin
+done
 python3 Scripts/validate_release_test_overrides.py --check
 
 printf '\n[3/6] Dependency direction checks\n'

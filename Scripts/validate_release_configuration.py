@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from collections.abc import Iterable, Mapping
@@ -13,6 +14,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PROJECT_PATH = Path("SnapDrill.xcodeproj/project.pbxproj")
 TARGET_NAME = "SnapDrill"
+RELEASE_XCODE_TARGET_NAMES = frozenset({"SnapDrill", "SnapDrillShare"})
 APPLICATION_PRODUCT_TYPE = "com.apple.product-type.application"
 PROJECT_TARGET_TYPES = {"PBXNativeTarget", "PBXAggregateTarget", "PBXLegacyTarget"}
 CONFIGURATION_NAMES = ("Debug", "Release")
@@ -132,34 +134,162 @@ def validate_project(project: object) -> list[str]:
 def validate_effective_release_settings(payload: object) -> list[str]:
     """Validate JSON emitted by xcodebuild -showBuildSettings -json."""
 
-    if not isinstance(payload, list) or len(payload) != 1:
-        return ["effective Release settings must contain exactly one target entry"]
-    entry = payload[0]
-    if not isinstance(entry, Mapping):
-        return ["effective Release settings entry must be an object"]
-    if entry.get("target") != TARGET_NAME:
-        return [
-            f"effective Release settings target must be {TARGET_NAME}, "
-            f"found {entry.get('target')!r}"
-        ]
-    settings = entry.get("buildSettings")
-    if not isinstance(settings, Mapping):
-        return ["effective Release buildSettings must be an object"]
-    if settings.get("CONFIGURATION") != "Release":
-        return [
-            "effective Release CONFIGURATION must be 'Release', "
-            f"found {settings.get('CONFIGURATION')!r}"
-        ]
+    if not isinstance(payload, list):
+        return ["effective Release settings must be a target-entry list"]
+    errors: list[str] = []
+    entries: dict[str, Mapping[str, Any]] = {}
+    for index, entry in enumerate(payload):
+        if not isinstance(entry, Mapping):
+            errors.append(f"effective Release entry {index} must be an object")
+            continue
+        target = entry.get("target")
+        if not isinstance(target, str) or not target:
+            errors.append(f"effective Release entry {index} target must be a string")
+            continue
+        if target in entries:
+            errors.append(f"effective Release target {target} must be unique")
+            continue
+        entries[target] = entry
+
+    actual_targets = set(entries)
+    if actual_targets != RELEASE_XCODE_TARGET_NAMES:
+        errors.append(
+            "effective Release targets must be "
+            f"{sorted(RELEASE_XCODE_TARGET_NAMES)!r}, found {sorted(actual_targets)!r}"
+        )
+
+    for target, entry in entries.items():
+        settings = entry.get("buildSettings")
+        if not isinstance(settings, Mapping):
+            errors.append(f"effective Release {target} buildSettings must be an object")
+            continue
+        if settings.get("CONFIGURATION") != "Release":
+            errors.append(
+                f"effective Release {target} CONFIGURATION must be 'Release', "
+                f"found {settings.get('CONFIGURATION')!r}"
+            )
+        for key in ("SWIFT_ACTIVE_COMPILATION_CONDITIONS", "OTHER_SWIFT_FLAGS"):
+            value = settings.get(key, "")
+            if not isinstance(value, str):
+                errors.append(f"effective Release {target} {key} must be a string")
+            elif "DEBUG" in value:
+                errors.append(
+                    f"effective Release {target} {key} must not define DEBUG, "
+                    f"found {value!r}"
+                )
+    return errors
+
+
+def _unsafe_flags_define_debug(flags: list[object]) -> bool:
+    if not all(isinstance(flag, str) for flag in flags):
+        return False
+    joined = " ".join(flags)
+    return re.search(r"(?:^|\s)-D\s*DEBUG(?:$|\s|=)", joined) is not None
+
+
+def validate_effective_package_settings(payload: object) -> list[str]:
+    """Validate effective Swift settings emitted by swift package dump-package."""
+
+    if not isinstance(payload, Mapping):
+        return ["effective package manifest must be an object"]
+    targets = payload.get("targets")
+    if not isinstance(targets, list):
+        return ["effective package targets must be a list"]
 
     errors: list[str] = []
-    for key in ("SWIFT_ACTIVE_COMPILATION_CONDITIONS", "OTHER_SWIFT_FLAGS"):
-        value = settings.get(key, "")
-        if not isinstance(value, str):
-            errors.append(f"effective Release {key} must be a string")
-        elif "DEBUG" in value:
-            errors.append(
-                f"effective Release {key} must not define DEBUG, found {value!r}"
-            )
+    regular_target_count = 0
+    seen_names: set[str] = set()
+    for index, target in enumerate(targets):
+        if not isinstance(target, Mapping):
+            errors.append(f"effective package target {index} must be an object")
+            continue
+        if target.get("type") != "regular":
+            continue
+        regular_target_count += 1
+        name = target.get("name")
+        if not isinstance(name, str) or not name:
+            errors.append(f"effective package regular target {index} needs a name")
+            continue
+        if name in seen_names:
+            errors.append(f"effective package regular target {name} must be unique")
+            continue
+        seen_names.add(name)
+
+        settings = target.get("settings", [])
+        if settings is None:
+            settings = []
+        if not isinstance(settings, list):
+            errors.append(f"effective package target {name} settings must be a list")
+            continue
+        for setting_index, setting in enumerate(settings):
+            if not isinstance(setting, Mapping):
+                errors.append(
+                    f"effective package target {name} setting {setting_index} "
+                    "must be an object"
+                )
+                continue
+            if setting.get("tool") != "swift":
+                continue
+            condition = setting.get("condition")
+            if condition is not None and not isinstance(condition, Mapping):
+                errors.append(
+                    f"effective package target {name} setting {setting_index} "
+                    "condition must be an object"
+                )
+                continue
+            configuration = condition.get("config") if condition else None
+            if configuration not in (None, "debug", "release"):
+                errors.append(
+                    f"effective package target {name} setting {setting_index} "
+                    f"has unknown configuration {configuration!r}"
+                )
+                continue
+            if configuration == "debug":
+                continue
+
+            kind = setting.get("kind")
+            if not isinstance(kind, Mapping):
+                errors.append(
+                    f"effective package target {name} setting {setting_index} "
+                    "kind must be an object"
+                )
+                continue
+            define = kind.get("define")
+            if "define" in kind:
+                if not isinstance(define, Mapping) or not isinstance(
+                    define.get("_0"), str
+                ):
+                    errors.append(
+                        f"effective package target {name} define must name a string"
+                    )
+                elif define.get("_0") == "DEBUG":
+                    errors.append(
+                        f"effective package target {name} must not define DEBUG "
+                        "in Release"
+                    )
+            unsafe_flags = kind.get("unsafeFlags")
+            if "unsafeFlags" in kind:
+                if not isinstance(unsafe_flags, Mapping):
+                    errors.append(
+                        f"effective package target {name} unsafeFlags must be an object"
+                    )
+                    continue
+                flags = unsafe_flags.get("_0")
+                if not isinstance(flags, list) or not all(
+                    isinstance(flag, str) for flag in flags
+                ):
+                    errors.append(
+                        f"effective package target {name} unsafeFlags must be a "
+                        "string list"
+                    )
+                elif _unsafe_flags_define_debug(flags):
+                    errors.append(
+                        f"effective package target {name} unsafeFlags must not define "
+                        "DEBUG in Release"
+                    )
+
+    if regular_target_count == 0:
+        errors.append("effective package manifest must contain a regular target")
     return errors
 
 
@@ -197,20 +327,32 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="validate without modifying files")
     parser.add_argument("--project", type=Path, default=PROJECT_PATH)
-    parser.add_argument(
+    input_group = parser.add_mutually_exclusive_group()
+    input_group.add_argument(
         "--effective-release-settings-stdin",
         action="store_true",
         help="validate xcodebuild -showBuildSettings -json from standard input",
     )
+    input_group.add_argument(
+        "--effective-package-settings-stdin",
+        action="store_true",
+        help="validate swift package dump-package JSON from standard input",
+    )
     arguments = parser.parse_args(argv)
 
-    if arguments.effective_release_settings_stdin:
+    if (
+        arguments.effective_release_settings_stdin
+        or arguments.effective_package_settings_stdin
+    ):
         try:
             payload = json.load(sys.stdin)
         except json.JSONDecodeError as error:
-            errors = [f"effective Release settings are not valid JSON: {error}"]
+            errors = [f"effective settings are not valid JSON: {error}"]
         else:
-            errors = validate_effective_release_settings(payload)
+            if arguments.effective_release_settings_stdin:
+                errors = validate_effective_release_settings(payload)
+            else:
+                errors = validate_effective_package_settings(payload)
     else:
         errors = run_checks(project_path=arguments.project)
     if errors:
@@ -219,6 +361,8 @@ def main(argv: Iterable[str] | None = None) -> int:
         return 1
     if arguments.effective_release_settings_stdin:
         print("[ok] effective Release Swift conditions passed")
+    elif arguments.effective_package_settings_stdin:
+        print("[ok] effective package Release Swift conditions passed")
     else:
         print("[ok] Release platform configuration passed")
     return 0

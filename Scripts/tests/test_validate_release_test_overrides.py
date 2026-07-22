@@ -13,6 +13,24 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MODULE_PATH = REPO_ROOT / "Scripts" / "validate_release_test_overrides.py"
 PRE_COMMIT_PATH = REPO_ROOT / "Scripts" / "pre-commit"
+EXPECTED_POLICY_SOURCE_PATHS = frozenset(
+    {
+        ".github/workflows/ci.yml",
+        "Configs/Debug.xcconfig",
+        "Configs/Release.xcconfig",
+        "Configs/Shared.xcconfig",
+        "Packages/SnapDrillCore/Package.swift",
+        "Packages/SnapDrillData/Package.swift",
+        "Packages/SnapDrillFeatures/Package.swift",
+        "Packages/SnapDrillUI/Package.swift",
+        "Scripts/ci-local.sh",
+        "Scripts/pre-commit",
+        "Scripts/swift_source_lexer.py",
+        "Scripts/validate_release_configuration.py",
+        "Scripts/validate_release_test_overrides.py",
+        "SnapDrill.xcodeproj/project.pbxproj",
+    }
+)
 
 
 def load_validator():
@@ -367,19 +385,27 @@ let escaped = "\u{2d}\u{2d}ui-test-escaped"
                 )
 
     def test_index_match_rejects_partially_staged_policy_source(self) -> None:
+        self.assertEqual(validator.POLICY_SOURCE_PATHS, EXPECTED_POLICY_SOURCE_PATHS)
         with TemporaryGitRepo() as repo:
-            repo.add(
+            tracked = {
+                path: "staged policy content\n"
+                for path in EXPECTED_POLICY_SOURCE_PATHS
+            }
+            tracked.update(
                 {
                     "SnapDrill/App.swift": "let unsafe = CommandLine.arguments\n",
                     "Packages/Core/Tests/Test.swift": "let test = true\n",
                 }
             )
+            repo.add(tracked)
+            for path in EXPECTED_POLICY_SOURCE_PATHS:
+                repo.write(path, "worktree policy content\n")
             repo.write("SnapDrill/App.swift", "let safe = true\n")
             repo.write("Packages/Core/Tests/Test.swift", "let test = false\n")
 
             self.assertEqual(
                 validator.find_unstaged_policy_paths(repo.root),
-                ["SnapDrill/App.swift"],
+                sorted(EXPECTED_POLICY_SOURCE_PATHS | {"SnapDrill/App.swift"}),
             )
 
     def test_path_filter_rejects_duplicates_and_non_normalized_paths(self) -> None:

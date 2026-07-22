@@ -105,12 +105,18 @@ jobs:
       - name: Validate effective Release Swift conditions
         run: |
           xcodebuild -project SnapDrill.xcodeproj \
-            -target SnapDrill \
+            -scheme SnapDrillShare \
             -configuration Release \
+            -destination 'generic/platform=iOS Simulator' \
             -clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill" \
             -showBuildSettings \
             -json | python3 Scripts/validate_release_configuration.py \
               --effective-release-settings-stdin
+          for package in Packages/*; do
+            swift package --package-path "$package" dump-package | \
+              python3 Scripts/validate_release_configuration.py \
+                --effective-package-settings-stdin
+          done
 
       - name: Build for testing
         env:
