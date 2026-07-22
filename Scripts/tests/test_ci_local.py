@@ -86,6 +86,19 @@ class CILocalTests(unittest.TestCase):
             """,
         )
         self.write_executable(
+            "swift",
+            r"""
+            #!/bin/bash
+            set -euo pipefail
+            printf 'swift|%s|%s\n' "$PWD" "$*" >> "$FAKE_COMMAND_LOG"
+            if [[ "$*" == package\ --package-path\ *\ dump-package ]]; then
+              printf '%s\n' '{"targets":[{"name":"Fixture","type":"regular","settings":[]}]}'
+              exit 0
+            fi
+            exit 96
+            """,
+        )
+        self.write_executable(
             "python3",
             r"""
             #!/bin/bash
@@ -96,6 +109,9 @@ class CILocalTests(unittest.TestCase):
             fi
             if [[ -n "${FAKE_FAIL_PATTERN:-}" && "$*" == *"$FAKE_FAIL_PATTERN"* ]]; then
               exit 22
+            fi
+            if [[ "$*" == *"--effective-"* ]]; then
+              /bin/cat >/dev/null
             fi
             exit 0
             """,
@@ -120,6 +136,15 @@ class CILocalTests(unittest.TestCase):
             printf 'xcodebuild|%s|%s\n' "$PWD" "$*" >> "$FAKE_COMMAND_LOG"
             if [[ "${1:-}" == "-version" ]]; then
               printf 'Xcode %s\nBuild version %s\n' "$FAKE_XCODE_VERSION" "$FAKE_XCODE_BUILD_VERSION"
+              exit 0
+            fi
+
+            if [[ "$*" == *"-showBuildSettings"* && "$*" == *"-json"* ]]; then
+              payload='[{"target":"SnapDrill",'
+              payload+='"buildSettings":{"CONFIGURATION":"Release"}},'
+              payload+='{"target":"SnapDrillShare",'
+              payload+='"buildSettings":{"CONFIGURATION":"Release"}}]'
+              printf '%s\n' "$payload"
               exit 0
             fi
 
@@ -235,6 +260,38 @@ class CILocalTests(unittest.TestCase):
         self.assertNotIn("-scheme SnapDrill ", "\n".join(log))
         self.assertNotIn("-skip-testing", "\n".join(log))
         self.assertFalse(any(line.startswith("xcpretty|") for line in log))
+        release_settings = [
+            line
+            for line in log
+            if line.startswith("xcodebuild|")
+            and "-scheme SnapDrillShare" in line
+            and "-configuration Release" in line
+            and "-showBuildSettings -json" in line
+        ]
+        self.assertEqual(len(release_settings), 2)
+        self.assertTrue(
+            any("-destination generic/platform=iOS Simulator" in line for line in release_settings)
+        )
+        self.assertTrue(
+            any("-destination generic/platform=iOS -showBuildSettings" in line for line in release_settings)
+        )
+        self.assertEqual(
+            sum("--effective-release-settings-stdin" in line for line in log),
+            2,
+        )
+        package_dumps = [
+            line
+            for line in log
+            if line.startswith("swift|") and " dump-package" in line
+        ]
+        self.assertEqual(len(package_dumps), 4)
+        self.assertTrue(
+            all("package --package-path Packages/" in line for line in package_dumps)
+        )
+        self.assertEqual(
+            sum("--effective-package-settings-stdin" in line for line in log),
+            4,
+        )
         self.assertTrue(sentinel.exists())
         self.assertEqual(list(self.tmp_dir.glob("snapdrill-ci-local.*")), [])
 
@@ -258,6 +315,7 @@ class CILocalTests(unittest.TestCase):
             "validate_docs.py",
             "validate_capture_contract.py",
             "validate_release_configuration.py",
+            "validate_release_test_overrides.py",
             "ci_github.py dependencies",
             "AllTests.xctestplan",
         )
@@ -375,6 +433,18 @@ class CILocalTests(unittest.TestCase):
         self.assertIn("privacy/network", result.stdout)
         self.assertIn("candidate conformance", result.stdout)
         self.assertIn("does not authorize merge, upload, TestFlight, go/no-go, or release", result.stdout)
+
+    def test_release_test_override_gate_is_in_the_canonical_path(self) -> None:
+        result = self.run_gate()
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue(
+            any(
+                line.startswith("python3|")
+                and "Scripts/validate_release_test_overrides.py --check" in line
+                for line in self.command_log()
+            )
+        )
 
     def test_default_plan_and_readme_cannot_select_snapshot_record(self) -> None:
         plan = json.loads(TEST_PLAN.read_text(encoding="utf-8"))

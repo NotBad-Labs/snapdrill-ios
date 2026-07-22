@@ -27,7 +27,7 @@ public struct CaptureView: View {
     @Bindable private var router: CaptureRouter
     @Environment(\.repositories) private var repositories
     @Environment(\.profileManager) private var profileManager
-    @Environment(\.analyticsService) private var analyticsService
+    @Environment(\.services) private var services
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     
     @State private var viewModel: CaptureViewModel
@@ -234,7 +234,7 @@ public struct CaptureView: View {
                         draftToken: draftToken,
                         repositories: repositories,
                         ocrService: viewModel.ocrService,
-                        analyticsService: analyticsService,
+                        analyticsService: services.analytics,
                         imageStorage: profileManager.activeImageStorage,
                         router: router,
                         draftService: draftService,
@@ -271,7 +271,7 @@ public struct CaptureView: View {
                     }
                 )
                 .onAppear {
-                    analyticsService.track(.cameraOpened, parameters: [:])
+                    services.analytics.track(.cameraOpened, parameters: [:])
                 }
             }
             // 文档扫描仪全屏覆盖

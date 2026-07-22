@@ -10,6 +10,7 @@
 
 import Testing
 import Foundation
+import SwiftUI
 @testable import SnapDrillCore
 
 struct ServiceContainerTests {
@@ -23,6 +24,21 @@ struct ServiceContainerTests {
         let analytics1 = container.analytics
         let analytics2 = container.analytics
         #expect(analytics1 as AnyObject === analytics2 as AnyObject)
+    }
+
+    @Test("LiveServiceContainer 默认使用无采集 Analytics")
+    func testLiveServiceContainerDefaultsToNoOpAnalytics() {
+        let container = LiveServiceContainer()
+
+        #expect(container.analytics is NoOpAnalyticsService)
+    }
+
+    @Test("LiveServiceContainer 保留显式 Analytics 注入")
+    func testLiveServiceContainerPreservesInjectedAnalytics() {
+        let analytics = AnalyticsServiceMock()
+        let container = LiveServiceContainer(analytics: analytics)
+
+        #expect(container.analytics as AnyObject === analytics)
     }
 
     @Test("LiveServiceContainer 14 个服务属性全部可访问")
@@ -109,6 +125,17 @@ struct ServiceContainerTests {
     func testProtocolVariance() {
         let _: any ServiceContainer = LiveServiceContainer()
         let _: any ServiceContainer = MockServiceContainer()
+    }
+
+    @Test("ServiceContainer Environment 默认值可读取并可被显式注入替换")
+    func testEnvironmentContainerRoundTrip() {
+        var environment = EnvironmentValues()
+        _ = environment.services
+
+        let container = LiveServiceContainer()
+        environment.services = container
+
+        #expect(environment.services as AnyObject === container)
     }
 
     @Test("MockProEntitlementProvider 可注入 isProUser=true/false")

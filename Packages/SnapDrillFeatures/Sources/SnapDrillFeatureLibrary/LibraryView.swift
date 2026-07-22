@@ -317,6 +317,9 @@ private struct LibraryLoadingView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     LibraryView(router: LibraryRouter())
+        .environment(\.services, MockServiceContainer())
 }
+#endif

@@ -1367,6 +1367,36 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertNotIn("grep ", dependency_step)
         self.assertNotIn("2>/dev/null", dependency_step)
 
+    def test_build_job_enforces_release_test_override_boundary(self) -> None:
+        docs_step = self.step_body(self.build, "Validate docs")
+
+        self.assertIn(
+            "python3 Scripts/validate_release_test_overrides.py --check",
+            docs_step,
+        )
+
+        release_step = self.step_body(
+            self.build, "Validate effective Release Swift conditions"
+        )
+        self.assertIn("-scheme SnapDrillShare", release_step)
+        self.assertIn("-configuration Release", release_step)
+        self.assertIn(
+            "for release_destination in 'generic/platform=iOS Simulator' "
+            "'generic/platform=iOS'",
+            release_step,
+        )
+        self.assertIn('-destination "$release_destination"', release_step)
+        self.assertIn("-showBuildSettings", release_step)
+        self.assertIn("-json", release_step)
+        self.assertIn("--effective-release-settings-stdin", release_step)
+        self.assertIn("for package in Packages/*", release_step)
+        self.assertIn('swift package --package-path "$package" dump-package', release_step)
+        self.assertIn("--effective-package-settings-stdin", release_step)
+        self.assertIn(
+            '-clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill"',
+            release_step,
+        )
+
     def test_both_jobs_bind_tools_checkout_and_simulator_through_contract(self) -> None:
         for job in (self.build, self.ui):
             with self.subTest(job=job[:30]):

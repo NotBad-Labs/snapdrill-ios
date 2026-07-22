@@ -22,8 +22,12 @@ final class DependencyContainer {
 
     // MARK: - Properties
 
-    /// UI 测试模式标志（通过 --uitesting launch argument 激活）
+    /// UI 测试模式标志（仅 Debug 构建可通过 launch argument 激活）
+#if DEBUG
     static let isUITesting = ProcessInfo.processInfo.arguments.contains("--uitesting")
+#else
+    static let isUITesting = false
+#endif
 
     static let shared = DependencyContainer()
 
@@ -36,6 +40,7 @@ final class DependencyContainer {
     // MARK: - Initialization
 
     private init() {
+#if DEBUG
         // UI 测试模式：使用 mock services 与 in-memory 存储。
         if Self.isUITesting {
             let draftService: any CaptureDraftServiceProtocol
@@ -50,6 +55,7 @@ final class DependencyContainer {
             SnapDrillLogger.generic.info("DependencyContainer: UI 测试模式初始化完成")
             return
         }
+#endif
 
         // 1. 分析服务：全球生产基线为零后端行为采集。
         //    Firebase SDK 已删除；生产注入无网络副作用的 NoOpAnalyticsService。

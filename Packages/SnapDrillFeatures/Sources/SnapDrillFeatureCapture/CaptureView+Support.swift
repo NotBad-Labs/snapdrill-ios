@@ -16,6 +16,7 @@ enum CaptureMethod {
     case pdf
 }
 
+#if DEBUG
 #Preview {
     @Bindable var router = CaptureRouter()
     return CaptureView(
@@ -24,4 +25,6 @@ enum CaptureMethod {
         draftService: CaptureDraftServiceMock(),
         activityTracker: AppActivityTracker()
     )
+    .environment(\.services, MockServiceContainer())
 }
+#endif

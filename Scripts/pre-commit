@@ -56,6 +56,12 @@ python3 Scripts/validate_release_configuration.py --check || {
   exit 1
 }
 
+echo "Checking Release test-override boundaries..."
+python3 Scripts/validate_release_test_overrides.py --check --require-index-match || {
+  echo "error: Release 测试替身边界检查失败，请将测试入口与 Mock 引用限制在 Debug"
+  exit 1
+}
+
 echo "Running script regression tests..."
 python3 -m unittest discover -s Scripts/tests || {
   echo "error: script regression tests failed"

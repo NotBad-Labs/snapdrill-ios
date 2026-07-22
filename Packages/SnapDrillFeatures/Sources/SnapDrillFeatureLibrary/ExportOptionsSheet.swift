@@ -320,6 +320,9 @@ struct ReviewExport: Transferable {
     }
 }
 
+#if DEBUG
 #Preview {
     ExportOptionsSheet(items: [])
+        .environment(\.services, MockServiceContainer())
 }
+#endif

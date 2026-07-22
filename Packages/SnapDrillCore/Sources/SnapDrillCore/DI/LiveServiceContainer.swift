@@ -54,7 +54,7 @@ public final class LiveServiceContainer: ServiceContainer {
         self.appConfig = AppConfiguration()
         self.pdfExport = PDFExportService()
         self.privacyConsent = PrivacyConsentService()
-        self.analytics = analytics ?? AnalyticsServiceMock()
+        self.analytics = analytics ?? NoOpAnalyticsService()
         self.notification = notification ?? LiveNotificationService()
         self.ocr = ocr ?? OCRService()
         self.captureDraft = captureDraft ?? CaptureDraftService()

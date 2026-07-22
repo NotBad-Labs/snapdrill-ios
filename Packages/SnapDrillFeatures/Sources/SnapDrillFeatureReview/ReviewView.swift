@@ -23,7 +23,6 @@ public struct ReviewView: View {
     
     @Bindable private var router: ReviewRouter
     @Environment(\.repositories) private var repositories
-    @Environment(\.analyticsService) private var analyticsService
     @Environment(\.services) private var services
     @State private var viewModel: ReviewViewModel?
     @State private var profileTipState = ProfileTipState()
@@ -61,7 +60,7 @@ public struct ReviewView: View {
                 if viewModel == nil {
                     viewModel = ReviewViewModel(
                         repository: repositories.archive,
-                        analyticsService: analyticsService,
+                        analyticsService: services.analytics,
                         deletionScheduler: services.deletionScheduler
                     )
                 }
@@ -368,6 +367,9 @@ public struct ReviewView: View {
 
 // MARK: - Preview
 
+#if DEBUG
 #Preview {
     ReviewView(router: ReviewRouter())
+        .environment(\.services, MockServiceContainer())
 }
+#endif

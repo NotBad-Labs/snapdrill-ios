@@ -433,7 +433,12 @@ public final class CaptureResultViewModel {
         navigateTask = Task {
             try? await Task.sleep(for: .milliseconds(300)) // best-effort: 取消即导航，延迟中断不影响正确性
             guard !Task.isCancelled else { return }
-            router.popAfterSave(isUITesting: ProcessInfo.processInfo.arguments.contains("--uitesting"))
+#if DEBUG
+            let isUITesting = ProcessInfo.processInfo.arguments.contains("--uitesting")
+#else
+            let isUITesting = false
+#endif
+            router.popAfterSave(isUITesting: isUITesting)
         }
     }
 

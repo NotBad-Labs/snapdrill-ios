@@ -219,9 +219,12 @@ public struct DashboardView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     DashboardView(router: DashboardRouter())
+        .environment(\.services, MockServiceContainer())
 }
+#endif
 
 private enum DashboardTone {
     static let capture = LinearGradient(

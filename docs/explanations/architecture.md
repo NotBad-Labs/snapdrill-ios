@@ -93,8 +93,12 @@ DependencyContainer.shared（App 启动时初始化）
 | `\.services` | `ServiceContainer` | PDF 导出、通知、隐私授权、Analytics |
 | `\.repositories` | `RepositoryContainer` | 数据读写 |
 | `\.profileManager` | `ProfileManager` | 多 Profile 切换 |
-| `\.analyticsService` | `AnalyticsServiceProtocol` | 埋点 |
 | `.modelContainer()` | `ModelContainer` | SwiftData |
+
+`\.services` 必须由 App 根或 Debug Preview 显式注入。默认 Environment 容器仅允许
+SwiftUI 完成读取与 get-modify-set；实际访问任何未注入服务会以稳定错误立即失败，避免
+Release 静默使用测试替身。Analytics 只经 `ServiceContainer.analytics` 提供，不维护并行
+EnvironmentKey。
 
 **Remote Config 链路**：
 DependencyContainer → AppConfiguration → FeatureFlags（Remote Config 已移除，FeatureFlags 仅读 UserDefaults）

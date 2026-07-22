@@ -30,6 +30,43 @@ EXPECTED_SETTINGS = {
 }
 
 
+def valid_effective_release_settings() -> list[dict[str, object]]:
+    return [
+        {
+            "target": target,
+            "buildSettings": {
+                "CONFIGURATION": "Release",
+                "OTHER_SWIFT_FLAGS": "$(inherited) -default-isolation MainActor",
+            },
+        }
+        for target in sorted(validator.RELEASE_XCODE_TARGET_NAMES)
+    ]
+
+
+def valid_effective_package_settings() -> dict[str, object]:
+    return {
+        "targets": [
+            {
+                "name": "Library",
+                "type": "regular",
+                "settings": [
+                    {
+                        "tool": "swift",
+                        "condition": {"config": "debug", "platformNames": []},
+                        "kind": {"define": {"_0": "DEBUG"}},
+                    },
+                    {
+                        "tool": "swift",
+                        "condition": {"config": "debug", "platformNames": []},
+                        "kind": {"unsafeFlags": {"_0": ["-DDEBUG"]}},
+                    },
+                ],
+            },
+            {"name": "LibraryTests", "type": "test", "settings": []},
+        ]
+    }
+
+
 def valid_project() -> dict[str, object]:
     return {
         "rootObject": "PROJECT",
@@ -199,6 +236,140 @@ class ValidateReleaseConfigurationTests(unittest.TestCase):
                         and value in error
                         for error in errors
                     )
+                )
+
+    def test_effective_release_swift_conditions_reject_debug_defines(self) -> None:
+        valid = valid_effective_release_settings()
+        self.assertEqual(validator.validate_effective_release_settings(valid), [])
+
+        for target_index in range(len(valid)):
+            for key, value in (
+                ("SWIFT_ACTIVE_COMPILATION_CONDITIONS", "DEBUG $(inherited)"),
+                ("OTHER_SWIFT_FLAGS", "$(inherited) -DDEBUG"),
+                ("OTHER_SWIFT_FLAGS", "$(inherited) -D DEBUG"),
+            ):
+                with self.subTest(target_index=target_index, key=key, value=value):
+                    payload = copy.deepcopy(valid)
+                    payload[target_index]["buildSettings"][key] = value
+                    errors = validator.validate_effective_release_settings(payload)
+                    self.assertTrue(
+                        any(key in error and "DEBUG" in error for error in errors)
+                    )
+
+    def test_effective_release_swift_flags_reject_response_files(self) -> None:
+        for value in (
+            "$(inherited) @Configs/release-flags.rsp",
+            "$(inherited) '@Configs/release flags.rsp'",
+        ):
+            with self.subTest(value=value):
+                payload = valid_effective_release_settings()
+                payload[0]["buildSettings"]["OTHER_SWIFT_FLAGS"] = value
+
+                errors = validator.validate_effective_release_settings(payload)
+
+                self.assertTrue(any("response files" in error for error in errors))
+
+    def test_effective_release_swift_flags_fail_closed_when_not_tokenizable(self) -> None:
+        payload = valid_effective_release_settings()
+        payload[0]["buildSettings"]["OTHER_SWIFT_FLAGS"] = "$(inherited) 'unterminated"
+
+        errors = validator.validate_effective_release_settings(payload)
+
+        self.assertTrue(any("must be tokenizable" in error for error in errors))
+
+    def test_effective_release_swift_conditions_fail_closed_on_wrong_shape(self) -> None:
+        cases = (
+            None,
+            [],
+            [valid_effective_release_settings()[0]],
+            [
+                {
+                    "target": "Other",
+                    "buildSettings": {"CONFIGURATION": "Release"},
+                }
+            ],
+            [
+                {
+                    "target": "SnapDrill",
+                    "buildSettings": {"CONFIGURATION": "Debug"},
+                },
+                valid_effective_release_settings()[1],
+            ],
+            [
+                {"target": "SnapDrill", "buildSettings": []},
+                valid_effective_release_settings()[1],
+            ],
+        )
+        for payload in cases:
+            with self.subTest(payload=payload):
+                self.assertNotEqual(
+                    validator.validate_effective_release_settings(payload), []
+                )
+
+    def test_effective_package_release_conditions_reject_debug_defines(self) -> None:
+        valid = valid_effective_package_settings()
+        self.assertEqual(validator.validate_effective_package_settings(valid), [])
+
+        unsafe_flag_cases = (
+            ["-DDEBUG"],
+            ["-D", "DEBUG"],
+            ["$(inherited)", "-DDEBUG=1"],
+            ["-Xfrontend", "-D", "-Xfrontend", "DEBUG"],
+            ["@compiler-flags.rsp"],
+            ["-warnings-as-errors"],
+        )
+        for flags in unsafe_flag_cases:
+            with self.subTest(flags=flags):
+                payload = valid_effective_package_settings()
+                payload["targets"][0]["settings"] = [
+                    {
+                        "tool": "swift",
+                        "kind": {"unsafeFlags": {"_0": flags}},
+                    }
+                ]
+                errors = validator.validate_effective_package_settings(payload)
+                self.assertTrue(any("unsafeFlags" in error for error in errors))
+
+        for condition in (None, {"config": "release", "platformNames": []}):
+            with self.subTest(condition=condition):
+                setting = {
+                    "tool": "swift",
+                    "kind": {"define": {"_0": "DEBUG"}},
+                }
+                if condition is not None:
+                    setting["condition"] = condition
+                payload = valid_effective_package_settings()
+                payload["targets"][0]["settings"] = [setting]
+                errors = validator.validate_effective_package_settings(payload)
+                self.assertTrue(any("must not define DEBUG" in error for error in errors))
+
+    def test_effective_package_settings_fail_closed_on_wrong_shape(self) -> None:
+        cases = (
+            None,
+            {},
+            {"targets": []},
+            {"targets": [None]},
+            {"targets": [{"name": "Library", "type": "regular", "settings": {}}]},
+            {
+                "targets": [
+                    {
+                        "name": "Library",
+                        "type": "regular",
+                        "settings": [
+                            {
+                                "tool": "swift",
+                                "condition": {"config": "profile"},
+                                "kind": {"define": {"_0": "DEBUG"}},
+                            }
+                        ],
+                    }
+                ]
+            },
+        )
+        for payload in cases:
+            with self.subTest(payload=payload):
+                self.assertNotEqual(
+                    validator.validate_effective_package_settings(payload), []
                 )
 
     def test_malformed_object_graph_fails_closed(self) -> None:
