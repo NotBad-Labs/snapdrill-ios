@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-19
+last_verified: 2026-07-22
 layer: contract
 freshness:
   max_age_days: 180
@@ -8,43 +8,58 @@ freshness:
 # Backup Wire Format
 
 > This document owns two deliberately separate facts: the immutable Profile ZIP v2 development
-> fixture contract, and the ratified Release 1 Backup v3 container-family boundary. It records
-> on-disk contracts, not current Swift type names.
+> fixture contract, and the ratified Release 1 Backup v3 wire contract. It records on-disk
+> contracts, not current Swift type names.
 >
 > **Product rebaseline (2026-07-15):** Profile ZIP v2 remains frozen only so epoch-before rejection
 > and historical fixtures stay explainable. PO-ratified D1-B selects a purpose-built SQLite
-> `.snapdrillbackup` application document for Release 1. This selection is not a DDL or code
-> authorization: the exact v3 schema, defensive opening sequence, fixtures and compatibility rules
-> must be frozen below and separately approved before a writer/reader implementation starts. The
-> Profile-free semantic inventory and recovery lifetime are owned by
+> `.snapdrillbackup` application document for Release 1. PO-ratified P3-A (2026-07-22) incorporates
+> the exact v3 schema, defensive opening sequence, fixtures and compatibility rules below. Neither
+> decision is a writer / reader implementation or merge authorization. The Profile-free semantic
+> inventory and recovery lifetime are owned by
 > [Local Library Data Contract](local-library-data-contract.md), not duplicated here.
 >
-> **Release safety inputs (2026-07-19):** S1-A and D4S-A now constrain what a v3 writer / reader
-> must consume. Their product limits, complete-operation prestate and mutation barrier remain owned
-> by the Local Library Data Contract and are not duplicated here. They do not approve a v3 DDL,
-> SQLite package, object allowlist, journal operation or fixture.
+> **Release safety inputs (2026-07-22):** S1-A, D4S-A and P2-B-A through P2-G-A constrain what a v3
+> writer / reader must consume. Their product limits, semantic inventory, complete-operation prestate
+> and mutation barrier remain owned by the Local Library Data Contract and are not duplicated here.
 
 ## Format Version
 
-- Current backup schema version: `BackupManifest.currentSchemaVersion == 2`.
+- Current live backup writer remains `BackupManifest.currentSchemaVersion == 2`.
+- The ratified Release 1 external wire uses SQLite `user_version == 3`; it is not yet the live
+  writer / reader merely because its contract is ratified.
 - Backup schema versioning is independent from the SwiftData schema.
 - Version `2` is the post-static-difficulty baseline: fixed `difficulty` is removed, and level /
   difficulty-like attributes are represented through dynamic dimensions and `categoryValueIds`.
 
-### Release 1 Backup v3: ratified container boundary
+### Release 1 Backup v3: exact ratified wire contract
 
 **D1-B is ratified**: the user-controlled artifact is one purpose-built SQLite
 `.snapdrillbackup` application document. It is not the live SwiftData store, a copied WAL database,
 or a general ZIP. Ordinary ZIP extraction is not a Release 1 requirement. Files, AirDrop and the
 system share sheet still treat the result as one portable document.
 
-Before writer, reader, schema or fixture implementation, the Data / Security DRI must shape, obtain
-PO approval for, and make effective all of the following through this document. Exact DDL, fixtures,
-validators and hostile corpora may live in an immutable evidence package incorporated here by one
-manifest SHA-256; that package is never a second lifecycle or product authority. Its manifest may
-record freeze-time provenance and integrity, but `ratified`, `effective` and implementation
-authorization remain owned here and by the normal PO / merge workflow. D1-B did not approve these
-irreversible wire details:
+**P3-A is ratified (PO, 2026-07-22):** this document incorporates the immutable
+[Backup v3 contract candidate](backup-wire-v3/backup-wire-v3-candidate.md) and its evidence package
+with these exact identities:
+
+- contract candidate SHA-256:
+  `0fa115bfedc851a3cbda36d7add21d7921a5342c1367c1481dc57ed9a3398575`;
+- package [manifest](backup-wire-v3/manifest.json) SHA-256:
+  `b4a595a7e14f48272474c81de1536652f2be25a4e6c1edf862004f8f5138669d`;
+- manifest-framed review-input SHA-256:
+  `3a32f0f33a8d3aeb4446e88d724f717eda276ba0a518f86e73e12735259cc4aa`;
+- independent [review result](backup-wire-v3/independent-review-result.json) SHA-256:
+  `68a5c4cd38ac7a3ee910e0d45e24bb46522ea24ececfda3792becefbb82f0e4f`
+  (`PASS`, zero findings).
+
+The candidate file's own "not yet ratified" status is immutable freeze-time provenance; this owning
+document controls its current lifecycle. The package remains subordinate evidence, never a second
+product or lifecycle authority. Any byte change that breaks one of these identities requires a new
+review and PO ratification. Any incompatible wire change requires a later `user_version`; v3 cannot
+be reinterpreted in place.
+
+P3-A fixes the following irreversible wire details through the incorporated candidate and package:
 
 - versioned DDL, a SnapDrill-specific `application_id`, `user_version`, exact allowed objects and
   migration / rejection rules;
@@ -63,6 +78,11 @@ irreversible wire details:
 - transaction/finalization rules proving the exported artifact is exactly one closed file with no
   required WAL/journal sidecar, plus semantic golden fixtures, adversarial corpus and a documented
   standard-SQLite extraction recipe.
+
+P3-A becomes effective only when this owning-document change is merged into `develop`. It does not
+authorize a production writer / reader, Profile-free runtime, restore switch, legacy retirement,
+upload or release. Each implementation slice and merge still requires its own current admission,
+validation and PO merge authorization.
 
 Byte-for-byte SQLite determinism is not required. The schema and semantic fixtures are. D3-B's
 `missing-at-snapshot` state belongs only to an internal recovery-only artifact and must never appear
