@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  ImageStorage 文件 I/O 与 ImageIO 下采样逻辑测试。
+//  ImageStorage 文件 I/O 与 canonical JPEG 逻辑测试。
 
 import Testing
 import Foundation
@@ -241,7 +241,7 @@ struct ImageStorageTests {
 
     // MARK: - compressedJPEGData & saveImage
 
-    @Test("compressedJPEGData 长边未超限时直接编码不缩放")
+    @Test("compressedJPEGData 长边未超限时规范化但不缩放")
     func compressedJPEGData_withinLimit_noResize() throws {
         let image = createTestImage(width: 100, height: 200)
 
@@ -252,7 +252,15 @@ struct ImageStorageTests {
         #expect(abs(decoded.size.height - 200) <= 1)
     }
 
-    @Test("compressedJPEGData 长边超限时通过 ImageIO 下采样")
+    @Test("compressedJPEGData rejects invalid and policy-exceeding bounds without trapping")
+    func compressedJPEGData_rejectsInvalidBounds() {
+        let image = createTestImage(width: 20, height: 20)
+        #expect(ImageStorage.compressedJPEGData(from: image, maxLongSide: 0, quality: 0.8) == nil)
+        #expect(ImageStorage.compressedJPEGData(from: image, maxLongSide: 2_001, quality: 0.8) == nil)
+        #expect(ImageStorage.compressedJPEGData(from: image, maxLongSide: .greatestFiniteMagnitude, quality: 0.8) == nil)
+    }
+
+    @Test("compressedJPEGData 长边超限时缩放到 canonical 上限")
     func compressedJPEGData_exceedsLimit_scalesDown() throws {
         let image = createTestImage(width: 3000, height: 2000)
 
@@ -321,11 +329,11 @@ struct ImageStorageTests {
 
         let image = try #require(UIImage(data: withGPS))
 
-        // 无缩放路径：长边未超限，直接 CGImageDestination 编码
+        // 无缩放路径：长边未超限，仍经过 canonical 编码边界
         let small = try #require(ImageStorage.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8))
         #expect(gpsDictionary(of: small) == nil, "无缩放路径输出不得包含 GPS 位置元数据")
 
-        // 缩放路径：长边超限，走 ImageIO 下采样后再编码
+        // 缩放路径：长边超限，规范化后再编码
         let scaled = try #require(ImageStorage.compressedJPEGData(from: image, maxLongSide: 64, quality: 0.8))
         #expect(gpsDictionary(of: scaled) == nil, "缩放路径输出不得包含 GPS 位置元数据")
     }

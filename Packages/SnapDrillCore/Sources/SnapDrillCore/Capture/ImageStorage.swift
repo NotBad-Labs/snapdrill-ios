@@ -8,8 +8,9 @@
 //  图片存储服务，负责将图片持久化到本地文件系统。
 //
 
-import UIKit
+import Darwin
 import ImageIO
+import UIKit
 
 /// 图片存储服务
 ///
@@ -27,10 +28,18 @@ import ImageIO
 /// ```
 public struct ImageStorage: Sendable {
 
+    typealias ImagePublisher = @Sendable (
+        _ bytes: Data,
+        _ staging: DurableRegularFilePublisher.RelativeFile,
+        _ destination: DurableRegularFilePublisher.RelativeFile,
+        _ root: URL
+    ) throws -> Void
+
     // MARK: - Properties
 
     /// 图片存储根目录（Profile 隔离目录）
     private let baseDirectory: URL
+    private let publishImage: ImagePublisher
 
     // MARK: - Initialization
 
@@ -40,12 +49,19 @@ public struct ImageStorage: Sendable {
     ///   - scope: Profile 隔离作用域（用于日志/调试）
     nonisolated public init(baseDirectory: URL, scope: ProfileScope) {
         self.baseDirectory = baseDirectory
+        publishImage = Self.publishImageLive
     }
 
     /// 使用显式根目录创建图片存储服务（备份、测试或 Preview 路径）
     /// - Parameter baseDirectory: 图片存储根目录
     nonisolated public init(baseDirectory: URL) {
         self.baseDirectory = baseDirectory
+        publishImage = Self.publishImageLive
+    }
+
+    nonisolated init(baseDirectory: URL, publishImage: @escaping ImagePublisher) {
+        self.baseDirectory = baseDirectory
+        self.publishImage = publishImage
     }
 
     /// 判断数据库/备份中的图片路径是否为唯一允许的规范格式。
@@ -69,26 +85,54 @@ public struct ImageStorage: Sendable {
 
     /// 保存图片到本地
     ///
-    /// 将 UIImage 压缩为 JPEG 格式并异步写入磁盘。
-    /// 大图使用 ImageIO 流式下采样，避免 UIGraphicsImageRenderer 的双倍内存峰值。
+    /// 将 UIImage 规范化为 canonical JPEG 并异步、持久地发布到磁盘。
     ///
     /// - Parameter image: 要保存的原始图片对象
     /// - Returns: 图片的相对路径 (例如 `"images/123-abc.jpg"`)，可用于后续存入数据库
     /// - Throws: `ImageStorageError` 如果图片数据转换失败或文件写入失败
     nonisolated public func saveImage(_ image: UIImage) async throws -> String {
-        guard let data = Self.compressedJPEGData(from: image, maxLongSide: 2000, quality: 0.8) else {
-            throw ImageStorageError.invalidImageData
-        }
-
         let base = baseDirectory
+        let publish = publishImage
         return try await Task.detached {
             let fileManager = FileManager.default
-            let imagesDirectory = try Self.prepareStorageDirectory(base, fileManager: fileManager)
-
-            let filename = UUID().uuidString + ".jpg"
-            let fileURL = imagesDirectory.appendingPathComponent(filename)
-            try data.write(to: fileURL)
-
+            let data: Data
+            do {
+                data = try CanonicalJPEG.encode(image)
+            } catch {
+                throw ImageStorageError.invalidImageData
+            }
+            _ = try Self.prepareStorageDirectory(base, fileManager: fileManager)
+            let identifier = UUID().uuidString.lowercased()
+            let filename = identifier + ".jpg"
+            let stagingName = "." + identifier + ".staging"
+            let staging = try DurableRegularFilePublisher.RelativeFile(
+                parentComponents: ["images"],
+                fileName: stagingName
+            )
+            let destination = try DurableRegularFilePublisher.RelativeFile(
+                parentComponents: ["images"],
+                fileName: filename
+            )
+            guard let imagesDescriptor = Self.openImagesDirectory(beneath: base) else {
+                throw ImageStorageError.publicationFailed
+            }
+            defer { _ = Darwin.close(imagesDescriptor) }
+            guard Self.pathIsAbsent(named: stagingName, in: imagesDescriptor),
+                  Self.pathIsAbsent(named: filename, in: imagesDescriptor) else {
+                throw ImageStorageError.publicationFailed
+            }
+            do {
+                try publish(data, staging, destination, base)
+            } catch let error as DurableRegularFilePublicationError
+                where error.outcome == .publicationOutcomeUncertain {
+                Self.removeStagingFileIfPresent(stagingName, in: imagesDescriptor)
+                guard Self.reconcilePublishedFile(named: filename, expected: data, in: imagesDescriptor) else {
+                    throw ImageStorageError.publicationOutcomeUncertain
+                }
+            } catch {
+                Self.removeStagingFileIfPresent(stagingName, in: imagesDescriptor)
+                throw ImageStorageError.publicationFailed
+            }
             return "images/" + filename
         }.value
     }
@@ -269,93 +313,134 @@ public struct ImageStorage: Sendable {
 
     // MARK: - Private Helpers
 
-    /// 将 UIImage 压缩为 JPEG Data，大图通过 ImageIO 流式下采样
-    ///
-    /// 内存优化策略：
-    /// - 无需缩放时：通过 CGImageDestination 直接从 CGImage 编码（剥离 EXIF GPS）
-    /// - 需要缩放时：先编码为 JPEG Data，再通过 ImageIO `CGImageSourceCreateThumbnailAtIndex`
-    ///   流式解码为目标尺寸的 CGImage，最后通过 CGImageDestination 编码
-    ///   避免 UIGraphicsImageRenderer 同时持有原图位图（~48MB@12MP）+ 缩放画布的双倍峰值
-    ///
-    /// 安全策略：
-    /// - 所有路径统一使用 `jpegDataStrippingLocation` 编码最终输出
-    /// - CGImageDestination 从 CGImage 编码时不携带 EXIF 元数据（含 GPS 位置），
-    ///   确保产品「零个人信息收集」的隐私承诺在图片层面也成立
-    ///
-    /// - Parameters:
-    ///   - image: 原始图片
-    ///   - maxLongSide: 长边物理像素上限
-    ///   - quality: JPEG 压缩质量（0.0-1.0）
-    /// - Returns: 压缩后的 JPEG Data（不含 GPS 元数据），失败返回 nil
+    /// 将 UIImage 编码为唯一 canonical JPEG；失败返回 nil 以保持现有调用契约。
     public nonisolated static func compressedJPEGData(from image: UIImage, maxLongSide: CGFloat, quality: CGFloat) -> Data? {
-        // 计算物理像素尺寸（image.size 是逻辑点，需乘以 scale）
-        let pixelWidth = image.size.width * image.scale
-        let pixelHeight = image.size.height * image.scale
-        let longSide = max(pixelWidth, pixelHeight)
-
-        let needsOrientationTransform = image.imageOrientation != .up
-
-        // 无需缩放且像素已正向：直接从 CGImage 编码（剥离 EXIF GPS）
-        guard longSide > maxLongSide || needsOrientationTransform else {
-            return jpegDataStrippingLocation(from: image.cgImage, quality: quality)
-        }
-
-        // 需要缩放或方向变换：先编码为临时 JPEG Data（仅作为 ImageIO 输入，不作最终输出）
-        guard let tempData = image.jpegData(compressionQuality: quality),
-              let source = CGImageSourceCreateWithData(tempData as CFData, nil) else {
-            return nil
-        }
-
-        let outputLongSide = min(longSide, maxLongSide)
-
-        let options: [CFString: Any] = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceShouldCacheImmediately: true,
-            kCGImageSourceThumbnailMaxPixelSize: max(1, Int(outputLongSide.rounded(.up)))
-        ]
-
-        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            // 非正向图片不能回退到原始 CGImage，否则会把错误方向永久写入内容真相。
-            guard !needsOrientationTransform else { return nil }
-            return jpegDataStrippingLocation(from: image.cgImage, quality: quality)
-        }
-
-        // 从下采样的 CGImage 编码最终 JPEG Data（CGImage 不携带 EXIF，天然无 GPS）
-        return jpegDataStrippingLocation(from: cgImage, quality: quality)
+        guard maxLongSide.isFinite,
+              (1...CGFloat(CanonicalJPEG.maximumDimension)).contains(maxLongSide) else { return nil }
+        return try? CanonicalJPEG.encode(
+            image,
+            maxLongSide: Int(maxLongSide.rounded(.down)),
+            quality: quality
+        )
     }
 
-    /// 从 CGImage 编码 JPEG Data，不包含位置元数据
-    ///
-    /// CGImage 是纯像素数据容器，不携带 EXIF 元数据（与 UIImage 不同）。
-    /// 通过 CGImageDestination 直接从 CGImage 编码，确保输出不含 GPS 经纬度、
-    /// 设备型号等隐私敏感的 EXIF 字段。
-    ///
-    /// - Parameters:
-    ///   - cgImage: 源像素数据
-    ///   - quality: JPEG 压缩质量（0.0-1.0）
-    /// - Returns: 不含位置元数据的 JPEG Data，CGImage 为 nil 时返回 nil
-    nonisolated private static func jpegDataStrippingLocation(from cgImage: CGImage?, quality: CGFloat) -> Data? {
-        guard let cgImage else { return nil }
-        let mutableData = NSMutableData()
-        guard let destination = CGImageDestinationCreateWithData(
-            mutableData, "public.jpeg" as CFString, 1, nil
-        ) else { return nil }
-
-        let properties: [CFString: Any] = [
-            kCGImageDestinationLossyCompressionQuality: quality
-        ]
-        CGImageDestinationAddImage(destination, cgImage, properties as CFDictionary)
-
-        guard CGImageDestinationFinalize(destination) else { return nil }
-        return mutableData as Data
+    nonisolated private static func publishImageLive(
+        _ bytes: Data,
+        staging: DurableRegularFilePublisher.RelativeFile,
+        destination: DurableRegularFilePublisher.RelativeFile,
+        root: URL
+    ) throws {
+        try DurableRegularFilePublisher().publish(
+            bytes,
+            staging: staging,
+            destination: destination,
+            beneath: root,
+            isExcludedFromBackup: false
+        )
     }
+
+    nonisolated private static func openImagesDirectory(beneath root: URL) -> Int32? {
+        let rootDescriptor = root.path.withCString {
+            Darwin.open($0, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        }
+        guard rootDescriptor >= 0 else { return nil }
+        defer { _ = Darwin.close(rootDescriptor) }
+        let flags = O_RDONLY | O_DIRECTORY | O_NOFOLLOW_ANY | O_RESOLVE_BENEATH | O_CLOEXEC
+        let imagesDescriptor = "images".withCString { Darwin.openat(rootDescriptor, $0, flags) }
+        return imagesDescriptor >= 0 ? imagesDescriptor : nil
+    }
+
+    nonisolated private static func reconcilePublishedFile(
+        named name: String,
+        expected: Data,
+        in imagesDescriptor: Int32
+    ) -> Bool {
+        let flags = O_RDONLY | O_NOFOLLOW_ANY | O_RESOLVE_BENEATH | O_UNIQUE | O_CLOEXEC
+        let descriptor = name.withCString { Darwin.openat(imagesDescriptor, $0, flags) }
+        guard descriptor >= 0 else { return false }
+        defer { _ = Darwin.close(descriptor) }
+        var metadata = stat()
+        guard Darwin.fstat(descriptor, &metadata) == 0,
+              metadata.st_mode & S_IFMT == S_IFREG,
+              metadata.st_nlink == 1,
+              metadata.st_size >= 0,
+              pathMetadata(named: name, in: imagesDescriptor).map({ sameFile($0, metadata) }) == true else {
+            return false
+        }
+        guard metadata.st_size == off_t(expected.count),
+              let data = readExactBytes(descriptor: descriptor, byteCount: expected.count) else { return false }
+        var finalMetadata = stat()
+        guard Darwin.fstat(descriptor, &finalMetadata) == 0,
+              sameFile(finalMetadata, metadata),
+              finalMetadata.st_size == metadata.st_size,
+              pathMetadata(named: name, in: imagesDescriptor).map({ sameFile($0, finalMetadata) }) == true else {
+            return false
+        }
+        return data == expected
+    }
+
+    nonisolated private static func readExactBytes(descriptor: Int32, byteCount: Int) -> Data? {
+        var data = Data(count: byteCount)
+        let succeeded = data.withUnsafeMutableBytes { buffer in
+            guard let address = buffer.baseAddress else { return byteCount == 0 }
+            var offset = 0
+            while offset < buffer.count {
+                let count = Darwin.read(descriptor, address.advanced(by: offset), buffer.count - offset)
+                if count > 0 {
+                    offset += count
+                } else if count == 0 || errno != EINTR {
+                    return false
+                }
+            }
+            var trailing: UInt8 = 0
+            return Darwin.read(descriptor, &trailing, 1) == 0
+        }
+        return succeeded ? data : nil
+    }
+
+    nonisolated private static func removeStagingFileIfPresent(_ name: String, in imagesDescriptor: Int32) {
+        guard name.hasPrefix("."), name.hasSuffix(".staging") else { return }
+        let flags = O_RDONLY | O_NOFOLLOW_ANY | O_RESOLVE_BENEATH | O_UNIQUE | O_CLOEXEC
+        let descriptor = name.withCString { Darwin.openat(imagesDescriptor, $0, flags) }
+        guard descriptor >= 0 else { return }
+        defer { _ = Darwin.close(descriptor) }
+        var metadata = stat()
+        guard Darwin.fstat(descriptor, &metadata) == 0,
+              metadata.st_mode & S_IFMT == S_IFREG,
+              metadata.st_nlink == 1,
+              pathMetadata(named: name, in: imagesDescriptor).map({ sameFile($0, metadata) }) == true else { return }
+        let result = name.withCString { Darwin.unlinkat(imagesDescriptor, $0, 0) }
+        if result == 0 { _ = Darwin.fsync(imagesDescriptor) }
+    }
+
+    nonisolated private static func pathMetadata(named name: String, in directory: Int32) -> stat? {
+        var metadata = stat()
+        let flags = AT_SYMLINK_NOFOLLOW_ANY | AT_RESOLVE_BENEATH | AT_UNIQUE
+        let result = name.withCString { Darwin.fstatat(directory, $0, &metadata, flags) }
+        return result == 0 ? metadata : nil
+    }
+
+    nonisolated private static func pathIsAbsent(named name: String, in directory: Int32) -> Bool {
+        var metadata = stat()
+        let flags = AT_SYMLINK_NOFOLLOW_ANY | AT_RESOLVE_BENEATH | AT_UNIQUE
+        let result = name.withCString { Darwin.fstatat(directory, $0, &metadata, flags) }
+        return result != 0 && errno == ENOENT
+    }
+
+    nonisolated private static func sameFile(_ lhs: stat, _ rhs: stat) -> Bool {
+        lhs.st_dev == rhs.st_dev && lhs.st_ino == rhs.st_ino
+    }
+
 }
 
 /// 图片存储操作错误
-public enum ImageStorageError: Error {
+public nonisolated enum ImageStorageError: Error, Equatable, Sendable {
     /// 无法将 UIImage 转换为 JPEG 数据（通常表示图片对象已损坏）
     case invalidImageData
     /// 图片目录不是普通目录（例如目录本身是符号链接）
     case unsafeStorageDirectory
+    /// 文件未发布；调用方可安全重试。
+    case publicationFailed
+    /// rename 后结果无法证明，保留未引用节点等待 reconciliation。
+    case publicationOutcomeUncertain
 }
