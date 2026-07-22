@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-21
+last_verified: 2026-07-22
 layer: contract
 release: 1
 activation: effective_when_merged_to_develop
@@ -130,11 +130,12 @@ UI 文案、Swift 类型和数据库表达可以演进，但失败原子性、�
 | `AS/LocalLibrary/transactions/<uuid>/prestate.json` | `restore` / `clearLibrary` / `storeRecovery` 共享 envelope；前两者使用 closed-generation semantic inventory，`storeRecovery` 使用 unavailable-store raw inventory；D3-B 只细化 restore | 直到 commit / rollback 被验证；失败时整体转入 incident |
 | `AS/LocalLibrary/transactions/<uuid>/input.snapdrillbackup` | 用户选择文件的隔离副本 | operation 期间持久、排除设备备份；绝不是唯一 rollback 材料 |
 | `AS/LocalLibrary/transactions/<uuid>/candidate/` | 尚未发布的新 generation | operation 期间持久、排除设备备份；发布前移入 `generations/` |
-| `AS/RecoveryIncidents/<uuid>/` | incident metadata、journal、prestate、原始 / candidate 材料 | 未解决时不按时间、数量或空间自动淘汰；不得排除设备备份；仅 DATA-1-R 明确动作可删 |
+| `AS/RecoveryIncidents/<uuid>/metadata.json` | metadata-last 的 classified-incident marker | 固定名普通文件；写入前全部声明材料必须已 durable、通过身份 / 保护验证且不得排除设备备份 |
+| `AS/RecoveryIncidents/<uuid>/` 的其余固定节点 | journal、prestate、source / candidate 与输入材料 | 未解决时不按时间、数量或空间自动淘汰；不得排除设备备份；仅 DATA-1-R 明确动作可删 |
 | `AS/Drafts/` | 未保存采集草稿 | 独立于资料库；崩溃可恢复；排除设备备份；不按时间自动删除，仅在正式保存成功或用户明确丢弃后删除；叶子格式由 Capture contract 维护 |
 | `AS/Diagnostics/MetricKit/` | 有界端侧诊断 | 排除设备备份；不依赖 App Group；不属于 Backup 或 Clear Library |
 | `Caches/com.snapdrill.global/` | 只含可重建派生物 | 系统管理且可清；删除不得影响任何已保存或可恢复内容 |
-| `temporaryDirectory/com.snapdrill.global/<uuid>/` | 可丢弃导出 / 导入 construction | terminal outcome 后删除；不得放唯一 rollback 副本或未解决 journal |
+| `temporaryDirectory/com.snapdrill.global/<uuid>/` | 可丢弃导出 / 导入 construction，或已获授权并完成 retire rename 的 incident trash | terminal outcome 后删除；不得放唯一 rollback 副本、未解决 journal 或仍处于 `RecoveryIncidents` 的 incident |
 | 用户选择 URL / 系统 share destination | 最终 `.snapdrillbackup` 或 PDF | 用户所有；App 内部 live 目录永不作为文档位置暴露 |
 | `Documents/profiles*` | epoch 前开发遗留 | 正常启动不得读取、创建、选择或自动删除 |
 
@@ -142,6 +143,18 @@ UI 文案、Swift 类型和数据库表达可以演进，但失败原子性、�
 固定名、越界标准化路径或 node-type 不符均 fail closed。生产持久文件显式采用
 `completeUntilFirstUserAuthentication` data protection；用户导出的文件遵循目标 URL / 系统
 surface 的保护策略。可重建和一次性材料不得因方便而升级为用户数据真相。
+
+### 3.1 `LocalLibraryRelativePath` grammar
+
+内部 inventory 的相对路径必须由同一个 Data-owned value 解析：输入是非空有效 UTF-8，使用 ASCII
+`/` 分隔一个或多个非空 component；不得有首尾 `/`、连续 `/`、`.`、`..`、反斜杠，或 Unicode General
+Category `Cc`（含 NUL）的 scalar。每个 component 与总路径还必须满足 owning operation 注入的
+filesystem / `pathconf` byte limit。路径不做 Unicode normalization、大小写折叠或 separator
+替换；身份、唯一性和 canonical 排序都按解码后的 UTF-8 byte 比较。
+
+runtime I/O 仍须从已打开的可信根执行 node type、link count、descriptor identity 与 containment
+检查，合法 lexical path 不等于可信 filesystem node。`storeRecovery` 若遇到无法用本 grammar 表达的
+既存名称，必须保持 selector 与 source bytes 不变并阻塞恢复；不得改名、跳过或规范化后继续。
 
 ## 4. Runtime 与 generation
 
@@ -211,60 +224,142 @@ terminal outcome 前拥有其所需图片字节 / generation 生命周期；admi
 宣称覆盖完整资料库。D4S-A 不把 `backup` 添加为下方破坏性 journal operation，不批准 Backup v3
 DDL / package / fixture 或具体并发实现。
 
-### 4.4 Journal grammar
+### 4.4 Internal recovery JSON v1 grammar
 
-`journal.json` 是 version `1` 的具体 JSON object，至少包含：`transactionID`、
-`operation`（`restore` / `clearLibrary` / `storeRecovery`）、`phase`、`oldGeneration`、
-`newGeneration`、`createdAt` 和 `updatedAt`。UUID 使用小写 canonical form，时间使用 UTC RFC 3339。
-路径全部由 ID 和固定根推导，journal 不接受任意路径字段。解析未知 version、operation、phase、字段
-类型或 ID 时进入 `blocked`，不得猜测。
+`journal.json`、`prestate.json` 与 incident `metadata.json` 共用一个严格 scanner。输入必须是有效 UTF-8
+JSON，top level 恰为一个 object；BOM、invalid UTF-8 / lone surrogate、raw control character、完整
+object 后的 trailing byte 均拒绝。scanner 是唯一 parser truth：不得先扫描再交给
+`JSONDecoder` / `JSONSerialization` 作第二次语义解释。object key 先完成合法 JSON escape 解码再比较，
+因此 `"a"` 与 `"\u0061"` 是 duplicate key。
+
+v1 允许 object、array、string、boolean 与 unsigned decimal integer；不允许 illegal JSON escape、
+`null`、负号 / 正号、fraction、exponent，或除 literal `0` 外的 leading zero。`version` 恰为 integer
+literal `1`；checked
+byte count 是 `0...Int64.max`。UUID 恰为 36-byte 小写 canonical form；timestamp 恰为 20-byte
+`YYYY-MM-DDTHH:MM:SSZ` 且通过 Gregorian UTC 校验，不接受 fraction、offset、lowercase 或 leap
+second。SHA-256 恰为 64-byte 小写 hexadecimal。clock rollback 合法，因此 `updatedAt` 不承担
+大于等于 `createdAt` 的时序不变量。
+
+每种 typed object 使用本文列出的精确 key set：missing / unknown / duplicate key、错误类型、未知 closed
+enum 与重复 semantic identity 都是 violation。canonical encoder 按本文字段顺序写 key；string 对
+`"`、`\` 使用 `\"`、`\\`，对 BS / HT / LF / FF / CR 使用 `\b` / `\t` / `\n` / `\f` / `\r`，
+其他 U+0000...U+001F 使用小写 `\u00xx`，其余 scalar 直接写 UTF-8，`/` 不转义。所有 string / path
+长度都是 JSON escape 解码后的 UTF-8 byte 长度。decoder 可接受
+任意无语义差别的 object / array 顺序与合法 JSON escape；只有 encoder bytes 是 canonical bytes。
+canonical encoder 在任何 token 前后或 token 之间都不写 whitespace，成员间只写一个 `,`、key 与
+value 间只写一个 `:`，array / object 直接以 `[]` / `{}` 包围内容。由固定 key / array order、number
+lexeme 与上述 string escaping 共同保证同一 typed value 只有一份 canonical byte representation。
+
+scanner 必须接受注入的 byte、nesting-depth、token 与 string-length budget，并对大数组提供 streaming
+event；budget exhaustion 是可重试的执行防御，不是产品 item / byte cap。streaming event 在完整 artifact
+通过 key closure、数组身份唯一性和 family validation 前只是 provisional，不得驱动 mutation。无产品
+上限的 identity index 可由 consuming operation 使用有界内存 / external index 实现。codec 返回结构化
+`family + fieldPath + reason` violation；bootstrap / incident consumer 再映射为 `blocked` 或
+unclassified，不得由 parser 猜测恢复结果。
+
+### 4.5 Journal identity 与 exact object
+
+`journal.json` 的 key 顺序与 exact key set 是：`version`、`transactionID`、`operation`、`phase`、
+`oldGeneration`、`newGeneration`、`createdAt`、`updatedAt`。全部字段必填且不得为 null；version 为
+`1`，operation 只允许 `restore` / `clearLibrary` / `storeRecovery`，phase 只允许 `prepared` /
+`published` / `rollingBack` / `committed` / `rolledBack` / `blocked`。old / new generation 必须不同。
+路径全部由 ID 和固定根推导，journal 不接受任意路径字段。
+
+phase 的 durable 含义固定为：`prepared` 表示 old / new / prestate 已验证而 selector 尚未确定完成发布；
+`published` 表示 selector 已 durable 指向 new；`rollingBack` 表示已决定恢复 old；`committed` 表示 new
+runtime 已重新打开并验证；`rolledBack` 表示 old runtime 已重新打开并验证；`blocked` 表示无法证明
+前滚或回滚且不得打开普通 runtime。writer 只能在对应事实 durable 后写入该 phase。
+
+transaction directory UUID 必须等于 `transactionID`。存在或所属 phase 要求的 `prestate.json` 必须与
+journal 的 `transactionID`、`operation`、`oldGeneration == sourceGeneration` 相等；source generation
+目录必须等于 old，candidate / published generation 必须等于 new。incident directory UUID 必须等于
+metadata 的 `incidentID`，其 `sourceTransactionID`、operation 与所含 journal / prestate 相等。任一
+identity、location 或 node-type 不一致都阻塞，不得按某一份 artifact 猜测。
+
+transaction 内的 new generation 只有两种互斥位置：staged candidate 固定为
+`transactions/<transactionID>/candidate/`，published new 固定为
+`generations/<newGeneration>/`；两者同时存在一律阻塞。candidate 的 fixed-path ownership 由 journal
+绑定到 `newGeneration`，但它不能满足 selector 已指向 new 时的 published-location 要求。candidate
+移入 published 位置后才可替换 selector；路径移动完成、selector 替换和 phase replacement 之间的崩溃
+由 §4.6 的位置闭包协调，不能只因字节内容可读就把 staged candidate 当成 active generation。
 
 同一时刻最多一个 non-terminal transaction。启动必须先协调 journal，之后才可构建
-`ModelContainer`。
+`ModelContainer`。selector 的替换是唯一 publication commit point；只有进程在任意指令后终止并重启
+时仍必然得到完整 old 或完整 new selector，替换 API 才可报告成功。
 
-| Phase | selector / 必须行为 |
-|---|---|
-| `prepared` | selector 仍为 old；old 已关闭并通过 prestate 验证；new 已完全构造和验证 |
-| `published` | selector durable 地指向 new；只允许打开并验证这个 generation |
-| `rollingBack` | 正在 durable 地把 selector 恢复为 old；随后只打开并验证 old |
-| `committed` | new runtime 已打开且验证；old / prestate cleanup 幂等；journal 最后删除 |
-| `rolledBack` | old runtime 已打开且验证；new cleanup 幂等；journal 最后删除 |
-| `blocked` | 前滚和回滚均不能证明；全部材料原样转入一个 incident，不发布健康空库 |
+### 4.6 Startup reconciliation table
 
-selector 的替换是唯一 commit point。写 selector 的 API 只有在进程于任意指令后终止并重启时，磁盘上
-仍必然得到完整 old 或完整 new selector，才可报告成功；实现可选择具体 durable-write primitive，
-但必须用 fault injection 证明这一结果。
+transaction root 与合法 journal 对每个 typed phase 都必需。`prepared` / `published` /
+`rollingBack` 还要求 old、new 与 prestate 全部存在且有效；`committed` 要求 new，old / prestate 可已
+删除或作为 residue 存在；`rolledBack` 要求 old，new / prestate 可已删除或作为 residue 存在。
+任何 optional residue 一旦存在仍须通过 §3.1、§4.4、§4.5 与所属 inventory 验证。phase 所需 node
+缺失、malformed 或身份不符直接阻塞。
 
-重启遇到 `prepared`：selector=old 时回滚且不改 active inventory；selector=new 时按 `published`
-前滚。遇到其他、缺失、第三个或 malformed selector 值时进入 `blocked`。所有 cleanup 可重复执行，
-但只有目标 runtime 重新打开并通过验证后才能删除 journal。
+上段的 new 必须同时满足下列 physical-location closure；表外组合全部阻塞：
+
+| phase + selector | staged candidate | published new |
+|---|---|---|
+| `prepared` + old | 允许；与 published new 恰有一个存在 | 允许；与 staged candidate 恰有一个存在 |
+| `prepared` + new | 禁止 | 必需 |
+| `published` + new | 禁止 | 必需 |
+| `rollingBack` + old | 允许；与 published new 恰有一个存在 | 允许；与 staged candidate 恰有一个存在 |
+| `rollingBack` + new | 禁止 | 必需 |
+| `committed` + new | 禁止 | 必需 |
+| `rolledBack` + old | 可作为 cleanup residue，至多一个存在 | 可作为 cleanup residue，至多一个存在 |
+
+`prepared` + old 允许 published new，是为了协调 generation directory rename 已 durable、selector 尚未
+替换的崩溃点；`rollingBack` + old 允许 staged candidate，是为了协调 publication 前已决定回滚的路径。
+terminal cleanup 合法删除 `rolledBack` 的两种 new residue，但存在时仍须验证。`blocked` 不消费本表，
+只保留材料并保持普通 runtime 关闭。
+
+在上述前置验证通过后，唯一 pure decision table 为：
+
+| journal phase | selector = old | selector = new | selector 缺失 / malformed / 第三个 UUID |
+|---|---|---|---|
+| `prepared` | rollback | roll forward | block |
+| `published` | block | roll forward | block |
+| `rollingBack` | continue / complete rollback | continue / complete rollback | block |
+| `committed` | block | idempotent cleanup | block |
+| `rolledBack` | idempotent cleanup | block | block |
+| `blocked` | remain blocked；不打开 runtime | remain blocked；不打开 runtime | remain blocked；不打开 runtime |
+
+roll forward 只有在 new runtime 重新打开且验证后才进入 `committed`；rollback 只有在 old runtime
+重新打开且验证后才进入 `rolledBack`。cleanup 可重复，且 terminal phase 合法允许已清除的 optional
+residue；journal 最后删除。任何 publication / rollback 双失败先 durable 建立 §6 classified incident，
+不得发布健康空库。R2-0A 只能实现并复用本表，后续 transaction executor 不得另写第二张决策表。
 
 ## 5. Shared prestate 与 D3-B recovery-only inventory
 
-`prestate.json` 是 version `1` 的内部 object；shared envelope 包含 `transactionID`、`operation`、
-`sourceGeneration`、`createdAt` 和 `artifactKind`，payload 必须且只能符合所属 operation 的一种
-closure。它只能位于内部 transaction / incident，不能使用 `.snapdrillbackup` 扩展名，也不能进入
-外部 reader。
+`prestate.json` 的 envelope key 顺序与 exact key set 是：`version`、`transactionID`、`operation`、
+`sourceGeneration`、`createdAt`、`artifactKind`、`payload`。version 为 `1`；其 ID / operation 必须
+满足 §4.5 的交叉身份。payload 必须且只能符合所属 operation 的一种 closure。它只能位于内部
+transaction / incident，不能使用 `.snapdrillbackup` 扩展名，也不能进入外部 reader。
 
 `restore` / `clearLibrary` 使用 `artifactKind: recovery-only` 的 closed-generation semantic
-inventory。payload 包含 `store` 和 `imageReferences`：`store` 固定记录 `library.store` 的 checked
-64-bit byte count 与 SHA-256；`imageReferences` 对每个数据库图片引用恰有一条记录：`itemID`、
-`role`（`main` / `answer`）、规范相对路径和 `state`。只有 `restore` 可以消费下述 D3-B
-`missing-at-snapshot` 状态。
+inventory。payload 的 exact key set 是 `store`、`imageReferences`。store record 的 exact key set 是
+`relativePath`、`byteCount`、`sha256`，且 `relativePath` 必须是 literal `library.store`。
+`imageReferences` 对每个数据库图片引用恰有一条 record；共同 exact key 是 `itemID`、`role`、
+`relativePath`、`state`；itemID 使用 §4.4 canonical UUID，role 只允许 `main` / `answer`，relativePath
+以 source generation root 为基准，必须是 §3.1 grammar 下的 `images/<one-or-more-components>`。只有
+`restore` 可以消费下述 D3-B `missing-at-snapshot` 状态。
 
-- `present`：还必须记录 checked byte count 与 SHA-256；文件必须是同一 generation `images/` 下的
-  普通 JPEG，完整读取和 digest 后才成立。
-- `missing-at-snapshot`：只能用于路径在 node lookup 时真正不存在；记录不得包含 byte count 或
-  digest。
+- `present`：exact key set 在共同 key 后增加 `byteCount`、`sha256`；文件必须是同一 generation
+  `images/` 下的普通 JPEG，完整读取和 digest 后才成立。
+- `missing-at-snapshot`：只能用于路径在 node lookup 时真正不存在；exact key set 只有共同 key，
+  禁止 `byteCount` / `sha256`。
 
 存在但不可读、symlink、非普通文件、lookup 前后身份改变、长度改变或 digest 不符都使 prestate
 失败并在零 active mutation 时中止。`missing-at-snapshot` 只适用于图片；字段 / 分类引用不得缺失。
-数组顺序和 JSON whitespace 不构成 wire 兼容，但 tuple 必须唯一且语义 closure 必须逐项验证。
+canonical encoder 按 `(itemID 的 16-byte UUID value, role main < answer)` 排序；decoder 可接受其他
+顺序，但 `(itemID, role)` 必须唯一且语义 closure 必须逐项验证。
 
-`storeRecovery` 只使用 `artifactKind: unavailable-store-recovery`。因为 source store 无法打开或
-证明完整，它不得解析数据库关系或声称 semantic inventory；payload 必须从可信 generation root
-逐项冻结全部 source nodes，以 canonical root-relative path、node type、checked 64-bit byte count
-和普通文件 SHA-256 证明 raw material closure，包括存在的 SQLite sidecar 与图片。symlink、
+`storeRecovery` 只使用 `artifactKind: unavailable-store-recovery`，payload 的 exact key set 只有
+`nodes`。因为 source store 无法打开或证明完整，它不得解析数据库关系或声称 semantic inventory；
+payload 必须从可信 generation root 逐项冻结全部 descendant（含 empty directory）。每个 node record
+共同 exact key 是 `relativePath`、`nodeType`：`directory` 禁止 `byteCount` / `sha256`，
+`regular-file` 必须增加 checked `byteCount` / `sha256`；其他 node type 不可编码。path 必须符合 §3.1
+且按 decoded UTF-8 bytes 唯一；canonical encoder 也按该 bytes 排序。该 raw closure 包括存在的
+SQLite sidecar 与图片。symlink、
 hard-link 身份异常、遍历前后替换、不可读或无法完整冻结均保持启动阻塞、selector 与 source bytes
 不变。只有 byte-identical source generation 与该 inventory 已 durable 进入 DATA-1-R incident 后，
 用户明确选择的空 generation 才可 publication；pending marker 只作为 raw store 内容保留，不执行、
@@ -274,17 +369,66 @@ hard-link 身份异常、遍历前后替换、不可读或无法完整冻结均�
 或 unavailable-store-recovery inventory。普通导出遇到缺图必须失败，而不是把内部恢复语义泄漏到
 用户备份。
 
+数组 streaming output 在 envelope、全部 record、唯一性 index 与最终 token 都验证前不是完整
+`prestate.json`；取消、budget exhaustion 或中途 I/O 不能留下一个可被 reconciliation 接受的 prefix。
+
 ## 6. Recovery incident
 
-incident metadata version `1` 至少包含 incident UUID、来源 transaction、创建时间、稳定 error code、
-当前 `status` 和所含固定材料清单。status 只有：
+incident `metadata.json` 的 key 顺序与 exact key set 是：`version`、`incidentID`、
+`sourceTransactionID`、`operation`、`revision`、`createdAt`、`updatedAt`、`errorCode`、`status`、
+`materials`。typed v1 只接受 `(revision: 1, status: decisionRequired)` 或
+`(revision: 2, status: retained)`：前者阻塞普通启动并等待用户选择，后者表示用户已明确以空库继续但
+材料仍保留。唯一状态转换是 atomic durable replacement `1/decisionRequired -> 2/retained`；
+`version`、两个 ID、operation、createdAt、errorCode 与 materials 的 typed value 全程相同，updatedAt
+可因 clock rollback 不单调。replacement 总是重新输出完整 canonical metadata bytes；decoder 合法接受的
+非 canonical key / array order、JSON escape 或 whitespace 不作为必须原样保留的 raw bytes。失败 / 取消
+export 不改 metadata；显式 delete 也不先写第三个 revision。
 
-- `decisionRequired`：启动或 destructive operation 被阻塞，用户必须选择恢复或空库继续；
-- `retained`：用户已明确以空库继续，但 DATA-1-R 材料仍保留并可管理。
+materials 是 nonempty exact `{kind, nodeType}` object 的 array，不含任意路径。kind 唯一并按下表顺序
+编码，位置与 node type 固定：`journal` -> `journal.json` `regular-file`；`prestate` ->
+`prestate.json` `regular-file`；
+`sourceGeneration` -> `source-generation/` directory；`candidate` -> `candidate/` directory；
+`inputBackup` -> `input.snapdrillbackup` `regular-file`。metadata 自身不是 material member。metadata-last
+publication 前，每个声明材料都必须 durable 到位，且 journal / prestate / generation 身份满足 §4.5。
 
-metadata 缺失、损坏、未知 version 或清单与节点不符时按 unclassified blocking incident 处理，不得
-隐藏或删除。失败 / 取消导出不改变 status；显式删除只删所选 incident；“导出并删除”必须在目标文件
-durable 成功后才删。四个以上 incident 仍须 byte-identical 保留，不得 count-prune。
+只有下表三种 operation / cause / material closure 可成为 classified v1 incident：
+
+| operation | errorCode | required materials | forbidden materials |
+|---|---|---|---|
+| `storeRecovery` | `libraryStoreUnavailable` | journal, prestate (`unavailable-store-recovery`), sourceGeneration | candidate, inputBackup |
+| `restore` | `rollbackFailed` | journal, prestate (`recovery-only`), sourceGeneration, candidate, inputBackup | none |
+| `clearLibrary` | `rollbackFailed` | journal, prestate (`recovery-only`), sourceGeneration, candidate | inputBackup |
+
+`storeRecovery` journal 的 newGeneration 可以是 prospective ID，但仍禁止 candidate material。其他
+operation / errorCode 组合一律 unclassified；尤其 busy、cancelled、timeout、unsupported、Backup
+validation / reference / integrity、prestate 或其他 pre-mutation failure 不得伪装成 incident。metadata
+缺失、损坏、未知 version，或 material 清单 / node 不符，同样按 unclassified blocking incident
+保留，不隐藏、不删除、不打开普通 runtime。四个以上 incident 必须 byte-identical 保留，不得
+count-prune。
+
+incident adoption 必须在 metadata commit 前递归清除来源继承的 device-backup exclusion，并验证所有
+固定 node 的类型、身份与 `completeUntilFirstUserAuthentication` protection；rename 本身不构成
+classified publication。
+
+### 6.1 Retained incident retirement 与 export boundary
+
+R2-0B 只拥有 revision `2/retained` incident 的显式 delete retire seam；`decisionRequired` 不得直接
+删除。一次 retire 必须绑定用户明确授权、所选 `incidentID + revision`、可信 source / trash 根和 incident
+directory 的 `(st_dev, st_ino)`；两个已打开根必须同 `st_dev`，destination 必须不存在，并在 exclusive
+rename 前后重新验证身份与 containment。iOS implementation 使用公开 `renameatx_np` 加
+`RENAME_EXCL | RENAME_NOFOLLOW_ANY | RENAME_RESOLVE_BENEATH`，不得以较弱 rename 替代。跨 volume
+或任一 identity 变化 fail closed，不得 fallback 为 `RecoveryIncidents` 下的 recursive delete，也不得
+建立通用 filesystem manager / protocol。
+
+destination parent 先 durable sync，source parent 后 durable sync；source-parent sync 是逻辑 delete
+commit point。commit 前失败时 incident 仍必须按 source 身份可见；commit 后 temporary trash 丢失是已
+授权删除，不改变用户结果；中间 outcome-uncertain 状态由重启检查 source 是否仍存在来协调。trash 的
+后续 recursive cleanup 只是幂等卫生工作，不拥有删除成功语义。
+
+DATA-1-R 的“导出并删除”不属于 F0 或 R2-0B：它必须等待一份具名、effective 的 recovery-export
+representation / receipt contract，并把 durable receipt 绑定到 `incidentID + revision` 后才能复用 retire
+seam。该 representation 不得复用或伪装成 Backup v3。合同生效前只能保留或显式删除，不得把普通 share
+成功当成 export-and-delete 授权。
 
 ## 7. 偏好与 legacy epoch
 
@@ -321,7 +465,8 @@ mutation 或 active-library mutation 前，以稳定的 `developmentBackupUnsupp
 | `rollbackFailed` | old generation 也无法恢复；创建 blocking incident |
 | `recoveryDecisionRequired` | incident 必须由用户选择后才能继续普通启动 |
 
-原始底层错误只进入隐私安全日志 / incident metadata，不直接代替可理解的用户结果。
+原始底层错误只进入隐私安全日志，不写入 exact-key `metadata.json`；incident metadata 只保存上表的
+稳定 `errorCode`，不得用底层错误文本或平台错误码扩展 v1 key set，也不得直接替代可理解的用户结果。
 
 Backup / restore 的可观察生命周期固定为 `idle`、`running`，以及 terminal
 `completed` / `cancelled` / `failed`。`cancelled` 是非错误终态；进入 selector commit barrier 后才观察到
@@ -352,6 +497,19 @@ Backup / restore 的可观察生命周期固定为 `idle`、`running`，以及 t
 - duplicate ID、nil / unknown dimension、unknown value、duplicate join 与图片引用不闭合；
 - disk-full、symlink、node substitution、malformed metadata、多个 non-terminal journal；
 - 前滚、回滚和双失败重启；四个以上 incident 不被淘汰；
+- escaped-key collision、nested duplicate key、BOM、invalid UTF-8 / surrogate、raw control、非法
+  number lexeme、timestamp / UUID / digest 边界，以及 depth / token / string / byte budget exhaustion；
+- 每个 phase 对 old / new / missing / malformed / third selector 的 pure reconciliation table 全覆盖，
+  并证明 staged candidate / published new 的位置闭包、互斥性，以及 terminal optional residue 已删除仍可
+  cleanup、存在则必须验证；
+- streaming prestate 在大于内存预算的 inventory 上保持有界内存，prefix / duplicate identity / 最终
+  closure 失败时零 mutation、零可接受 artifact；
+- classified incident 的三种 operation/cause/material closure、全部 forbidden material、交叉 ID / 目录
+  不一致、revision 组合与唯一 `1 -> 2` metadata replacement；
+- adoption 的 backup-exclusion / protection 递归验证，以及 retire 在 destination occupied、cross-volume、
+  symlink、inode substitution、rename 前后和两个 parent sync 点的 fault；
+- retire commit 前 source incident 保留，commit 后 trash 丢失仍为已授权删除；没有 recovery-export
+  receipt contract 时不存在 export-and-delete 路径；
 - v1/v2 在 mutation 前得到具体拒绝；同版正式 writer 输出总能通过同版 reader 并恢复；
 - production 没有临时 executor、in-memory fallback 或自动 empty-store publication 路径。
 
