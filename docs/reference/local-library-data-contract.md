@@ -439,7 +439,8 @@ mutation 或 active-library mutation 前，以稳定的 `developmentBackupUnsupp
 | `rollbackFailed` | old generation 也无法恢复；创建 blocking incident |
 | `recoveryDecisionRequired` | incident 必须由用户选择后才能继续普通启动 |
 
-原始底层错误只进入隐私安全日志 / incident metadata，不直接代替可理解的用户结果。
+原始底层错误只进入隐私安全日志，不写入 exact-key `metadata.json`；incident metadata 只保存上表的
+稳定 `errorCode`，不得用底层错误文本或平台错误码扩展 v1 key set，也不得直接替代可理解的用户结果。
 
 Backup / restore 的可观察生命周期固定为 `idle`、`running`，以及 terminal
 `completed` / `cancelled` / `failed`。`cancelled` 是非错误终态；进入 selector commit barrier 后才观察到
