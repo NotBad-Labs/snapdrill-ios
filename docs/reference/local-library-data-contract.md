@@ -276,6 +276,13 @@ journal 的 `transactionID`、`operation`、`oldGeneration == sourceGeneration` 
 metadata 的 `incidentID`，其 `sourceTransactionID`、operation 与所含 journal / prestate 相等。任一
 identity、location 或 node-type 不一致都阻塞，不得按某一份 artifact 猜测。
 
+transaction 内的 new generation 只有两种互斥位置：staged candidate 固定为
+`transactions/<transactionID>/candidate/`，published new 固定为
+`generations/<newGeneration>/`；两者同时存在一律阻塞。candidate 的 fixed-path ownership 由 journal
+绑定到 `newGeneration`，但它不能满足 selector 已指向 new 时的 published-location 要求。candidate
+移入 published 位置后才可替换 selector；路径移动完成、selector 替换和 phase replacement 之间的崩溃
+由 §4.6 的位置闭包协调，不能只因字节内容可读就把 staged candidate 当成 active generation。
+
 同一时刻最多一个 non-terminal transaction。启动必须先协调 journal，之后才可构建
 `ModelContainer`。selector 的替换是唯一 publication commit point；只有进程在任意指令后终止并重启
 时仍必然得到完整 old 或完整 new selector，替换 API 才可报告成功。
@@ -287,6 +294,23 @@ transaction root 与合法 journal 对每个 typed phase 都必需。`prepared` 
 删除或作为 residue 存在；`rolledBack` 要求 old，new / prestate 可已删除或作为 residue 存在。
 任何 optional residue 一旦存在仍须通过 §3.1、§4.4、§4.5 与所属 inventory 验证。phase 所需 node
 缺失、malformed 或身份不符直接阻塞。
+
+上段的 new 必须同时满足下列 physical-location closure；表外组合全部阻塞：
+
+| phase + selector | staged candidate | published new |
+|---|---|---|
+| `prepared` + old | 允许；与 published new 恰有一个存在 | 允许；与 staged candidate 恰有一个存在 |
+| `prepared` + new | 禁止 | 必需 |
+| `published` + new | 禁止 | 必需 |
+| `rollingBack` + old | 允许；与 published new 恰有一个存在 | 允许；与 staged candidate 恰有一个存在 |
+| `rollingBack` + new | 禁止 | 必需 |
+| `committed` + new | 禁止 | 必需 |
+| `rolledBack` + old | 可作为 cleanup residue，至多一个存在 | 可作为 cleanup residue，至多一个存在 |
+
+`prepared` + old 允许 published new，是为了协调 generation directory rename 已 durable、selector 尚未
+替换的崩溃点；`rollingBack` + old 允许 staged candidate，是为了协调 publication 前已决定回滚的路径。
+terminal cleanup 合法删除 `rolledBack` 的两种 new residue，但存在时仍须验证。`blocked` 不消费本表，
+只保留材料并保持普通 runtime 关闭。
 
 在上述前置验证通过后，唯一 pure decision table 为：
 
@@ -355,8 +379,10 @@ incident `metadata.json` 的 key 顺序与 exact key set 是：`version`、`inci
 `materials`。typed v1 只接受 `(revision: 1, status: decisionRequired)` 或
 `(revision: 2, status: retained)`：前者阻塞普通启动并等待用户选择，后者表示用户已明确以空库继续但
 材料仍保留。唯一状态转换是 atomic durable replacement `1/decisionRequired -> 2/retained`；
-`version`、两个 ID、operation、createdAt、errorCode 与 materials 全程 byte-identical，updatedAt 可因
-clock rollback 不单调。失败 / 取消 export 不改 metadata；显式 delete 也不先写第三个 revision。
+`version`、两个 ID、operation、createdAt、errorCode 与 materials 的 typed value 全程相同，updatedAt
+可因 clock rollback 不单调。replacement 总是重新输出完整 canonical metadata bytes；decoder 合法接受的
+非 canonical key / array order、JSON escape 或 whitespace 不作为必须原样保留的 raw bytes。失败 / 取消
+export 不改 metadata；显式 delete 也不先写第三个 revision。
 
 materials 是 nonempty exact `{kind, nodeType}` object 的 array，不含任意路径。kind 唯一并按下表顺序
 编码，位置与 node type 固定：`journal` -> `journal.json` `regular-file`；`prestate` ->
@@ -474,7 +500,8 @@ Backup / restore 的可观察生命周期固定为 `idle`、`running`，以及 t
 - escaped-key collision、nested duplicate key、BOM、invalid UTF-8 / surrogate、raw control、非法
   number lexeme、timestamp / UUID / digest 边界，以及 depth / token / string / byte budget exhaustion；
 - 每个 phase 对 old / new / missing / malformed / third selector 的 pure reconciliation table 全覆盖，
-  并证明 terminal optional residue 已删除仍可 cleanup、存在则必须验证；
+  并证明 staged candidate / published new 的位置闭包、互斥性，以及 terminal optional residue 已删除仍可
+  cleanup、存在则必须验证；
 - streaming prestate 在大于内存预算的 inventory 上保持有界内存，prefix / duplicate identity / 最终
   closure 失败时零 mutation、零可接受 artifact；
 - classified incident 的三种 operation/cause/material closure、全部 forbidden material、交叉 ID / 目录
