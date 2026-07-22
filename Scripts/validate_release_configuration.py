@@ -129,6 +129,40 @@ def validate_project(project: object) -> list[str]:
     return errors
 
 
+def validate_effective_release_settings(payload: object) -> list[str]:
+    """Validate JSON emitted by xcodebuild -showBuildSettings -json."""
+
+    if not isinstance(payload, list) or len(payload) != 1:
+        return ["effective Release settings must contain exactly one target entry"]
+    entry = payload[0]
+    if not isinstance(entry, Mapping):
+        return ["effective Release settings entry must be an object"]
+    if entry.get("target") != TARGET_NAME:
+        return [
+            f"effective Release settings target must be {TARGET_NAME}, "
+            f"found {entry.get('target')!r}"
+        ]
+    settings = entry.get("buildSettings")
+    if not isinstance(settings, Mapping):
+        return ["effective Release buildSettings must be an object"]
+    if settings.get("CONFIGURATION") != "Release":
+        return [
+            "effective Release CONFIGURATION must be 'Release', "
+            f"found {settings.get('CONFIGURATION')!r}"
+        ]
+
+    errors: list[str] = []
+    for key in ("SWIFT_ACTIVE_COMPILATION_CONDITIONS", "OTHER_SWIFT_FLAGS"):
+        value = settings.get(key, "")
+        if not isinstance(value, str):
+            errors.append(f"effective Release {key} must be a string")
+        elif "DEBUG" in value:
+            errors.append(
+                f"effective Release {key} must not define DEBUG, found {value!r}"
+            )
+    return errors
+
+
 def load_project(path: Path) -> object:
     result = subprocess.run(
         ["/usr/bin/plutil", "-convert", "json", "-o", "-", str(path)],
@@ -163,14 +197,30 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="validate without modifying files")
     parser.add_argument("--project", type=Path, default=PROJECT_PATH)
+    parser.add_argument(
+        "--effective-release-settings-stdin",
+        action="store_true",
+        help="validate xcodebuild -showBuildSettings -json from standard input",
+    )
     arguments = parser.parse_args(argv)
 
-    errors = run_checks(project_path=arguments.project)
+    if arguments.effective_release_settings_stdin:
+        try:
+            payload = json.load(sys.stdin)
+        except json.JSONDecodeError as error:
+            errors = [f"effective Release settings are not valid JSON: {error}"]
+        else:
+            errors = validate_effective_release_settings(payload)
+    else:
+        errors = run_checks(project_path=arguments.project)
     if errors:
         for error in errors:
             print(f"[error] {error}", file=sys.stderr)
         return 1
-    print("[ok] Release platform configuration passed")
+    if arguments.effective_release_settings_stdin:
+        print("[ok] effective Release Swift conditions passed")
+    else:
+        print("[ok] Release platform configuration passed")
     return 0
 
 

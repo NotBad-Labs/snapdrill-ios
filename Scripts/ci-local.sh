@@ -75,6 +75,12 @@ python3 Scripts/validate_document_control.py --check
 python3 Scripts/validate_docs.py --check
 python3 Scripts/validate_capture_contract.py --check
 python3 Scripts/validate_release_configuration.py --check
+xcodebuild -project SnapDrill.xcodeproj \
+  -target SnapDrill \
+  -configuration Release \
+  -showBuildSettings \
+  -json | python3 Scripts/validate_release_configuration.py \
+    --effective-release-settings-stdin
 python3 Scripts/validate_release_test_overrides.py --check
 
 printf '\n[3/6] Dependency direction checks\n'

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -49,10 +50,26 @@ EXPECTED_CUSTOM_TOKEN_VALUES = frozenset(
 )
 MOCK_TYPES = frozenset({"MockServiceContainer", "AnalyticsServiceMock"})
 DECLARATION_KEYWORDS = frozenset({"actor", "class", "enum", "protocol", "struct"})
+FORBIDDEN_PROCESS_IDENTIFIERS = frozenset({"CommandLine", "ProcessInfo"})
+CUSTOM_TOKEN_PATTERN = re.compile(r"--uitesting|--ui-test-[A-Za-z0-9_-]+")
+POLICY_SOURCE_PATHS = frozenset(
+    {
+        "Scripts/swift_source_lexer.py",
+        "Scripts/validate_release_test_overrides.py",
+    }
+)
 
 
 class ReleaseOverrideValidationError(ValueError):
     pass
+
+
+def _git_environment() -> Dict[str, str]:
+    return {
+        key: value
+        for key, value in os.environ.items()
+        if not key.startswith("GIT_")
+    }
 
 
 def _load_lexer() -> ModuleType:
@@ -78,7 +95,6 @@ ConditionalState = lexer.ConditionalState
 SourceToken = lexer.SourceToken
 SwiftLexicalError = lexer.SwiftLexicalError
 TokenKind = lexer.TokenKind
-condition_and = lexer.condition_and
 tokenize = lexer.tokenize
 
 
@@ -147,11 +163,7 @@ def discover_tracked_sources(
         result = subprocess.run(
             ["git", "ls-files", "-z", "--", "*.swift"],
             cwd=str(repo_root),
-            env={
-                key: value
-                for key, value in os.environ.items()
-                if not key.startswith("GIT_")
-            },
+            env=_git_environment(),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=False,
@@ -209,6 +221,42 @@ def discover_tracked_sources(
                 f"unable to read tracked production source {relative_path}: {error}"
             ) from error
     return sources
+
+
+def find_unstaged_policy_paths(repo_root: Path = REPO_ROOT) -> List[str]:
+    """Return policy-owned paths whose worktree content differs from the index."""
+
+    try:
+        result = subprocess.run(
+            ["git", "diff", "--name-only", "-z", "--"],
+            cwd=str(repo_root),
+            env=_git_environment(),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except OSError as error:
+        raise ReleaseOverrideValidationError(f"git diff failed: {error}") from error
+    if result.returncode != 0:
+        stderr = result.stderr.decode("utf-8", errors="replace").strip()
+        raise ReleaseOverrideValidationError(
+            f"git diff failed with exit {result.returncode}: {stderr}"
+        )
+    if result.stdout and not result.stdout.endswith(b"\0"):
+        raise ReleaseOverrideValidationError("git diff returned malformed NUL output")
+    try:
+        changed_paths = [
+            item.decode("utf-8") for item in result.stdout.split(b"\0") if item
+        ]
+    except UnicodeDecodeError as error:
+        raise ReleaseOverrideValidationError(
+            f"git diff returned a non-UTF-8 path at byte {error.start}"
+        ) from error
+    return sorted(
+        path
+        for path in changed_paths
+        if is_production_swift_path(path) or path in POLICY_SOURCE_PATHS
+    )
 
 
 def _tokenize_sources(
@@ -306,13 +354,6 @@ def _is_inside_any_declaration(
     )
 
 
-def _combined_condition(tokens: Sequence[SourceToken]) -> ConditionalState:
-    state = ConditionalState.TRUE
-    for token in tokens:
-        state = condition_and(state, token.condition)
-    return state
-
-
 def _format_error(path: str, token: SourceToken, message: str) -> str:
     return f"{path}:{token.line}:{token.column} Release-possible {message}"
 
@@ -333,24 +374,33 @@ def validate_sources(
     errors.extend(declaration_errors)
     allowed_spans = tuple(declaration_spans.values())
     observed_custom_values = set()
-    process_pattern = (
-        (TokenKind.IDENTIFIER, "ProcessInfo"),
-        (TokenKind.PUNCTUATION, "."),
-        (TokenKind.IDENTIFIER, "processInfo"),
-        (TokenKind.PUNCTUATION, "."),
-    )
 
     for path in sorted(tokenized):
         tokens = tokenized[path]
-        for index, token in enumerate(tokens):
-            if token.kind is TokenKind.STRING_SEGMENT and (
-                token.value == "--uitesting" or token.value.startswith("--ui-test-")
-            ):
-                observed_custom_values.add(token.value)
-                if token.condition is not ConditionalState.FALSE:
+        for token in tokens:
+            if token.kind is TokenKind.STRING_SEGMENT:
+                custom_values = CUSTOM_TOKEN_PATTERN.findall(token.value)
+                observed_custom_values.update(custom_values)
+                if custom_values and token.condition is not ConditionalState.FALSE:
                     errors.append(
-                        _format_error(path, token, f"custom UI-test token {token.value!r}")
+                        _format_error(
+                            path,
+                            token,
+                            f"custom UI-test token {custom_values[0]!r}",
+                        )
                     )
+            if (
+                token.kind is TokenKind.IDENTIFIER
+                and token.value in FORBIDDEN_PROCESS_IDENTIFIERS
+                and token.condition is not ConditionalState.FALSE
+            ):
+                errors.append(
+                    _format_error(
+                        path,
+                        token,
+                        f"process-global reference {token.value}",
+                    )
+                )
             if (
                 token.kind is TokenKind.IDENTIFIER
                 and token.value in MOCK_TYPES
@@ -359,30 +409,6 @@ def validate_sources(
             ):
                 errors.append(
                     _format_error(path, token, f"mock reference {token.value}")
-                )
-            if index + 5 > len(tokens):
-                continue
-            candidate = tokens[index : index + 5]
-            if any(
-                item.kind is not expected_kind or item.value != expected_value
-                for item, (expected_kind, expected_value) in zip(
-                    candidate[:4], process_pattern
-                )
-            ):
-                continue
-            tail = candidate[4]
-            if tail.kind is not TokenKind.IDENTIFIER or tail.value not in (
-                "arguments",
-                "environment",
-            ):
-                continue
-            if _combined_condition(candidate) is not ConditionalState.FALSE:
-                errors.append(
-                    _format_error(
-                        path,
-                        token,
-                        f"ProcessInfo.processInfo.{tail.value} selector",
-                    )
                 )
 
     if expected_custom_values is not None:
@@ -399,7 +425,19 @@ def validate_sources(
     return sorted(set(errors))
 
 
-def run_checks(repo_root: Path = REPO_ROOT) -> List[str]:
+def run_checks(
+    repo_root: Path = REPO_ROOT, require_index_match: bool = False
+) -> List[str]:
+    if require_index_match:
+        try:
+            changed_paths = find_unstaged_policy_paths(repo_root)
+        except ReleaseOverrideValidationError as error:
+            return [str(error)]
+        if changed_paths:
+            return [
+                "policy sources have unstaged changes; stage the complete files: "
+                + ", ".join(changed_paths)
+            ]
     try:
         sources = discover_tracked_sources(repo_root)
     except ReleaseOverrideValidationError as error:
@@ -410,9 +448,14 @@ def run_checks(repo_root: Path = REPO_ROOT) -> List[str]:
 def main(argv: Optional[Iterable[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="validate without modifying files")
-    parser.parse_args(argv)
+    parser.add_argument(
+        "--require-index-match",
+        action="store_true",
+        help="reject policy sources whose worktree content differs from the index",
+    )
+    arguments = parser.parse_args(argv)
 
-    errors = run_checks()
+    errors = run_checks(require_index_match=arguments.require_index_match)
     if errors:
         for error in errors:
             print(f"[error] {error}", file=sys.stderr)

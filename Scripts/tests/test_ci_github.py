@@ -1375,6 +1375,18 @@ class WorkflowContractTests(unittest.TestCase):
             docs_step,
         )
 
+        release_step = self.step_body(
+            self.build, "Validate effective Release Swift conditions"
+        )
+        self.assertIn("-configuration Release", release_step)
+        self.assertIn("-showBuildSettings", release_step)
+        self.assertIn("-json", release_step)
+        self.assertIn("--effective-release-settings-stdin", release_step)
+        self.assertIn(
+            '-clonedSourcePackagesDirPath "$HOME/.spm-cache/snapdrill"',
+            release_step,
+        )
+
     def test_both_jobs_bind_tools_checkout_and_simulator_through_contract(self) -> None:
         for job in (self.build, self.ui):
             with self.subTest(job=job[:30]):

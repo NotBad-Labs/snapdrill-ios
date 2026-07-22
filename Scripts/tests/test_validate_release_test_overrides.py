@@ -12,6 +12,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MODULE_PATH = REPO_ROOT / "Scripts" / "validate_release_test_overrides.py"
+PRE_COMMIT_PATH = REPO_ROOT / "Scripts" / "pre-commit"
 
 
 def load_validator():
@@ -66,6 +67,13 @@ assert module.validate_sources
     def test_clean_mapping_passes(self) -> None:
         self.assertEqual(validator.validate_sources(base_sources()), [])
 
+    def test_pre_commit_requires_index_match(self) -> None:
+        hook = PRE_COMMIT_PATH.read_text(encoding="utf-8")
+        self.assertIn(
+            "validate_release_test_overrides.py --check --require-index-match",
+            hook,
+        )
+
     def test_red_before_fixture_detects_each_live_defect_class(self) -> None:
         sources = base_sources(
             """
@@ -79,8 +87,9 @@ let analytics = AnalyticsServiceMock()
         )
         errors = validator.validate_sources(sources)
 
-        self.assertTrue(any(".arguments selector" in error for error in errors))
-        self.assertTrue(any(".environment selector" in error for error in errors))
+        self.assertTrue(
+            any("process-global reference ProcessInfo" in error for error in errors)
+        )
         self.assertTrue(any("custom UI-test token '--uitesting'" in error for error in errors))
         self.assertTrue(any("--ui-test-durable-capture-draft" in error for error in errors))
         self.assertTrue(any("mock reference MockServiceContainer" in error for error in errors))
@@ -93,23 +102,49 @@ let analytics = AnalyticsServiceMock()
         )
         errors = validator.validate_sources(sources)
 
-        self.assertTrue(any("ProcessInfo.processInfo.environment selector" in error for error in errors))
+        self.assertTrue(
+            any("process-global reference ProcessInfo" in error for error in errors)
+        )
+
+    def test_equivalent_process_global_forms_are_rejected(self) -> None:
+        cases = (
+            "let value = (ProcessInfo.processInfo).arguments\n",
+            "let info = ProcessInfo.processInfo; let value = info.arguments\n",
+            "let value = CommandLine.arguments\n",
+            'let token = ["--ui", "testing"].joined(); let value = CommandLine.arguments\n',
+        )
+        for source in cases:
+            with self.subTest(source=source):
+                errors = validator.validate_sources(base_sources(source))
+                self.assertTrue(
+                    any("process-global reference" in error for error in errors),
+                    errors,
+                )
 
     def test_only_exact_debug_false_branch_is_exempt(self) -> None:
         cases = {
             "#if DEBUG\nlet x = ProcessInfo.processInfo.arguments\n#endif\n": False,
-            "#if DEBUG && canImport(UIKit)\nlet x = ProcessInfo.processInfo.arguments\n#endif\n": False,
-            "#if canImport(UIKit) && DEBUG\nlet x = ProcessInfo.processInfo.arguments\n#endif\n": False,
+            (
+                "#if DEBUG && canImport(UIKit)\n"
+                "let x = ProcessInfo.processInfo.arguments\n#endif\n"
+            ): False,
+            (
+                "#if canImport(UIKit) && DEBUG\n"
+                "let x = ProcessInfo.processInfo.arguments\n#endif\n"
+            ): False,
             "#if DEBUG\n#else\nlet x = ProcessInfo.processInfo.arguments\n#endif\n": True,
             "#if feature\nlet x = ProcessInfo.processInfo.arguments\n#endif\n": True,
             "#if feature\n#else\nlet x = ProcessInfo.processInfo.arguments\n#endif\n": True,
             "#if !DEBUG\nlet x = ProcessInfo.processInfo.arguments\n#endif\n": True,
-            "#if DEBUG || targetEnvironment(simulator)\nlet x = ProcessInfo.processInfo.arguments\n#endif\n": True,
+            (
+                "#if DEBUG || targetEnvironment(simulator)\n"
+                "let x = ProcessInfo.processInfo.arguments\n#endif\n"
+            ): True,
         }
         for source, should_fail in cases.items():
             with self.subTest(source=source):
                 errors = validator.validate_sources(base_sources(source))
-                found = any("ProcessInfo.processInfo.arguments selector" in error for error in errors)
+                found = any("process-global reference ProcessInfo" in error for error in errors)
                 self.assertEqual(found, should_fail, errors)
 
     def test_comments_do_not_create_custom_tokens(self) -> None:
@@ -128,6 +163,12 @@ let safe = "production"
 let normal = "--uitesting"
 let raw = ##"--ui-test-raw"##
 let multiline = """--ui-test-multiline"""
+let validMultiline = """
+--ui-test-valid-multiline
+"""
+let validRawMultiline = #"""
+--ui-test-valid-raw-multiline
+"""#
 let escaped = "\u{2d}\u{2d}ui-test-escaped"
 '''
         )
@@ -137,6 +178,8 @@ let escaped = "\u{2d}\u{2d}ui-test-escaped"
             "--uitesting",
             "--ui-test-raw",
             "--ui-test-multiline",
+            "--ui-test-valid-multiline",
+            "--ui-test-valid-raw-multiline",
             "--ui-test-escaped",
         ):
             with self.subTest(value=value):
@@ -148,7 +191,7 @@ let escaped = "\u{2d}\u{2d}ui-test-escaped"
         )
         errors = validator.validate_sources(sources)
 
-        self.assertTrue(any("ProcessInfo.processInfo.arguments selector" in error for error in errors))
+        self.assertTrue(any("process-global reference ProcessInfo" in error for error in errors))
         self.assertTrue(any("custom UI-test token '--uitesting'" in error for error in errors))
 
     def test_mock_identifiers_are_allowed_only_in_either_exact_declaration_body(self) -> None:
@@ -189,10 +232,16 @@ let escaped = "\u{2d}\u{2d}ui-test-escaped"
         )
 
         self.assertTrue(
-            any("expected exactly one AnalyticsServiceMock" in error for error in validator.validate_sources(missing))
+            any(
+                "expected exactly one AnalyticsServiceMock" in error
+                for error in validator.validate_sources(missing)
+            )
         )
         self.assertTrue(
-            any("expected exactly one MockServiceContainer" in error for error in validator.validate_sources(duplicate))
+            any(
+                "expected exactly one MockServiceContainer" in error
+                for error in validator.validate_sources(duplicate)
+            )
         )
 
     def test_malformed_source_fails_closed_before_policy_scan(self) -> None:
@@ -317,6 +366,22 @@ let escaped = "\u{2d}\u{2d}ui-test-escaped"
                     repo.root, expected_count=3, required_sentinels=()
                 )
 
+    def test_index_match_rejects_partially_staged_policy_source(self) -> None:
+        with TemporaryGitRepo() as repo:
+            repo.add(
+                {
+                    "SnapDrill/App.swift": "let unsafe = CommandLine.arguments\n",
+                    "Packages/Core/Tests/Test.swift": "let test = true\n",
+                }
+            )
+            repo.write("SnapDrill/App.swift", "let safe = true\n")
+            repo.write("Packages/Core/Tests/Test.swift", "let test = false\n")
+
+            self.assertEqual(
+                validator.find_unstaged_policy_paths(repo.root),
+                ["SnapDrill/App.swift"],
+            )
+
     def test_path_filter_rejects_duplicates_and_non_normalized_paths(self) -> None:
         valid = [
             "SnapDrill/App.swift",
@@ -385,6 +450,11 @@ class TemporaryGitRepo:
             capture_output=True,
             env=env,
         )
+
+    def write(self, relative_path: str, content: str) -> None:
+        path = self.root / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
 
     @staticmethod
     def git_environment() -> dict[str, str]:

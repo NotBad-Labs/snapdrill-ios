@@ -201,6 +201,43 @@ class ValidateReleaseConfigurationTests(unittest.TestCase):
                     )
                 )
 
+    def test_effective_release_swift_conditions_reject_debug_defines(self) -> None:
+        valid = [
+            {
+                "target": "SnapDrill",
+                "buildSettings": {
+                    "CONFIGURATION": "Release",
+                    "OTHER_SWIFT_FLAGS": "$(inherited) -default-isolation MainActor",
+                },
+            }
+        ]
+        self.assertEqual(validator.validate_effective_release_settings(valid), [])
+
+        for key, value in (
+            ("SWIFT_ACTIVE_COMPILATION_CONDITIONS", "DEBUG $(inherited)"),
+            ("OTHER_SWIFT_FLAGS", "$(inherited) -DDEBUG"),
+            ("OTHER_SWIFT_FLAGS", "$(inherited) -D DEBUG"),
+        ):
+            with self.subTest(key=key, value=value):
+                payload = copy.deepcopy(valid)
+                payload[0]["buildSettings"][key] = value
+                errors = validator.validate_effective_release_settings(payload)
+                self.assertTrue(any(key in error and "DEBUG" in error for error in errors))
+
+    def test_effective_release_swift_conditions_fail_closed_on_wrong_shape(self) -> None:
+        cases = (
+            None,
+            [],
+            [{"target": "Other", "buildSettings": {"CONFIGURATION": "Release"}}],
+            [{"target": "SnapDrill", "buildSettings": {"CONFIGURATION": "Debug"}}],
+            [{"target": "SnapDrill", "buildSettings": []}],
+        )
+        for payload in cases:
+            with self.subTest(payload=payload):
+                self.assertNotEqual(
+                    validator.validate_effective_release_settings(payload), []
+                )
+
     def test_malformed_object_graph_fails_closed(self) -> None:
         cases = (
             None,

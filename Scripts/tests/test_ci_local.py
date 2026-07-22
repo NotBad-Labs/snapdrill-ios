@@ -123,6 +123,11 @@ class CILocalTests(unittest.TestCase):
               exit 0
             fi
 
+            if [[ "$*" == *"-showBuildSettings"* && "$*" == *"-json"* ]]; then
+              printf '%s\n' '[{"target":"SnapDrill","buildSettings":{"CONFIGURATION":"Release"}}]'
+              exit 0
+            fi
+
             derived_data=""
             result_bundle=""
             previous=""
@@ -235,6 +240,21 @@ class CILocalTests(unittest.TestCase):
         self.assertNotIn("-scheme SnapDrill ", "\n".join(log))
         self.assertNotIn("-skip-testing", "\n".join(log))
         self.assertFalse(any(line.startswith("xcpretty|") for line in log))
+        self.assertTrue(
+            any(
+                line.startswith("xcodebuild|")
+                and "-configuration Release" in line
+                and "-showBuildSettings -json" in line
+                for line in log
+            )
+        )
+        self.assertTrue(
+            any(
+                line.startswith("python3|")
+                and "--effective-release-settings-stdin" in line
+                for line in log
+            )
+        )
         self.assertTrue(sentinel.exists())
         self.assertEqual(list(self.tmp_dir.glob("snapdrill-ci-local.*")), [])
 
