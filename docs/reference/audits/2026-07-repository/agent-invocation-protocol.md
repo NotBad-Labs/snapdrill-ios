@@ -1,6 +1,6 @@
 # External Agent Invocation Protocol
 
-> Validated 2026-07-16 for the repository audit. This file records the exact local CLI contracts used by Codex C1; it does not grant any external agent write, merge or release authority.
+> Validated 2026-07-16 and revalidated 2026-07-22 for the repository audit. This file records the exact local CLI contracts used by Codex C1; it does not grant any external agent write, merge or release authority.
 
 ## Sources
 
@@ -9,6 +9,7 @@
 - Antigravity CLI reference: <https://antigravity.google/docs/cli-reference>
 - Antigravity sandbox: <https://antigravity.google/docs/cli-sandbox>
 - Antigravity troubleshooting: <https://antigravity.google/docs/cli-troubleshooting>
+- Gemini 3.6 Flash model: <https://ai.google.dev/gemini-api/docs/models/gemini-3.6-flash>
 - Grok CLI reference: <https://docs.x.ai/build/cli/reference>
 - Grok headless/scripting: <https://docs.x.ai/build/cli/headless-scripting>
 
@@ -28,7 +29,7 @@ The installed binary's `--help` remains the final compatibility check for the pi
 8. Raw transcript/debug/brain artifacts stay temporary and are removed after normalization. Never retain auth/debug logs: they may contain credentials.
 9. After every external run, confirm the audit worktree and main checkout have no new tracked or untracked changes attributable to the reviewer.
 
-## Claude Code 2.1.206
+## Claude Code 2.1.217
 
 Official docs distinguish `--allowedTools` from `--tools`: the former only pre-approves matching tools, while the latter restricts the available built-ins. Audit calls therefore use `--tools`.
 
@@ -48,9 +49,10 @@ claude \
 
 - `--safe-mode` disables CLAUDE.md auto-loading, skills, plugins, hooks, MCP and auto-memory for this invocation. The reviewer may still read an in-scope file explicitly.
 - `--no-session-persistence` prevents the print-mode conversation from becoming resumable local state.
-- Smoke result: with the audit worktree as cwd, the command read `AGENTS.md` and returned its exact first heading without creating files.
+- Smoke result: 2.1.217 selected `claude-fable-5[1m]`; result metadata resolved the main call to
+  `claude-opus-4-8` with no tool use and no persisted session.
 
-## Antigravity 1.1.2
+## Antigravity CLI 1.1.5 / Desktop 2.3.1
 
 Antigravity uses project/workspace scoping. Running from an unregistered `/private/tmp` worktree once caused
 it to search unrelated parent/user directories. Use a fresh project plus an explicit minimal directory:
@@ -64,18 +66,19 @@ AGY_CLI_DISABLE_AUTO_UPDATE=true agy \
   --add-dir "$FIXED_BASE_CHECKOUT" \
   --mode plan \
   --sandbox \
-  --model 'Gemini 3.5 Flash (High)' \
+  --model 'Gemini 3.6 Flash (High)' \
   --print-timeout 15m \
   --print "$PROMPT"
 ```
 
 - Put all flags before `--print`; in this CLI version `--print` consumes the following argument as the prompt. Placing `--mode` after it caused the agent to answer a question about `--mode` instead of running the audit.
 - `--new-project` avoids resuming prior project conversation context; `--add-dir` fixes the readable workspace.
-- `--mode plan` and `--sandbox` are the available hard controls in 1.1.2. The prompt must also prohibit network access and artifact creation; any generated Antigravity brain artifact is temporary output, not repository evidence.
+- `--mode plan` and `--sandbox` are the available hard controls in 1.1.5. The prompt must also prohibit network access and artifact creation; any generated Antigravity brain artifact is temporary output, not repository evidence.
+- Do not combine this model selection with `--effort high`: the `(High)` model variant already encodes the reasoning level, and 1.1.5 rejects the duplicate effort flag.
 - `AGY_CLI_DISABLE_AUTO_UPDATE=true` follows the official troubleshooting guidance and prevents a background updater from changing the tool during a scripted phase.
-- Smoke result: from `develop@d62fead8`, the command read `AGENTS.md` and returned its exact first heading without repository changes.
+- Smoke result: 1.1.5 selected `Gemini 3.6 Flash (High)` explicitly and returned the requested exact token without tool use or file creation.
 
-## Grok CLI 0.2.101
+## Grok CLI 0.2.106
 
 ```bash
 grok \
@@ -93,9 +96,9 @@ grok \
   -p "$PROMPT"
 ```
 
-- `--permission-mode plan` and the read-only tool list provide separate controls. An authenticated 0.2.101
-  smoke with fixed `grok-4.5` returned the requested sentinel without tool use; the temporary session was
-  deleted afterward.
+- `--permission-mode plan` and the read-only tool list provide separate controls. An authenticated 0.2.106
+  smoke with fixed `grok-4.5` resolved to `grok-4.5-build` and returned the requested sentinel without tool
+  use; the temporary session was deleted afterward.
 - `grok models` must show `grok-4.5` before the phase. A one-time debug smoke confirmed `currentModelId=grok-4.5`, high reasoning effort and response metadata `modelId=grok-4.5`; the debug file was then deleted because debug logs can include auth material.
 - `--no-auto-update` is the official headless recommendation; `--no-memory`, `--no-subagents` and `--disable-web-search` make the independent reviewer boundary explicit.
 - The current repository is larger than Grok's 50 MiB automatic bundle limit because of UI evidence. `bundle_create_failed` is non-fatal for local Read/Grep/Glob, but must be reported if it accompanies an incomplete audit.
