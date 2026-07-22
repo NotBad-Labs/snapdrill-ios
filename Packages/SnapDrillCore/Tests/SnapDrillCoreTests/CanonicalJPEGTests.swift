@@ -9,30 +9,17 @@ import UIKit
 struct CanonicalJPEGTests {
     @Test("pinned RGB, gray, and 2000x2000 fixtures pass")
     func pinnedFixturesPass() throws {
-        let fixtures = [
-            FixtureCase(
-                name: "canonical-rgb-sof0-2x2",
-                width: 2,
-                height: 2,
-                components: 3,
-                sha256: "3647831e9af68deb5207e1e97d1f34e8be1bd068af08eceb6119b823084e223d"
-            ),
-            FixtureCase(
-                name: "canonical-gray-sof0-2x2",
-                width: 2,
-                height: 2,
-                components: 1,
-                sha256: "cc7988dede372bcbc20ed7419362c8cdf229d2d77989da7aaf9d01c9b7a43414"
-            ),
-            FixtureCase(
-                name: "canonical-rgb-sof0-2000x2000",
-                width: 2_000,
-                height: 2_000,
-                components: 3,
-                sha256: "5307c20da2979646f422606035d5c8d22fba30f79c083a61fb945ee58487fdef"
-            )
-        ]
-        for fixtureCase in fixtures {
+        let manifest = try fixtureManifest()
+        #expect(
+            manifest.backupWireV3CandidateSHA256
+                == "0fa115bfedc851a3cbda36d7add21d7921a5342c1367c1481dc57ed9a3398575"
+        )
+        #expect(Set(manifest.fixtures.map(\.name)) == [
+            "canonical-rgb-sof0-2x2",
+            "canonical-gray-sof0-2x2",
+            "canonical-rgb-sof0-2000x2000"
+        ])
+        for fixtureCase in manifest.fixtures {
             let bytes = try fixture(named: fixtureCase.name)
             let metadata = try CanonicalJPEG.validate(bytes)
             #expect(metadata.width == fixtureCase.width)
@@ -193,7 +180,12 @@ struct CanonicalJPEGTests {
 
     private enum PixelLabel: Equatable { case red, green, blue, yellow, gray, white }
 
-    private struct FixtureCase {
+    private struct FixtureManifest: Decodable {
+        let backupWireV3CandidateSHA256: String
+        let fixtures: [FixtureCase]
+    }
+
+    private struct FixtureCase: Decodable {
         let name: String
         let width: Int
         let height: Int
@@ -214,6 +206,15 @@ struct CanonicalJPEGTests {
             subdirectory: "CanonicalJPEG"
         ))
         return try Data(contentsOf: url)
+    }
+
+    private func fixtureManifest() throws -> FixtureManifest {
+        let url = try #require(Bundle.module.url(
+            forResource: "contract-manifest",
+            withExtension: "json",
+            subdirectory: "CanonicalJPEG"
+        ))
+        return try JSONDecoder().decode(FixtureManifest.self, from: Data(contentsOf: url))
     }
 
     private func markerOffset(_ marker: UInt8, in data: Data) throws -> Int {

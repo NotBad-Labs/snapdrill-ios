@@ -376,7 +376,29 @@ public struct ImageStorage: Sendable {
               pathMetadata(named: name, in: imagesDescriptor).map({ sameFile($0, finalMetadata) }) == true else {
             return false
         }
-        return data == expected
+        return data == expected && hasRequiredImageFileAttributes(descriptor: descriptor)
+    }
+
+    nonisolated private static func hasRequiredImageFileAttributes(descriptor: Int32) -> Bool {
+        // F_GETPROTECTIONCLASS uses Darwin content-protection class C (3) for first-unlock access.
+        let protectionClass = Darwin.fcntl(descriptor, F_GETPROTECTIONCLASS)
+        #if targetEnvironment(simulator)
+        guard protectionClass == -1 || protectionClass == 3 else { return false }
+        #else
+        guard protectionClass == 3 else { return false }
+        #endif
+
+        for attribute in [
+            "com.apple.metadata:com_apple_backup_excludeItem",
+            "com.apple.MobileBackup"
+        ] {
+            errno = 0
+            let size = attribute.withCString {
+                Darwin.fgetxattr(descriptor, $0, nil, 0, 0, 0)
+            }
+            if size >= 0 || errno != ENOATTR { return false }
+        }
+        return true
     }
 
     nonisolated private static func readExactBytes(descriptor: Int32, byteCount: Int) -> Data? {

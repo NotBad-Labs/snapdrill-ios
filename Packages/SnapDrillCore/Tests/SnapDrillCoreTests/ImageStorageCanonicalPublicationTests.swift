@@ -98,6 +98,36 @@ struct ImageStorageCanonicalPublicationTests {
         #expect(entries.count == 1 && entries[0].hasSuffix(".jpg"))
     }
 
+    @Test("saveImage rejects matching uncertain bytes with wrong backup attributes")
+    func saveImage_uncertainWrongAttributesDoNotReconcile() async throws {
+        defer { try? FileManager.default.removeItem(at: testDirectory) }
+        let wrongAttributes = ImageStorage(baseDirectory: testDirectory) { bytes, _, destination, root in
+            var destinationURL = root.appendingPathComponent("images")
+                .appendingPathComponent(destination.fileName)
+            try bytes.write(to: destinationURL)
+            var values = URLResourceValues()
+            values.isExcludedFromBackup = true
+            try destinationURL.setResourceValues(values)
+            throw DurableRegularFilePublicationError(
+                outcome: .publicationOutcomeUncertain,
+                step: .verifyFinalAttributes,
+                code: EIO
+            )
+        }
+
+        await #expect(throws: ImageStorageError.publicationOutcomeUncertain) {
+            try await wrongAttributes.saveImage(createTestImage(width: 20, height: 20))
+        }
+        let images = testDirectory.appendingPathComponent("images")
+        let entries = try FileManager.default.contentsOfDirectory(
+            at: images,
+            includingPropertiesForKeys: [.isExcludedFromBackupKey]
+        )
+        #expect(entries.count == 1)
+        #expect(try entries[0].resourceValues(forKeys: [.isExcludedFromBackupKey])
+            .isExcludedFromBackup == true)
+    }
+
     @Test("saveImage preserves an uncertain destination whose inode cannot be proven")
     func saveImage_uncertainUnprovenNodeIsNotPathDeleted() async throws {
         let outside = FileManager.default.temporaryDirectory

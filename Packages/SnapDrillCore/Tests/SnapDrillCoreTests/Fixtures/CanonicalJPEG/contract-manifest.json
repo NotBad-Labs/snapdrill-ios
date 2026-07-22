@@ -1,0 +1,26 @@
+{
+  "backupWireV3CandidateSHA256": "0fa115bfedc851a3cbda36d7add21d7921a5342c1367c1481dc57ed9a3398575",
+  "fixtures": [
+    {
+      "name": "canonical-rgb-sof0-2x2",
+      "width": 2,
+      "height": 2,
+      "components": 3,
+      "sha256": "3647831e9af68deb5207e1e97d1f34e8be1bd068af08eceb6119b823084e223d"
+    },
+    {
+      "name": "canonical-gray-sof0-2x2",
+      "width": 2,
+      "height": 2,
+      "components": 1,
+      "sha256": "cc7988dede372bcbc20ed7419362c8cdf229d2d77989da7aaf9d01c9b7a43414"
+    },
+    {
+      "name": "canonical-rgb-sof0-2000x2000",
+      "width": 2000,
+      "height": 2000,
+      "components": 3,
+      "sha256": "5307c20da2979646f422606035d5c8d22fba30f79c083a61fb945ee58487fdef"
+    }
+  ]
+}
