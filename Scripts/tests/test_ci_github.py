@@ -1380,7 +1380,12 @@ class WorkflowContractTests(unittest.TestCase):
         )
         self.assertIn("-scheme SnapDrillShare", release_step)
         self.assertIn("-configuration Release", release_step)
-        self.assertIn("-destination 'generic/platform=iOS Simulator'", release_step)
+        self.assertIn(
+            "for release_destination in 'generic/platform=iOS Simulator' "
+            "'generic/platform=iOS'",
+            release_step,
+        )
+        self.assertIn('-destination "$release_destination"', release_step)
         self.assertIn("-showBuildSettings", release_step)
         self.assertIn("-json", release_step)
         self.assertIn("--effective-release-settings-stdin", release_step)

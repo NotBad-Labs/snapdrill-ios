@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shlex
 import subprocess
 import sys
 from collections.abc import Iterable, Mapping
@@ -171,11 +172,26 @@ def validate_effective_release_settings(payload: object) -> list[str]:
             value = settings.get(key, "")
             if not isinstance(value, str):
                 errors.append(f"effective Release {target} {key} must be a string")
-            elif "DEBUG" in value:
+                continue
+            if "DEBUG" in value:
                 errors.append(
                     f"effective Release {target} {key} must not define DEBUG, "
                     f"found {value!r}"
                 )
+            if key == "OTHER_SWIFT_FLAGS":
+                try:
+                    flags = shlex.split(value)
+                except ValueError as error:
+                    errors.append(
+                        f"effective Release {target} {key} must be tokenizable: {error}"
+                    )
+                    continue
+                response_files = [flag for flag in flags if flag.startswith("@")]
+                if response_files:
+                    errors.append(
+                        f"effective Release {target} {key} must not use response files, "
+                        f"found {response_files!r}"
+                    )
     return errors
 
 

@@ -76,13 +76,15 @@ python3 Scripts/validate_document_control.py --check
 python3 Scripts/validate_docs.py --check
 python3 Scripts/validate_capture_contract.py --check
 python3 Scripts/validate_release_configuration.py --check
-xcodebuild -project SnapDrill.xcodeproj \
-  -scheme SnapDrillShare \
-  -configuration Release \
-  -destination 'generic/platform=iOS Simulator' \
-  -showBuildSettings \
-  -json | python3 Scripts/validate_release_configuration.py \
-    --effective-release-settings-stdin
+for release_destination in 'generic/platform=iOS Simulator' 'generic/platform=iOS'; do
+  xcodebuild -project SnapDrill.xcodeproj \
+    -scheme SnapDrillShare \
+    -configuration Release \
+    -destination "$release_destination" \
+    -showBuildSettings \
+    -json | python3 Scripts/validate_release_configuration.py \
+      --effective-release-settings-stdin
+done
 for package in Packages/*; do
   swift package --package-path "$package" dump-package | \
     python3 Scripts/validate_release_configuration.py \

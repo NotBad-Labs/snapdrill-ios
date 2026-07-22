@@ -256,6 +256,27 @@ class ValidateReleaseConfigurationTests(unittest.TestCase):
                         any(key in error and "DEBUG" in error for error in errors)
                     )
 
+    def test_effective_release_swift_flags_reject_response_files(self) -> None:
+        for value in (
+            "$(inherited) @Configs/release-flags.rsp",
+            "$(inherited) '@Configs/release flags.rsp'",
+        ):
+            with self.subTest(value=value):
+                payload = valid_effective_release_settings()
+                payload[0]["buildSettings"]["OTHER_SWIFT_FLAGS"] = value
+
+                errors = validator.validate_effective_release_settings(payload)
+
+                self.assertTrue(any("response files" in error for error in errors))
+
+    def test_effective_release_swift_flags_fail_closed_when_not_tokenizable(self) -> None:
+        payload = valid_effective_release_settings()
+        payload[0]["buildSettings"]["OTHER_SWIFT_FLAGS"] = "$(inherited) 'unterminated"
+
+        errors = validator.validate_effective_release_settings(payload)
+
+        self.assertTrue(any("must be tokenizable" in error for error in errors))
+
     def test_effective_release_swift_conditions_fail_closed_on_wrong_shape(self) -> None:
         cases = (
             None,
