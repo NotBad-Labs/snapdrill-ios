@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
+from collections.abc import Callable
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -23,10 +24,11 @@ validate_docs = load_validate_docs()
 
 
 class ValidateDocsTests(unittest.TestCase):
-    def current_admission_errors_after_removing(
+    def validation_errors_after_removing(
         self,
         path: Path,
         markers: tuple[str, ...],
+        validator: Callable[[list[str]], None],
     ) -> list[str]:
         errors: list[str] = []
         original_read = validate_docs.read
@@ -40,7 +42,7 @@ class ValidateDocsTests(unittest.TestCase):
 
         validate_docs.read = fake_read
         try:
-            validate_docs.validate_current_admission(errors)
+            validator(errors)
         finally:
             validate_docs.read = original_read
         return errors
@@ -251,7 +253,7 @@ class ValidateDocsTests(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
-    def test_current_admission_template_requires_exact_live_base(self) -> None:
+    def test_current_admission_template_requires_base_and_evidence(self) -> None:
         path = (
             validate_docs.REPO_ROOT
             / ".github"
@@ -259,18 +261,19 @@ class ValidateDocsTests(unittest.TestCase):
             / "bug_report.md"
         )
 
-        errors = self.current_admission_errors_after_removing(
+        errors = self.validation_errors_after_removing(
             path,
-            ("Exact live base",),
+            ("Base / current evidence",),
+            validate_docs.validate_current_admission,
         )
 
         self.assertIn(
             ".github/ISSUE_TEMPLATE/bug_report.md: current admission template "
-            "missing requirement: exact live base",
+            "missing requirement: base and current evidence",
             errors,
         )
 
-    def test_current_admission_template_requires_authority_anchors(self) -> None:
+    def test_current_admission_template_requires_authority_and_outcome(self) -> None:
         path = (
             validate_docs.REPO_ROOT
             / ".github"
@@ -278,18 +281,19 @@ class ValidateDocsTests(unittest.TestCase):
             / "chore.md"
         )
 
-        errors = self.current_admission_errors_after_removing(
+        errors = self.validation_errors_after_removing(
             path,
-            ("Effective SSOT anchors",),
+            ("Authority / outcome",),
+            validate_docs.validate_current_admission,
         )
 
         self.assertIn(
             ".github/ISSUE_TEMPLATE/chore.md: current admission template "
-            "missing requirement: effective SSOT anchors",
+            "missing requirement: authority and outcome",
             errors,
         )
 
-    def test_current_admission_template_requires_live_evidence(self) -> None:
+    def test_current_admission_template_requires_routing_and_gates(self) -> None:
         path = (
             validate_docs.REPO_ROOT
             / ".github"
@@ -297,14 +301,15 @@ class ValidateDocsTests(unittest.TestCase):
             / "feature_request.md"
         )
 
-        errors = self.current_admission_errors_after_removing(
+        errors = self.validation_errors_after_removing(
             path,
-            ("Current live / reproducible evidence",),
+            ("Routing / dependencies / unresolved gates",),
+            validate_docs.validate_current_admission,
         )
 
         self.assertIn(
             ".github/ISSUE_TEMPLATE/feature_request.md: current admission template "
-            "missing requirement: current live evidence",
+            "missing requirement: routing dependencies and gates",
             errors,
         )
 
@@ -315,12 +320,13 @@ class ValidateDocsTests(unittest.TestCase):
             / "definition-of-ready.md"
         )
 
-        errors = self.current_admission_errors_after_removing(
+        errors = self.validation_errors_after_removing(
             path,
             (
                 "Age, number",
                 "open / closed state, Draft / Ready state",
             ),
+            validate_docs.validate_current_admission,
         )
 
         self.assertIn(
@@ -331,6 +337,40 @@ class ValidateDocsTests(unittest.TestCase):
         self.assertIn(
             "docs/how-to/definition-of-ready.md: current admission policy "
             "missing requirement: workflow state does not authorize",
+            errors,
+        )
+
+    def test_merge_authorization_requires_exact_head_binding(self) -> None:
+        path = (
+            validate_docs.DOCS_ROOT
+            / "how-to"
+            / "parallel-lanes.md"
+        )
+
+        errors = self.validation_errors_after_removing(
+            path,
+            ("`expected_head_sha`",),
+            validate_docs.validate_merge_authorization,
+        )
+
+        self.assertIn(
+            "docs/how-to/parallel-lanes.md: merge authorization policy "
+            "missing requirement: merge binds the displayed exact head",
+            errors,
+        )
+
+    def test_merge_authorization_invalidates_a_moved_head(self) -> None:
+        path = validate_docs.REPO_ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md"
+
+        errors = self.validation_errors_after_removing(
+            path,
+            ("原授权失效",),
+            validate_docs.validate_merge_authorization,
+        )
+
+        self.assertIn(
+            ".github/PULL_REQUEST_TEMPLATE.md: merge authorization policy "
+            "missing requirement: a moved head invalidates authorization",
             errors,
         )
 

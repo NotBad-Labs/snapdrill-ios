@@ -4,18 +4,19 @@
 
 ## Current Admission / T0
 
-- Current admission brief / URL：
-- Exact live base：`origin/develop@<full-sha>`
-- Effective SSOT anchors：
-- Current live / reproducible evidence：
-- Inherited assumptions accepted：
-- Inherited assumptions rejected：
-- Owner / delegation class：
-- Dependencies / merge order：
+- Base / current evidence：`origin/develop@<full-sha>`
+- Authority / outcome：
+- Owner / scope / red lines：
+- Acceptance / validation：
+- Routing / dependencies / unresolved gates：
+
+<!-- Yellow / Red、T4、历史恢复或跨 lane 时，按 DoR 追加适用的 expanded admission。 -->
+
+## Candidate Binding
+
 - PR head：
 - 主 checkout dirty files：
 - 独立 worktree / branch：
-- Decision lifecycle：effective / candidate / not applicable
 - WIP state：active write / frozen merge queue（冻结时说明满足条件）
 
 <!-- 历史 issue / PR / 审计、旧授权和旧 CI 只作证据；Draft / Ready 本身不构成准入或合并授权。 -->
@@ -52,4 +53,5 @@ Closes #
 - [ ] 影响规范或当前操作时已更新 owning docs；历史材料未被当成当前授权
 - [ ] 未修改无关标识符、wire key、schema、签名或发布资源
 
-Draft / Ready 状态不构成合并授权；每次 merge 仍需 PO 对精确 head 单独明确授权。
+Draft / Ready 状态不构成合并授权；每次 merge 仍需 PO 对已展示候选单独明确授权。PO 无需抄写
+SHA，但执行工具必须通过 `expected_head_sha` 绑定该候选的精确 head；head 移动后原授权失效。
