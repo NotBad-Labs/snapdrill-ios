@@ -50,85 +50,19 @@ public struct DashboardView: View {
                 
                 if let viewModel = viewModel {
                     ScrollView {
-                        VStack(spacing: 20) {
-                            HeaderView()
-
-                            if viewModel.totalCount == 0 {
-                                AccessibleEmptyState(
-                                    title: L10n.Dashboard.emptyTitle,
-                                    message: L10n.Dashboard.emptyDescription,
-                                    systemImage: "tray",
-                                    actionTitle: L10n.Dashboard.goCapture,
-                                    actionSystemImage: "camera.viewfinder"
-                                ) {
-                                    Task { await viewModel.checkDraftAndCapture(router: router) }
-                                }
-                                .accessibilityIdentifier("dashboard.empty.capture")
-                                .padding(.top, 40)
-                            } else {
-                                ReviewHeroCard(
-                                    totalCount: viewModel.totalCount,
-                                    dueCount: viewModel.dueCount,
-                                    reviewedTodayCount: viewModel.reviewedTodayCount,
-                                    onStartReview: { router.navigateToReview() },
-                                    onStartCapture: {
-                                        Task { await viewModel.checkDraftAndCapture(router: router) }
-                                    }
-                                )
-
-                                LazyVGrid(columns: columns, spacing: 12) {
-                                    BentoCard(
-                                        title: L10n.Dashboard.smartScan,
-                                        subtitle: L10n.Dashboard.addNew,
-                                        icon: "camera.viewfinder",
-                                        gradient: DashboardTone.capture
-                                    ) {
-                                        Task { await viewModel.checkDraftAndCapture(router: router) }
-                                    }
-                                    .accessibilityIdentifier("dashboard.bento.capture")
-
-                                    BentoCard(
-                                        title: L10n.Dashboard.browseLibrary,
-                                        subtitle: L10n.Dashboard.manageKnowledge,
-                                        icon: "books.vertical.fill",
-                                        gradient: DashboardTone.library
-                                    ) {
-                                        NotificationCenter.default.post(name: .switchToLibraryTab, object: nil)
-                                    }
-                                    .accessibilityIdentifier("dashboard.bento.library")
-
-                                    DailyStatsView(
-                                        todayItemsCount: viewModel.todayItemsCount,
-                                        reviewedTodayCount: viewModel.reviewedTodayCount,
-                                        dueCount: viewModel.dueCount
-                                    )
-                                    .accessibilityIdentifier("dashboard.dailyStats")
-
-                                    BentoCard(
-                                        // L3：入口已统一为全维度管理，标签与落地页标题（管理分类）保持一致
-                                        title: L10n.Library.categoryManager,
-                                        subtitle: L10n.Dashboard.customize,
-                                        icon: "square.grid.2x2",
-                                        gradient: DashboardTone.categories
-                                    ) {
-                                        viewModel.isShowingCategoryManager = true
-                                    }
-                                    .accessibilityIdentifier("dashboard.bento.categories")
-                                }
-                                .padding(.horizontal)
-
-                                if let analyticsVM = analyticsViewModel {
-                                    DashboardAnalyticsView(viewModel: analyticsVM)
-                                }
-                            }
+                        if exposesOptionalSurfacesForUITesting {
+                            legacyContent(viewModel: viewModel)
+                        } else {
+                            releaseOneContent(viewModel: viewModel)
                         }
-                        .padding(.bottom, 40)
                     }
                     .onAppear {
                         viewModel.loadData()
                     }
                 } else {
-                    DashboardLoadingView()
+                    DashboardLoadingView(
+                        exposesOptionalSurfacesForUITesting: exposesOptionalSurfacesForUITesting
+                    )
                 }
             }
             .accessibilityIdentifier("dashboard.root")
@@ -140,7 +74,7 @@ public struct DashboardView: View {
                         deletionScheduler: services.deletionScheduler
                     )
                 }
-                if analyticsViewModel == nil {
+                if exposesOptionalSurfacesForUITesting, analyticsViewModel == nil {
                     let vm = DashboardAnalyticsViewModel(
                         repositories: repositories,
                         proEntitlementProvider: services.proEntitlement
@@ -217,6 +151,145 @@ public struct DashboardView: View {
             }
         }
     }
+
+    private var exposesOptionalSurfacesForUITesting: Bool {
+#if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains("--uitesting") && !arguments.contains("--ui-test-core-surface")
+#else
+        return false
+#endif
+    }
+
+    private func releaseOneContent(viewModel: DashboardViewModel) -> some View {
+        VStack(alignment: .leading, spacing: 24) {
+            Text(L10n.Dashboard.title)
+                .font(.largeTitle.bold())
+                .foregroundStyle(.primary)
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityIdentifier("dashboard.releaseOne.title")
+                .padding(.horizontal)
+
+            LazyVGrid(columns: columns, spacing: 12) {
+                BentoCard(
+                    title: L10n.Dashboard.smartScan,
+                    subtitle: L10n.Dashboard.addNew,
+                    icon: "camera.viewfinder",
+                    gradient: DashboardTone.capture
+                ) {
+                    Task { await viewModel.checkDraftAndCapture(router: router) }
+                }
+                .accessibilityIdentifier("dashboard.bento.capture")
+
+                BentoCard(
+                    title: L10n.Dashboard.browseLibrary,
+                    subtitle: L10n.Dashboard.manageKnowledge,
+                    icon: "books.vertical.fill",
+                    gradient: DashboardTone.library
+                ) {
+                    NotificationCenter.default.post(name: .switchToLibraryTab, object: nil)
+                }
+                .accessibilityIdentifier("dashboard.bento.library")
+            }
+            .padding(.horizontal)
+
+            if viewModel.totalCount == 0 {
+                AccessibleEmptyState(
+                    title: L10n.Dashboard.emptyTitle,
+                    message: L10n.Dashboard.emptyDescription,
+                    systemImage: "tray"
+                )
+                .accessibilityIdentifier("dashboard.empty")
+            } else {
+                Label(L10n.Common.itemCount(viewModel.totalCount), systemImage: "archivebox.fill")
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                    .padding(.horizontal)
+                    .accessibilityIdentifier("dashboard.librarySummary")
+            }
+        }
+        .padding(.top, 24)
+        .padding(.bottom, 40)
+    }
+
+    private func legacyContent(viewModel: DashboardViewModel) -> some View {
+        VStack(spacing: 20) {
+            HeaderView()
+
+            if viewModel.totalCount == 0 {
+                AccessibleEmptyState(
+                    title: L10n.Dashboard.emptyTitle,
+                    message: L10n.Dashboard.emptyDescription,
+                    systemImage: "tray",
+                    actionTitle: L10n.Dashboard.goCapture,
+                    actionSystemImage: "camera.viewfinder"
+                ) {
+                    Task { await viewModel.checkDraftAndCapture(router: router) }
+                }
+                .accessibilityIdentifier("dashboard.empty.capture")
+                .padding(.top, 40)
+            } else {
+                ReviewHeroCard(
+                    totalCount: viewModel.totalCount,
+                    dueCount: viewModel.dueCount,
+                    reviewedTodayCount: viewModel.reviewedTodayCount,
+                    onStartReview: { router.navigateToReview() },
+                    onStartCapture: {
+                        Task { await viewModel.checkDraftAndCapture(router: router) }
+                    }
+                )
+
+                legacyShortcutGrid(viewModel: viewModel)
+
+                if let analyticsVM = analyticsViewModel {
+                    DashboardAnalyticsView(viewModel: analyticsVM)
+                }
+            }
+        }
+        .padding(.bottom, 40)
+    }
+
+    private func legacyShortcutGrid(viewModel: DashboardViewModel) -> some View {
+        LazyVGrid(columns: columns, spacing: 12) {
+            BentoCard(
+                title: L10n.Dashboard.smartScan,
+                subtitle: L10n.Dashboard.addNew,
+                icon: "camera.viewfinder",
+                gradient: DashboardTone.capture
+            ) {
+                Task { await viewModel.checkDraftAndCapture(router: router) }
+            }
+            .accessibilityIdentifier("dashboard.bento.capture")
+
+            BentoCard(
+                title: L10n.Dashboard.browseLibrary,
+                subtitle: L10n.Dashboard.manageKnowledge,
+                icon: "books.vertical.fill",
+                gradient: DashboardTone.library
+            ) {
+                NotificationCenter.default.post(name: .switchToLibraryTab, object: nil)
+            }
+            .accessibilityIdentifier("dashboard.bento.library")
+
+            DailyStatsView(
+                todayItemsCount: viewModel.todayItemsCount,
+                reviewedTodayCount: viewModel.reviewedTodayCount,
+                dueCount: viewModel.dueCount
+            )
+            .accessibilityIdentifier("dashboard.dailyStats")
+
+            BentoCard(
+                title: L10n.Library.categoryManager,
+                subtitle: L10n.Dashboard.customize,
+                icon: "square.grid.2x2",
+                gradient: DashboardTone.categories
+            ) {
+                viewModel.isShowingCategoryManager = true
+            }
+            .accessibilityIdentifier("dashboard.bento.categories")
+        }
+        .padding(.horizontal)
+    }
 }
 
 #if DEBUG
@@ -247,6 +320,7 @@ private enum DashboardTone {
 /// Dashboard 数据加载中的稳定占位，避免首页启动时只出现孤立 spinner。
 private struct DashboardLoadingView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    let exposesOptionalSurfacesForUITesting: Bool
 
     private var columns: [GridItem] {
         let count = horizontalSizeClass == .regular ? 3 : 2
@@ -256,8 +330,16 @@ private struct DashboardLoadingView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
-                HeaderView()
-                    .redacted(reason: .placeholder)
+                if exposesOptionalSurfacesForUITesting {
+                    HeaderView()
+                        .redacted(reason: .placeholder)
+                } else {
+                    Text(L10n.Dashboard.title)
+                        .font(.largeTitle.bold())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+                        .redacted(reason: .placeholder)
+                }
 
                 RoundedRectangle(cornerRadius: 24)
                     .fill(Color(UIColor.secondarySystemGroupedBackground))
@@ -269,7 +351,7 @@ private struct DashboardLoadingView: View {
                     .padding(.horizontal)
 
                 LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(0..<4, id: \.self) { _ in
+                    ForEach(0..<(exposesOptionalSurfacesForUITesting ? 4 : 2), id: \.self) { _ in
                         RoundedRectangle(cornerRadius: 24)
                             .fill(Color(UIColor.secondarySystemGroupedBackground))
                             .frame(height: 120)

@@ -286,7 +286,7 @@ let escaped = "\u{2d}\u{2d}ui-test-escaped"
             sources, expected_custom_values=("--uitesting", "--ui-test-missing")
         )
         self.assertTrue(any("token census mismatch" in error for error in errors))
-        self.assertEqual(len(validator.EXPECTED_CUSTOM_TOKEN_VALUES), 19)
+        self.assertEqual(len(validator.EXPECTED_CUSTOM_TOKEN_VALUES), 20)
 
     def test_discovery_includes_top_level_share_and_deep_package_sentinel(self) -> None:
         with TemporaryGitRepo() as repo:

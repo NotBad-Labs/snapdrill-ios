@@ -334,10 +334,10 @@
 "settings.manage_categories" = "管理分类";
 "settings.manage_sources" = "管理来源";
 "settings.manage_levels" = "管理级别";
-"settings.clear_all_data" = "清空所有数据";
-"settings.clear_confirm_title" = "确认清空所有数据？";
-"settings.clear_confirm_message" = "此操作将删除所有资料、分类和标签，且不可恢复。";
-"settings.clear_confirm_button" = "清空所有";
+"settings.clear_all_data" = "清空资料库";
+"settings.clear_confirm_title" = "确认清空资料库？";
+"settings.clear_confirm_message" = "此操作将删除资料库中的所有资料、分类和标签，且不可恢复。";
+"settings.clear_confirm_button" = "清空资料库";
 "settings.clear_failed" = "清空数据失败，请稍后重试";
 "settings.danger_zone" = "危险操作";
 "settings.danger_zone_footer" = "以下操作不可撤销，请谨慎使用";
@@ -571,8 +571,8 @@
 "onboarding.page_welcome_description" = "扫描、归档并整理资料与文档，稍后随时查找与回顾。";
 "onboarding.page_capture_title" = "快速采集";
 "onboarding.page_capture_description" = "拍照、导入图片或录入文字，把内容保存为可检索资料。";
-"onboarding.page_review_title" = "按需回顾";
-"onboarding.page_review_description" = "把重要资料安排进回顾队列，减少遗漏。";
+"onboarding.page_organize_title" = "整理与查找";
+"onboarding.page_organize_description" = "用搜索和分类快速找回资料，需要时随时查看或编辑。";
 "onboarding.page_export_title" = "导出与打印";
 "onboarding.page_export_description" = "将资料导出为 PDF 或 CSV，便于打印、分享或备份。";
 "onboarding.field_config_title" = "选择资料字段";
@@ -789,7 +789,7 @@
 "accessibility.field_source_hint" = "开启后录入时显示来源选择";
 "accessibility.field_level_hint" = "开启后录入时显示级别选择";
 "accessibility.field_answer_hint" = "开启后录入时显示答案输入";
-"accessibility.clear_all_data_hint" = "删除所有资料、标签和回顾记录，不可恢复";
+"accessibility.clear_all_data_hint" = "删除资料库中的所有资料、分类和标签，不可恢复";
 "accessibility.generate_test_data_hint" = "生成模拟数据用于调试";
 "accessibility.set_avatar_hint" = "从相册或系统图标中选择头像";
 "accessibility.color_blue_purple" = "蓝紫";

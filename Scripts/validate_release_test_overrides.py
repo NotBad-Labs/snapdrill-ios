@@ -33,6 +33,7 @@ EXPECTED_CUSTOM_TOKEN_VALUES = frozenset(
         "--ui-test-capture-image-result",
         "--ui-test-capture-pdf-page-picker",
         "--ui-test-capture-scan-page-picker",
+        "--ui-test-core-surface",
         "--ui-test-data-sync-backup-progress",
         "--ui-test-data-sync-import-progress",
         "--ui-test-durable-capture-draft",

@@ -230,13 +230,14 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "store-recovery-02-empty-library-continued")
     }
 
-    /// UI-freeze evidence: capture the five primary tabs in a clean, empty-library state.
+    /// UI-freeze evidence: capture the Release 1 primary tabs in a clean, empty-library state.
     func testUIFreezePrimaryTabSurfaceScreenshots() {
         let app = XCUIApplication()
-        app.launchArguments = l3LaunchArguments()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-core-surface"]
         app.launch()
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        XCTAssertEqual(app.tabBars.buttons.count, 4, "Release 1 公开界面只能显示四个主 Tab")
 
         waitForAnyElement("dashboard.root", in: app)
         addScreenshot(named: "ui-freeze-01-dashboard-empty")
@@ -251,21 +252,18 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-03-capture-methods")
 
         app.tabBars.buttons.element(boundBy: 3).tap()
-        waitForAnyElement("review.root", in: app)
-        addScreenshot(named: "ui-freeze-04-review-empty")
-
-        app.tabBars.buttons.element(boundBy: 4).tap()
         waitForAnyElement("settings.root", in: app)
-        addScreenshot(named: "ui-freeze-05-settings-main")
+        addScreenshot(named: "ui-freeze-04-settings-main")
     }
 
-    /// UI-freeze evidence: capture the five primary tabs at AX XXXL Dynamic Type size.
+    /// UI-freeze evidence: capture the Release 1 primary tabs at AX XXXL Dynamic Type size.
     func testUIFreezePrimaryTabAccessibilityTextScreenshots() {
         let app = XCUIApplication()
-        app.launchArguments = l3AccessibilityLaunchArguments()
+        app.launchArguments = l3AccessibilityLaunchArguments() + ["--ui-test-core-surface"]
         app.launch()
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        XCTAssertEqual(app.tabBars.buttons.count, 4, "AX 字号下仍只能显示四个 Release 1 主 Tab")
 
         waitForAnyElement("dashboard.root", in: app)
         addScreenshot(named: "ui-freeze-primary-ax-01-dashboard-empty")
@@ -280,12 +278,32 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-primary-ax-03-capture-methods")
 
         app.tabBars.buttons.element(boundBy: 3).tap()
-        waitForAnyElement("review.root", in: app)
-        addScreenshot(named: "ui-freeze-primary-ax-04-review-empty")
-
-        app.tabBars.buttons.element(boundBy: 4).tap()
         waitForAnyElement("settings.root", in: app)
-        addScreenshot(named: "ui-freeze-primary-ax-05-settings-main")
+        addScreenshot(named: "ui-freeze-primary-ax-04-settings-main")
+    }
+
+    func testReleaseOnePublicEntryPointsStayHidden() {
+        let app = XCUIApplication()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-core-surface"]
+        app.launch()
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
+        XCTAssertEqual(app.tabBars.buttons.count, 4, "Release 1 不得公开回顾主 Tab")
+        waitForAnyElement("dashboard.root", in: app)
+        XCTAssertFalse(app.buttons["dashboard.hero.startReview"].exists, "首页不得公开回顾入口")
+        XCTAssertFalse(app.buttons["dashboard.bento.categories"].exists, "首页不得公开分类管理入口")
+        XCTAssertFalse(app.descendants(matching: .any)["dashboard.analytics.proGate"].exists, "首页不得公开统计或 Pro 入口")
+
+        app.tabBars.buttons.element(boundBy: 1).tap()
+        waitForAnyElement("library.root", in: app)
+        XCTAssertFalse(app.buttons["library.smartPaperButton"].exists, "资料库不得公开 SmartPaper 入口")
+
+        app.tabBars.buttons.element(boundBy: 3).tap()
+        waitForAnyElement("settings.root", in: app)
+        XCTAssertFalse(app.buttons["settings.editProfile"].exists, "设置不得公开个人资料入口")
+        XCTAssertFalse(app.buttons["settings.profileList"].exists, "设置不得公开资料空间入口")
+        XCTAssertFalse(app.buttons["settings.reviewAppearance"].exists, "设置不得公开回顾外观入口")
+        XCTAssertFalse(app.buttons["settings.notifications"].exists, "设置不得公开回顾提醒入口")
     }
 
     /// Regression: AX XXXL bottom content must scroll above the floating tab bar before interaction.
@@ -384,7 +402,8 @@ final class SnapDrillUITests: XCTestCase {
         app.buttons["onboarding.next"].tap()
         waitForUIAnimation()
         XCTAssertTrue(app.descendants(matching: .any)["onboarding.page.2"].waitForExistence(timeout: 5), "应进入第三页")
-        addScreenshot(named: "ui-freeze-onboarding-03-review")
+        XCTAssertTrue(app.staticTexts["整理与查找"].exists, "第三页应说明资料整理与查找，而不是回顾功能")
+        addScreenshot(named: "ui-freeze-onboarding-03-organize")
 
         app.buttons["onboarding.next"].tap()
         waitForUIAnimation()
@@ -724,49 +743,22 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-review-14-after-right-drag")
     }
 
-    /// UI-freeze evidence: capture populated Dashboard hero, shortcuts, analytics gate, category sheet, and all-done state.
+    /// UI-freeze evidence: capture the populated Release 1 Dashboard and its two core shortcuts.
     func testUIFreezeDashboardPopulatedSurfaceScreenshots() {
         let app = XCUIApplication()
-        app.launchArguments = l3LaunchArguments()
+        app.launchArguments = l3LaunchArguments() + ["--ui-test-core-surface"]
         app.launch()
 
         createManualItem(content: "Dashboard QA Due", category: nil, in: app)
 
         app.tabBars.buttons.element(boundBy: 0).tap()
         waitForAnyElement("dashboard.root", in: app)
-        XCTAssertTrue(app.buttons["dashboard.hero.startReview"].waitForExistence(timeout: 10), "首页有待回顾项目时应显示立即开始")
-        addScreenshot(named: "ui-freeze-dashboard-01-populated-due")
-
-        let categoryEntry = app.buttons["dashboard.bento.categories"]
-        scrollUntilHittable(categoryEntry, in: app)
-        XCTAssertTrue(categoryEntry.waitForExistence(timeout: 5), "首页应显示管理分类入口")
-        XCTAssertTrue(categoryEntry.isHittable, "首页管理分类入口应可点击")
-        categoryEntry.tap()
-        waitForAnyElement("settings.categoryManager.root", in: app)
-        addScreenshot(named: "ui-freeze-dashboard-02-category-sheet")
-        app.navigationBars.buttons["关闭"].tap()
-        waitForAnyElement("dashboard.root", in: app)
-
-        app.swipeUp()
-        XCTAssertTrue(
-            app.descendants(matching: .any)["dashboard.analytics.proGate"].waitForExistence(timeout: 5),
-            "首页下半区应显示统计门控占位"
-        )
-        addScreenshot(named: "ui-freeze-dashboard-03-analytics-gate")
-
-        app.tabBars.buttons.element(boundBy: 3).tap()
-        XCTAssertTrue(app.buttons["review.startButton"].waitForExistence(timeout: 10), "回顾页应显示待回顾开始按钮")
-        app.buttons["review.startButton"].tap()
-        waitForAnyElement("review.rate.good", in: app)
-        app.buttons["review.rate.good"].tap()
-        waitForAnyElement("review.summary.dismiss", in: app, timeout: 10)
-        app.buttons["review.summary.dismiss"].tap()
-
-        app.tabBars.buttons.element(boundBy: 0).tap()
-        XCTAssertTrue(app.staticTexts["今日已完成"].waitForExistence(timeout: 10), "完成回顾后首页应显示 all-done Hero")
-        app.swipeDown()
-        app.swipeDown()
-        addScreenshot(named: "ui-freeze-dashboard-04-all-done")
+        XCTAssertTrue(app.buttons["dashboard.bento.capture"].waitForExistence(timeout: 10), "首页应提供一键采集")
+        XCTAssertTrue(app.buttons["dashboard.bento.library"].exists, "首页应提供一键进入资料库")
+        XCTAssertTrue(app.descendants(matching: .any)["dashboard.librarySummary"].exists, "有资料时首页应显示本地资料库摘要")
+        XCTAssertFalse(app.buttons["dashboard.hero.startReview"].exists, "首页不得显示回顾 Hero")
+        XCTAssertFalse(app.descendants(matching: .any)["dashboard.analytics.proGate"].exists, "首页不得显示统计或 Pro 门控")
+        addScreenshot(named: "ui-freeze-dashboard-01-release-one-populated")
     }
 
     /// UI-freeze evidence: capture stable Settings secondary pages without mutating user data.

@@ -16,6 +16,8 @@ struct BentoCard: View {
 
     // MARK: - Properties
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
     /// 卡片标题
     let title: String
     /// 卡片副标题或描述
@@ -46,6 +48,7 @@ struct BentoCard: View {
     var body: some View {
         if let action {
             Button(action: action) { cardContent }
+                .buttonStyle(.plain)
                 .accessibleButton(label: title, hint: subtitle)
         } else {
             cardContent
@@ -71,13 +74,19 @@ struct BentoCard: View {
 
             Text(title)
                 .font(.headline)
-                .foregroundStyle(.primary)
+                .foregroundStyle(Color.primary)
+                .fixedSize(horizontal: false, vertical: true)
             Text(subtitle)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(16)
-        .frame(height: 120)
+        .frame(
+            maxWidth: .infinity,
+            minHeight: dynamicTypeSize.isAccessibilitySize ? 176 : 120,
+            alignment: .leading
+        )
         .glassEffect(.regular, in: .rect(cornerRadius: 24))
     }
 }

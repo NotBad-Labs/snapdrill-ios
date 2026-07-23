@@ -124,11 +124,13 @@ public struct LibraryView: View {
                         .fontWeight(.bold)
                     } else {
                         HStack(spacing: 12) {
-                            NavigationLink(value: LibraryDestination.smartPaper) {
-                                Image(systemName: "doc.richtext")
+                            if exposesOptionalSurfacesForUITesting {
+                                NavigationLink(value: LibraryDestination.smartPaper) {
+                                    Image(systemName: "doc.richtext")
+                                }
+                                .accessibilityLabel(L10n.SmartPaper.title)
+                                .accessibilityIdentifier("library.smartPaperButton")
                             }
-                            .accessibilityLabel(L10n.SmartPaper.title)
-                            .accessibilityIdentifier("library.smartPaperButton")
 
                             // 排序（Apple Reminders 风格 Menu）
                             if let vm = viewModel {
@@ -288,6 +290,15 @@ public struct LibraryView: View {
                 .ignoresSafeArea()
             }
         }
+    }
+
+    private var exposesOptionalSurfacesForUITesting: Bool {
+#if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains("--uitesting") && !arguments.contains("--ui-test-core-surface")
+#else
+        return false
+#endif
     }
     
     // MARK: - Private Helpers

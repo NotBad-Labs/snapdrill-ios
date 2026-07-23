@@ -15,6 +15,7 @@ extension AccessibilityAuditUITests {
         let app = XCUIApplication()
         app.launchArguments = [
             "--uitesting",
+            "--ui-test-core-surface",
             "-hasCompletedOnboarding", "YES",
             "-tip.fieldConfig.v1.seen", "YES",
             "-tip.reviewSwipe.v1.seen", "YES",

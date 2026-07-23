@@ -79,24 +79,24 @@ public struct SettingsView: View {
     public var body: some View {
         NavigationStack(path: $router.path) {
             List {
-                // 1. Profile（系统头像区）
-                Section {
-                    NavigationLink {
-                        EditProfileView()
-                    } label: {
-                        profileRow
+                if exposesOptionalSurfacesForUITesting {
+                    Section {
+                        NavigationLink {
+                            EditProfileView()
+                        } label: {
+                            profileRow
+                        }
+                        .accessibilityIdentifier("settings.editProfile")
                     }
-                    .accessibilityIdentifier("settings.editProfile")
+
+                    Section {
+                        NavigationLink(value: SettingsDestination.profileList) {
+                            SettingsRow(icon: "person.2.fill", gradientStart: .cyan, gradientEnd: .blue, title: L10n.Settings.switchLearner)
+                        }
+                        .accessibilityIdentifier("settings.profileList")
+                    }
                 }
 
-                Section {
-                    NavigationLink(value: SettingsDestination.profileList) {
-                        SettingsRow(icon: "person.2.fill", gradientStart: .cyan, gradientEnd: .blue, title: L10n.Settings.switchLearner)
-                    }
-                    .accessibilityIdentifier("settings.profileList")
-                }
-
-                // 2. 录入字段配置
                 Section {
                     Text(L10n.Settings.captureFields)
                         .font(.headline)
@@ -126,42 +126,43 @@ public struct SettingsView: View {
                     }
                     .accessibilityIdentifier("settings.captureField.answer")
                     .accessibilityHint(L10n.Accessibility.fieldAnswerHint)
-
-                } footer: {
-                    bottomBreathingRoom
                 }
 
-                // 3. 回顾设置
-                Section {
-                    Text(L10n.Settings.reviewSettings)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                        .accessibilityAddTraits(.isHeader)
+                if exposesOptionalSurfacesForUITesting {
+                    Section {
+                        Text(L10n.Settings.reviewSettings)
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                            .accessibilityAddTraits(.isHeader)
 
-                    NavigationLink {
-                        ReviewAppearanceSettingsView(
-                            alignmentRaw: $alignmentRaw,
-                            fontSizeRaw: $fontSizeRaw,
-                            frontAlignmentRaw: $frontAlignmentRaw,
-                            frontFontSizeRaw: $frontFontSizeRaw
-                        )
-                    } label: {
-                        SettingsRow(icon: "eye.fill", gradientStart: .indigo, gradientEnd: .blue, title: L10n.Settings.cardAppearance)
+                        NavigationLink {
+                            ReviewAppearanceSettingsView(
+                                alignmentRaw: $alignmentRaw,
+                                fontSizeRaw: $fontSizeRaw,
+                                frontAlignmentRaw: $frontAlignmentRaw,
+                                frontFontSizeRaw: $frontFontSizeRaw
+                            )
+                        } label: {
+                            SettingsRow(icon: "eye.fill", gradientStart: .indigo, gradientEnd: .blue, title: L10n.Settings.cardAppearance)
+                        }
+                        .accessibilityIdentifier("settings.reviewAppearance")
+
+                        NavigationLink {
+                            NotificationSettingsView()
+                        } label: {
+                            SettingsRow(icon: "bell.fill", gradientStart: .red, gradientEnd: .orange, title: L10n.Settings.reviewReminder)
+                        }
+                        .accessibilityIdentifier("settings.notifications")
                     }
-                    .accessibilityIdentifier("settings.reviewAppearance")
-
-
-                    NavigationLink {
-                        NotificationSettingsView()
-                    } label: {
-                        SettingsRow(icon: "bell.fill", gradientStart: .red, gradientEnd: .orange, title: L10n.Settings.reviewReminder)
-                    }
-                    .accessibilityIdentifier("settings.notifications")
-
                 }
 
                 // 4. 数据与备份
                 Section {
+                    Text(L10n.Settings.dataAndSync)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                        .accessibilityAddTraits(.isHeader)
+
                     NavigationLink {
                         if let viewModel {
                             DataAndSyncSettingsView(viewModel: viewModel)
@@ -172,7 +173,6 @@ public struct SettingsView: View {
                         SettingsRow(icon: "externaldrive.fill", gradientStart: .blue, gradientEnd: .cyan, title: L10n.Settings.dataAndSync)
                     }
                     .accessibilityIdentifier("settings.dataAndSync")
-
 
                     NavigationLink {
                         StorageManagementView()
@@ -187,13 +187,10 @@ public struct SettingsView: View {
                         SettingsRow(icon: "hand.raised.fill", gradientStart: Color(.systemGray), gradientEnd: Color(.systemGray2), title: L10n.Settings.privacyAndExport)
                     }
                     .accessibilityIdentifier("settings.privacyExport")
-
-                } header: {
-                    Text(L10n.Settings.dataAndSync)
                 }
 
                 // 5. 通用
-                Section(L10n.Settings.general) {
+                Section {
                     Picker(selection: $appearanceMode) {
                         Text(L10n.Settings.followSystem).tag(0)
                         Text(L10n.Settings.lightMode).tag(1)
@@ -210,6 +207,11 @@ public struct SettingsView: View {
                     }
                     .accessibilityIdentifier("settings.language")
 
+                } header: {
+                    Text(L10n.Settings.general)
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                        .accessibilityAddTraits(.isHeader)
                 }
 
                 // 6. 分类管理（L3：分类/来源/级别 + 用户自定义维度统一入口）
@@ -291,9 +293,8 @@ public struct SettingsView: View {
 #endif
             }
             .listStyle(.insetGrouped)
-            .safeAreaInset(edge: .bottom) {
-                bottomBreathingRoom
-            }
+            .padding(.bottom, 100)
+            .background(Color(uiColor: .systemGroupedBackground))
             .accessibilityIdentifier("settings.root")
             .navigationTitle(L10n.Settings.title)
             .navigationBarTitleDisplayMode(.inline)
@@ -354,6 +355,15 @@ public struct SettingsView: View {
     }
 
     // MARK: - Private Helpers
+
+    private var exposesOptionalSurfacesForUITesting: Bool {
+#if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains("--uitesting") && !arguments.contains("--ui-test-core-surface")
+#else
+        return false
+#endif
+    }
 
     @ViewBuilder
     private var bottomBreathingRoom: some View {
