@@ -34,6 +34,7 @@ let package = Package(
         .testTarget(
             name: "SnapDrillCoreTests",
             dependencies: ["SnapDrillCore"],
+            resources: [.copy("Fixtures/CanonicalJPEG")],
             swiftSettings: sharedSwiftSettings
         )
     ]
