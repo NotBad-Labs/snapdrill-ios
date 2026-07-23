@@ -58,7 +58,6 @@ struct SettingsRow: View {
                     .font(.body)
                     .foregroundStyle(.secondary)
             }
-
         }
         .padding(.vertical, 2)
     }
