@@ -1,22 +1,14 @@
 # 多 Agent / 多窗口协作边界
 
-> 当前版本：2026-07-20。适用于 Codex Desktop 与经 PO / shaping 授权的 Claude、Gemini /
+> 当前版本：2026-07-23。适用于 Codex Desktop 与经 PO / shaping 授权的 Claude、Gemini /
 > Antigravity、Grok 或其他工具。目标是让角色、文件集、证据和授权清楚，不让模型品牌成为
 > 永久组织结构。
 
 ## 1. 共同真相源
 
-不同问题使用不同裁决链：
-
-- **产品意图**：`develop` 中 effective 的 Product Constitution > 当前 Release Product
-  Contract > 产品政策 / typed decision > feature spec > 验收标准。
-- **实现事实**：live 代码、测试、构建、设备与发布实证 > 自动生成状态与当前事实文档 >
-  历史材料和 Agent 私有记忆。
-- **当前执行**：owning 技术或操作 contract 约束边界；task brief 的 outcome / scope / red lines /
-  acceptance 在边界内固定本 slice；通用 Agent 启发式只补未规定处。
-
-代码不能覆盖产品意图；规划和聊天不能覆盖 live evidence。任何影响其他 lane 的结论必须进入
-commit、PR、report、测试或 tracked docs，不能只留在私有会话。
+规范链、实证链与当前执行优先级只在 `AGENTS.md` §1 维护。本文件不复制产品 SSOT。
+任何影响其他 lane 的结论必须进入 commit、PR、report、测试或 tracked docs，不能只留在
+私有会话。
 
 ## 2. 角色而非模型所有权
 
@@ -54,6 +46,7 @@ commit、PR、report、测试或 tracked docs，不能只留在私有会话。
 - 负责 Green 任务的 push、Draft PR、CI、rerun，以及授权后串行 merge 和 worktree / 分支卫生；
 - 永不写产品代码或在合并时顺手修复；
 - 每次 merge 前重新确认授权 head、顺序、状态与 base。
+- 长时间 CI 在后台观察；常规轮询不打扰 PO，只在需要裁决、失败或最终完成时报告。
 
 ### QA / Reviewer
 
@@ -63,35 +56,24 @@ commit、PR、report、测试或 tracked docs，不能只留在私有会话。
 
 ## 3. 开工 T0 与 DoR
 
-任何 write、跨 Agent 规划、复核或合并前都先做 T0：
+任何 write、跨 Agent 规划、复核或合并前都先做与风险相称的 T0。
 
-1. `git fetch` 后确认目标 `origin/develop` / 授权 head；
-2. 记录当前 branch、HEAD、upstream、ahead / behind 和 worktree dirty files；
-3. 列出已合并、未合并、被取代和未知来源的工作；
-4. 重开规划引用的 live path:line，确认根因与接口仍成立；
-5. 把结果写入 task brief、PR 描述或 report，不新增并行状态 SSOT。
+日常 Green 任务使用轻量 T0：
+
+1. `git fetch` 后确认目标 base / 授权候选；
+2. 确认当前 HEAD、worktree、dirty files 和 active write 没有冲突；
+3. 重开 owning authority 与当前 live evidence，确认 outcome、scope 和验收仍成立。
+
+Yellow / Red、T4、恢复历史任务、跨 lane、外部复核、事故与发布工作再展开：记录 upstream、
+ahead / behind、已合并 / 未合并 / superseded 工作、继承假设、依赖和 merge order。merge T0
+始终重新确认 PR 当前精确 head、base、mergeability、必需门禁与授权绑定。
 
 T0 是当前实证刷新，不会让历史工作项自动恢复执行权。issue、PR、审计、报告、聊天交接、
 label、历史评论 / 授权和旧 CI 默认只作证据；编号、时间、open / closed、Draft / Ready 或
-绿色状态不能单独准入。任务进入 bet、active write 或 frozen queue 前，必须通过
-[`Current Admission`](definition-of-ready.md#current-admission) 并至少写清：
-
-```text
-Current admission brief / URL:
-Exact live base:
-Effective SSOT anchors:
-Current live / reproducible evidence:
-Inherited assumptions accepted / rejected:
-Outcome:
-Scope / owned files:
-Out of scope / red lines:
-Authority and decision state:
-Dependencies / merge order:
-Acceptance criteria:
-Validation level and commands:
-Owner / delegation class:
-PO / legal / fact gates:
-```
+绿色状态不能单独准入。任务进入 bet 或 write lane 前，必须通过
+[`Current Admission`](definition-of-ready.md#current-admission)。Green 使用其五字段短 brief；
+只有该门定义的风险触发项才使用 expanded admission。T0 结果写入 brief、PR 或 report，不能
+新增并行状态 SSOT。
 
 缺失产品、数据 / wire、公开承诺、商业或平台上游 contract 时，可以调查或创建 Draft 实验，
 但不得把实验反向写成产品事实，也不得合入改变跨 lane baseline 的实现。
@@ -102,30 +84,28 @@ PO / legal / fact gates:
 - 每个 write lane 使用独立 worktree、分支和 DerivedData；不动主 checkout。
 - 不修改、清理或恢复其他 lane 的 worktree、stash、未提交文件和未知 artifact。
 - 窗口之间零口头依赖；协作只经 commit、PR、report、测试和 tracked docs。
-- 合并永远串行，顺序由 shaping 标注；每次 merge 都需 PO 对精确 head 明确授权。
+- 合并永远串行，顺序由 shaping 标注；每次 merge 都需 PO 对当次已展示候选明确授权，工具
+  必须绑定候选的精确 head。
 - 依赖另一个 slice 时，消费者等待契约 commit 合入或明确 rebase 基线，不能猜测未冻结接口。
 
-### WIP 状态机
+### 内部 WIP 状态
 
 write slice 的状态必须写入 PR 描述或 handoff；GitHub 的 Draft / Ready 标签本身不决定 WIP
-归类，也不构成合并授权。
+归类，也不构成合并授权。以下术语用于 Agent 调度；PO-facing 更新只显示 **自动处理中**、
+**需要 PO 裁决** 或 **等待合并授权**。
 
 - **active write**：已通过 Current Admission，且 head 仍可能变化，或实现、必需验证、冲突处理、
   必需复核仍未完成；总数不超过 2。
-- **frozen merge queue**：不计入 active write，但总数不超过 2。只有同时满足以下条件才能进入：
-  1. current admission brief 与最新 T0 仍覆盖 live target；owned changes 已全部 commit / push，
-     worktree clean，精确 head 与 scope 已冻结；
-  2. task brief 要求的本地门禁已绿，PR 记录实际运行、未运行项和剩余风险；
-  3. 必需复核已完成，且没有未解决 finding、合并冲突、上游 contract 或 PO 决策 blocker；
-  4. 依赖与合并顺序已明确，只剩精确 head 授权或串行 merge slot。
+- **frozen merge queue**：head / scope 已冻结，worktree clean，必需门禁和复核完成，无未决
+  finding、冲突或上游 gate，只剩 PO 授权或串行 merge slot；不计入 active write，总数不超过 2。
 - frozen slice 一旦新增 commit、需要解决冲突、必需门禁失败或出现未解决评审 finding，必须先退回
   active write，再继续修改。
 - base 前进但 head 不变时，Operations 重新做 T0、mergeability 与所需验证判断；无需修改且门禁仍
   充分时可保持 frozen，需要改动或补救时退回 active。
 - 已 merged、closed 或明确 superseded 的 branch 不计入两类 WIP，但仍按 §8 做分支生命周期处置。
 
-该状态机只提高 pipeline 吞吐，不改变 Shape Up 的单一主 bet、文件集不相交准入、串行合并或
-逐次 PO merge 授权。
+该内部状态只控制并行上限，不需要 PO 学习或维护；它不改变单一主 bet、文件集不相交准入、
+串行合并或逐次 PO merge 授权。
 
 并行构建沿用 `release-and-ci.md` 的 canonical 参数，并为每个 lane 追加独立 DerivedData：
 
@@ -142,8 +122,10 @@ xcodebuild <canonical arguments> -derivedDataPath /tmp/snapdrill-derived-<lane>
 
 ## 5. 外部 Agent
 
-外部 Agent 默认是只读 reviewer。只有 PO 或 shaping 明确分配 write lane 时才可修改仓库，而且
-必须使用独立 worktree、文件集和验收。
+Green 日常任务默认不调用外部 Agent。只在 PO 明确要求、T4 / 发布 / 事故需要独立复核、事实
+存在争议、需要外部平台 / 法律专长或当前 reviewer 不能独立验证时调用。调用后默认角色是只读
+reviewer；只有 PO 或 shaping 明确分配 write lane 时才可修改仓库，而且必须使用独立 worktree、
+文件集和验收。
 
 调用前：
 
@@ -184,26 +166,18 @@ UI / AX、archive、安装、网络和发布 lineage。完成报告必须区分�
 
 ## 7. 必须询问 PO
 
-当 current task brief 或 owning effective contract 尚未明确时，以下情况必须停下问 PO；
-已经有精确裁决的，不重复询问：
-
-- 改变产品定位、默认行为、免费 / 付费边界或用户可见语义；
-- 多个合理交互方案会改变信息架构、默认路径、功能语义或用户可感知结果；遵循 owning spec /
-  design system 的纯视觉 token 由 owning UI lane 自主选择；
-- 法律 / 合规 guardrail 与现有功能冲突；
-- 删除或不可逆迁移用户数据，修改外部 wire、账号、签名或发布资源；
-- 把私有仓库内容、用户数据、密钥、签名材料或非公开证据发送给外部模型 / 服务；
-- 上传、non-PO availability、go / no-go、提交审核或发布。
-
-纯工程实现、事实校准、测试补齐和 effective 方案的落地由 owning lane 自主完成；执行范围与
-Green / Yellow / Red 判定见 `definition-of-ready.md`。
+唯一清单见 `definition-of-ready.md` 的 [Stop And Ask](definition-of-ready.md#stop-and-ask)。
+本文件不复制 PO 权限边界。纯工程实现、事实校准、测试补齐和 effective 方案的落地由 owning
+lane 自主完成。
 
 ## 8. 提交、授权与分支生命周期
 
 - Agent 不直推 `develop` / `main`；所有写入在独立分支。
 - 本地交付至少包含 clean diff、commit hash、验证结果和未覆盖范围。
-- P-A Green 任务可自主 push 并创建 / 更新 Draft PR；转 Ready、关闭 PR、merge、部署和
-  删除未合并分支按当次 PO 授权执行，授权不得从近似标题或旧 hash 推断。
+- Green 任务可自主 push 并创建 / 更新 Draft PR；转 Ready、关闭 PR、merge、部署和删除
+  未合并分支按当次 PO 授权执行。Orchestrator 应向 PO 展示自然语言候选与 PR，并在技术元数据
+  中记录精确 head；PO 无需抄写 40 位 SHA，可以授权“上述候选”。执行时必须使用当前展示的
+  `expected_head_sha`，head 移动即视为原授权失效，重新展示后再请求授权。
 - 合并后删除分支前确认历史已进入目标分支；关闭未合并分支还需 unique-commit /
   supersession 校验和 PO 授权。
 - 不从私有记忆中的旧 hash 复活工作；先 fetch，核对 live Git / GitHub 后再决定恢复。

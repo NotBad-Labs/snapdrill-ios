@@ -62,17 +62,13 @@ release_outcomes: []      # active feature 直接拥有 / 承接的 M1-M10；无
 
 <!-- 仅当本 spec 被指定为具名执行 brief 时填写；否则指向独立的当前 issue / PR brief。 -->
 
-- **Current admission brief / URL**：
-- **Exact live base**：`origin/develop@<full-sha>`
-- **Effective SSOT anchors**：
-- **Current live / reproducible evidence**：
-- **Inherited assumptions accepted**：
-- **Inherited assumptions rejected**：
-- **Owner / delegation class**：
-- **Owned scope / red lines**：
-- **Acceptance / validation level**：
-- **Dependencies / merge order**：
-- **PO / legal / fact gates**：
+- **Base / current evidence**：`origin/develop@<full-sha>`
+- **Authority / outcome**：
+- **Owner / scope / red lines**：
+- **Acceptance / validation**：
+- **Routing / dependencies / unresolved gates**：
+
+Yellow / Red、T4、历史恢复或跨 lane 时，只追加 DoR 定义的适用 expanded admission 字段。
 
 历史 issue / PR / 审计 / 报告只作证据；编号、时间、open / closed、Draft / Ready、label、旧授权
 或旧 CI 不构成当前执行权。准入规则见
