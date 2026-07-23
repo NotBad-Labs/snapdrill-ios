@@ -39,53 +39,29 @@
 
 ## 3. 开工与协作
 
-开工先读 `docs/how-to/definition-of-ready.md`，再按
-`docs/how-to/parallel-lanes.md` 做 T0：
+开工入口是 [`Definition of Ready`](docs/how-to/definition-of-ready.md#current-admission)；T0、WIP、worktree、
+验证和 merge 细节只在 [`parallel-lanes.md`](docs/how-to/parallel-lanes.md) 维护。
 
-- 旧 issue、PR、审计、报告、聊天交接、label、历史评论 / 授权和旧 CI 默认只作证据；
-  只有自包含记录通过 [`Current Admission`](docs/how-to/definition-of-ready.md#current-admission)
-  后，任务才能进入 bet、active write 或 frozen merge queue；编号、时间和 GitHub 状态本身
-  不授予当前执行权；
-- 确认目标分支、`origin/develop` HEAD、dirty files、未合并工作与引用的 live path:line；
-- 使用独立 worktree / 分支，不修改或清理主 checkout、其他 worktree、stash 或未知文件；
-- shaping 明确 outcome、scope、red lines、owner、acceptance、验证等级和 PO / legal / fact gate；
-- 共享接缝先用小契约 PR 冻结当前 slice 所需接口，再让文件集不相交的实现并行；
-- active write WIP 不超过 2；精确 head 已冻结、必需门禁全绿、PR / handoff 完整且无未决
-  blocker 的 slice 可进入冻结待合并队列（不超过 2），不再计入 active。任何新 commit、
-  合并冲突、必需门禁失败或未解决评审发现都会使其退回 active。合并永远串行，每次 merge
-  都需 PO 对精确 head 明确授权。
+日常 Green 流程：内部五字段 brief + 轻量 T0 -> 独立 worktree / 分支实现 -> 按风险验证 ->
+push + Draft PR -> 向 PO 报告结果或请求合并授权。Yellow / Red、T4、历史恢复、跨 lane、事故与
+发布才展开完整 admission、外部复核或发布证据。任务进入 bet、active write 或 frozen merge queue
+前必须通过 Current Admission；旧 issue、PR、报告、聊天授权和旧 CI 默认只作证据，不能仅凭
+编号、状态或时间恢复执行权。
 
-工具或模型不永久拥有文件。当前默认由 Codex C1 统筹 shaping、本地实证、实现整合与完成报告；
-Claude、Gemini / Antigravity、Grok 等默认是独立只读 reviewer，只有 PO 或 shaping 明确分配
-独立 write lane 时才能写入。角色、文件集和验证责任以当次 task brief 为准。
-当次 task brief 已明确要求某窗口实施并给出 scope / acceptance 时，即完成该窗口的 write
-lane 分配；模型默认角色不能反向拒绝已明确的实施任务。
-在 PO 已接受的当前 bet 内，任务若按 `docs/how-to/definition-of-ready.md` 分类为 Green，owning agent
-可以自主完成 shaping、独立 worktree / 分支、实现、验证、commit、push 和 Draft PR，无需
-逐 slice 再次索取操作授权。该常设委托不允许 agent 自选产品优先级、把 Yellow / Red 问题
-降级，或自行将 PR 转 Ready、merge、删除未合并分支、上传和发布。
-PO 在当次会话中的明确指令可以分配本 slice 的调查 / 实施；它不使新的产品语义跨 lane
-effective，也不自动授权 merge、上传或发布。
+工具或模型不永久拥有文件。角色、文件集、写入 / 独立复核隔离和当次 task brief 的 lane 分配
+只在 `parallel-lanes.md` §2 维护；Green 自主权限只在 `definition-of-ready.md` 的 Standing
+Delegation 维护。本文件不复制这些操作规则。
 
 跨窗口不依赖聊天同步；只通过 commit、PR、report、测试和 tracked docs 交接。外部 Agent
 输出只是候选证据，进入仓库前必须由当前 DRI 复核其 path:line、命令和 live 行为。
 
 ## 4. 必须询问 PO 的边界
 
-当 current task brief 或 owning effective contract 尚未明确时，只有以下问题必须停下请 PO 裁决；
-已经有精确裁决的，不重复询问：
-
-- 产品定位、默认行为、免费 / 付费边界或用户可见语义发生变化；
-- 多个合理交互方案会改变信息架构、默认路径、功能语义或用户可感知结果；遵循 owning spec /
-  design system 的纯视觉 token 由 owning UI lane 自主选择；
-- 法律 / 合规 guardrail 与现有功能冲突；
-- 删除或不可逆迁移用户数据，修改账号、签名、发布资源或外部 wire 承诺；
-- 把私有仓库内容、用户数据、密钥、签名材料或其他非公开证据发送给外部模型 / 服务；
-- 上传 TestFlight、扩大可用人群、go / no-go、App Store 提交或正式发布。
-
-纯工程实现、事实校准、测试补齐和已 effective 方案的落地由 owning lane 自主完成。Green
-任务的 push 与 Draft PR 服从 P-A 常设委托；转 Ready、分支删除、merge、上传和发布仍服从
-`parallel-lanes.md` 的显式 PO 授权规则。
+唯一清单见 `definition-of-ready.md` 的
+[Stop And Ask](docs/how-to/definition-of-ready.md#stop-and-ask)。已经有 effective 精确裁决的，
+不重复询问；纯工程实现、事实校准、测试补齐和已 effective 方案的落地由 owning lane 自主完成。
+PO-facing 更新使用自然语言，不要求 PO 学习内部风险或 WIP 代号。转 Ready、分支删除、merge、
+上传和发布仍服从 `parallel-lanes.md` 的显式 PO 授权规则。
 
 ## 5. 项目不变量
 
@@ -114,15 +90,8 @@ bash Scripts/ci-local.sh
 不适用于本仓库；测试入口、targeted UI / AX、archive、真机和发布证据见
 `docs/how-to/release-and-ci.md`。
 
-验证重量服从 `parallel-lanes.md` 的 T0-T4。最低要求：
-
-- T0 文档：`git diff --check`；涉及 docs 时运行
-  `python3 Scripts/validate_document_control.py --check` 与
-  `python3 Scripts/validate_docs.py --check`；生成索引按 owner generator `--check`。
-- 进入编译产物的任何改动至少 T2；用户交互至少 T3；Core / Data / 存储 / 隐私 / wire /
-  migration / release 至少 T4。
-- canonical gate 不覆盖 app UI / AX、archive、安装、隐私网络实证或发布候选 lineage；高层
-  验收不能被较低层绿色替代。
+验证重量与每级最低证据只在 `parallel-lanes.md` 的 T0-T4 表维护。canonical gate 不覆盖 app
+UI / AX、archive、安装、隐私网络实证或发布候选 lineage；高层验收不能被较低层绿色替代。
 
 完成报告必须列出：验证等级、实际命令、已验证路径、未运行项、失败 / 阻塞和剩余风险。
 

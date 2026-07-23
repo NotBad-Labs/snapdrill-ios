@@ -9,10 +9,11 @@ check, shape the task further or ask PO instead of silently choosing.
 
 ## Current Admission
 
-Every task entering the bet, active write, or frozen merge queue needs one
-self-contained **current admission brief**. This is an execution gate, not a
-fourth product SSOT: it must point to effective authority rather than restating
-or replacing Product Constitution, Release Product Contract, or feature specs.
+Every task entering the bet, active write, or frozen merge queue needs a
+**current admission brief**.
+This is an internal execution record, not a fourth product SSOT: it points to
+effective authority instead of restating Product Constitution, the Release
+Product Contract, or feature specs.
 
 An issue, PR, audit, report, chat handoff, label, historical PO comment or
 authorization, and an old CI result are evidence by default. Age, number,
@@ -21,60 +22,38 @@ or historical CI success cannot by themselves grant current execution
 authority. A previously known defect or accepted idea may proceed only after
 its assumptions are rebuilt against live facts.
 
-The current admission brief records:
+The default Green brief has five fields: live base and evidence; authority and
+outcome; owner, scope and red lines; acceptance and validation; routing,
+dependencies and unresolved gates. Use the template in [Brief Formats](#brief-formats).
 
-1. **Exact live base**: target branch and full commit SHA used for admission.
-2. **Effective SSOT anchors**: product and owning technical / operations
-   authority that bounds the task.
-3. **Current evidence**: live path:line, reproducible command, fixture, test,
-   device evidence, or other presently verified fact.
-4. **Inherited assumptions**: historical assumptions explicitly accepted and
-   rejected after current verification.
-5. **Ownership and scope**: owner, owned files / boundaries, outcome, in-scope
-   work, and exclusions / red lines.
-6. **Completion contract**: acceptance criteria, T0-T4 validation level, and
-   planned evidence.
-7. **Execution routing**: delegation class, dependencies, merge order, and
-   unresolved PO / legal / fact gates.
+Expand the brief only when the task is Yellow / Red, T4, crosses an owning
+contract or write lane, resumes historical work, changes an inherited
+assumption, uses an external reviewer, or prepares incident / release evidence.
+The expanded record adds only the decision state, accepted / rejected inherited
+assumptions, detailed evidence and merge order needed by that risk.
 
-An existing current task remains admissible only when its present brief already
-contains equivalent fields and the latest T0 confirms they still hold against
-the live target. There is no bulk grandfathering based on an issue or PR already
-being open, accepted, labeled, green, Draft, or Ready. The exact admission base
-remains recorded; if the target advances, T0 records the newer target head and
-whether the existing head, assumptions, merge order, and validation remain
-sufficient. A changed authority, root cause, scope, or inherited assumption must
-be reflected before queue entry or continued execution.
+These fields are for agent execution and auditability. PO-facing updates use
+plain language: **自动处理中**, **需要 PO 裁决**, or **等待合并授权**. PO does
+not need to learn or repeat internal labels such as P-A, T0-T4, active write, or
+frozen queue unless that detail helps a decision.
+
+An existing task remains admissible only when its brief contains the applicable
+fields and the latest T0 confirms they still hold against the live target. There
+is no bulk grandfathering based on an issue or PR being open, accepted, labeled,
+green, Draft, or Ready. A changed authority, root cause, scope, or inherited
+assumption requires an expanded admission refresh before execution continues.
 
 ## Ready Checklist
 
-1. **Current admission**: the task has a self-contained current admission brief
-   with exact live base, effective anchors, current evidence, inherited
-   assumptions, ownership, dependencies, and merge order.
-2. **Outcome**: the task states the user-visible or repo-visible outcome, not
-   only a file list.
-3. **Scope**: in-scope and out-of-scope work are explicit. Adjacent cleanup is
-   not implied.
-4. **Authority**: product intent links through the three-layer SSOT: Product
-   Constitution (`vision.md`) -> current Release Product Contract -> owning
-   feature spec. Product policy or a typed decision may refine its assigned
-   question but cannot bypass those layers.
-5. **Decision state**: every upstream product decision is identified as
-   exploration, shaped candidate, ratified, effective, or superseded. Only an
-   effective authority on `develop` may replace the current cross-lane baseline.
-6. **Contract first**: cross-feature, data/wire, public, business, or platform
-   changes name the upstream product or release contract required before merge.
-7. **Acceptance criteria**: the task names observable pass/fail checks. At
-   least one check must be a command, fixture, test, screenshot/evidence path,
-   or direct PO-verifiable behavior.
-8. **Validation level**: the task declares a T0-T4 level from
-   `parallel-lanes.md` and lists the commands or manual evidence required.
-9. **Red lines**: files, product meanings, legal/fact-gated content, release
-   resources, or user data that must not be changed are named.
-10. **Decision gates**: unresolved PO, legal, fact, App Store, or irreversible
-   data decisions are called out before coding.
-11. **Delegation class**: the task is classified Green, Yellow, or Red using
-    the P-A matrix below. Uncertain classification fails closed to Yellow.
+A Green task is ready when all five brief fields are concrete, the effective
+authority permits one user-visible or repo-visible outcome, the change is
+reversible, and no [Stop And Ask](#stop-and-ask) condition remains. Acceptance
+must include at least one observable command, test, fixture, screenshot,
+evidence path, or direct PO-verifiable behavior.
+
+If scope, authority, outcome, oracle, owner, or risk classification is unclear,
+the task is not Green. Shape it as Yellow or stop at the Red boundary instead of
+adding ceremony to every unrelated task.
 
 ## Stop And Ask
 
@@ -98,9 +77,9 @@ again merely because the implementation is user-visible.
 - A PO ruling is ratified but its owning authority has not yet been merged, and
   the task would treat that ruling as the new cross-lane baseline.
 
-## P-A Standing Delegation
+## Standing Delegation
 
-PO 于 2026-07-20 批准 P-A：现有 Release Product Contract 承担该次发布的唯一 PRD，不新增
+PO 于 2026-07-20 批准常设委托（历史代号 P-A）：现有 Release Product Contract 承担该次发布的唯一 PRD，不新增
 平行 `PRD.md`；Gate P 期间暂停新的 non-blocker feature 投入；当前已接受 bet 内的 Green 任务
 可由 owning agent 自主推进至 Draft PR。该委托减少重复操作授权，不转移产品、合并或发布
 决策权。
@@ -151,26 +130,27 @@ superseded. Draft implementation may precede a contract for comparison, but a
 cross-feature, data/wire, public, business, or platform change may not merge
 before its upstream product or release contract.
 
-P-A 只授权 Green 执行至 Draft PR。产品裁决仍走五态生命周期；merge 仍是使候选进入
+常设委托只授权 Green 执行至 Draft PR。产品裁决仍走五态生命周期；merge 仍是使候选进入
 `develop` 的独立 PO 动作。
 
-## Minimal Task Brief
+## Brief Formats
+
+Green tasks use this internal short form:
 
 ```text
-Current admission brief / URL:
-Exact live base:
-Effective SSOT anchors:
-Current live / reproducible evidence:
-Inherited assumptions accepted:
-Inherited assumptions rejected:
-Outcome:
-Owner / delegation class:
-Scope / owned files:
-Out of scope / red lines:
-Authority:
-Decision state and required upstream contract:
-Acceptance criteria:
-Validation level and commands:
-Dependencies / merge order:
-PO/legal/fact gates:
+Base / current evidence:
+Authority / outcome:
+Owner / scope / red lines:
+Acceptance / validation:
+Routing / dependencies / unresolved gates:
+```
+
+For an expanded admission, append only applicable details:
+
+```text
+Decision state / required upstream contract:
+Inherited assumptions accepted / rejected:
+Detailed live or reproducible evidence:
+Cross-lane dependencies / merge order:
+PO / legal / fact / release gates:
 ```

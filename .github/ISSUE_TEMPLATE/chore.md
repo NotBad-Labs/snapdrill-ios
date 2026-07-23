@@ -20,15 +20,13 @@ assignees: ""
 
 ## Current Admission
 
-<!-- 历史 issue / PR / 审计只作证据；按 docs/how-to/definition-of-ready.md#current-admission 重建。 -->
+<!-- 历史材料只作证据。Green 默认填五行；Yellow / Red、T4、历史恢复或跨 lane 才追加 expanded admission。 -->
 
-- **Exact live base**：`origin/develop@<full-sha>`
-- **Effective SSOT anchors**：
-- **Current live / reproducible evidence**：
-- **Inherited assumptions accepted**：
-- **Inherited assumptions rejected**：
-- **Owner / delegation class**：
-- **Dependencies / merge order**：
+- **Base / current evidence**：`origin/develop@<full-sha>` + 当前事实（PO 可留空，由 owning agent 在准入时补全）
+- **Authority / outcome**：
+- **Owner / scope / red lines**：
+- **Acceptance / validation**：
+- **Routing / dependencies / unresolved gates**：
 
 ## Severity
 

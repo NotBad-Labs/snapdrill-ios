@@ -108,14 +108,27 @@ CURRENT_ADMISSION_POLICY_REQUIREMENTS = {
     },
 }
 
+MERGE_AUTHORIZATION_POLICY_REQUIREMENTS = {
+    DOCS_ROOT / "how-to" / "parallel-lanes.md": {
+        "PO need not transcribe the SHA": ("PO 无需抄写",),
+        "merge binds the displayed exact head": ("`expected_head_sha`",),
+        "a moved head invalidates authorization": ("head 移动", "原授权失效"),
+    },
+    REPO_ROOT / ".github" / "PULL_REQUEST_TEMPLATE.md": {
+        "PO need not transcribe the SHA": ("PO 无需抄写",),
+        "merge binds the displayed exact head": ("`expected_head_sha`",),
+        "a moved head invalidates authorization": ("head 移动", "原授权失效"),
+    },
+}
+
 CURRENT_ADMISSION_COMMON_TEMPLATE_FIELDS = {
-    "exact live base": ("Exact live base",),
-    "effective SSOT anchors": ("Effective SSOT anchors",),
-    "current live evidence": ("Current live / reproducible evidence",),
-    "accepted inherited assumptions": ("Inherited assumptions accepted",),
-    "rejected inherited assumptions": ("Inherited assumptions rejected",),
-    "owner and delegation class": ("Owner / delegation class",),
-    "dependencies and merge order": ("Dependencies / merge order",),
+    "base and current evidence": ("Base / current evidence",),
+    "authority and outcome": ("Authority / outcome",),
+    "owner scope and red lines": ("Owner / scope / red lines",),
+    "acceptance and validation": ("Acceptance / validation",),
+    "routing dependencies and gates": (
+        "Routing / dependencies / unresolved gates",
+    ),
 }
 
 CURRENT_ADMISSION_TEMPLATE_REQUIREMENTS = {
@@ -162,7 +175,6 @@ CURRENT_ADMISSION_TEMPLATE_REQUIREMENTS = {
         "scope": ("## 2. 需求规则",),
         "red lines": ("**边界 / 不做**",),
         "acceptance criteria": ("## 4. 验证标准",),
-        "validation level": ("Acceptance / validation level",),
     },
 }
 
@@ -647,6 +659,16 @@ def validate_current_admission(errors: list[str]) -> None:
         )
 
 
+def validate_merge_authorization(errors: list[str]) -> None:
+    for path, requirements in MERGE_AUTHORIZATION_POLICY_REQUIREMENTS.items():
+        validate_required_markers(
+            path,
+            requirements,
+            "merge authorization policy",
+            errors,
+        )
+
+
 def run_checks() -> list[str]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -658,6 +680,7 @@ def run_checks() -> list[str]:
     validate_release_prd_authority(errors)
     validate_feature_intent(errors)
     validate_current_admission(errors)
+    validate_merge_authorization(errors)
     return errors
 
 
