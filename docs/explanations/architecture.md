@@ -40,8 +40,9 @@ SnapDrill.app
 2. App 根只创建一次 `LocalLibraryRuntime`，下游只消费同一 runtime 的 repository 与图片目录。
 3. store 打不开时 fail closed，进入明确恢复流程；不得创建临时空库、静默隔离损坏 store 或回退测试替身。
 4. Backup v3 是唯一对外完整备份 wire；development v1/v2 不参与生产读写。
-5. Review、SmartPaper、Pro、CloudKit、Profile 和未纳入 manifest 的 optional 不进入首发候选构建
-   （内部 audience：`public-candidate`）的运行图。
+5. Review、SmartPaper、Pro、CloudKit、Profile 和未纳入 manifest 的 optional 在首发候选构建
+   （内部 audience：`public-candidate`）中必须满足 Product Contract §3.3 的 `hidden` 定义：
+   零入口、零激活、零副作用。不可达且不执行的代码可以保留。
 6. Core 保持零外部依赖，模块依赖保持单向向下。
 
 ## 2. 模块边界
@@ -148,25 +149,18 @@ View
 
 ### 4.3 完整操作
 
-完整备份、恢复和清空资料库消费同一个 complete-operation barrier：
+完整备份、恢复和清空资料库必须经 `LocalLibraryRuntime` 拥有的同一个 complete-operation
+coordinator 进入 [Local Library Data Contract](../reference/local-library-data-contract.md)
+定义的 admission、prestate、发布和回滚流程。本文不复制其事务状态机。
 
-1. 关闭新的 mutation / snapshot admission。
-2. 等待已准入操作收敛。
-3. 固定可验证 prestate。
-4. 在隔离工作区执行。
-5. 原子发布结果或完整回滚。
-
-selected PDF / CSV 是 partial export，只消费稳定选择快照，不冒充完整资料库备份。
+selected PDF / CSV 是 partial export，只消费 Data Contract 定义的稳定选择快照，不进入完整资料库
+操作通道。
 
 ### 4.4 Backup v3
 
-[Backup Wire Format](../reference/backup-wire-format.md) 是对外 wire 的唯一 owner：
-
-- writer 与 reader 必须 round-trip 同一 exact contract。
-- 逐 entry 与总量按实际提取字节限制。
-- 路径、ID、引用闭包、canonical image 与 taxonomy 先验证，后 mutation。
-- 恢复失败保留原库与可诊断 incident；不得 salvage 后静默报告完整成功。
-- v1/v2 只允许保留最小拒绝 fixture 或历史解析证据，不进入生产入口。
+[Backup Wire Format](../reference/backup-wire-format.md) 是对外 wire、校验、限制和错误语义的唯一
+owner。目标架构只要求 Backup v3 reader / writer 位于 SnapDrillData，并通过 complete-operation
+coordinator 与唯一 runtime 交互；生产 composition root 不注册 v1/v2 reader / writer。
 
 ## 5. Service 与 DI
 
@@ -179,16 +173,16 @@ selected PDF / CSV 是 partial export，只消费稳定选择快照，不冒充�
 Profile-scoped service 分类被目标架构删除。资料库相关能力归 `LocalLibraryRuntime`；通用系统能力归
 `ServiceContainer`。允许的静态 facade 必须无持久业务状态并有明确理由。
 
-## 6. 用户表面与 Feature 边界
+## 6. 用户表面组合边界
 
-| 表面 | 目标职责 | 不得拥有 |
-|---|---|---|
-| Dashboard | 默认首屏、资料库状态、Capture / Library 快速入口 | Profile、Review cue、Pro、课程或学习统计 |
-| Capture | 相机 / 文扫、相册、PDF、OCR 辅助、草稿与保存 | 独立 store、教育领域字段、保存后第二份图片真相 |
-| Library | 搜索、查看、编辑、分类 / 标签、选择、撤销删除 | 多资料空间、SmartPaper 主入口、按 Review 状态驱动 |
-| Settings | 语言、外观、备份 / 恢复、清库、隐私与法律 | 身份装饰、Profile、Review 设置、Pro / CloudKit 预告 |
+四个公开表面的职责、可见能力和隐藏语义只由
+[Release 1 Product Contract](../reference/release-1-contract.md) §3.3–§5 与对应 feature spec
+拥有。目标架构只规定：
 
-Feature 可以复用 Data/Core contract，但不能把当前实现存在的能力升级为产品范围。
+- public app shell 组合 Dashboard、Library、Capture 和 Settings 四个 Feature root。
+- Feature 可以复用 Data / Core contract，但不能创建第二个 runtime 或把可选实现注入公开路由。
+- `hidden` 能力可以保留为不可达源码或测试资产，但不得注册入口、启动任务、调度、恢复路径或
+  其他副作用；候选构建由 Capability Manifest 提供实证。
 
 ## 7. 测试架构
 
@@ -203,6 +197,6 @@ Feature 可以复用 Data/Core contract，但不能把当前实现存在的能�
 | UI / AX | M10、中英文、Dynamic Type、VoiceOver、viewport 与系统面板入口 |
 | Device evidence | 相机 / 文扫、签名安装启动、真实打印及物理输出 |
 
-保留旧实现的测试只能证明 legacy 行为，不能计入首发版完成度。删除 legacy production path 时，
-与该路径绑定且无安全 / wire 价值的测试一并删除；拒绝旧 wire、迁移边界或回归攻击样本可保留为
-quarantine fixture。
+保留旧实现的测试只能证明 legacy 行为，不能计入首发版完成度。legacy 测试与 fixture 的保留、
+替换或删除服从其 owning contract；旧 wire 拒绝、兼容边界与回归攻击样本继续按对应 contract
+提供隔离证据。
