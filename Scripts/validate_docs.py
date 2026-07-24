@@ -23,8 +23,21 @@ except ModuleNotFoundError:
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_ROOT = REPO_ROOT / "docs"
 PACKAGES_ROOT = REPO_ROOT / "Packages"
+SKILLS_ROOT = REPO_ROOT / ".claude" / "skills"
 PRODUCT_VISION = DOCS_ROOT / "product" / "vision.md"
 RELEASE_ONE_PRD = DOCS_ROOT / "product" / "release-1-prd.md"
+
+CURRENT_PRODUCT_AUTHORITY_ENTRYPOINTS = {
+    REPO_ROOT / "README.md",
+    REPO_ROOT / "AGENTS.md",
+    DOCS_ROOT / "README.md",
+}
+LEGACY_PRODUCT_AUTHORITY_TERMS = {
+    "Product Constitution",
+    "Release Product Contract",
+    "Release 1 Product Contract",
+    "Release Contract",
+}
 
 HISTORICAL_ADRS = {
     DOCS_ROOT / "decisions" / "ADR-003-dual-region-release.md": "suspended",
@@ -354,6 +367,18 @@ def iter_taxonomy_contract_docs() -> Iterable[Path]:
         yield from sorted(path for path in PACKAGES_ROOT.rglob("*.md") if is_repo_owned_package_doc(path))
 
 
+def iter_current_product_authority_surfaces() -> Iterable[Path]:
+    yield from sorted(CURRENT_PRODUCT_AUTHORITY_ENTRYPOINTS)
+    if SKILLS_ROOT.exists():
+        yield from sorted(SKILLS_ROOT.rglob("*.md"))
+    if PACKAGES_ROOT.exists():
+        yield from sorted(
+            path
+            for path in PACKAGES_ROOT.rglob("*.md")
+            if is_repo_owned_package_doc(path)
+        )
+
+
 def has_any(haystack: str, needles: set[str]) -> bool:
     lower = haystack.lower()
     return any(needle.lower() in lower for needle in needles)
@@ -645,6 +670,18 @@ def validate_product_document_authority(errors: list[str]) -> None:
         )
 
 
+def validate_current_product_authority_terms(errors: list[str]) -> None:
+    for path in iter_current_product_authority_surfaces():
+        text = read(path)
+        for term in sorted(LEGACY_PRODUCT_AUTHORITY_TERMS):
+            if term not in text:
+                continue
+            errors.append(
+                f"{rel(path)}:{line_number(text, term)}: obsolete product authority "
+                f"term '{term}'; use Product Vision & Principles or Release 1 PRD"
+            )
+
+
 def validate_required_markers(
     path: Path,
     requirements: dict[str, tuple[str, ...]],
@@ -694,6 +731,7 @@ def run_checks() -> list[str]:
     validate_contextual_positioning_terms(errors, warnings)
     validate_taxonomy_canonical_terms(errors, warnings)
     validate_product_document_authority(errors)
+    validate_current_product_authority_terms(errors)
     validate_feature_intent(errors)
     validate_current_admission(errors)
     validate_merge_authorization(errors)

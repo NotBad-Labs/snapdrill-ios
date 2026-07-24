@@ -122,6 +122,38 @@ class ValidateDocsTests(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_current_product_authority_surfaces_use_standard_terms(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_current_product_authority_terms(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_legacy_product_authority_term_in_package_doc_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        package_readme = validate_docs.PACKAGES_ROOT / "SnapDrillCore" / "README.md"
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == package_readme:
+                return f"{text}\nRelease Contract\n"
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_current_product_authority_terms(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                error.startswith("Packages/SnapDrillCore/README.md:")
+                and "obsolete product authority term 'Release Contract'" in error
+                for error in errors
+            )
+        )
+
     def test_missing_product_vision_layer_fails_closed(self) -> None:
         errors: list[str] = []
         original_read = validate_docs.read

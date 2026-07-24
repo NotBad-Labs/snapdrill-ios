@@ -1,7 +1,8 @@
 # SnapDrillFeatures
 
 > **文档角色：当前实现参考。** 下列 targets 与入口说明代码现在是什么，不代表每个模块都有
-> Release 1 公开路由；公开范围以 Release Contract 与 owning feature spec 为准。
+> Release 1 公开路由；公开范围以 [Release 1 PRD](../../docs/product/release-1-prd.md)
+> 与 owning feature spec 为准。
 
 **功能模块集 (Feature Modules Collection)**
 
