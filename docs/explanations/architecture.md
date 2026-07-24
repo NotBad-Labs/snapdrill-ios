@@ -1,286 +1,202 @@
 ---
-last_verified: 2026-07-15
+last_verified: 2026-07-24
 layer: pattern
 freshness:
-  max_age_days: 180
+  max_age_days: 90
   decay_trigger: [arch_change]
 ---
-# SnapDrill 技术架构
+# SnapDrill 首发版目标架构
 
-> 面向新开发者的架构全景图。
->
-> **产品重基线边界（2026-07-16）**：本文描述当前代码，不定义产品。Product Constitution v1 已选择一个可见资料库、Release 1 无 IAP，并把 Apple 私有同步 / Pro 降为未来假设；effective 的 Release 1 Contract follow-up decisions 继续约束 Must / hidden 与数据结果。因此下文 Multi-Profile、per-profile 偏好、Profile ZIP v2、Pro gating 与 CloudKit 路径只用于刻画待收敛实现。不得据此新增功能或反向覆盖 `vision.md` / Release 1 Contract。#868 已关闭且只作历史证据；新实现须从最新 `develop` 遵守 `../reference/local-library-data-contract.md`、精确 Backup v3 Wire 与安全前置。
+> “首发版”是仓库内部版本键 `Release 1` 的自然语言名称。本文定义其目标技术边界，
+> 不描述或合法化旧实现。产品范围由
+> [Product Constitution](vision.md) 与
+> [Release 1 Product Contract](../reference/release-1-contract.md) 决定；本文只回答怎样实现。
+> 当前代码与目标不一致时，按 Product Contract 的 M1-M10 结果 oracle 修复，不得反向修改产品目标。
 
----
+## 1. 架构目标
 
-## 架构概览
+首发版只有一条生产路径：
 
+```text
+SnapDrill.app
+  └─ Composition Root
+      ├─ LocalLibraryRuntime
+      │   ├─ one active generation
+      │   ├─ one ModelContainer + DataExecutor
+      │   ├─ one RepositoryContainer
+      │   └─ one generation-scoped ImageStorage
+      ├─ ServiceContainer
+      ├─ AppRouter
+      └─ four public surfaces
+          ├─ Dashboard
+          ├─ Library
+          ├─ Capture
+          └─ Settings
 ```
-SnapDrill.app（薄壳，Composition Root）
+
+必须成立：
+
+1. 用户无需创建、选择或切换 Profile；生产代码中不存在第二个可用资料库。
+2. App 根只创建一次 `LocalLibraryRuntime`，下游只消费同一 runtime 的 repository 与图片目录。
+3. store 打不开时 fail closed，进入明确恢复流程；不得创建临时空库、静默隔离损坏 store 或回退测试替身。
+4. Backup v3 是唯一对外完整备份 wire；development v1/v2 不参与生产读写。
+5. Review、SmartPaper、Pro、CloudKit、Profile 和未纳入 manifest 的 optional 在首发候选构建
+   （内部 audience：`public-candidate`）中必须满足 Product Contract §3.3 的 `hidden` 定义：
+   零入口、零激活、零副作用。不可达且不执行的代码可以保留。
+6. Core 保持零外部依赖，模块依赖保持单向向下。
+
+## 2. 模块边界
+
+```text
+SnapDrill.app（Composition Root）
     │
-    ├── SnapDrillFeatures（5 个 Feature Target，UI + ViewModel）
-    │   ├── FeatureCapture      采集
-    │   ├── FeatureLibrary      资料库
-    │   ├── FeatureReview       回顾（依赖 Library）
-    │   ├── FeatureDashboard    首页（依赖 Library）
-    │   └── FeatureSettings     设置（依赖 Library）
+    ├── SnapDrillFeatures（用户旅程与界面状态）
+    │   ├── FeatureDashboard
+    │   ├── FeatureLibrary
+    │   ├── FeatureCapture
+    │   └── FeatureSettings
     │
-    ├── SnapDrillUI（公共 UI 组件 + 路由协议）
-    │   ├── 内部依赖：SnapDrillCore
-    │   └── 外部依赖：Mantis（图片裁剪）
+    ├── SnapDrillUI（无业务状态的公共 SwiftUI 组件与路由协议）
     │
-    ├── SnapDrillData（SwiftData Model + Repository + 备份）
-    │   └── 外部依赖：ZIPFoundation
+    ├── SnapDrillData（资料库 runtime、SwiftData、repository、备份与恢复）
     │
-    └── SnapDrillCore（核心服务 + Protocol + DI + MetricKit）
-        └── 零第三方依赖
-
-SnapDrillShare（Share Extension）
-    ├── 通过 App Groups 与主 App 共享数据
-    ├── 接收分享图片 → 保存到共享容器 → URL Scheme 唤起主 App
-    └── 不依赖 SnapDrillData（轻量，仅文件 I/O）
+    └── SnapDrillCore（稳定领域类型、服务协议、纯算法与日志）
 ```
 
-**依赖方向**：单向向下，禁止反向引用。Core 层零外部依赖。
+依赖方向：
 
----
-
-## 新增 Core service 规则（S-D4-001 共识）
-
-1. 若服务跨 Feature 使用、持有状态、依赖系统 API/AI/外部 SDK、或测试需要替换 → 必须进入 `ServiceContainer`
-2. Profile-scoped 服务走 `ProfileManager` / `RepositoryContainer`，不得放入全局 `ServiceContainer`（典型例外：`ImageStorage`）
-3. 静态 facade（如 `TelemetryGate`）必须有架构豁免决策；Feature 层不得直接调用
-4. `ServiceContainer` 当前 14 个属性：analytics/pdfExport/appConfig/privacyConsent/notification/ocr/captureDraft/contentTagging/questionSplitting/deletionScheduler/proEntitlement/activityTracker/reviewScheduler/metricService
-5. 显式豁免清单（不挂容器）：`TelemetryGate`（nonisolated enum，全局静态状态）/ `ZIPArchiver`（Data 层，跨包循环依赖）/ `ImageStorage`（Profile-scoped）/ `OnboardingManager` / `DependencyContainer.shared`
-
-## 解耦准则（最优解耦 · AI 协作）
-
-目标是**最优解耦、非极致**——"高内聚低耦合"是一对张力的最优点（极致解耦碎片化、杀内聚 → ravioli）。判据：让"未来最可能的那类变更"成本最低（Parnas 信息隐藏：按易变设计决策分解；Ousterhout 深模块：窄接口、丰富实现）。
-
-**该解耦（DO）**：不同变化率/原因的接缝、外部依赖边界（网络/存储/第三方 SDK）、已有 2+ 实现处、SPM package 边界（= feature 隔离 + 编译边界 + agent 工作隔离）。
-**不该解耦（DON'T）**：单实现 protocol、pass-through 层、为"将来可能"的投机抽象（YAGNI / Rule of Three）、同生共死的 View + 其唯一 ViewModel。
-
-**AI/多 agent 协作的位移**（实证：MAST, NeurIPS 2025——多 agent 失败 41.8% 是规格/设计问题，显式契约是恢复成功率第一杠杆）：最优点向**显式契约**移动（类型/文档/spec/物理 package 边界），**不向更多抽象层**移动；AI 廉价量产抽象 → 须比纯人类**更严**执行 YAGNI。机制：AI 归零了抽象的"生产成本"，但没归零"契约/理解/误改成本"（Hyrum's Law：公开缝=永久契约）。
-
-**操作法则**：
-- **agent 度量痛点、不提议抽象**：让 agent 在当前结构下试实现变更，看它要的 diff/上下文多大；有痛点→开缝，无痛点→YAGNI。
-- **触发器驱动重构**：同类变更连续 2 次碰 5+ 文件 = 边界画错才重构；共享抽象开始加第 2 个 bool 参数 = inline 回重复（Metz：错误抽象比重复贵）。
-- **缝要么做完**：半截解耦最危险（如 KI-01——S-D4-001 半截迁移在缝里留洞、导出期 Profile 切换保护失效）；一次做透 + 配跨边界集成测试守缝，或别开。
-- **编排者（人 + 主力 agent）= 架构守门**；外部评审 agent 查"YAGNI 违规 + 单实现 protocol + 隐式契约"，而非盲目鼓励解耦。
-
-## DI 注入链路
-
-```
-DependencyContainer.shared（App 启动时初始化）
-├── services: ServiceContainer（协议）→ LiveServiceContainer（实现）
-├── profileManager: ProfileManager（@Observable，持有 DataExecutor）
-│   ├── executor: DataExecutor（actor 拥有 ModelContainer，消除 MainActor+XPC 死锁 #599）
-│   ├── activeContainer: ModelContainer（通过 executor 访问，Profile 切换时重建）
-│   ├── activeRepositories: RepositoryContainer（init(executor:) 构造）
-│   │   ├── review: ArchiveRepository
-│   │   ├── dimension: CategoryDimensionRepository（内置 key: category / source / level / tag）
-│   │   └── categoryValue: CategoryValueRepository（各维度下的值）
-│   └── activeImageStorage: ImageStorage
-├── router: AppRouter（构造器注入到 AppRootView）
-│   └── 5 个 FeatureRouter（DashboardRouter, LibraryRouter, ...）
-└── ActivityTracker: AppActivityTracker（Profile 切换保护）
+```text
+App -> Features -> UI
+App -> Features -> Data -> Core
+UI -> Core
 ```
 
-**Environment 注入点**（SnapDrillApp.body）：
+- `SnapDrillCore` 不依赖 Data、UI、Features 或第三方 SDK。
+- `SnapDrillData` 拥有持久化、文件生命周期、完整操作和 Backup v3，不依赖 Feature。
+- Feature 不直接持有 `ModelContext`，也不自行拼接资料库路径。
+- App target 只做组合、生命周期和顶层路由，不承载业务规则。
+- package 边界用于编译和所有权隔离，不为单一实现制造 pass-through protocol。
+- 研究 / 可选模块可以保留为不可达源码或测试资产，但不得链接进首发候选运行图、启动任务或用户表面。
 
-| Key | 类型 | 用途 |
-|---|---|---|
-| `\.services` | `ServiceContainer` | PDF 导出、通知、隐私授权、Analytics |
-| `\.repositories` | `RepositoryContainer` | 数据读写 |
-| `\.profileManager` | `ProfileManager` | 多 Profile 切换 |
-| `.modelContainer()` | `ModelContainer` | SwiftData |
+## 3. Runtime 与组合
 
-`\.services` 必须由 App 根或 Debug Preview 显式注入。默认 Environment 容器仅允许
-SwiftUI 完成读取与 get-modify-set；实际访问任何未注入服务会以稳定错误立即失败，避免
-Release 静默使用测试替身。Analytics 只经 `ServiceContainer.analytics` 提供，不维护并行
-EnvironmentKey。
+### 3.1 唯一 runtime
 
-**Remote Config 链路**：
-DependencyContainer → AppConfiguration → FeatureFlags（Remote Config 已移除，FeatureFlags 仅读 UserDefaults）
+`LocalLibraryRuntime` 是生产资料库的唯一 owner。它在成功打开 active generation 后一次性发布：
 
----
+- `ModelContainer`
+- actor-owned `DataExecutor`
+- `RepositoryContainer`
+- generation-scoped `ImageStorage`
+- complete-operation coordinator
+- 当前 generation identity
 
-## 数据流
+初始化必须 all-or-nothing。任一成员构造失败时不发布部分 runtime，不注入空 repository，不进入正常
+Dashboard。
 
+### 3.2 Composition Root
+
+`SnapDrillApp` 负责：
+
+1. 读取并校验 selector、transaction、incident 与 generation 布局。
+2. 打开或创建唯一 active generation。
+3. 构造 `LocalLibraryRuntime` 与稳定 service。
+4. 根据启动结果呈现 normal shell 或 recovery shell。
+5. 将显式依赖注入 AppRootView。
+
+禁止：
+
+- `ProfileManager`、`ProfileVault` 或 `activeProfile` 参与正常启动。
+- EnvironmentKey 生产默认值创建内存 store 或 mock service。
+- View、ViewModel 或 Settings 再次创建 runtime / repository / image storage。
+- “先显示空库，再异步尝试恢复”的假成功路径。
+
+### 3.3 启动状态
+
+```text
+preparing
+  ├─ ready(LocalLibraryRuntime) -> public app shell
+  ├─ recoveryRequired(incident) -> recovery shell
+  └─ failed(stable error)       -> retry / restore / informed reset
 ```
-View（渲染层 + 依赖装配）
-  │ 通过 @Environment 注入 repositories / services；router 通过构造器注入（AppRootView）
-  ▼
-ViewModel（@Observable，持有状态与业务流程）
-  │ 通过 Repository 执行查询、保存、通知监听
-  ▼
-Repository（封装 ModelContext 操作，通过 DataExecutor 访问）
-  │ modelContext.fetch / insert / save / rollback
-  ▼
-DataExecutor（actor，拥有 ModelContainer，createOffMainActor() 消除死锁）
-  │
-  ▼
-SwiftData @Model（持久化）
+
+`ready` 是进入正常 UI 的唯一入口。恢复语义、generation 与稳定错误类别由
+[Local Library Data Contract](../reference/local-library-data-contract.md) 唯一拥有。
+
+## 4. 数据与文件边界
+
+### 4.1 数据流
+
+```text
+View
+  -> View state / workflow owner
+  -> RepositoryContainer
+  -> DataExecutor actor
+  -> SwiftData models
 ```
 
-**铁律**：
-- View 不直接持有 `ModelContext`，也不在 View 层编写持久化业务规则
-- 当前代码允许部分 View 通过 `@Environment(\.repositories)` 获取 `RepositoryContainer`，用于依赖装配、构造 ViewModel、NavigationDestination / Sheet 注入，以及少量轻量数据动作
-- 复杂状态编排、保存流程、错误恢复与通知监听仍应放在 ViewModel
-- Repository 的 `insert()` 是纯内存操作，必须显式调 `saveContext()` 才持久化
-- `saveContext()` 失败后必须 `rollbackContext()` 回滚内存脏状态
+- View 只呈现状态并发出意图。
+- 简单短流程可由 View 的 `@State` 与注入服务承担；跨步骤写操作、错误恢复和通知监听使用明确 workflow owner。
+- Repository 负责持久化规则；写失败必须 rollback，不向上报告成功。
+- `Notification.Name.reviewDataDidChange` 等历史广播不能成为首发版核心一致性的唯一机制；核心写入完成后由明确依赖刷新。
 
-**跨模块刷新机制**：
-`Notification.Name.reviewDataDidChange`（定义在 `SnapDrillCore/Support/ReviewDataNotification.swift`）。发布方包括 Repository 层（`ArchiveRepository`、`CategoryDimensionRepository`、`CategoryValueRepository` 等）和部分 Feature 层写操作入口（`CaptureResultViewModel`、`LibraryEditViewModel`、`SettingsViewModel`、`DataSeeder`）。监听方：`DashboardViewModel`、`ReviewViewModel`、`DashboardAnalyticsViewModel`，通过 `for await` 订阅并刷新 UI。
+### 4.2 图片真相
 
-**错误处理策略**：
-- DB save/rollback：原子性保证，失败必须回滚。
-- 当前实现的部分图片文件 I/O 仍采用 best-effort，这是待修复偏差，不是 Release 1 结果契约。C2-Image 要求已保存资料保有可读的 App-managed 内容真相；采集保存不得在必需图片不可读时报告成功。DATA-1 要求正式完整备份 all-or-nothing，salvage 必须作为单独路径明确标识。
+- 保存真相是用户确认裁剪和方向后的 App-managed canonical JPEG。
+- `ImageStorage` 只接收 generation 根目录，不接收 Profile scope。
+- 图片保存剥离 EXIF GPS；读取、删除与恢复全部校验安全相对路径。
+- 数据行与必需图片必须按 owning contract 原子提交；不可读主图不得报告成功。
 
----
+### 4.3 完整操作
 
-## 模块职责
+完整备份、恢复和清空资料库必须经 `LocalLibraryRuntime` 拥有的同一个 complete-operation
+coordinator 进入 [Local Library Data Contract](../reference/local-library-data-contract.md)
+定义的 admission、prestate、发布和回滚流程。本文不复制其事务状态机。
 
-### SnapDrillCore（零依赖核心层）
+selected PDF / CSV 是 partial export，只消费 Data Contract 定义的稳定选择快照，不进入完整资料库
+操作通道。
 
-| 目录 | 职责 |
+### 4.4 Backup v3
+
+[Backup Wire Format](../reference/backup-wire-format.md) 是对外 wire、校验、限制和错误语义的唯一
+owner。目标架构只要求 Backup v3 reader / writer 位于 SnapDrillData，并通过 complete-operation
+coordinator 与唯一 runtime 交互；生产 composition root 不注册 v1/v2 reader / writer。
+
+## 5. Service 与 DI
+
+跨 Feature、持有状态、依赖系统 API 或测试需要替换的稳定能力进入 `ServiceContainer`。新增服务必须同时满足：
+
+1. 至少两个真实消费者，或位于外部系统边界。
+2. 接口比实现更稳定，且能形成可验证 contract。
+3. 不只是对单个 concrete type 的透传。
+
+Profile-scoped service 分类被目标架构删除。资料库相关能力归 `LocalLibraryRuntime`；通用系统能力归
+`ServiceContainer`。允许的静态 facade 必须无持久业务状态并有明确理由。
+
+## 6. 用户表面组合边界
+
+四个公开表面的职责、可见能力和隐藏语义只由
+[Release 1 Product Contract](../reference/release-1-contract.md) §3.3–§5 与对应 feature spec
+拥有。目标架构只规定：
+
+- public app shell 组合 Dashboard、Library、Capture 和 Settings 四个 Feature root。
+- Feature 可以复用 Data / Core contract，但不能创建第二个 runtime 或把可选实现注入公开路由。
+- `hidden` 能力可以保留为不可达源码或测试资产，但不得注册入口、启动任务、调度、恢复路径或
+  其他副作用；候选构建由 Capability Manifest 提供实证。
+
+## 7. 测试架构
+
+测试 oracle 必须来自 Product Contract、owning feature / Data contract 或 NFR，不从现有实现倒推。
+
+| 层级 | 证明内容 |
 |---|---|
-| `DI/` | ServiceContainer 协议 + LiveServiceContainer + MockServiceContainer + Environment Key |
-| `Service/` | Protocol 定义 + 实现（OCRServiceProtocol、PDFExportService、NotificationServiceProtocol、AnalyticsServiceProtocol、CaptureDraftService、PrivacyConsentService、DeletionScheduler、ContentTaggingService、QuestionSplittingService、ProEntitlementProvider、TelemetryGate）|
-| `Capture/` | OCRService（实现）、ImageStorage（图片存储 + EXIF 剥离 GPS/位置信息）|
+| Core unit | 纯规则、路径 grammar、限制值、错误分类 |
+| Data contract | generation、事务、incident、repository、图片、Backup v3 原子性 |
+| Composition integration | App 根只发布一个 runtime；正常、损坏、恢复与重置路径无 fallback |
+| Feature integration | M1-M9 的输入、状态、错误与输出结果 |
+| UI / AX | M10、中英文、Dynamic Type、VoiceOver、viewport 与系统面板入口 |
+| Device evidence | 相机 / 文扫、签名安装启动、真实打印及物理输出 |
 
-**端上 AI 服务**（属于 `Service/`，列出便于检索）：
-- `ContentTaggingService` — Apple Foundation Models 框架自动标注（iOS 26+）
-- `QuestionSplittingService` — 一图多题智能拆题（阻塞 #626 真机验证）
-| `Engine/` | SM-2 复习调度算法（ReviewScheduler、SM2State、ReviewRating） |
-| `Support/` | L10n、UserDefaultsKeys、AppConfiguration、ReviewDataNotification、SnapDrillTips |
-| 根目录 | SnapDrillLogger（基于 os.Logger 的结构化日志） |
-
-### SnapDrillData
-
-| 模块 | 职责 |
-|---|---|
-| `*Model.swift` | SwiftData @Model 定义（ArchiveItemModel、CategoryDimensionModel、CategoryValueModel） |
-| `*Repository.swift` | 数据访问层，封装 ModelContext（推荐 `init(executor:)`，保留 `init(modelContext:)` 向后兼容） |
-| `DataExecutor` | actor 拥有 ModelContainer，`createOffMainActor()` 消除 MainActor+XPC 死锁（#599） |
-| `RepositoryContainer` | Repository 聚合 + Environment 注入 |
-| `BackupService` | 当前 Profile ZIP v2 备份/恢复（actor 隔离）；D1-B 的 `.snapdrillbackup` v3 是待独立实现的目标 wire，本地 runtime / generation 边界见 `../reference/local-library-data-contract.md` |
-| `BackupDTO` | 备份数据传输对象 |
-| `ProfileManager` | 多 Profile / Vault 切换（独立数据库 + 图片目录 + per-profile UserDefaults），持有 DataExecutor |
-| `ProfileMigration` | Profile 结构迁移（老版本升级） |
-| `MigrationPlan` | SwiftData Schema 版本迁移 |
-| `DataError` / `PersistenceError` | 错误类型定义 |
-| `DataSeeder` | 初始数据填充（默认分类/来源） |
-| `ArchiveExportSnapshot` | 复习数据导出快照 |
-
-### SnapDrillUI
-
-| 模块 | 职责 |
-|---|---|
-| `Navigation.swift` | FeatureRouter 协议（push/pop/reset） |
-| `OnboardingView` | 引导页 + OnboardingManager |
-| `ImageCropperView` | 图片裁剪（依赖 Mantis） |
-| 公共组件 | SnapDrillButton, TagInputView, FlipView 等 |
-
-### SnapDrillFeatures
-
-每个 Feature Target 包含：
-- `*View.swift` — 纯渲染层
-- `*ViewModel.swift` — 状态管理 + 业务逻辑
-- `*Router.swift` — 导航状态（NavigationPath + Destination enum）
-
-**数据导入/导出归属**：
-- `SnapDrillFeatureSettings/CSVParser.swift` — RFC 4180 CSV 解析（enum 纯函数，与 ViewModel 状态分离）
-- `SnapDrillFeatureSettings/DataExporter.swift` — JSON / CSV 导出（含 `=+-@` 前缀防注入）
-- `SettingsViewModel.swift` — CSV 导入流程编排（解析 + 字段映射 + 写入 repository）
-- 导入流程触发归属：`SnapDrillFeatureSettings`（用户从设置页发起）；解析 / 转换无状态层归属：`CSVParser`
-
-**采集方式归属**（`SnapDrillFeatureCapture`）：
-
-| 方式 | 文件 | 备注 |
-|---|---|---|
-| 摄像头 | `SmartCameraView` / `SmartCameraViewController` / `CameraSessionManager` | AVFoundation |
-| 文档扫描 | `DocumentScannerView` | `VisionKit.VNDocumentCameraViewController` |
-| Photos 导入 | `CaptureView` PhotosPicker | PhotosUI |
-| PDF 导入 | `PDFPagePickerView` | PDFKit 选页 → 渲染为 UIImage |
-| 剪贴板（手动）| `CaptureMethodCard` 手动入口 → ManualEdit | 纯文本/粘贴图片，OCR 文字直接输入 |
-| 手动 | `CaptureResultView` 纯文本路径 | 不依赖 OCR，允许无图保存（Image is Truth 例外）|
-| Share Extension | `SnapDrillShare` Extension target | 系统 ShareSheet 入口（已实现并启用，SnapDrillShare.appex 已 embed 进主 app）|
-
-**SmartPaper（当前遗留实现；候选，商业分层未定）**：
-- 触发：`SnapDrillFeatureLibrary/SmartPaperView` + `SmartPaperViewModel`
-- 选题策略：复用 `ReviewScheduler` + `SM2State`（基于 SM-2 数据驱动选题）
-- 排版/导出：复用 `SnapDrillCore/Service/PDFExportService` 管线（不重新实现 PDF 引擎）
-- 旧 gating：代码通过 `ProEntitlementProvider` 表达不可达分支；B6-A 后不得据此扩展 StoreKit 或公开升级路径
-
-**ShareCard（资料分享卡片）**：
-- 归属：`SnapDrillFeatureLibrary/ShareCardView`
-- 渲染：SwiftUI `ImageRenderer`（iOS 16+ 标准 API），不依赖 PDFExport 管线
-- 边界：仅渲染单条资料；不与 PDF 批量导出共享流水线（design §简洁，单一职责）
-
-**当前 1/2/4 条快速打印（PrintService）**：
-- 入口：`SnapDrillFeatureLibrary/LibraryDetailView`（详情页固定 1 条/页）+ 多选模式 N 条
-- 契约：Core 的 `PDFExportService` 只生成 PDF `Data`；UIKit presentation adapter 放在 `SnapDrillUI`，由 Feature View 调用
-- 打印与分享是两个一等入口，不把 `UIView` / `UIPrintInteractionController` 固化进 Core。完整裁决见 `docs/ui-redesign/flagship-cross-layer-contracts.md`
-
-**高级统计（当前遗留候选实现，商业分层未定）**：
-- 数据源：`SnapDrillData/RepositoryContainer` 各 Repository 聚合查询
-- 聚合层：`SnapDrillFeatureDashboard/DashboardAnalyticsViewModel`
-- 图表渲染：SwiftUI Charts 框架（iOS 16+）
-- 旧 gating：通过 `ProEntitlementProvider` 控制不可达分支；Release 1 用户可见面必须隐藏 teaser / upsell
-
-**Apple 私有同步（关闭的候选占位）**：
-- 当前实现：所有 `@Model` 默认 `cloudKitDatabase: .none`（关闭）
-- 重入路径：未裁决；旧 #479 / #485 和 Per-Profile 设计不能自行授权实现
-- 候选边界：`business-model.md` 与 `../features/backlog/feat-icloud-sync.md`
-
-## Multi-Profile 实现
-
-ProfileManager 采用 Vault 模式：
-- 每个 Profile 拥有独立的 SwiftData ModelContainer + 图片存储目录
-- 切换 Profile 时重建 ModelContainer 和 RepositoryContainer
-- **切换保护**：`ProfileManager.switchProfile` 先检查 `AppActivityTracker.shared.switchBlockReason`，有进行中操作时拒绝切换并返回阻塞原因。`AppActivityTracker`（SnapDrillCore/Support）定义了 `begin/end` 活动跟踪 API 和 `canSwitchProfile` / `switchBlockReason` 查询 API。目标态为采集、导出/打印、备份/恢复全部接入；当前实现以 feature spec 的缺口记录为准：采集已接入，导出预览/备份恢复仍需核对实例一致性（`feat-profile.md` KI-01 / GAP-R4），快速打印尚未接入 `.printing` tracker（`feat-export.md` GAP-R4）。
-- **Per-Profile UserDefaults 隔离**：字段配置（开启的系统字段）、自动推断历史、复习目标等由 `ProfileManager` 内部通过 `perProfileKeys` 等机制管理（`savePreferences`/`loadPreferences` 为内部实现），切换 Profile 时自动保存/加载
-- **全局状态**：Onboarding 完成、VoiceOver 设置不随 Profile 切换
-- **Profile 级 TipKit**：ReviewSwipeTip / FieldConfigTip 通过 ProfileTipState 管理，按 Profile 隔离（#532 已修复）；设备级 Tip 基础设施保留 TipKit
-
----
-
-## Soft Delete + Undo 实现
-
-DeletionScheduler（App 级 Service，SnapDrillCore）管理 5 秒撤销窗口：
-- `scheduleDeletion(ids:executor:)` — 注册待删除 ID 集合 + 删除执行器，启动 5 秒倒计时
-- `undoDeletion()` — 恢复标记，取消倒计时
-- `commitImmediately()` — 立即执行删除（如 App 进入后台）
-
-LibraryViewModel 是调用方：
-- `softDeleteItems()` — 调用 DeletionScheduler.scheduleDeletion，从列表临时移除
-- 批量删除复用同一套机制
-
----
-
-## 关键设计决策
-
-| 决策 | 理由 |
-|---|---|
-| 4 个 SPM Package 而非 1 个 | 编译隔离 + 依赖方向强制 + 模块可独立测试；Features package 内含 5 个 feature target |
-| Protocol-based DI + @Environment | 全部 Core service 经 `ServiceContainer` 注入（14 个属性）。Feature 层禁止直接 `.shared` 或默认 concrete init 获取服务 |
-| SwiftData 而非 Core Data | iOS 26+ 项目，原生 Swift 集成更好 |
-| DataExecutor actor | actor 拥有 ModelContainer，`createOffMainActor()` 消除 MainActor+XPC 死锁（#599）；Repository 双 init（executor / modelContext）向后兼容 |
-| Repository 封装 ModelContext | 避免 View/ViewModel 直接操作数据库 |
-| ProfileManager Vault 模式 | 每个 Profile 独立数据库，参考 Obsidian，切换时重建 ModelContainer |
-| 零后端行为采集 | Firebase 与 Infrastructure 已删除；生产使用 NoOp analytics，端侧诊断使用 MetricKit（ADR-005） |
-| defaultIsolation(MainActor) | xcconfig `SWIFT_VERSION = 6.3` + `-default-isolation MainActor`，统一使用 `.defaultIsolation(MainActor.self)` 减少并发标注噪音 |
-
----
-
-## 测试架构
-
-| 层 | 策略 | 运行方式 |
-|---|---|---|
-| Repository | in-memory ModelContainer | Xcode Simulator |
-| ViewModel | Mock Repository + Mock Service | Xcode Simulator |
-| Service（纯逻辑） | 直接测试 | Xcode Simulator |
-| View | Smoke test only | — |
-
-`swift test` 不可用（SPM 包仅声明 iOS 平台），必须通过 Xcode Simulator 运行。
+保留旧实现的测试只能证明 legacy 行为，不能计入首发版完成度。legacy 测试与 fixture 的保留、
+替换或删除服从其 owning contract；旧 wire 拒绝、兼容边界与回归攻击样本继续按对应 contract
+提供隔离证据。
