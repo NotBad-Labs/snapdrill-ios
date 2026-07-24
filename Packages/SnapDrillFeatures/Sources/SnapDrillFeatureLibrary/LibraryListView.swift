@@ -13,6 +13,7 @@ import SwiftData
 import SnapDrillCore
 import SnapDrillData
 import SnapDrillUI
+import UIKit
 
 /// A subview to handle the dynamic query based on searchText
 struct LibraryListView: View {
@@ -25,6 +26,7 @@ struct LibraryListView: View {
     @Bindable var viewModel: LibraryViewModel
     
     @Environment(\.editMode) private var editMode
+    @Environment(\.profileManager) private var profileManager
     @ScaledMetric(relativeTo: .body) private var tabBarBreathingRoom: CGFloat = 110
     private let tabBarViewportClearance: CGFloat = 72
     @State private var swipeDeleteIDs: Set<UUID> = []
@@ -156,27 +158,35 @@ struct LibraryListView: View {
                     // NavigationLink 提供标准 > 箭头和 VoiceOver 导航语义；
                     // List(selection:) 在 editMode 下自动禁用导航，无需手动 guard
                     NavigationLink(value: LibraryDestination.detail(item)) {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text(item.content?.isEmpty == false ? item.content ?? "" : L10n.Library.noContent)
-                                .font(.headline)
-                                .lineLimit(2)
-                                .multilineTextAlignment(.leading)
+                        HStack(alignment: .center, spacing: 12) {
+                            LibraryItemThumbnail(
+                                imagePath: item.imagePath,
+                                imageStorage: profileManager.activeImageStorage
+                            )
 
-                            HStack(spacing: 8) {
-                                // 主分类标签：主分类维度值，无则取首个有值维度的首值
-                                LibraryCategoryChip(
-                                    title: item.primaryCategoryName
-                                        ?? item.categoryValuesByDimension.first?.values.first?.name
-                                        ?? L10n.Library.noCategory,
-                                    isPlaceholder: item.primaryCategoryName == nil
-                                        && item.categoryValuesByDimension.first?.values.first == nil
-                                )
+                            VStack(alignment: .leading, spacing: 6) {
+                                Text(item.content?.isEmpty == false ? item.content ?? "" : L10n.Library.noContent)
+                                    .font(.headline)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.leading)
 
-                                Text(item.createdAt.formatted(date: .abbreviated, time: .shortened))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                HStack(spacing: 8) {
+                                    // 主分类标签：主分类维度值，无则取首个有值维度的首值
+                                    LibraryCategoryChip(
+                                        title: item.primaryCategoryName
+                                            ?? item.categoryValuesByDimension.first?.values.first?.name
+                                            ?? L10n.Library.noCategory,
+                                        isPlaceholder: item.primaryCategoryName == nil
+                                            && item.categoryValuesByDimension.first?.values.first == nil
+                                    )
+
+                                    Text(item.createdAt.formatted(date: .abbreviated, time: .shortened))
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                         }
+                        .padding(.vertical, 2)
                     }
                     // 长按进入多选模式（iOS 标准交互）
                     .simultaneousGesture(
@@ -294,6 +304,46 @@ struct LibraryListView: View {
             .listRowInsets(EdgeInsets())
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
+    }
+}
+
+private struct LibraryItemThumbnail: View {
+    let imagePath: String?
+    let imageStorage: ImageStorage
+
+    @State private var image: UIImage?
+    @ScaledMetric(relativeTo: .body) private var scaledSize: CGFloat = 62
+
+    private var size: CGFloat {
+        min(max(scaledSize, 56), 78)
+    }
+
+    var body: some View {
+        Group {
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Image(systemName: imagePath == nil ? "doc.text" : "photo")
+                    .font(.title3.weight(.medium))
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(width: size, height: size)
+        .background(Color(.tertiarySystemFill))
+        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        .contentShape(Rectangle())
+        .accessibilityHidden(true)
+        .task(id: imagePath) {
+            image = nil
+            guard let imagePath else {
+                return
+            }
+            image = await Task.detached {
+                imageStorage.loadDownsampledImage(path: imagePath, maxLongSide: 240)
+            }.value
+        }
     }
 }
 
