@@ -15,7 +15,7 @@ from typing import Dict, Iterable, List, Mapping, NamedTuple, Optional, Sequence
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LEXER_PATH = Path(__file__).resolve().with_name("swift_source_lexer.py")
 
-EXPECTED_PRODUCTION_SWIFT_FILE_COUNT = 208
+EXPECTED_PRODUCTION_SWIFT_FILE_COUNT = 209
 EXPECTED_SENTINELS = frozenset(
     {
         "Packages/SnapDrillCore/Sources/SnapDrillCore/Support/AppConfiguration.swift",

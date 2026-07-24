@@ -104,6 +104,29 @@ struct DataExecutorTests {
         #expect(try repo.totalCount() == 1)
     }
 
+    @Test("LocalLibrary strict open 失败时不隔离、不重建且不降级")
+    func strictLocalLibraryOpenFailsWithoutMutation() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DataExecutorStrictOpen_\(UUID().uuidString)")
+        let storeURL = root.appendingPathComponent("library.store")
+        let originalBytes = Data("not a sqlite store".utf8)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        try originalBytes.write(to: storeURL)
+        let childrenBefore = try Set(FileManager.default.contentsOfDirectory(atPath: root.path))
+
+        do {
+            _ = try await DataExecutor.openLocalLibraryStore(at: storeURL)
+            Issue.record("损坏 LocalLibrary store 不应被打开或降级")
+        } catch {
+            #expect(error is PersistenceError)
+        }
+
+        #expect(try Data(contentsOf: storeURL) == originalBytes)
+        #expect(try Set(FileManager.default.contentsOfDirectory(atPath: root.path)) == childrenBefore)
+    }
+
     @Test("磁盘 store 打不开时隔离保留原文件并上报恢复事件")
     func diskStoreFailureIsolatesCorruptStoreAndReportsEvent() async throws {
         let root = FileManager.default.temporaryDirectory
