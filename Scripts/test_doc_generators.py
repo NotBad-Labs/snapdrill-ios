@@ -3,7 +3,7 @@
 
 These tests use a temporary mini-doc tree instead of the real repository docs.
 They lock the failure modes that matter for CI gates: missing intent references,
-invalid Release Contract references, unknown upstream references, and stale
+invalid Release PRD references, unknown upstream references, and stale
 generated output.
 """
 from __future__ import annotations
@@ -39,14 +39,14 @@ class IntentTraceabilityTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         self.docs = self.root / "docs"
-        (self.docs / "explanations").mkdir(parents=True)
+        (self.docs / "product").mkdir(parents=True)
         (self.docs / "decisions").mkdir()
         (self.docs / "features" / "active").mkdir(parents=True)
         (self.docs / "features" / "backlog").mkdir()
         (self.docs / "how-to").mkdir()
         (self.docs / "reference").mkdir()
 
-        (self.docs / "explanations" / "vision.md").write_text(
+        (self.docs / "product" / "vision.md").write_text(
             "# Vision\n\n### P1. Capture and organize work\n",
             encoding="utf-8",
         )
@@ -64,7 +64,7 @@ current_authority: docs/decisions/ADR-001-local-first.md
 """,
             encoding="utf-8",
         )
-        self.write_release_contract()
+        self.write_release_prd()
         self.write_release_operations()
 
         self.module = load_script("generate_intent_traceability")
@@ -76,7 +76,7 @@ current_authority: docs/decisions/ADR-001-local-first.md
     def tearDown(self) -> None:
         self.tmp.cleanup()
 
-    def write_release_contract(
+    def write_release_prd(
         self,
         frontmatter: str = (
             'ratified_decisions: ["C1-A", "C2-Core", "C6-A", "#932-A", "ORI-A"]\n'
@@ -95,9 +95,9 @@ current_authority: docs/decisions/ADR-001-local-first.md
             f"{index}. **M{index}** — Outcome {index}"
             for index in range(1, 11)
         )
-        path = self.docs / "reference" / "release-1-contract.md"
+        path = self.docs / "product" / "release-1-prd.md"
         path.write_text(
-            f"---\n{frontmatter}---\n# Release 1 Product Contract\n\n"
+            f"---\n{frontmatter}---\n# Release 1 PRD\n\n"
             "| ID | 状态 | 结论 |\n|---|---|---|\n"
             f"{decision_rows}\n\n"
             f"## 3.1 Must outcomes\n\n{outcomes}\n{section_7}",
@@ -234,7 +234,7 @@ release_refs:
         content = self.module.render(features, refs, release_refs)
 
         self.assertIn("🧩 实现存在", content)
-        self.assertIn("不证明 Release 1 合同符合", content)
+        self.assertIn("不证明 Release 1 PRD 符合", content)
         self.assertNotIn("✅ 已实现", content)
 
     def test_rejects_missing_intent_refs(self) -> None:
@@ -315,7 +315,7 @@ release_refs:
 
         self.assertEqual(raised.exception.code, 1)
 
-    def test_collects_release_refs_from_effective_contract(self) -> None:
+    def test_collects_release_refs_from_effective_prd(self) -> None:
         known_release_refs, pending_release_refs = self.module.collect_release_refs()
 
         self.assertEqual(
@@ -332,7 +332,7 @@ release_refs:
         self.assertEqual(pending_release_refs, {"release-1:C9-Pending"})
 
     def test_rejects_ratified_frontmatter_body_drift(self) -> None:
-        path = self.docs / "reference" / "release-1-contract.md"
+        path = self.docs / "product" / "release-1-prd.md"
         path.write_text(
             path.read_text(encoding="utf-8").replace(
                 "| ORI-A | RATIFIED | Decision ORI-A |\n",
@@ -353,7 +353,7 @@ release_refs:
         )
 
     def test_rejects_ratified_pending_overlap(self) -> None:
-        self.write_release_contract(
+        self.write_release_prd(
             'ratified_decisions: ["C1-A"]\n'
             'pending_decisions: ["C1-A"]\n'
         )
@@ -366,8 +366,8 @@ release_refs:
         self.assertEqual(raised.exception.code, 1)
         self.assertIn("cannot be both ratified and pending", stderr.getvalue())
 
-    def test_rejects_missing_release_contract_section_7(self) -> None:
-        self.write_release_contract(include_section_7=False)
+    def test_rejects_missing_release_prd_section_7(self) -> None:
+        self.write_release_prd(include_section_7=False)
 
         stderr = io.StringIO()
         with redirect_stderr(stderr):
@@ -378,7 +378,7 @@ release_refs:
         self.assertIn("missing exact heading", stderr.getvalue())
 
     def test_rejects_missing_must_outcome_identity(self) -> None:
-        path = self.docs / "reference" / "release-1-contract.md"
+        path = self.docs / "product" / "release-1-prd.md"
         path.write_text(
             path.read_text(encoding="utf-8").replace(
                 "10. **M10** — Outcome 10\n",
@@ -558,7 +558,7 @@ release_outcomes: [M1]
                 )
 
         self.assertEqual(raised.exception.code, 1)
-        self.assertIn("oracle rows must match Contract order exactly", stderr.getvalue())
+        self.assertIn("oracle rows must match PRD order exactly", stderr.getvalue())
 
     def test_release_oracle_rows_require_oracle_and_dri(self) -> None:
         cases = {
@@ -897,19 +897,19 @@ release_refs:
         content = self.module.render(features, known_refs, known_release_refs)
 
         self.assertIn(
-            "| [`release-1:C1-A`](release-1-contract.md) | `release-operations` |",
+            "| [`release-1:C1-A`](../product/release-1-prd.md) | `release-operations` |",
             content,
         )
         self.assertIn(
-            "| [`release-1:C6-A`](release-1-contract.md) | `release-operations` |",
+            "| [`release-1:C6-A`](../product/release-1-prd.md) | `release-operations` |",
             content,
         )
         self.assertIn(
-            "| [`release-1:#932-A`](release-1-contract.md) | `release-operations` |",
+            "| [`release-1:#932-A`](../product/release-1-prd.md) | `release-operations` |",
             content,
         )
         self.assertIn(
-            "| [`release-1:ORI-A`](release-1-contract.md) | `release-operations` |",
+            "| [`release-1:ORI-A`](../product/release-1-prd.md) | `release-operations` |",
             content,
         )
 
@@ -943,7 +943,7 @@ release_refs:
                 self.assertIn("release-operations-only", stderr.getvalue())
 
     def test_rejects_ratified_release_decision_without_consumer(self) -> None:
-        self.write_release_contract(
+        self.write_release_prd(
             'ratified_decisions: ["C1-A", "C2-Core", "C6-A", "#932-A", "ORI-A", "D4-B"]\n'
             "pending_decisions: []\n"
         )
@@ -983,7 +983,7 @@ release_refs:
 
     def test_safety_decisions_require_feature_consumers(self) -> None:
         safety_decisions = ("S1-A", "M1-A", "D4S-A")
-        self.write_release_contract(
+        self.write_release_prd(
             'ratified_decisions: ["C1-A", "C2-Core", "C6-A", "#932-A", '
             '"ORI-A", "S1-A", "M1-A", "D4S-A"]\n'
             "pending_decisions: []\n"
@@ -1180,7 +1180,7 @@ last_updated: 2026-07-16
         content = self.module.render(self.module.collect())
 
         self.assertIn("🧩 实现存在", content)
-        self.assertIn("不表示符合 Release 1 Contract", content)
+        self.assertIn("不表示符合 Release 1 PRD", content)
         self.assertNotIn("✅ 已实现", content)
 
     def test_rejects_invalid_blocked_by_type(self) -> None:

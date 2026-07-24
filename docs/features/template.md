@@ -2,20 +2,20 @@
 id: feat-XXX
 title: 功能名称
 status: backlog          # implemented | in-progress | blocked | poc-needed | backlog
-tier: undecided          # free | pro | undecided；pro 仅在 effective 商业 / Release Contract 存在时可用
+tier: undecided          # free | pro | undecided；pro 仅在 effective 商业 / Release PRD 存在时可用
 blocked_by: []           # issue 编号列表，如 [479]；status=blocked 时必填
 mode: full               # full（四段全填）| lightweight（backlog，仅 Why+What 必填）
 last_updated: YYYY-MM-DD
 intent_refs:              # 至少一项 Vision / 产品政策 / ADR 引用
   - vision:P1
-release_refs:             # 当前 effective Release Contract 的精确消费边；非目标仅按受限 section-7 规则
+release_refs:             # 当前 effective Release PRD 的精确消费边；非目标仅按受限 section-7 规则
   - release-1:C2-Core
 release_outcomes: []      # active feature 直接拥有 / 承接的 M1-M10；无 Must owner 时保持空列表
 ---
 
 # Feature: [功能名称]
 
-> 人读摘要派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示产品批准、Release Contract 符合、公开可达或发布就绪。
+> 人读摘要派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示产品批准、Release PRD 符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 扫描各 spec 的 frontmatter **自动生成**，禁止手改（pre-commit 校验）。
 > 本 spec 高内聚承载该功能 Why / What / How / Verify，不拆散到多文件（docs 重组 B）。
 > `mode: lightweight`（backlog 用）时，How / Verify 可只写"待实现补"，仅 Why + What 必填——避免给未实现功能写"假设计"。
@@ -26,13 +26,13 @@ release_outcomes: []      # active feature 直接拥有 / 承接的 M1-M10；无
 
 ## 1. 为什么做 (Why) — 纯 why，不混实现/UI 细节
 - **痛点 / 价值**：用户的什么痛点，本功能带来什么价值。
-- **定位与原则归属**：对应 Product Constitution 和当前 Release Contract 的哪条结果或原则。
+- **定位与原则归属**：对应 Product Vision & Principles 和当前 Release PRD 的哪条结果或原则。
 
 ## 2. 需求规则 (What) — 用户可感知的规则与边界
 - **核心能力**：做什么（功能点 / 规则）。
 - **边界 / 不做**：明确不做的，防范围蔓延。
 - **前置依赖**：依赖哪个 feature 的什么产出（如 `feat-review` 的 SM-2 数据）；无则写"无"。
-- **商业分层**：引用 `../../explanations/business-model.md` 与当前 Release Contract。Release 1 免费、无 IAP；feature spec 不得自行创建 Pro、配额或价格承诺。
+- **商业分层**：引用 `../../explanations/business-model.md` 与当前 Release PRD。Release 1 免费、无 IAP；feature spec 不得自行创建 Pro、配额或价格承诺。
 
 ## 3. 技术设计 (How) — 只放实现机制，不放商业/上位 why
 - **模块归属**：`Packages/...` / `SnapDrill/...`；新增 `@Model` 类型与位置（如有）。
@@ -50,8 +50,8 @@ release_outcomes: []      # active feature 直接拥有 / 承接的 M1-M10；无
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Product Constitution | `../../explanations/vision.md#pX-...` | 本功能如何服务该原则 / 边界 |
-| Release Contract | 当前发布 contract；如尚未建立则停止 shaping | 本功能在本次发布中的结果与非目标 |
+| Product Vision & Principles | `../../product/vision.md#pX-...` | 本功能如何服务该原则 / 边界 |
+| Release PRD | 当前发布 contract；如尚未建立则停止 shaping | 本功能在本次发布中的结果与非目标 |
 | 产品政策 / typed decision | 如无写“无” | 本功能必须遵守的细化边界或已决取舍 |
 | 待验证假设 | 如无写“无” | 本功能会改变哪条 H# 的置信度 |
 | 验收证据 | 测试 / 构建 / 真机 / 发布证据 | 如何证明实现满足上游意图 |
@@ -75,7 +75,7 @@ Yellow / Red、T4、历史恢复或跨 lane 时，只追加 DoR 定义的适用 
 [`definition-of-ready.md#current-admission`](../how-to/definition-of-ready.md#current-admission)。
 
 ## 关联
-- 原则：`../../explanations/vision.md`
+- 原则：`../../product/vision.md`
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`
 - 决策：`../../decisions/ADR-XXX`

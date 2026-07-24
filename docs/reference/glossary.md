@@ -31,7 +31,7 @@ layer: pattern
 
 | 术语 | 英文 | 定义 | 代码对应 |
 |---|---|---|---|
-| **Profile（当前实现遗留）** | Profile / Workspace | 当前代码中的多资料库容器。Product Constitution v1 的产品目标是一个可见资料库，用户文案不得继续引入“资料空间 / Profile / Workspace”；本词只用于完成单资料库收敛前识别代码、数据和测试风险。 | `Profile` struct (Core), `ProfileManager` (Data) |
+| **Profile（当前实现遗留）** | Profile / Workspace | 当前代码中的多资料库容器。Product Vision & Principles 的产品目标是一个可见资料库，用户文案不得继续引入“资料空间 / Profile / Workspace”；本词只用于完成单资料库收敛前识别代码、数据和测试风险。 | `Profile` struct (Core), `ProfileManager` (Data) |
 | **基线用户** | Baseline User | 不熟悉专业扫描 / 归档工具的成年用户（假设，待首批用户画像验证，见 `../explanations/assumptions.md` H1）。所有设计决策以此用户能否顺利完成为最低标准 | — |
 | **图片是真相** | Image is Truth | 当 OCR 文本与图片冲突时，以用户确认裁剪 / 方向后的 App-managed 可读图片为内容真相；不承诺来源原始字节或完整分辨率 | `ArchiveItemModel.imagePath` (Data) |
 | **.snapdrillbackup 备份** | .snapdrillbackup Backup | Release 1 的单一 purpose-built SQLite application document；不是 live SwiftData store 或通用 ZIP。Profile ZIP v2 仅为 epoch 前开发 fixture | 目标 wire 见 `backup-wire-format.md`；当前 `BackupService` 仍为待替换 v2 |
@@ -50,7 +50,7 @@ layer: pattern
 
 ### SmartPaper 域保留词
 
-PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库”，但 SmartPaper 是生成练习卷的功能域，域内保留以下术语。Product Constitution v1 不保证 SmartPaper 进入 Release 1；只有该功能保持可达时才应用本域词表：
+PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库”，但 SmartPaper 是生成练习卷的功能域，域内保留以下术语。Product Vision & Principles 不保证 SmartPaper 进入 Release 1；只有该功能保持可达时才应用本域词表：
 
 | 术语 | 英文 | 使用边界 |
 |---|---|---|
@@ -95,6 +95,6 @@ PO 2026-07-05 裁决：资料系界面统一使用“资料 / 资料库”，但
 
 | 文档 | 关系 | 说明 |
 |---|---|---|
-| `../explanations/vision.md` | 上游 | 术语的定义来源 |
+| `../product/vision.md` | 上游 | 术语的定义来源 |
 | `../explanations/design-principles.md` | 相关 | 部分术语在设计决策中定义 |
 | `../explanations/business-model.md` | 相关 | 商业化术语 |

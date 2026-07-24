@@ -8,7 +8,7 @@ layer: principle
 >
 > **上游依赖**：`vision.md`（使命、定位、用户、6 条原则、冲突裁决规则）。
 > 本文件定义「为什么这样设计」——设计决策、交互铁律、策略理由。
-> 具体功能行为见各 feature spec；发布范围与结果级验收见当前 Release Product Contract，`../reference/scope-and-roadmap.md` 只维护候选与重入边界。
+> 具体功能行为见各 feature spec；发布范围与结果级验收见当前 Release PRD，`../reference/scope-and-roadmap.md` 只维护候选与重入边界。
 >
 > **设计决策变更需产品负责人批准**；编辑性修正由开发者维护。
 
@@ -30,7 +30,7 @@ layer: principle
 └─────────────────────────────┘
 ```
 
-**输出边界**：导出 / 打印是核心价值链终点，手动可携带备份是 P4 的耐久承诺。具体格式和增强项由 Release Contract 决定，不能从当前实现反推永久 Must。
+**输出边界**：导出 / 打印是核心价值链终点，手动可携带备份是 P4 的耐久承诺。具体格式和增强项由 Release PRD 决定，不能从当前实现反推永久 Must。
 
 **设计铁律**：任何功能如果损害了采集、整理 / 找回、导出 / 打印的简洁性，就不该做。回顾与 SmartPaper 可以提供附加复用价值，但不得占据或复杂化主路径；当前不存在有效 Pro 分层。
 
@@ -51,7 +51,7 @@ SnapDrill 是纯粹的效率工具。全局文案、Onboarding、成功反馈与
 
 ### 学习与成功信号
 
-Product Constitution 不定义虚构 KPI。当前产品假设及推翻信号由 `assumptions.md` 管理；[Release 1 Product Contract](../reference/release-1-contract.md) C4-D / C5-E 只允许预登记形成性 cohort 触发重新裁决，不能按人数门槛自动公开。C6-A 定义 PO 可裁决的风险政策，具体命令、设备和 test ID 属 QA / Release evidence plan。当前生产不做后端行为采集；不得为了补指标恢复 Firebase 或逐事件用户追踪。
+Product Vision & Principles 不定义虚构 KPI。当前产品假设及推翻信号由 `assumptions.md` 管理；[Release 1 PRD](../product/release-1-prd.md) C4-D / C5-E 只允许预登记形成性 cohort 触发重新裁决，不能按人数门槛自动公开。C6-A 定义 PO 可裁决的风险政策，具体命令、设备和 test ID 属 QA / Release evidence plan。当前生产不做后端行为采集；不得为了补指标恢复 Firebase 或逐事件用户追踪。
 
 ---
 
@@ -59,7 +59,7 @@ Product Constitution 不定义虚构 KPI。当前产品假设及推翻信号由 
 
 ### 导航结构
 
-当前五个同级 Tab（首页 / 资料库 / 采集 / 回顾 / 设置）是实现事实，不是 Product Constitution 或 Release 1 承诺。[Release 1 Contract](../reference/release-1-contract.md) C3 规定普通启动默认进入 Dashboard，但不批准五 Tab 结构或 Review 的导航等级，也不单独授权实现。最终导航必须让采集、资料库和输出路径容易到达，且不得让附加能力主导首屏。
+当前五个同级 Tab（首页 / 资料库 / 采集 / 回顾 / 设置）是实现事实，不是 Product Vision & Principles 或 Release 1 承诺。[Release 1 PRD](../product/release-1-prd.md) C3 规定普通启动默认进入 Dashboard，但不批准五 Tab 结构或 Review 的导航等级，也不单独授权实现。最终导航必须让采集、资料库和输出路径容易到达，且不得让附加能力主导首屏。
 
 ### Dashboard 设计角色
 
@@ -70,7 +70,7 @@ Release 1 Dashboard 是单一资料库的**任务入口和可执行状态概览*
 - 不展示 Profile / Workspace、昵称 / 头像身份入口、Pro / IAP / locked / coming-soon 或 analytics 模块
 - Review 不使用 hero、进度环、连续记录或完成庆祝主导首屏
 
-现有 Review hero、问候 / 头像、四项统计和高级统计锁态是相对 Release 1 Contract 的已知偏差。C2-Personalization 隐藏身份装饰；C4-D / C5-E 只允许 Review / SmartPaper 在非公开实验 build 从 Library 的单一静态次级入口出现。上述目标不单独授权实现，必须进入有界 implementation bet。
+现有 Review hero、问候 / 头像、四项统计和高级统计锁态是相对 Release 1 PRD 的已知偏差。C2-Personalization 隐藏身份装饰；C4-D / C5-E 只允许 Review / SmartPaper 在非公开实验 build 从 Library 的单一静态次级入口出现。上述目标不单独授权实现，必须进入有界 implementation bet。
 
 **Dashboard 文案防焦虑约束**（承接 vision §不贩卖焦虑）：
 - 若保留数字，只显示能直接进入对应内容的**中性本地事实**

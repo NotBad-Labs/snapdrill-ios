@@ -23,7 +23,8 @@ except ModuleNotFoundError:
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_ROOT = REPO_ROOT / "docs"
 PACKAGES_ROOT = REPO_ROOT / "Packages"
-RELEASE_ONE_CONTRACT = DOCS_ROOT / "reference" / "release-1-contract.md"
+PRODUCT_VISION = DOCS_ROOT / "product" / "vision.md"
+RELEASE_ONE_PRD = DOCS_ROOT / "product" / "release-1-prd.md"
 
 HISTORICAL_ADRS = {
     DOCS_ROOT / "decisions" / "ADR-003-dual-region-release.md": "suspended",
@@ -75,8 +76,8 @@ CURRENT_ADMISSION_POLICY_REQUIREMENTS = {
     },
     DOCS_ROOT / "README.md": {
         "Current Admission owner link": ("definition-of-ready.md#current-admission",),
-        "historical artifacts are evidence only": ("默认都只提供证据",),
-        "admission is not product authority": ("不新增产品",),
+        "historical artifacts are evidence only": ("默认只是证据",),
+        "admission is not product authority": ("执行准入不产生", "产品要求"),
     },
     DOCS_ROOT / "how-to" / "definition-of-ready.md": {
         "historical artifacts are evidence only": ("are evidence by default",),
@@ -428,7 +429,7 @@ def resolve_doc_ref(ref: str) -> tuple[Path | None, str | None]:
     base, _, anchor = ref.partition("#")
 
     if VISION_REF_PATTERN.match(base):
-        return DOCS_ROOT / "explanations" / "vision.md", base
+        return DOCS_ROOT / "product" / "vision.md", base
 
     if ADR_REF_PATTERN.match(base):
         matches = sorted((DOCS_ROOT / "decisions").glob(f"{base}-*.md"))
@@ -580,52 +581,67 @@ def validate_feature_intent(errors: list[str]) -> None:
             errors.append(f"{rel(path)}: missing intent traceability row '验收证据'")
 
 
-def validate_release_prd_authority(errors: list[str]) -> None:
-    contract_frontmatter, _ = parse_frontmatter(read(RELEASE_ONE_CONTRACT))
-    if contract_frontmatter.get("layer") != "release-contract":
+def validate_product_document_authority(errors: list[str]) -> None:
+    vision_frontmatter, _ = parse_frontmatter(read(PRODUCT_VISION))
+    if vision_frontmatter.get("layer") != "product-vision":
+        errors.append("docs/product/vision.md: layer must be 'product-vision'")
+    if vision_frontmatter.get("authority") != "po":
+        errors.append("docs/product/vision.md: authority must be 'po'")
+
+    prd_frontmatter, _ = parse_frontmatter(read(RELEASE_ONE_PRD))
+    if prd_frontmatter.get("layer") != "release-prd":
         errors.append(
-            "docs/reference/release-1-contract.md: layer must be 'release-contract'"
+            "docs/product/release-1-prd.md: layer must be 'release-prd'"
         )
-    if str(contract_frontmatter.get("release")) != "1":
-        errors.append("docs/reference/release-1-contract.md: release must be 1")
-    if contract_frontmatter.get("product_role") != "release-prd":
+    if str(prd_frontmatter.get("release")) != "1":
+        errors.append("docs/product/release-1-prd.md: release must be 1")
+    if prd_frontmatter.get("product_role") != "release-prd":
         errors.append(
-            "docs/reference/release-1-contract.md: product_role must be 'release-prd'"
+            "docs/product/release-1-prd.md: product_role must be 'release-prd'"
         )
 
+    product_visions: list[Path] = []
     release_one_prds: list[Path] = []
-    release_one_contracts: list[Path] = []
+    release_one_prd_layers: list[Path] = []
     markdown_paths = validate_document_control.tracked_markdown_paths(REPO_ROOT)
     for relative_path in sorted(markdown_paths):
         path = REPO_ROOT / relative_path
         frontmatter, _ = parse_frontmatter(read(path))
+        if frontmatter.get("layer") == "product-vision":
+            product_visions.append(path)
         if (
             frontmatter.get("product_role") == "release-prd"
             and str(frontmatter.get("release")) == "1"
         ):
             release_one_prds.append(path)
         if (
-            frontmatter.get("layer") == "release-contract"
+            frontmatter.get("layer") == "release-prd"
             and str(frontmatter.get("release")) == "1"
         ):
-            release_one_contracts.append(path)
-        if PRD_FILENAME_PATTERN.search(path.stem):
+            release_one_prd_layers.append(path)
+        if path != RELEASE_ONE_PRD and PRD_FILENAME_PATTERN.search(path.stem):
             errors.append(
                 f"{rel(path)}: PRD-named Markdown duplicates or obscures the owning "
-                "Release Product Contract"
+                "Release PRD"
             )
 
-    if release_one_prds != [RELEASE_ONE_CONTRACT]:
+    if product_visions != [PRODUCT_VISION]:
+        rendered = ", ".join(rel(path) for path in product_visions) or "none"
+        errors.append(
+            "Product direction must have exactly one product-vision layer at "
+            f"docs/product/vision.md; found: {rendered}"
+        )
+    if release_one_prds != [RELEASE_ONE_PRD]:
         rendered = ", ".join(rel(path) for path in release_one_prds) or "none"
         errors.append(
             "Release 1 must have exactly one declared PRD authority at "
-            f"docs/reference/release-1-contract.md; found: {rendered}"
+            f"docs/product/release-1-prd.md; found: {rendered}"
         )
-    if release_one_contracts != [RELEASE_ONE_CONTRACT]:
-        rendered = ", ".join(rel(path) for path in release_one_contracts) or "none"
+    if release_one_prd_layers != [RELEASE_ONE_PRD]:
+        rendered = ", ".join(rel(path) for path in release_one_prd_layers) or "none"
         errors.append(
-            "Release 1 must have exactly one release-contract layer at "
-            f"docs/reference/release-1-contract.md; found: {rendered}"
+            "Release 1 must have exactly one release-prd layer at "
+            f"docs/product/release-1-prd.md; found: {rendered}"
         )
 
 
@@ -677,7 +693,7 @@ def run_checks() -> list[str]:
     validate_positioning_resets(errors)
     validate_contextual_positioning_terms(errors, warnings)
     validate_taxonomy_canonical_terms(errors, warnings)
-    validate_release_prd_authority(errors)
+    validate_product_document_authority(errors)
     validate_feature_intent(errors)
     validate_current_admission(errors)
     validate_merge_authorization(errors)

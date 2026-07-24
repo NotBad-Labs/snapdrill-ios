@@ -1,6 +1,6 @@
 # 阶段 02e 候选：PO 产品宪章（Product Constitution）与 Release 1 工作坊
 
-> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/product/vision.md` 与 `docs/product/release-1-prd.md`。
 
 > **非规范性塑形输入（NON-NORMATIVE SHAPING INPUT）** — 本文件只列证据、选项、推荐与影响。
 > 它不是 Product Constitution、Release Contract、路线图（roadmap）或 PO 决策。
@@ -14,7 +14,7 @@
 ## PO 裁决进度
 
 - Gate A 已由 PR #869 合入 `develop@5c31eff7`，决策生命周期、旧规范显式 supersede 与 contract-first 规则已经 effective。
-- Gate B 已由 PO 于 2026-07-12 逐项批准 B1-A 至 B7-A；这些裁决只有在归属权威 `docs/explanations/vision.md` 及直接产品政策合入 `develop` 后才 effective。
+- Gate B 已由 PO 于 2026-07-12 逐项批准 B1-A 至 B7-A；这些裁决只有在归属权威 `docs/product/vision.md` 及直接产品政策合入 `develop` 后才 effective。
 - Gate C 尚未开始裁决。本文后半的 C1-C6 仍是非规范性 shaping 选项。
 - Multi-Profile 的用户可见产品行为由 B5-A 承接；开发期数据、偏好和旧备份不兼容的过渡边界仍等待 Release 1 / Data Contract。
 

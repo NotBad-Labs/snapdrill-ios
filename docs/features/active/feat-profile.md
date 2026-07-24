@@ -23,9 +23,9 @@ release_outcomes:
 
 # Feature: 单一本地资料库（Multi-Profile 退场）
 
-> **产品重基线（2026-07-14）**：Product Constitution v1 的 B5-A 已批准用户只看到一个资料库，并在无外部证据前不规划 Workspace / Profile。frontmatter `status: in-progress` 表示当前 `develop` 仍有 Multi-Profile 实现；已关闭的 #868 只保留为历史实现与风险证据，不是恢复、重开或合并路径。
+> **产品重基线（2026-07-14）**：Product Vision & Principles 的 B5-A 已批准用户只看到一个资料库，并在无外部证据前不规划 Workspace / Profile。frontmatter `status: in-progress` 表示当前 `develop` 仍有 Multi-Profile 实现；已关闭的 #868 只保留为历史实现与风险证据，不是恢复、重开或合并路径。
 >
-> Release 1 Contract DATA-1 已固定过渡边界：仅 PO 的 epoch 前开发数据 / v1-v2 备份无需迁移；任何非 PO 下载资格触发兼容 epoch；对外 wire 必须 Profile-free。[Local Library Data Contract](../../reference/local-library-data-contract.md) 固定路径、inventory、恢复 journal 与 Profile-free runtime 边界；外部 DDL 仍由 Backup Wire Contract 单独获批。合同生效不自动授权任何代码实现或合并。
+> Release 1 PRD DATA-1 已固定过渡边界：仅 PO 的 epoch 前开发数据 / v1-v2 备份无需迁移；任何非 PO 下载资格触发兼容 epoch；对外 wire 必须 Profile-free。[Local Library Data Contract](../../reference/local-library-data-contract.md) 固定路径、inventory、恢复 journal 与 Profile-free runtime 边界；外部 DDL 仍由 Backup Wire Contract 单独获批。合同生效不自动授权任何代码实现或合并。
 
 ## 1. 为什么做 (Why)
 
@@ -85,10 +85,10 @@ Release 1 的产品验收如下；备份 / 恢复技术 oracle 由 DATA-1 下游
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Product Constitution | `../../explanations/vision.md`（B4-A / B5-A；P2 / P4 / P5） | 一个可见资料库、无账户、数据权利不退化、无证据前不规划 Workspace / Profile |
+| Product Vision & Principles | `../../product/vision.md`（B4-A / B5-A；P2 / P4 / P5） | 一个可见资料库、无账户、数据权利不退化、无证据前不规划 Workspace / Profile |
 | 定位 | `../../explanations/positioning-and-audience.md` | 通用成人效率工具，不建立儿童 / 家庭成员账户体系 |
 | 待验证假设 | `../../explanations/assumptions.md` H12 | 单资料库能否覆盖首个切口；以 TestFlight / dogfood 证据重新评估 |
-| Release 1 Contract | `../../reference/release-1-contract.md` DATA-1 / DATA-1-E / DATA-1-R | epoch、Profile-free 外部 wire、完整备份与恢复材料保留边界 |
+| Release 1 PRD | `../../product/release-1-prd.md` DATA-1 / DATA-1-E / DATA-1-R | epoch、Profile-free 外部 wire、完整备份与恢复材料保留边界 |
 | Data Contract | `../../reference/local-library-data-contract.md` | 单一 runtime、路径 / inventory、generation / journal、incident 与 D3-B oracle |
 | 验收证据 | §4 产品验收 + owning Data Contracts | 不把当前代码或 Draft PR 当成产品 oracle |
 
@@ -96,7 +96,7 @@ Release 1 的产品验收如下；备份 / 恢复技术 oracle 由 DATA-1 下游
 
 ## 关联
 
-- Product Constitution：`../../explanations/vision.md`
+- Product Vision & Principles：`../../product/vision.md`
 - 当前实现状态：`../../reference/feature-status.md`
 - 代表旅程：`../../explanations/user-journeys.md`（旅程 4：单资料库管理多个主题）
 - 历史实现证据：已关闭 PR #868（不得重开、rebase 或合并）

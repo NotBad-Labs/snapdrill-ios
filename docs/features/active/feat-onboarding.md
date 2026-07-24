@@ -33,7 +33,7 @@ release_outcomes:
 ## 1. 为什么做 (Why)
 - **痛点 / 价值**：用户第一次打开 App 最容易被"先注册、先配置字段"挡在门外。Onboarding 应以最少页面讲清“把纸张、照片和 PDF 变成可搜索、可整理、可打印的个人资料库”，让处理结构化材料的成年人零学习成本开始采集第一项。
 - **定位**：Onboarding 是**价值解释层**，不是配置层——快进不配置，只解释"是什么 / 怎么用 / 能做什么 / 隐私如何保护"，把字段选择等设置延后到用户使用过程中按需触发。同时承担 ASO 之外的预期管理：明确"归档工具"定位，避免用户误以为 App 提供题库 / 解题等内容。
-- **原则归属**：P5 成人生产力工具（中性成熟语气、零学习曲线、不假设用户懂"SM-2"等概念）+ P4 数据属于用户（零注册、纯本地，作为信任建立的开场）+ P2 简洁（不强制首次配置）。详见 `../../explanations/vision.md`。
+- **原则归属**：P5 成人生产力工具（中性成熟语气、零学习曲线、不假设用户懂"SM-2"等概念）+ P4 数据属于用户（零注册、纯本地，作为信任建立的开场）+ P2 简洁（不强制首次配置）。详见 `../../product/vision.md`。
 
 ## 2. 需求规则 (What)
 - **首次启动引导**：页数、顺序和具体文案由 owning UI slice 在合同边界内维护；内容必须解释使命、最低摩擦采集、整理 / 找回、导出 / 打印和 local-first，不得扩张为功能清单。
@@ -41,7 +41,7 @@ release_outcomes:
 - **可跳过**：提供"开始使用"跳过按钮；语气成熟、面向成年用户，不幼稚不卡通。
 - **单资料库无感就绪**：引导不创建、命名或选择 Profile；唯一资料库由系统内部准备，用户无需理解容器概念。
 - **只展示一次**：完成后不再显示；完成状态为 App 全局状态。
-- **结束动作**：进入 C3 规定的 Dashboard；deep link / 阻塞恢复例外及 Dashboard 行为见 Release 1 Contract。五栏 Tab 仍只是当前实现，不是本 spec 的产品要求。
+- **结束动作**：进入 C3 规定的 Dashboard；deep link / 阻塞恢复例外及 Dashboard 行为见 Release 1 PRD。五栏 Tab 仍只是当前实现，不是本 spec 的产品要求。
 - **字段配置延后**：只有冻结 manifest 纳入动态字段管理时，首次保存后才可按需提示；未纳入时不显示字段 TipKit。提示不按 Profile 建立用户可见语义。
 - **边界 / 不做**：不请求通知权限，也不介绍 Review / SmartPaper；不在 Onboarding 中索取相机 / 相册权限（point-of-use 请求，进采集时才请求）；不播放视频教程；不做动画过渡特效；角色预设套件等模板入口不进 Onboarding。
 - **前置依赖**：无。唯一资料库的内部初始化归数据 / composition root，不由 Onboarding 建立用户可见 Profile 生命周期。
@@ -95,8 +95,8 @@ release_outcomes:
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P2 简洁 / P4 用户拥有数据 / P5 成人生产力工具） | 快进不配置、零注册纯本地、中性成熟不挡门外 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Optional / C3 / C4-D / C5-E | 结束后进入 Dashboard；不介绍 optional 清单、Review 或 SmartPaper，也不把实验能力纳入首次体验 |
+| Vision | `../../product/vision.md`（P2 简洁 / P4 用户拥有数据 / P5 成人生产力工具） | 快进不配置、零注册纯本地、中性成熟不挡门外 |
+| Release 1 PRD | `../../product/release-1-prd.md` C2-Optional / C3 / C4-D / C5-E | 结束后进入 Dashboard；不介绍 optional 清单、Review 或 SmartPaper，也不把实验能力纳入首次体验 |
 | 产品政策 / ADR | `../../decisions/ADR-002-remove-att-authorization.md`（ATT 已移除）；`../../explanations/positioning-and-audience.md`（通用受众预期管理） | Onboarding 不索取追踪授权 / 不预期儿童；明确"归档工具"定位 |
 | 待验证假设 | `../../explanations/assumptions.md` H1（首次能完成采集与保存） | Onboarding 不阻挡首次达成 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
@@ -104,7 +104,7 @@ release_outcomes:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P2 简洁 / P4 数据属于用户 / P5 成人生产力工具）
+- 原则：`../../product/vision.md`（P2 简洁 / P4 数据属于用户 / P5 成人生产力工具）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（旅程 1：首次采集与保存）
 - 决策：`../../decisions/ADR-002-remove-att-authorization.md`（ATT 已移除，Onboarding 不索取追踪授权）

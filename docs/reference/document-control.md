@@ -1,7 +1,7 @@
 # 文档控制面
 
 > 本文件定义仓库文档的角色与生命周期，不是产品 SSOT 的第四层。产品规范仍只有
-> Product Constitution -> Release Product Contract -> owning feature spec。
+> Product Vision & Principles -> Release PRD -> owning feature spec。
 
 ## 为什么需要分类
 
@@ -15,7 +15,7 @@ Markdown，避免新文件在首次 commit 时绕过分类。
 
 | Role | 能做什么 | 不能做什么 |
 |---|---|---|
-| `authority` | 在自身 scope 内定义规范、契约或已批准候选 | 低层权威不能覆盖 Product Constitution / Release Contract |
+| `authority` | 在自身 scope 内定义规范、契约或已批准候选 | 低层权威不能覆盖 Product Vision & Principles / Release PRD |
 | `operations` | 定义当前工作方式、验证和恢复入口 | 不能定义产品范围、用户语义或发布承诺 |
 | `evidence` | 描述 live 实现、固定基线、测试或审计结果 | 不能从“已经实现”反推“应该发布” |
 | `generated` | 从 owning source 生成只读索引 | 不能手改或成为新的源数据 |
@@ -43,7 +43,7 @@ Markdown，避免新文件在首次 commit 时绕过分类。
    等句子时，也只描述当时基线。
 3. `operations` 与 Agent skill 每次运行必须重新读取 live authority；它们不得复制产品范围。
 4. `generated` 文件由 owner generator 的 `--check` 证明一致，不使用 hash 推断是否手改。
-5. UI 历史证据继续保留截图与缺陷记录，但当前 UI 验收必须从 Release Contract、owning feature
+5. UI 历史证据继续保留截图与缺陷记录，但当前 UI 验收必须从 Release PRD、owning feature
    spec、设计原则与 live UI / AX 证据重新生成。
 
 ## 历史工作制品与当前准入

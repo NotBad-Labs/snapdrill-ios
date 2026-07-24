@@ -19,7 +19,7 @@ release_outcomes: []
 
 # Feature: 回顾（SM-2 间隔调度）
 
-> **产品重基线（2026-07-14）**：Product Constitution v1 将回顾定义为不得抢占核心链路的可选附加值；Release 1 Contract C4-D 只允许 `po-only` / `research` build 通过 Library 的单一静态次级入口实验，`public-candidate` 完全隐藏。无主 Tab、Dashboard cue / 计数、Onboarding 介绍、Settings 控件、通知、徽标或隐式恢复入口；达到预登记 cohort 门槛也只触发重新裁决。frontmatter 与技术章节仍记录当前实现，不代表这些偏差获准保留。
+> **产品重基线（2026-07-14）**：Product Vision & Principles 将回顾定义为不得抢占核心链路的可选附加值；Release 1 PRD C4-D 只允许 `po-only` / `research` build 通过 Library 的单一静态次级入口实验，`public-candidate` 完全隐藏。无主 Tab、Dashboard cue / 计数、Onboarding 介绍、Settings 控件、通知、徽标或隐式恢复入口；达到预登记 cohort 门槛也只触发重新裁决。frontmatter 与技术章节仍记录当前实现，不代表这些偏差获准保留。
 
 > 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
@@ -28,7 +28,7 @@ release_outcomes: []
 ## 1. 为什么做 (Why)
 - **痛点 / 价值**：用户扫描、整理后的资料需要一个低摩擦的回看机制，避免重要内容只被归档而不再被处理。SM-2 间隔调度让资料库具备持续复用价值。
 - **定位**：回顾是**可选留存层 / 免费附加值**，不是产品核心，**不向儿童学习、打卡或游戏化记忆工具靠拢**；若复杂度开始挤压采集/管理/导出主路径，以 vision P2 简洁裁决。
-- **原则归属**：P3 免费层完成核心闭环（核心永久免费、回顾为免费附加值）+ P5 成人生产力工具（零学习曲线、不贩卖焦虑）。详见 `../../explanations/vision.md`。
+- **原则归属**：P3 免费层完成核心闭环（核心永久免费、回顾为免费附加值）+ P5 成人生产力工具（零学习曲线、不贩卖焦虑）。详见 `../../product/vision.md`。
 
 ## 2. 需求规则 (What)
 - **SM-2 间隔回顾**：翻卡 + 滑动评估（有印象 / 没印象）。
@@ -113,8 +113,8 @@ release_outcomes: []
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P5 成人生产力工具） | 复习是可选留存层、免费附加值；不向 Anki 靠拢、不贩卖焦虑；无障碍是基础质量 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C3 / C4-D | Dashboard 不由 Review 主导；只按指定 audience、单一 Library 入口和预登记证据实验，不自动公开 |
+| Vision | `../../product/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P5 成人生产力工具） | 复习是可选留存层、免费附加值；不向 Anki 靠拢、不贩卖焦虑；无障碍是基础质量 |
+| Release 1 PRD | `../../product/release-1-prd.md` C3 / C4-D | Dashboard 不由 Review 主导；只按指定 audience、单一 Library 入口和预登记证据实验，不自动公开 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | Release 1 免费、无广告、无 IAP；数据驱动候选不构成 Pro 承诺 |
 | 待验证假设 | `../../explanations/assumptions.md` H9（可选回顾提升复用价值但不应拖向复杂记忆工具） | 复习使用率与复杂度验证 H9 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
@@ -122,7 +122,7 @@ release_outcomes: []
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P5 成人生产力工具）
+- 原则：`../../product/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P5 成人生产力工具）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（复习作用于旅程 2 归档、旅程 5 整理后的题目；本版本未单列复习旅程）
 - 商业政策：`../../explanations/business-model.md`

@@ -29,11 +29,11 @@
 | 07-06 | “每页题数”→“每页资料数”（通用导出面归资料系） | `docs/reference/glossary.md` 边界的应用；PR 描述 |
 | 07-06 | 配额 Toast 混域句维持现状（组卷 = 域内词，资料 = 通用词） | PR 描述 |
 | 07-06 | 隐私政策文案校正批准（“学习助手”→“资料整理应用”，清除 pre-pivot 残留） | L10n + Policy 实现；与 `docs/explanations/positioning-and-audience.md` 一致 |
-| 07-11 | **退休 Multi-Profile，重基线为单一本地资料库**；产品行为已由 07-12 B5-A 承接。项目无内测用户，开发期 Profile 数据、偏好和旧多 Profile 备份无需迁移或兼容；该过渡边界仍须由 Release 1 / Data Contract 承接后才能合并实现 | `docs/explanations/vision.md` §数据与身份定位；`docs/reference/audits/2026-07-repository/phases/04b-single-library-brief.md` |
-| 07-12 | **Gate B / Product Constitution v1：B1-A 至 B7-A 全部逐项批准**。首个切口 = 结构化纸张 / PDF 成人工作流；价值承诺 = 可搜索、可整理、可打印资料库；核心链 = 采集 → 整理 / 找回 → 导出 / 打印；local-first / 无 SnapDrill 账户 / 单资料库 / 永久手动备份；Release 1 免费无广告无 IAP；iPhone-only 美国主体全球版、英文 + 简体中文 | `docs/explanations/vision.md`（Product Constitution v1；本权威合入 `develop` 后 effective） |
-| 07-13 | **Gate C / C3 ratified：Release 1 普通启动默认进入 Dashboard**。Dashboard 只承担任务入口与可执行状态概览；不批准当前卡片 / 五 Tab，不允许 Profile / Pro / analytics / Review hero 主导首屏 | `docs/reference/release-1-contract.md` §4 |
-| 07-14 | **Gate C 四包全部批准**：C1-A；C2-Core / Image / Optional / Personalization；C4-D；C5-E / C5-S1；C6-A；DATA-1 / DATA-1-E / DATA-1-R。加上 07-13 的 C3，Release 1 Contract 全部 13 个精确 ID 已 ratified；本权威合入 `develop` 后 effective，且不自动授权实现、上传、开放 TestFlight 或发布 | `docs/reference/release-1-contract.md` |
-| 07-19 | **Release safety 四项 ratified**：S1-A 固定内容 / taxonomy / normalized JPEG 接受边界；M1-A 固定 taxonomy cardinality 转换的失败原子性；D4S-A 固定 complete / partial operation 与 shared prestate / barrier；ORI-A 固定 iPhone shell 与媒体内容方向边界。它们合入 owning authority 后才 effective，不批准 Backup v3 DDL / package、实现、合并、上传或发布 | `docs/reference/release-1-contract.md` + `docs/reference/local-library-data-contract.md`；来源 #918 / #884 / #950 |
+| 07-11 | **退休 Multi-Profile，重基线为单一本地资料库**；产品行为已由 07-12 B5-A 承接。项目无内测用户，开发期 Profile 数据、偏好和旧多 Profile 备份无需迁移或兼容；该过渡边界仍须由 Release 1 / Data Contract 承接后才能合并实现 | `docs/product/vision.md` §数据与身份定位；`docs/reference/audits/2026-07-repository/phases/04b-single-library-brief.md` |
+| 07-12 | **Gate B / Product Vision & Principles：B1-A 至 B7-A 全部逐项批准**。首个切口 = 结构化纸张 / PDF 成人工作流；价值承诺 = 可搜索、可整理、可打印资料库；核心链 = 采集 → 整理 / 找回 → 导出 / 打印；local-first / 无 SnapDrill 账户 / 单资料库 / 永久手动备份；Release 1 免费无广告无 IAP；iPhone-only 美国主体全球版、英文 + 简体中文 | `docs/product/vision.md`（Product Vision & Principles；本权威合入 `develop` 后 effective） |
+| 07-13 | **Gate C / C3 ratified：Release 1 普通启动默认进入 Dashboard**。Dashboard 只承担任务入口与可执行状态概览；不批准当前卡片 / 五 Tab，不允许 Profile / Pro / analytics / Review hero 主导首屏 | `docs/product/release-1-prd.md` §4 |
+| 07-14 | **Gate C 四包全部批准**：C1-A；C2-Core / Image / Optional / Personalization；C4-D；C5-E / C5-S1；C6-A；DATA-1 / DATA-1-E / DATA-1-R。加上 07-13 的 C3，Release 1 PRD 全部 13 个精确 ID 已 ratified；本权威合入 `develop` 后 effective，且不自动授权实现、上传、开放 TestFlight 或发布 | `docs/product/release-1-prd.md` |
+| 07-19 | **Release safety 四项 ratified**：S1-A 固定内容 / taxonomy / normalized JPEG 接受边界；M1-A 固定 taxonomy cardinality 转换的失败原子性；D4S-A 固定 complete / partial operation 与 shared prestate / barrier；ORI-A 固定 iPhone shell 与媒体内容方向边界。它们合入 owning authority 后才 effective，不批准 Backup v3 DDL / package、实现、合并、上传或发布 | `docs/product/release-1-prd.md` + `docs/reference/local-library-data-contract.md`；来源 #918 / #884 / #950 |
 
 ## B. 质量门槛
 
@@ -79,7 +79,7 @@
 ## F. 2026-07-07 历史队列快照（不得据此排期）
 
 以下列表只解释当时尚未处理的事项。当前优先级、issue 状态与 Release 1 disposition 必须从
-live GitHub、Release Contract、owning feature spec 和当前审计入口重新核对。
+live GitHub、Release PRD、owning feature spec 和当前审计入口重新核对。
 
 - **N2：Mac mini 网络**（固化直连 vs 还原修 OpenClash）——最急，443 已成每日税
 - 公开上架合规时点（legal）/ China 挂起资源续费处置（约 2027-01）

@@ -1,12 +1,12 @@
 ---
-last_verified: 2026-07-21
-layer: release-contract
+last_verified: 2026-07-24
+layer: release-prd
 release: 1
 product_role: release-prd
 ratified_at:
   C3: 2026-07-13
   remaining_12: 2026-07-14
-  follow_up_contract_decisions: 2026-07-15
+  follow_up_prd_decisions: 2026-07-15
   release_safety_boundaries: 2026-07-19
   capture_draft_retention: 2026-07-20
   backup_v3_product_semantics: 2026-07-21
@@ -14,27 +14,28 @@ activation: effective_when_merged_to_develop
 ratified_decisions: ["C1-A", "C2-Core", "C2-Image", "C2-Optional", "C2-Personalization", "C3", "C4-D", "C5-E", "C5-S1", "C6-A", "DATA-1", "DATA-1-E", "DATA-1-R", "D1-B", "D2-A", "D3-B", "D4-B", "D5-A", "#932-A", "#891-copy", "S1-A", "M1-A", "D4S-A", "ORI-A", "P1-A", "P2-B-A", "P2-C-A", "P2-D-A", "P2-E-A", "P2-F-A", "P2-G-A"]
 pending_decisions: []
 upstream:
-  - ../explanations/vision.md
+  - vision.md
   - ../explanations/positioning-and-audience.md
   - ../explanations/business-model.md
   - ../explanations/design-principles.md
 ---
-# Release 1 Product Contract
+# Release 1 PRD
 
 > PO 于 2026-07-13 至 2026-07-20 ratify Gate C 与后续数据、导出、删除、安全边界、平台和草稿保留裁决。
-> 本文在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective Release 1 权威。
+> 本文在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective Release 1 PRD。
 >
-> 本文同时承担 Release 1 的唯一 PRD 角色，不另建平行 `PRD.md`。`RATIFIED` 本身不决定投资
+> 本文是 Release 1 的唯一 PRD，不另建平行需求文档。`RATIFIED` 本身不决定投资
 > 顺序或执行权限；具体委托边界由 DoR 与协作协议维护。每次合并、构建上传、开放 TestFlight
 > 和发布动作仍需 PO 单独明确授权。
 
-## 1. 合同职责
+## 1. PRD 职责
 
-本文承接 [Product Constitution v1](../explanations/vision.md)，作为 Release 1 的唯一 PRD，只定义
+本文承接 [Product Vision & Principles](vision.md)，只定义
 目标产物、Must outcomes、可见能力、明确非目标、数据兼容边界与结果级验收。它不冻结具体
 卡片、像素布局、类型名、package 边界或当前实现，也不允许通过“代码已经存在”反向扩大范围。
 
-发生冲突时：Product Constitution 决定耐久产品方向；本文决定 Release 1；feature spec 细化单功能；代码、测试和发布实证只证明当前实现。
+发生冲突时：Product Vision & Principles 决定耐久产品方向；本文决定 Release 1；feature spec
+细化单功能；代码、测试和发布实证只证明当前实现。
 
 ### 决策摘要
 
@@ -94,7 +95,7 @@ Release 1 服务处理结构化纸张、照片或 PDF 材料的成年人。考�
 
 ### 3.1 Must outcomes
 
-**RATIFIED C2-Core**：批准下列 M1-M10 用户结果。具体撤销时长、图片编码参数、命令、test ID、fault-injection 点和设备集合由 owning feature / Data / QA / Release DRI 维护，不随本项一并锁定。后续 S1-A 已在 [Local Library Data Contract](local-library-data-contract.md) 固定产品可接受的内容与图片边界；DRI 只能在该边界内选择实现参数。
+**RATIFIED C2-Core**：批准下列 M1-M10 用户结果。具体撤销时长、图片编码参数、命令、test ID、fault-injection 点和设备集合由 owning feature / Data / QA / Release DRI 维护，不随本项一并锁定。后续 S1-A 已在 [Local Library Data Contract](../reference/local-library-data-contract.md) 固定产品可接受的内容与图片边界；DRI 只能在该边界内选择实现参数。
 
 **RATIFIED C2-Image**：保存内容真相是用户确认裁剪和方向后的 App-managed 可读图片；OCR 是辅助表达。Release 1 不承诺保留来源照片 / PDF 渲染页的原始字节或完整分辨率。工程可以选择编码与质量参数，但必须满足可读性、隐私和所有受支持资料库可完整备份的结果边界。
 
@@ -129,7 +130,7 @@ Release 1 服务处理结构化纸张、照片或 PDF 材料的成年人。考�
 
 ### 3.3 可见能力处置规则
 
-当前实现不自动产生 Release 1 范围。除 Must 和本合同单独批准的实验外，其余表面默认隐藏，只有按 [Release 1 Capability Manifest](release-1-capability-manifest.md) 的版本化路径与 schema 生成的不可变冻结件逐项列为 `included`、满足对应门禁并随该 build 获得 PO 授权后才可见。
+当前实现不自动产生 Release 1 范围。除 Must 和本 PRD单独批准的实验外，其余表面默认隐藏，只有按 [Release 1 Capability Manifest](../reference/release-1-capability-manifest.md) 的版本化路径与 schema 生成的不可变冻结件逐项列为 `included`、满足对应门禁并随该 build 获得 PO 授权后才可见。
 
 每个 manifest 必须声明 `audience: po-only | research | public-candidate`。`hidden` 表示该 build 对该能力**零入口、零激活、零副作用**：没有 Tab、Dashboard / Library / Onboarding / Settings 入口、通知 / 徽标、任何可由用户或系统触发的 deep link / App Intent / Shortcut / Spotlight / widget、状态恢复路径、可达 AX 元素或公开元数据；启动、后台、升级和遗留调度也不得执行该能力、写入其状态或产生网络 / 文件 / 数据副作用。不可达且不执行的代码可以保留。不同 commit、build、audience 或 capability set 都是新候选，旧 build 的证据不能无说明继承。
 
@@ -144,7 +145,7 @@ Release 1 服务处理结构化纸张、照片或 PDF 材料的成年人。考�
 | 每日回顾目标、按回顾状态排序、Review 提醒 | Hidden；C4-D 的实验范围不包含这些表面，未来只有新裁决才可 include |
 | Dashboard analytics、高级统计 | Hidden / out of scope |
 
-Capability Manifest 是一次候选构建的实证附件，只能缩小本合同允许的范围，不能新增产品权威；`pre-freeze`、未列入或未经 PO build 授权均视为隐藏。Candidate optional 的缺陷不得破坏 Must 路径，任何 S0 / S1、隐私或 AX 阻断都会使该能力从候选移除或先修复，不能用“可选”豁免质量。
+Capability Manifest 是一次候选构建的实证附件，只能缩小本 PRD允许的范围，不能新增产品权威；`pre-freeze`、未列入或未经 PO build 授权均视为隐藏。Candidate optional 的缺陷不得破坏 Must 路径，任何 S0 / S1、隐私或 AX 阻断都会使该能力从候选移除或先修复，不能用“可选”豁免质量。
 
 ## 4. 启动与 Dashboard
 
@@ -192,7 +193,7 @@ Release 1 只有一个用户可见的本地资料库，没有 SnapDrill 账户�
 2. **epoch 触发**：任何渠道首次让非 PO 自然人获得下载资格时触发，包括 research / external TestFlight、Ad Hoc 或交付给非 PO 的开发签名包；仅上传但尚未开放下载不触发。开放动作须先取得 C1 规定的 PO non-PO availability 授权；即使流程违规，实际开放仍触发 epoch。Capability Manifest 固定记录 source commit、渠道 artifact / ASC build identity、渠道、audience、授权、开放时间、Marketing Version、Build 和 Backup Schema。
 3. **epoch 后本机升级**：App 更新必须保留用户已保存资料、主图 / 答案图、用户分类与关联、Review 状态，以及当前版本承诺支持的用户偏好；需要变形时提供内置迁移，不得假装空库或静默丢弃。
 4. **epoch 后备份兼容**：每个正式分发 writer 生成、且符合其当时 effective wire contract 的完整备份，必须能由当前 App 直接恢复；格式转换可以作为 App 内恢复流程的实现细节，不能把 CLI、桌面工具或人工迁移作为普通用户唯一恢复路径。损坏、篡改或超出原格式合同的文件不在兼容承诺内。安全边界若需收紧，必须在 App 内保留旧 reader 或安全转换，不能让旧合法备份失效。
-5. **外部分发前**：外部 backup wire 必须 Profile-free；[Local Library Data Contract](local-library-data-contract.md) 冻结 inventory、路径与恢复生命周期，[Backup Wire Format](backup-wire-format.md) 冻结外部 DDL 与兼容规则。旧 Profile v1 / v2 仅属 epoch 前开发格式，可被明确拒绝并给出可理解提示。
+5. **外部分发前**：外部 backup wire 必须 Profile-free；[Local Library Data Contract](../reference/local-library-data-contract.md) 冻结 inventory、路径与恢复生命周期，[Backup Wire Format](../reference/backup-wire-format.md) 冻结外部 DDL 与兼容规则。旧 Profile v1 / v2 仅属 epoch 前开发格式，可被明确拒绝并给出可理解提示。
 
 “完整备份”包含：已保存资料、主图 / 答案图、用户创建的分类 / 字段及关联、Review 状态，以及解释这些内容所必需的配置。它不包含未保存草稿、缓存、内部损坏-store / restore-journal 材料，也不要求携带设备本地的语言、外观、通知时间或诊断偏好；这些偏好在同设备 App 升级时仍受 DATA-1 第 3 项保护。
 
@@ -208,17 +209,17 @@ Release 1 只有一个用户可见的本地资料库，没有 SnapDrill 账户�
 
 Release 1 必须让产品所支持创建的任意资料库都能生成一个同版可恢复的正式备份；writer 不得报告成功后再被同版 reader 拒绝。若单文件格式无法覆盖受支持规模，Data DRI 必须选择流式、分卷或其他可恢复方案，不能用未公开容量上限撤销永久备份权。
 
-恶意 / 损坏输入、磁盘不足、进程中断、数据库与图片提交不同步或 store 打不开，均不得造成崩溃、越界读写、静默覆盖、假空库或不可理解的半恢复。用户看到的是可崩溃恢复的 all-or-nothing 结果或明确阻塞恢复态；具体 inventory、staging、journal phase、marker、启动协调与 fault injection 由 [Local Library Data Contract](local-library-data-contract.md) 承接，外部 archive grammar、schema / key 与 fixtures 由 [Backup Wire Format](backup-wire-format.md) 承接。两者都不能从本节直接获得实现授权。
+恶意 / 损坏输入、磁盘不足、进程中断、数据库与图片提交不同步或 store 打不开，均不得造成崩溃、越界读写、静默覆盖、假空库或不可理解的半恢复。用户看到的是可崩溃恢复的 all-or-nothing 结果或明确阻塞恢复态；具体 inventory、staging、journal phase、marker、启动协调与 fault injection 由 [Local Library Data Contract](../reference/local-library-data-contract.md) 承接，外部 archive grammar、schema / key 与 fixtures 由 [Backup Wire Format](../reference/backup-wire-format.md) 承接。两者都不能从本节直接获得实现授权。
 
 ### 6.1 Release 1 资料库安全边界
 
-**RATIFIED S1-A**：Release 1 对资料文字、taxonomy 名称、SF Symbol 名称与 normalized JPEG 设定明确接受边界；精确字节、像素、拒绝语义和全库容量口径只由 [Local Library Data Contract](local-library-data-contract.md) §2.1 拥有。feature、NFR 与 Backup Wire 只能引用，不得复制数字或另造更小上限。
+**RATIFIED S1-A**：Release 1 对资料文字、taxonomy 名称、SF Symbol 名称与 normalized JPEG 设定明确接受边界；精确字节、像素、拒绝语义和全库容量口径只由 [Local Library Data Contract](../reference/local-library-data-contract.md) §2.1 拥有。feature、NFR 与 Backup Wire 只能引用，不得复制数字或另造更小上限。
 
-**RATIFIED M1-A**：taxonomy 从单值转多值可以直接进行；反向转换必须先证明所有受影响资料满足目标 cardinality，否则整体拒绝并报告违反数量，不自动删值或部分修改。精确数据不变量由 [Local Library Data Contract](local-library-data-contract.md) §2.2 拥有。
+**RATIFIED M1-A**：taxonomy 从单值转多值可以直接进行；反向转换必须先证明所有受影响资料满足目标 cardinality，否则整体拒绝并报告违反数量，不自动删值或部分修改。精确数据不变量由 [Local Library Data Contract](../reference/local-library-data-contract.md) §2.2 拥有。
 
-**RATIFIED D4S-A**：只有外部完整 `.snapdrillbackup` 以及 `restore` / `clearLibrary` / `storeRecovery` 属于 contract-defined complete operations；它们消费 [Local Library Data Contract](local-library-data-contract.md) §4.3 的 operation-specific prestate 与 mutation barrier。健康 closed generation 与 unavailable store 的内部证明路径不同，不能用假空库替代。Settings JSON / CSV 与 selected PDF / CSV 是 partial exports；它们不排队等待该 barrier，也不得宣称代表完整资料库。该裁决不批准 Backup v3 DDL、package、journal operation 或实现。
+**RATIFIED D4S-A**：只有外部完整 `.snapdrillbackup` 以及 `restore` / `clearLibrary` / `storeRecovery` 属于 contract-defined complete operations；它们消费 [Local Library Data Contract](../reference/local-library-data-contract.md) §4.3 的 operation-specific prestate 与 mutation barrier。健康 closed generation 与 unavailable store 的内部证明路径不同，不能用假空库替代。Settings JSON / CSV 与 selected PDF / CSV 是 partial exports；它们不排队等待该 barrier，也不得宣称代表完整资料库。该裁决不批准 Backup v3 DDL、package、journal operation 或实现。
 
-**RATIFIED P2-B-A / P2-C-A / P2-D-A / P2-E-A / P2-F-A / P2-G-A**：taxonomy 身份与显示字段、资料正文与答案文字空值、已有 Review 状态、active-image canonicalization、Backup terminal lifecycle 与图片基数的产品语义由 [Local Library Data Contract](local-library-data-contract.md) §2.3–§2.8 和 §8 唯一拥有。Backup v3 必须保真消费这些语义；这些裁决不批准任何具体 DDL、reader / writer 实现或证据包。
+**RATIFIED P2-B-A / P2-C-A / P2-D-A / P2-E-A / P2-F-A / P2-G-A**：taxonomy 身份与显示字段、资料正文与答案文字空值、已有 Review 状态、active-image canonicalization、Backup terminal lifecycle 与图片基数的产品语义由 [Local Library Data Contract](../reference/local-library-data-contract.md) §2.3–§2.8 和 §8 唯一拥有。Backup v3 必须保真消费这些语义；这些裁决不批准任何具体 DDL、reader / writer 实现或证据包。
 
 ### 6.2 资料库清除边界
 
@@ -263,13 +264,14 @@ Release 1 不包含：
 - **Optional value**：完成核心链后是否主动寻找 Review 或 SmartPaper？
 - **Quality**：是否出现崩溃、卡死、恢复失败或 accessibility 阻断？
 
-内部 dogfood 证据可以改变后续 feature 与公开发布决策，但不能静默改写 Product Constitution；任何变更继续走五态生命周期。
+内部 dogfood 证据可以改变后续 feature 与公开发布决策，但不能静默改写 Product Vision &
+Principles；任何变更继续走五态生命周期。
 
-## 10. 合同生效与退出条件
+## 10. PRD 生效与退出条件
 
 1. PO 已于 2026-07-13 至 2026-07-20 批准摘要表列出的 Gate C 与后续精确决策；它们在本权威及 owning feature / Data Contract 同步合入后 effective。
 2. 本文及必要 thin pointers 通过文档门禁和独立语义复核。
 3. PR 合并获得 PO 单独授权并进入 `develop`；合并前仍是 ratified candidate。
-4. 本合同 docs-only PR 同步对齐受 Gate C 与后续裁决直接影响的产品说明、feature spec、结果 oracle、发布 evidence plan、术语与导航索引；这些改动用于移除旧规范冲突并建立追溯，不授权或包含代码、导航、schema / wire 实现。
+4. 本 PRD docs-only PR 同步对齐受 Gate C 与后续裁决直接影响的产品说明、feature spec、结果 oracle、发布 evidence plan、术语与导航索引；这些改动用于移除旧规范冲突并建立追溯，不授权或包含代码、导航、schema / wire 实现。
 5. PR #868 已关闭且不再是实现路径，只保留为历史影响证据。单资料库生产收敛必须从最新 `develop` 按独立切片重新 shaping；精确 Backup Wire、可崩溃恢复和对应 fixtures 仍须由 owning contract 与单独授权约束。
-6. 本合同一经 effective，在新 Release Contract 或明确 supersession 合入前持续有效。
+6. 本 PRD 一经 effective，在新 Release PRD 或明确 supersession 合入前持续有效。

@@ -20,7 +20,7 @@ release_refs:
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / ADR-001 / architecture 聚合（docs 重组 B）。
 > `mode: lightweight`（backlog）：How / Verify 仅承载当前已确认事实，未实现/未定的不编造。
 >
-> **商业规范偏差（2026-07-12）**：Product Constitution B6-A 已取代 ADR-001 的 Pro 分层，frontmatter 已改为 `tier: undecided`。本能力在新的商业裁决与 Release Product Contract 生效前不得实现或公开承诺。
+> **商业规范偏差（2026-07-12）**：Product Vision & Principles B6-A 已取代 ADR-001 的 Pro 分层，frontmatter 已改为 `tier: undecided`。本能力在新的商业裁决与 Release PRD 生效前不得实现或公开承诺。
 
 ## 1. 候选价值假设 (Why)
 
@@ -44,15 +44,15 @@ release_refs:
 
 ## 4. 验证标准 (Verify)
 
-> 当前不在 Release 1 范围，禁止从本 spec 启动实现。新的 Product / Release Contract 生效后再补 GWT、数据口径、性能与 AX 验收；在此之前唯一用户可见要求是隐藏现有 teaser / upsell。
+> 当前不在 Release 1 范围，禁止从本 spec 启动实现。新的 Product / Release PRD 生效后再补 GWT、数据口径、性能与 AX 验收；在此之前唯一用户可见要求是隐藏现有 teaser / upsell。
 
 
 ## 意图追溯（永久保留）
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P3 免费层完成核心闭环 / P5 成人生产力工具） | 基础统计永久免费、不锁基础能力；数字只显示事实、不贩卖焦虑 |
-| Release 1 Contract | `../../reference/release-1-contract.md` §7 (`release-1:section-7`) | 高级统计是 Release 1 明确非目标；该引用只固定隐藏边界，不表示候选纳入 |
+| Vision | `../../product/vision.md`（P3 免费层完成核心闭环 / P5 成人生产力工具） | 基础统计永久免费、不锁基础能力；数字只显示事实、不贩卖焦虑 |
+| Release 1 PRD | `../../product/release-1-prd.md` §7 (`release-1:section-7`) | 高级统计是 Release 1 明确非目标；该引用只固定隐藏边界，不表示候选纳入 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | 当前无有效 Pro 层；隐藏 teaser / upsell，不公开承诺候选能力 |
 | 待验证假设 | `../../explanations/business-model.md` H8 | 验证附加价值，不预设转化模式 |
 | 验收证据 | 当前无 Release GWT；等待新 contract | 不把不可达代码当产品 oracle |
@@ -60,7 +60,7 @@ release_refs:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P3 免费层完成核心闭环 / P5 成人生产力工具 · 不贩卖焦虑）
+- 原则：`../../product/vision.md`（P3 免费层完成核心闭环 / P5 成人生产力工具 · 不贩卖焦虑）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 当前用户旅程：`../../explanations/user-journeys.md`（无高级统计旅程承接；SmartPaper 联动仅是 ADR-001 历史构想）
 - 历史决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（已被 B6-A 取代）

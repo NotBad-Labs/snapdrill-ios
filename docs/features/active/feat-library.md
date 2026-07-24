@@ -39,7 +39,7 @@ release_outcomes:
 ## 1. 为什么做 (Why)
 - **痛点 / 价值**：采集、剪贴、分类、归档容易变成重复劳动。资料进入 App 后若不能定位、整理、按需挑出，采集就失去意义——管理是价值链承上启下的一环（采集 → **整理 / 找回** → 导出 / 打印）。资料库让积累的材料可搜、可分类、可编辑、可安全删除。
 - **定位**：管理与录入并列为主路径，是价值链核心环节而非附加值；任何损害"录入/管理"简洁性的功能都不该做（设计铁律）。分享卡片定位为**用户间一对一交流的样张图片**，不是社交分享——SnapDrill 不是社交产品（不做分享社区 / 跨用户推荐算法 / 行为信号采集 feed）。
-- **原则归属**：P1 采集摩擦最低（管理服务于"录入后立即可用"）+ P2 简洁（过滤维度克制、不做回收站 / 多级撤销）+ P4 数据属于用户与数据安全（删除可撤销）+ P5 成人生产力工具（零学习曲线、中性成熟）。详见 `../../explanations/vision.md`。
+- **原则归属**：P1 采集摩擦最低（管理服务于"录入后立即可用"）+ P2 简洁（过滤维度克制、不做回收站 / 多级撤销）+ P4 数据属于用户与数据安全（删除可撤销）+ P5 成人生产力工具（零学习曲线、中性成熟）。详见 `../../product/vision.md`。
 
 ## 2. 当前实现规则与 Release 1 分类 (What)
 
@@ -133,8 +133,8 @@ release_outcomes:
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P5 成人生产力工具） | 管理是价值链承上启下环节；过滤维度克制、软删除可撤销、零学习曲线中性成熟 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Optional / C4-D / C5-E / D4-B / S1-A / M1-A / D4S-A | 五秒绝对撤销期限跨后台 / 重启；资料接受、cardinality 与 complete-operation barrier 消费 Local Library Data Contract；Must 与 optional 不从现有表面反推；Review / SmartPaper 只按 audience 和单一静态入口实验 |
+| Vision | `../../product/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P5 成人生产力工具） | 管理是价值链承上启下环节；过滤维度克制、软删除可撤销、零学习曲线中性成熟 |
+| Release 1 PRD | `../../product/release-1-prd.md` C2-Core / C2-Optional / C4-D / C5-E / D4-B / S1-A / M1-A / D4S-A | 五秒绝对撤销期限跨后台 / 重启；资料接受、cardinality 与 complete-operation barrier 消费 Local Library Data Contract；Must 与 optional 不从现有表面反推；Review / SmartPaper 只按 audience 和单一静态入口实验 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | Release 1 免费、无广告、无 IAP；分享卡片走系统 ShareSheet、不引导公开传播 |
 | 待验证假设 | `../../explanations/assumptions.md` H2（管理能力被真实使用，而非仅当一次性扫描器） | 搜索 / 过滤 / 编辑的使用率验证 H2 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
@@ -142,7 +142,7 @@ release_outcomes:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 数据属于用户 / P5 成人生产力工具）
+- 原则：`../../product/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 数据属于用户 / P5 成人生产力工具）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（旅程 5：搜索 / 过滤 / 编辑，含批量打标签 / 误删撤销 / 过滤→导出打印）
 - 商业政策：`../../explanations/business-model.md`

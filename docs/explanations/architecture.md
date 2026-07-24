@@ -9,9 +9,9 @@ freshness:
 
 > “首发版”是仓库内部版本键 `Release 1` 的自然语言名称。本文定义其目标技术边界，
 > 不描述或合法化旧实现。产品范围由
-> [Product Constitution](vision.md) 与
-> [Release 1 Product Contract](../reference/release-1-contract.md) 决定；本文只回答怎样实现。
-> 当前代码与目标不一致时，按 Product Contract 的 M1-M10 结果 oracle 修复，不得反向修改产品目标。
+> [Product Vision & Principles](../product/vision.md) 与
+> [Release 1 PRD](../product/release-1-prd.md) 决定；本文只回答怎样实现。
+> 当前代码与目标不一致时，按 Release 1 PRD 的 M1-M10 结果 oracle 修复，不得反向修改产品目标。
 
 ## 1. 架构目标
 

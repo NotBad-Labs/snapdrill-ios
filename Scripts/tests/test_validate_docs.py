@@ -52,7 +52,7 @@ class ValidateDocsTests(unittest.TestCase):
 
         self.assertEqual(
             target,
-            validate_docs.DOCS_ROOT / "explanations" / "vision.md",
+            validate_docs.DOCS_ROOT / "product" / "vision.md",
         )
         self.assertEqual(anchor, "vision:P4")
         self.assertTrue(validate_docs.ref_target_exists(target, anchor))
@@ -115,12 +115,65 @@ class ValidateDocsTests(unittest.TestCase):
             errors,
         )
 
-    def test_release_one_contract_is_the_only_declared_prd(self) -> None:
+    def test_release_one_prd_is_the_only_declared_prd(self) -> None:
         errors: list[str] = []
 
-        validate_docs.validate_release_prd_authority(errors)
+        validate_docs.validate_product_document_authority(errors)
 
         self.assertEqual(errors, [])
+
+    def test_missing_product_vision_layer_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.PRODUCT_VISION:
+                return text.replace("layer: product-vision\n", "layer: explanation\n")
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_product_document_authority(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/product/vision.md: layer must be 'product-vision'",
+            errors,
+        )
+        self.assertTrue(
+            any(
+                "Product direction must have exactly one product-vision layer"
+                in error
+                for error in errors
+            )
+        )
+
+    def test_duplicate_product_vision_layer_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.RELEASE_ONE_PRD:
+                return text.replace("layer: release-prd\n", "layer: product-vision\n")
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_product_document_authority(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                "Product direction must have exactly one product-vision layer"
+                in error
+                and "docs/product/release-1-prd.md" in error
+                for error in errors
+            )
+        )
 
     def test_missing_release_prd_role_fails_closed(self) -> None:
         errors: list[str] = []
@@ -128,18 +181,18 @@ class ValidateDocsTests(unittest.TestCase):
 
         def fake_read(path: Path) -> str:
             text = original_read(path)
-            if path == validate_docs.RELEASE_ONE_CONTRACT:
+            if path == validate_docs.RELEASE_ONE_PRD:
                 return text.replace("product_role: release-prd\n", "")
             return text
 
         validate_docs.read = fake_read
         try:
-            validate_docs.validate_release_prd_authority(errors)
+            validate_docs.validate_product_document_authority(errors)
         finally:
             validate_docs.read = original_read
 
         self.assertIn(
-            "docs/reference/release-1-contract.md: "
+            "docs/product/release-1-prd.md: "
             "product_role must be 'release-prd'",
             errors,
         )
@@ -153,16 +206,14 @@ class ValidateDocsTests(unittest.TestCase):
     def test_duplicate_release_prd_role_fails_closed(self) -> None:
         errors: list[str] = []
         original_read = validate_docs.read
-        duplicate_path = (
-            validate_docs.DOCS_ROOT / "explanations" / "vision.md"
-        )
+        duplicate_path = validate_docs.DOCS_ROOT / "product" / "vision.md"
 
         def fake_read(path: Path) -> str:
             text = original_read(path)
             if path == duplicate_path:
                 return text.replace(
-                    "layer: product-constitution\n",
-                    "layer: product-constitution\n"
+                    "layer: product-vision\n",
+                    "layer: product-vision\n"
                     "release: 1\n"
                     "product_role: release-prd\n",
                 )
@@ -170,44 +221,42 @@ class ValidateDocsTests(unittest.TestCase):
 
         validate_docs.read = fake_read
         try:
-            validate_docs.validate_release_prd_authority(errors)
+            validate_docs.validate_product_document_authority(errors)
         finally:
             validate_docs.read = original_read
 
         self.assertTrue(
             any(
                 "Release 1 must have exactly one declared PRD authority" in error
-                and "docs/explanations/vision.md" in error
+                and "docs/product/vision.md" in error
                 for error in errors
             )
         )
 
-    def test_duplicate_release_contract_layer_fails_closed(self) -> None:
+    def test_duplicate_release_prd_layer_fails_closed(self) -> None:
         errors: list[str] = []
         original_read = validate_docs.read
-        duplicate_path = (
-            validate_docs.DOCS_ROOT / "explanations" / "vision.md"
-        )
+        duplicate_path = validate_docs.DOCS_ROOT / "product" / "vision.md"
 
         def fake_read(path: Path) -> str:
             text = original_read(path)
             if path == duplicate_path:
                 return text.replace(
-                    "layer: product-constitution\n",
-                    "layer: release-contract\nrelease: 1\n",
+                    "layer: product-vision\n",
+                    "layer: release-prd\nrelease: 1\n",
                 )
             return text
 
         validate_docs.read = fake_read
         try:
-            validate_docs.validate_release_prd_authority(errors)
+            validate_docs.validate_product_document_authority(errors)
         finally:
             validate_docs.read = original_read
 
         self.assertTrue(
             any(
-                "Release 1 must have exactly one release-contract layer" in error
-                and "docs/explanations/vision.md" in error
+                "Release 1 must have exactly one release-prd layer" in error
+                and "docs/product/vision.md" in error
                 for error in errors
             )
         )
@@ -233,7 +282,7 @@ class ValidateDocsTests(unittest.TestCase):
             fake_tracked_paths
         )
         try:
-            validate_docs.validate_release_prd_authority(errors)
+            validate_docs.validate_product_document_authority(errors)
         finally:
             validate_docs.read = original_read
             validate_docs.validate_document_control.tracked_markdown_paths = (
@@ -242,7 +291,7 @@ class ValidateDocsTests(unittest.TestCase):
 
         self.assertIn(
             "PRD.md: PRD-named Markdown duplicates or obscures the owning "
-            "Release Product Contract",
+            "Release PRD",
             errors,
         )
 

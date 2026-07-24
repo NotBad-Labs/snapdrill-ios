@@ -2,17 +2,20 @@
 last_verified: 2026-07-21
 layer: roadmap
 derived_from:
-  - ../explanations/vision.md
+  - ../product/vision.md
 ---
 # 功能范围与路线
 
-> 本文件只维护跨功能候选、重入边界和投资状态，不定义当前实现，也不充当 Release Product Contract。
+> 本文件只维护跨功能候选、重入边界和投资状态，不定义当前实现，也不充当 Release PRD。
 >
-> 当前实现见自动生成的 [feature-status.md](feature-status.md)；单功能行为见 feature spec；Release 1 的 Must outcomes、明确非目标和验收由 [Release 1 Product Contract](release-1-contract.md) 单独定义。Gate C 与截至 2026-07-20 的 follow-up decisions 已 ratified，合入 `develop` 后 effective。
+> 当前实现见自动生成的 [feature-status.md](feature-status.md)；单功能行为见 feature spec；
+> Release 1 的 Must outcomes、明确非目标和验收由
+> [Release 1 PRD](../product/release-1-prd.md) 单独定义。Gate C 与截至 2026-07-20 的 follow-up
+> decisions 已 ratified，合入 `develop` 后 effective。
 
 ## 当前上游边界
 
-Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在其权威内容合入 `develop` 后生效：
+Product Vision & Principles 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在其权威内容合入 `develop` 后生效：
 
 - 首个切口：处理结构化纸张 / PDF 的成年人。
 - 核心价值链：采集 -> 整理 / 找回 -> 导出 / 打印。
@@ -53,7 +56,7 @@ Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在�
 
 ## 耐久非目标
 
-下列边界来自 Product Constitution，不属于可随意排期的 backlog：
+下列边界来自 Product Vision & Principles，不属于可随意排期的 backlog：
 
 - 平台题库、答案搜索、自动解题或内容分发服务。
 - 社交关系、排行榜、签到、虚拟奖励和焦虑驱动增长。
@@ -61,7 +64,7 @@ Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在�
 - 开发者可访问的用户内容后端或默认第三方行为分析。
 - 通过限制基础录入、锁定资料、阻断手动备份、广告或水印变现。
 
-要重新考虑任一非目标，必须先修改 Product Constitution；普通 feature PR 无权改变。
+要重新考虑任一非目标，必须先修改 Product Vision & Principles；普通 feature PR 无权改变。
 
 ## 探索性能力评估
 
@@ -75,14 +78,14 @@ Product Constitution v1 已由 PO 于 2026-07-12 批准 B1-A 至 B7-A，并在�
 | Apple 私有同步 | 多设备需求与手动备份摩擦证据 | 冲突、兼容、存储、区域和取消 / 降级策略 |
 | iPad / Pencil | iPhone 无法满足的明确任务 | 不以“布局能跑”代替完整平台验收 |
 
-评估结论写入 assumptions 或 shaped brief。Go 仍需 PO / DRI 按决策类别批准，并由 Release Contract 或 feature spec 承接；No-Go 保留证据和复核触发器。
+评估结论写入 assumptions 或 shaped brief。Go 仍需 PO / DRI 按决策类别批准，并由 Release PRD 或 feature spec 承接；No-Go 保留证据和复核触发器。
 
 ## 相关文档
 
 | 文档 | 单一职责 |
 |---|---|
-| [../explanations/vision.md](../explanations/vision.md) | Product Constitution 与最高产品边界 |
-| [release-1-contract.md](release-1-contract.md) | Gate C 与截至 2026-07-20 的 follow-up decisions 已 ratified；合入 `develop` 后为 current effective Release 1 Contract |
+| [../product/vision.md](../product/vision.md) | Product Vision & Principles 与最高产品边界 |
+| [Release 1 PRD](../product/release-1-prd.md) | Gate C 与截至 2026-07-20 的 follow-up decisions 已 ratified；合入 `develop` 后为 current effective Release 1 PRD |
 | [local-library-data-contract.md](local-library-data-contract.md) | 单一本地资料库 inventory、路径、generation / journal 与恢复生命周期 |
 | [feature-status.md](feature-status.md) | 自动生成的当前实现状态 |
 | [../features/](../features/) | 单功能 Why / What / How / Verify |

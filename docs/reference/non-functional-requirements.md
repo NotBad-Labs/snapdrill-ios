@@ -7,7 +7,7 @@ freshness:
 ---
 # SnapDrill 非功能需求（NFR）
 
-> 性能、隐私、存储、兼容性的量化标准。单功能行为见 feature spec；本次发布范围与验收见当前 Release Product Contract，`scope-and-roadmap.md` 只维护候选与重入边界。
+> 性能、隐私、存储、兼容性的量化标准。单功能行为见 feature spec；本次发布范围与验收见当前 Release PRD，`scope-and-roadmap.md` 只维护候选与重入边界。
 
 ---
 
@@ -66,7 +66,7 @@ freshness:
 | **最低 iOS** | 26.0 |
 | **设备** | Release 1 仅支持可运行 iOS 26 的 iPhone；退出 Apple Silicon Mac / Apple Vision Pro compatibility distribution；iPad 或兼容平台重入需新裁决 |
 | **屏幕尺寸** | Release 1 iPhone viewport 集合；现有 regular-size 代码不构成 iPad 支持声明 |
-| **方向** | 只消费 [Release 1 Contract ORI-A](release-1-contract.md#7-明确非目标与隐藏能力)；本表不另定义 shell 或媒体方向 |
+| **方向** | 只消费 [Release 1 PRD ORI-A](../product/release-1-prd.md#7-明确非目标与隐藏能力)；本表不另定义 shell 或媒体方向 |
 | **分屏** | 不属于 Release 1；iPad 重入时重新定义 |
 | **国际化** | 英文 + 简体中文，App 内可切换 |
 | **深色模式** | 跟随系统 / 浅色 / 深色 三选项 |
@@ -102,4 +102,4 @@ freshness:
 ## 同步与网络
 
 > **占位**：当前 MVP 为端上处理 + 本地存储，无跨设备同步、无网络依赖。
-> Apple 私有同步只是候选。新的 Product / Data / Privacy / Release Contract 生效时，再补同步延迟、冲突策略和离线降级 SLO；旧 #485 不构成重入授权。
+> Apple 私有同步只是候选。新的 Product / Data / Privacy / Release PRD 生效时，再补同步延迟、冲突策略和离线降级 SLO；旧 #485 不构成重入授权。

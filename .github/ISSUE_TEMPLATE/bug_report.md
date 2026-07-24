@@ -26,7 +26,7 @@ assignees: ""
 
 ## 权威 / Oracle
 
-<!-- 期望来自哪一条 Release Contract、feature/data/privacy contract、平台规范或回归测试？ -->
+<!-- 期望来自哪一条 Release PRD、feature/data/privacy contract、平台规范或回归测试？ -->
 
 ## Current Admission
 

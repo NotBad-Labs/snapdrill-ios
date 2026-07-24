@@ -16,8 +16,8 @@ assignees: ""
 
 ## 权威与决策状态
 
-- Product Constitution principle：
-- Release Product Contract disposition：
+- Product Vision & Principles principle：
+- Release PRD disposition：
 - Owning feature spec / policy / typed decision：
 - Lifecycle：exploration / shaped candidate / ratified / effective / superseded
 

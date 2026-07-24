@@ -21,7 +21,7 @@ release_outcomes:
 
 # Feature: 首页概览（Dashboard）
 
-> **Release 1 目标（2026-07-14）**：[Release 1 Contract](../../reference/release-1-contract.md) C3 规定普通启动默认进入 Dashboard，并将其收敛为核心任务入口和可执行状态概览；不批准现有卡片或五 Tab。C2-Personalization 隐藏身份装饰，C4-D 只允许 Review 在非公开实验 build 从 Library 次级入口出现。当前实现与该目标仍有偏差，合同生效不单独授权代码修改。
+> **Release 1 目标（2026-07-14）**：[Release 1 PRD](../../product/release-1-prd.md) C3 规定普通启动默认进入 Dashboard，并将其收敛为核心任务入口和可执行状态概览；不批准现有卡片或五 Tab。C2-Personalization 隐藏身份装饰，C4-D 只允许 Review 在非公开实验 build 从 Library 次级入口出现。当前实现与该目标仍有偏差，合同生效不单独授权代码修改。
 
 > 人读摘要：🛠 当前实现收敛中（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 扫描各 spec 的 frontmatter **自动生成**，禁止手改（pre-commit 校验）。
@@ -62,7 +62,7 @@ release_outcomes:
 - **NFR**：首页加载与刷新不阻塞主线程；`reviewDataDidChange` 刷新去抖避免高频抖动；无额外埋点要求。
 
 
-## 5. Release 1 Contract（首页概览 / 统计 / 锁态）
+## 5. Release 1 PRD（首页概览 / 统计 / 锁态）
 
 ### A. 首页状态与导航
 
@@ -94,8 +94,8 @@ release_outcomes:
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P5 成人生产力工具） | 首页直接服务采集、续作和找回，不用统计或可选 Review 主导入口 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Personalization / C3 / C4-D | 普通启动默认 Dashboard；Capture / Library 一步可达；禁止 Profile / Pro / analytics / Review hero |
+| Vision | `../../product/vision.md`（P1 采集摩擦最低 / P2 简洁 / P5 成人生产力工具） | 首页直接服务采集、续作和找回，不用统计或可选 Review 主导入口 |
+| Release 1 PRD | `../../product/release-1-prd.md` C2-Personalization / C3 / C4-D | 普通启动默认 Dashboard；Capture / Library 一步可达；禁止 Profile / Pro / analytics / Review hero |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A：Release 1 免费、无广告、无 IAP） | 隐藏高级统计、Pro 与“稍后推出”锁态，不承担升级转化 |
 | 待验证假设 | 无（只读聚合，不独立验证假设） | — |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
@@ -103,6 +103,6 @@ release_outcomes:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（导航极简 / 核心价值链）
+- 原则：`../../product/vision.md`（导航极简 / 核心价值链）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 相关 / 依赖 feature：`feat-review.md`（SM-2 待回顾/已回顾口径）、`feat-library.md`（资料库总数 / 字段管理）、`feat-capture.md`（草稿恢复 / 采集入口）、`../backlog/feat-advanced-stats.md`（未获当前范围授权的候选）

@@ -4,7 +4,7 @@
 The source of truth is each `docs/features/**/feat-*.md` frontmatter
 `intent_refs`, `release_refs`, and active-feature `release_outcomes` fields.
 This script renders read-only forward and reverse indexes for durable intent,
-the effective Release Product Contract, and Release 1 Must ownership without
+the effective Release PRD, and Release 1 Must ownership without
 hand-syncing another status document.
 """
 from __future__ import annotations
@@ -102,13 +102,13 @@ def historical_adr_label(path: Path, label: str) -> str:
 
 
 def collect_vision_refs() -> dict[str, dict[str, str]]:
-    vision_path = DOCS_ROOT / "explanations" / "vision.md"
+    vision_path = DOCS_ROOT / "product" / "vision.md"
     text = vision_path.read_text(encoding="utf-8")
     refs: dict[str, dict[str, str]] = {}
     for match in re.finditer(r"^### (P\d+)\.\s+(.+)$", text, flags=re.MULTILINE):
         refs[f"vision:{match.group(1)}"] = {
             "label": match.group(2).strip(),
-            "path": "../explanations/vision.md",
+            "path": "../product/vision.md",
         }
     return refs
 
@@ -141,7 +141,7 @@ def fail(errors: list[str]) -> None:
     sys.exit(1)
 
 
-def parse_contract_list(
+def parse_prd_list(
     value: object,
     *,
     field: str,
@@ -168,7 +168,7 @@ def parse_contract_list(
 
 
 def collect_release_outcomes() -> list[str]:
-    path = DOCS_ROOT / "reference" / "release-1-contract.md"
+    path = DOCS_ROOT / "product" / "release-1-prd.md"
     outcomes = MUST_OUTCOME_PATTERN.findall(path.read_text(encoding="utf-8"))
     expected = [f"M{index}" for index in range(1, 11)]
     if outcomes != expected:
@@ -190,7 +190,7 @@ def collect_release_operations_refs(
     if fm is None:
         fail([f"{rel(path)}: missing frontmatter"])
 
-    refs, errors = parse_contract_list(
+    refs, errors = parse_prd_list(
         fm.get("release_refs"),
         field="release_refs",
         path=path,
@@ -253,7 +253,7 @@ def collect_release_oracles(outcomes: list[str]) -> dict[str, dict[str, str]]:
     row_ids = [row[0] for row in rows]
     if row_ids != outcomes:
         errors.append(
-            f"{rel(path)}: M1-M10 oracle rows must match Contract order exactly; "
+            f"{rel(path)}: M1-M10 oracle rows must match PRD order exactly; "
             f"found {row_ids}"
         )
     for outcome, oracle, owner in rows:
@@ -270,18 +270,18 @@ def collect_release_oracles(outcomes: list[str]) -> dict[str, dict[str, str]]:
 
 
 def collect_release_refs() -> tuple[dict[str, dict[str, str | None]], set[str]]:
-    path = DOCS_ROOT / "reference" / "release-1-contract.md"
+    path = DOCS_ROOT / "product" / "release-1-prd.md"
     fm = parse_frontmatter(path)
     if fm is None:
         fail([f"{rel(path)}: missing frontmatter"])
 
-    ratified, errors = parse_contract_list(
+    ratified, errors = parse_prd_list(
         fm.get("ratified_decisions"),
         field="ratified_decisions",
         path=path,
         allow_empty=False,
     )
-    pending, pending_errors = parse_contract_list(
+    pending, pending_errors = parse_prd_list(
         fm.get("pending_decisions"),
         field="pending_decisions",
         path=path,
@@ -293,14 +293,14 @@ def collect_release_refs() -> tuple[dict[str, dict[str, str | None]], set[str]]:
     if overlap:
         errors.append(f"{rel(path)}: decisions cannot be both ratified and pending {overlap}")
 
-    contract_text = path.read_text(encoding="utf-8")
-    body_ratified = RATIFIED_DECISION_PATTERN.findall(contract_text)
+    prd_text = path.read_text(encoding="utf-8")
+    body_ratified = RATIFIED_DECISION_PATTERN.findall(prd_text)
     if body_ratified != ratified:
         errors.append(
             f"{rel(path)}: ratified_decisions frontmatter must match RATIFIED "
             f"decision-summary rows exactly; frontmatter={ratified}, body={body_ratified}"
         )
-    if SECTION_7_HEADING not in contract_text.splitlines():
+    if SECTION_7_HEADING not in prd_text.splitlines():
         errors.append(f"{rel(path)}: missing exact heading '{SECTION_7_HEADING}'")
 
     if errors:
@@ -311,12 +311,12 @@ def collect_release_refs() -> tuple[dict[str, dict[str, str | None]], set[str]]:
         ref = f"{RELEASE_REF_PREFIX}{decision}"
         known_refs[ref] = {
             "label": decision,
-            "path": "release-1-contract.md",
+            "path": "../product/release-1-prd.md",
             "operations_consumer": None,
         }
     known_refs[SECTION_7_REF] = {
         "label": "§7 明确非目标与隐藏能力",
-        "path": "release-1-contract.md",
+        "path": "../product/release-1-prd.md",
         "operations_consumer": None,
     }
     pending_refs = {f"{RELEASE_REF_PREFIX}{decision}" for decision in pending}
@@ -631,7 +631,7 @@ def render_release_outcome_index(
         )
         oracle = oracles[outcome]
         lines.append(
-            f"| [`{outcome}`](release-1-contract.md#31-must-outcomes) | "
+            f"| [`{outcome}`](../product/release-1-prd.md#31-must-outcomes) | "
             f"{linked_features} | {oracle['oracle']} | {oracle['owner']} |"
         )
     lines.append("")
@@ -680,8 +680,8 @@ def render(
         "",
         "> ⚠️ 本文件由 `Scripts/generate_intent_traceability.py` 自动生成，**禁止手动编辑**。",
         "> 来源 = 各 `docs/features/**/feat-*.md` frontmatter 的 `intent_refs` / `release_refs` / `release_outcomes`；",
-        "> Release 1 精确 ID 从 effective `release-1-contract.md` 的 `ratified_decisions` 读取。",
-        "> 实现状态只描述代码路径，不证明 Release 1 合同符合、公开可达或发布就绪。",
+        "> Release 1 精确 ID 从 effective `docs/product/release-1-prd.md` 的 `ratified_decisions` 读取。",
+        "> 实现状态只描述代码路径，不证明 Release 1 PRD 符合、公开可达或发布就绪。",
         "> `release_refs` 只表示 Feature 消费 / 追溯边，不把 Feature 变成上游裁决 owner；",
         "> `release_outcomes` 与 operational oracle 行只证明 owner / proof-plan 声明完整；",
         "> 它们不证明语义正确、实现符合、M1-M10 已执行证据、Capability Manifest inclusion 或发布授权。",

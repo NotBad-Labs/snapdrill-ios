@@ -12,7 +12,7 @@ check, shape the task further or ask PO instead of silently choosing.
 Every task entering the bet, active write, or frozen merge queue needs a
 **current admission brief**.
 This is an internal execution record, not a fourth product SSOT: it points to
-effective authority instead of restating Product Constitution, the Release
+effective authority instead of restating Product Vision & Principles, the Release
 Product Contract, or feature specs.
 
 An issue, PR, audit, report, chat handoff, label, historical PO comment or
@@ -79,7 +79,7 @@ again merely because the implementation is user-visible.
 
 ## Standing Delegation
 
-PO 于 2026-07-20 批准常设委托（历史代号 P-A）：现有 Release Product Contract 承担该次发布的唯一 PRD，不新增
+PO 于 2026-07-20 批准常设委托（历史代号 P-A）：现有 Release PRD 承担该次发布的唯一 PRD，不新增
 平行 `PRD.md`；Gate P 期间暂停新的 non-blocker feature 投入；当前已接受 bet 内的 Green 任务
 可由 owning agent 自主推进至 Draft PR。该委托减少重复操作授权，不转移产品、合并或发布
 决策权。
@@ -104,9 +104,9 @@ Release scope。
 PO rulings live in their authority document, not in this file. Examples:
 
 - durable product / data / commercial / platform rulings -> Product
-  Constitution at `docs/explanations/vision.md` and its direct policy owner
+  Constitution at `docs/product/vision.md` and its direct policy owner
 - current-release scope / non-goal / acceptance rulings -> the current dated
-  Release Product Contract
+  Release PRD
 - positioning rulings -> `docs/explanations/positioning-and-audience.md`
 - architecture rulings -> typed `docs/decisions/ADR-*.md`
 - feature behavior rulings -> the owning `docs/features/*/feat-*.md`

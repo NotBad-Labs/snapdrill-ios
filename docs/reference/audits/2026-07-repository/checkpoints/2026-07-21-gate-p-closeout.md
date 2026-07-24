@@ -30,8 +30,8 @@ below was reopened against the exact live base and effective owning documents.
 
 ## Effective Inputs
 
-1. Product Constitution: `docs/explanations/vision.md`
-2. Release 1 Product Contract: `docs/reference/release-1-contract.md`
+1. Product Constitution: `docs/product/vision.md`
+2. Release 1 Product Contract: `docs/product/release-1-prd.md`
 3. Active feature specs under `docs/features/active/`
 4. Release proof-plan owner: `docs/how-to/release-and-ci.md`
 

@@ -20,7 +20,7 @@ release_refs:
 > `mode: lightweight`（backlog）：仅 Why + What 必填；How / Verify 只记录当前已确认约束，未实现部分标注，不编造假设计。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / business / journeys / tech 聚合（docs 重组 B）。
 >
-> **商业规范偏差（2026-07-12）**：B4-A 只把 Apple 私有同步保留为独立假设，B6-A 已取代旧 Pro 分层，B7-A 也不包含 iPad；frontmatter 已改为 `tier: undecided`。新的 Product / Data / Privacy / Commercial contract 与 Release Contract 生效前不得实现或公开承诺。
+> **商业规范偏差（2026-07-12）**：B4-A 只把 Apple 私有同步保留为独立假设，B6-A 已取代旧 Pro 分层，B7-A 也不包含 iPad；frontmatter 已改为 `tier: undecided`。新的 Product / Data / Privacy / Commercial contract 与 Release PRD 生效前不得实现或公开承诺。
 
 ## 1. 候选价值假设 (Why)
 
@@ -34,10 +34,10 @@ release_refs:
 - 同步范围必须是一个资料库；冲突、删除、离线、空间不足、备份共存和退出后的数据权利均需新的 Data / Privacy Contract 明确。
 - 手动备份 / 恢复始终保留为独立出口；同步异常不得锁定、隐藏或损坏本地资料。
 - 当前无 Pro、StoreKit、价格或订阅取消规则；ADR-001 的商业分层和 iPad 闭环只作历史证据。
-- 前置包括外部价值证据、PO 新裁决、CloudKit PoC、容器与签名配置、隐私复核、Release Contract 和完整同步测试；#485 只是技术 issue，不能自行授权实现。
+- 前置包括外部价值证据、PO 新裁决、CloudKit PoC、容器与签名配置、隐私复核、Release PRD 和完整同步测试；#485 只是技术 issue，不能自行授权实现。
 
 ## 3. 技术设计 (How)
-> backlog：以下只记录当前关闭状态与候选技术边界；同步引擎细节等待新的 Product / Data / Privacy / Release Contract，**不在此编造假实现**。
+> backlog：以下只记录当前关闭状态与候选技术边界；同步引擎细节等待新的 Product / Data / Privacy / Release PRD，**不在此编造假实现**。
 - **当前实现状态**：所有 `@Model` 默认 `cloudKitDatabase: .none`（显式关闭）；旧 `ProEntitlementProvider` / Profile 相关路径仅是遗留代码背景。
 - **启用路径**：未裁决。不得从旧 StoreKit、Profile 或 CloudKit issue 链推导未来架构。
 - **State & Concurrency**（Swift 6 strict）：同步落库走 SwiftData `ModelContainer`（由 `DataExecutor` actor 拥有），重活不阻塞主线程；其余 actor/State 归属待解锁实现时定（PoC 阶段填）。
@@ -45,15 +45,15 @@ release_refs:
 
 ## 4. 验证标准 (Verify)
 
-> 当前不在 Release 1 范围，且生产配置显式关闭。新的 Product / Data / Privacy / Commercial / Release Contract 生效后再定义多设备 GWT、冲突策略、离线降级、延迟 SLO、退出行为和恢复演练；在此之前不得显示同步或升级入口。
+> 当前不在 Release 1 范围，且生产配置显式关闭。新的 Product / Data / Privacy / Commercial / Release PRD 生效后再定义多设备 GWT、冲突策略、离线降级、延迟 SLO、退出行为和恢复演练；在此之前不得显示同步或升级入口。
 
 
 ## 意图追溯（永久保留）
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P4 用户拥有数据·隐私 / P6 Apple 原生优先） | 同步基于系统级 CloudKit、Apple 加密、SnapDrill 不接触；不引入第三方同步层 |
-| Release 1 Contract | `../../reference/release-1-contract.md` §7 (`release-1:section-7`) | CloudKit / Apple 私有同步是 Release 1 明确非目标；该引用只固定隐藏边界，不表示候选纳入 |
+| Vision | `../../product/vision.md`（P4 用户拥有数据·隐私 / P6 Apple 原生优先） | 同步基于系统级 CloudKit、Apple 加密、SnapDrill 不接触；不引入第三方同步层 |
+| Release 1 PRD | `../../product/release-1-prd.md` §7 (`release-1:section-7`) | CloudKit / Apple 私有同步是 Release 1 明确非目标；该引用只固定隐藏边界，不表示候选纳入 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A）；`../../decisions/ADR-003-dual-region-release.md`（挂起历史） | 当前无有效 Pro 或区域同步承诺；手动备份永久免费 |
 | 待验证假设 | `../../explanations/business-model.md` H7 | 先验证多设备价值，不预设付费理由 |
 | 验收证据 | 新 contract 生效后补；当前 `cloudKitDatabase: .none` | 见本 spec Verify 节 |
@@ -61,7 +61,7 @@ release_refs:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P4 数据属于用户 / P6 原生优先）
+- 原则：`../../product/vision.md`（P4 数据属于用户 / P6 原生优先）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 商业假设：`../../explanations/business-model.md`
 - 历史决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`、`../../decisions/ADR-003-dual-region-release.md`（均非当前实现授权）

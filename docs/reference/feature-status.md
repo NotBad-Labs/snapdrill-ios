@@ -2,7 +2,7 @@
 
 > ⚠️ 本文件由 `Scripts/generate_feature_status.py` 自动生成，**禁止手动编辑**。
 > 实现状态唯一来源 = 各 `docs/features/**/feat-*.md` 的 frontmatter（B 方案 · 自动单写）。
-> `实现存在` 只表示 live code 已有对应路径；不表示符合 Release 1 Contract、公开可达或发布就绪。
+> `实现存在` 只表示 live code 已有对应路径；不表示符合 Release 1 PRD、公开可达或发布就绪。
 > 改状态 = 改对应 spec 的 frontmatter 后重跑脚本（pre-commit 自动校验是否最新）。
 
 | 功能 | 实现状态 | 层级 | 阻塞 | 模式 | 最后更新 |

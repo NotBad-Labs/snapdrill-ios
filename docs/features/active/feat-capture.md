@@ -41,7 +41,7 @@ release_outcomes:
 ## 1. 为什么做 (Why)
 - **痛点 / 价值**：用户从打开 App 到存好一条资料，步骤越少、耗时越短越好——任何增加录入摩擦的设计都是反模式。用户的真实拍摄场景远比实验室恶劣（夜晚昏暗光线、揉皱的纸张、红蓝黑笔交错、阴影和折痕），对复杂物理环境的鲁棒性是核心技术考量。
 - **定位**：采集是产品价值链（采集 → 管理 → 导出/打印）的**第一环、最高频场景**。主路径必须是图片（拍照 / 选图 / 扫描），因为 OCR 文字是辅助、图片是真相（含公式、图形、批注）；CSV 等数据导入定位为数据可携带权场景，不与拍照同级展示。
-- **原则归属**：P1 录入体验是生命线（最高优先级）+ P2 简洁（录入路径最短）+ P4 数据属于用户（端上 OCR、不上传、隐私）+ P6 原生优先（Vision / VisionKit）。详见 `../../explanations/vision.md`。
+- **原则归属**：P1 录入体验是生命线（最高优先级）+ P2 简洁（录入路径最短）+ P4 数据属于用户（端上 OCR、不上传、隐私）+ P6 原生优先（Vision / VisionKit）。详见 `../../product/vision.md`。
 
 ## 2. 需求规则 (What)
 - **当前多入口实现与 Release 1 分类**：
@@ -74,7 +74,7 @@ release_outcomes:
   - 剪贴板 / 手动 → `CaptureMethodCard` 手动入口 → ManualEdit；纯文本路径走 `CaptureResultView`（不依赖 OCR，允许无图保存，Image is Truth 例外）
   - Share Extension → `SnapDrillShare` Extension target（系统 ShareSheet，通过 App Groups 共享容器；进入后直接进裁剪/编辑 → 保存）
 - **关键机制 / 数据流**：图片来源进入裁剪（`ImageCropperView`，依赖 Mantis）→ 对图片执行 OCR（端上 Vision；当前实现语言配置仍含遗留 Profile 偏好）→ 识别结果可编辑 / 可复制但不阻塞保存 → Repository 原子性写入资料、图片引用、OCR 文本与元数据。图片**只存裁剪压缩后的副本**；产品接受边界只见 [S1-A](../../reference/local-library-data-contract.md#21-release-1-内容与图片接受边界s1-a)，JPEG quality 0.8 与约 200KB / 张只是当前实现 / 测量基准，不修改用户原始照片。
-  - **实现现状（待单资料库重基线）**：当前 OCR 语言配置仍经 Profile 相关偏好表达。B5-A 后不得新增 Profile 语言感知需求；B7-A 的英文 / 简体中文只约束产品 UI 语言，OCR 识别语言集合（含已落地的繁体识别）由 Release Contract 与识别质量证据另行裁定。
+  - **实现现状（待单资料库重基线）**：当前 OCR 语言配置仍经 Profile 相关偏好表达。B5-A 后不得新增 Profile 语言感知需求；B7-A 的英文 / 简体中文只约束产品 UI 语言，OCR 识别语言集合（含已落地的繁体识别）由 Release PRD 与识别质量证据另行裁定。
 - **EXIF 隐私铁律**：图片入库前必须经 `ImageStorage` 剥离 GPS / 位置信息（保存前清除）。
 - **State & Concurrency**（Swift 6 strict）：采集 View 由 `@Observable` ViewModel（`@MainActor`：`CaptureViewModel` / `CaptureResultViewModel`）驱动；OCR、图片压缩与落库等重活经 Core service / Repository → `DataExecutor`（actor 拥有 `ModelContainer`，`createOffMainActor()` 消除 MainActor+XPC 死锁 #599），不阻塞主线程；保存后通过 `Notification.Name.reviewDataDidChange` 跨模块刷新 Dashboard / Review。采集流程必须 `AppActivityTracker.begin(...)` → ... → `end(...)`；当前用于阻止 Profile 切换，单资料库实现中应继续保护并发数据一致性。
 - **设计现状**：采集当前是标准 Tab；Release 1 只要求从 Dashboard 一次操作可达，不批准五 Tab 结构。Share Extension 是 Candidate optional 的系统级扩展，不构成主导航承诺。
@@ -153,8 +153,8 @@ release_outcomes:
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P6 Apple 原生优先） | 采集是价值链第一环；主路径图片、OCR 辅助不阻塞保存；端上 OCR 不上传；Apple Vision / VisionKit 原生 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Image / C2-Optional / S1-A / P1-A | Must 输入、确认裁剪后的 App-managed 图片真相、手动 / 剪贴板 / Share Extension 的默认隐藏边界、Local Library Data Contract 统一拥有的输入接受边界，以及未保存草稿不按时间自动删除的生命周期 |
+| Vision | `../../product/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P6 Apple 原生优先） | 采集是价值链第一环；主路径图片、OCR 辅助不阻塞保存；端上 OCR 不上传；Apple Vision / VisionKit 原生 |
+| Release 1 PRD | `../../product/release-1-prd.md` C2-Core / C2-Image / C2-Optional / S1-A / P1-A | Must 输入、确认裁剪后的 App-managed 图片真相、手动 / 剪贴板 / Share Extension 的默认隐藏边界、Local Library Data Contract 统一拥有的输入接受边界，以及未保存草稿不按时间自动删除的生命周期 |
 | 产品政策 / ADR | `../../decisions/ADR-005-analytics-privacy-strategy.md`（全球零后端行为采集） | 采集不产生任何后端行为上报；图片入库前剥离 EXIF GPS / 位置信息 |
 | 待验证假设 | `../../explanations/assumptions.md` H1（首次能完成采集与保存）/ H2（管理需求成立） | 采集首次达成的成败直接验证 H1 |
 | 验收证据 | §4 验证标准 GWT + AllTests + 真机录入 | 见本 spec Verify 节 |
@@ -162,7 +162,7 @@ release_outcomes:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P6 原生优先）
+- 原则：`../../product/vision.md`（P1 采集摩擦最低 / P2 简洁 / P4 用户拥有数据 / P6 原生优先）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（旅程 1 首次采集 / 旅程 2 长期归档（含导入与一图多题）/ 旅程 3 证书培训资料）
 - 决策：`../../decisions/ADR-005-analytics-privacy-strategy.md`（全球生产零后端行为采集；OCR 端上处理）

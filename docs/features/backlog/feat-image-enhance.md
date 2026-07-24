@@ -20,7 +20,7 @@ release_refs:
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business 聚合（docs 重组 B）。
 > `mode: lightweight`：尚未实现且需第三方端上方案 PoC，How / Verify 待 PoC 落地后补，**不为未实现功能编造假设计**。
 >
-> **商业规范偏差（2026-07-12）**：Product Constitution B6-A 已取代旧“免费限次 + Pro 无限”分层，frontmatter 已改为 `tier: undecided`。技术 PoC 也不能替代外部价值证据、商业裁决与 Release Product Contract。
+> **商业规范偏差（2026-07-12）**：Product Vision & Principles B6-A 已取代旧“免费限次 + Pro 无限”分层，frontmatter 已改为 `tier: undecided`。技术 PoC 也不能替代外部价值证据、商业裁决与 Release PRD。
 
 ## 1. 候选价值假设 (Why)
 
@@ -37,7 +37,7 @@ release_refs:
   - 与"去答案打印"（隐藏答案字段、布局层面操作）是不同层面，不合并、不混淆。
 - **前置依赖**：
   - **第三方端上方案 PoC**：Go 条件 = 端上方案可用、SDK < 50MB、去手写准确率 ≥ 80%；No-Go = 所有方案均需云端或准确率 < 60%。
-  - **产品重入**：外部价值证据、PO 新裁决、Release Contract 与隐私 / 第三方依赖复核缺一不可；StoreKit issue 不能自行授权实现。
+  - **产品重入**：外部价值证据、PO 新裁决、Release PRD 与隐私 / 第三方依赖复核缺一不可；StoreKit issue 不能自行授权实现。
 - **商业政策**：B6-A 下当前无有效 Pro 层；未来商业化未裁决。
 
 ## 3. 技术设计 (How) — 只放实现机制，不放商业/上位 why
@@ -60,8 +60,8 @@ release_refs:
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P3 免费层完成核心闭环 / P4 用户拥有数据·隐私） | 增值能力不锁基础；端上处理、图片不上传服务端 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Optional | §3.2 将图片增强列为 hidden / out of scope；不得伪引 §7，也不表示当前候选获准纳入 |
+| Vision | `../../product/vision.md`（P3 免费层完成核心闭环 / P4 用户拥有数据·隐私） | 增值能力不锁基础；端上处理、图片不上传服务端 |
+| Release 1 PRD | `../../product/release-1-prd.md` C2-Optional | §3.2 将图片增强列为 hidden / out of scope；不得伪引 §7，也不表示当前候选获准纳入 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | 当前无有效 Pro、配额或 upsell；与布局层去答案保持独立 |
 | 待验证假设 | `../../explanations/business-model.md` H8 | 先以 PoC + 外部使用证据验证价值，不预设转化 |
 | 验收证据 | 等待端上 PoC、外部价值证据与新 contract（backlog lightweight） | 见本 spec Verify 节 |
@@ -69,7 +69,7 @@ release_refs:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P3 免费层完成核心闭环 / P4 数据属于用户·隐私）
+- 原则：`../../product/vision.md`（P3 免费层完成核心闭环 / P4 数据属于用户·隐私）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`
 - 历史决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（已被 B6-A 取代）

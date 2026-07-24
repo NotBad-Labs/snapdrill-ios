@@ -13,9 +13,9 @@ freshness:
 ---
 # ADR-001: 智能组卷与高级统计定价模型
 
-> 状态：**已被 Product Constitution v1 / Gate B6-A 取代，保留为历史记录** | 原决策日期：2026-04-10 | 取代裁决：2026-07-12 | 决策者：PO
+> 状态：**已被 Product Vision & Principles / Gate B6-A 取代，保留为历史记录** | 原决策日期：2026-04-10 | 取代裁决：2026-07-12 | 决策者：PO
 >
-> 本 ADR 的 Hybrid 配额、Pro 分层和转化联动不再是当前商业权威。Release 1 免费、无广告、无 IAP，未来 Pro / 定价只是候选假设；现行政策见 [`business-model.md`](../explanations/business-model.md)。Release 1 Contract C5-E / C5-S1 只允许 SmartPaper 在非公开实验 build 无配额、无 Pro 地出现，并固定无权重不重复基础 selector；当前代码中的配额与 Pro 分支只是实现偏差，不得从本历史 ADR 反推。
+> 本 ADR 的 Hybrid 配额、Pro 分层和转化联动不再是当前商业权威。Release 1 免费、无广告、无 IAP，未来 Pro / 定价只是候选假设；现行政策见 [`business-model.md`](../explanations/business-model.md)。Release 1 PRD C5-E / C5-S1 只允许 SmartPaper 在非公开实验 build 无配额、无 Pro 地出现，并固定无权重不重复基础 selector；当前代码中的配额与 Pro 分支只是实现偏差，不得从本历史 ADR 反推。
 
 ## 背景
 

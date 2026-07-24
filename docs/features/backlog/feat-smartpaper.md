@@ -23,7 +23,7 @@ release_refs:
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / architecture 聚合（docs 重组 B）。
 > `mode: lightweight`：How / Verify 同时标明 Release 1 实验边界与当前实现偏差，不把实验自动提升为公开发布规格。
 >
-> **商业规范偏差（2026-07-14）**：Product Constitution B6-A 已取代 ADR-001 的 Hybrid / Pro 分层，frontmatter 保持 `tier: undecided`。07-01 的配额、导出完成才扣费与入口裁决只作 tracked 历史；Release 1 实验可见时不得保留配额或 Pro，选择器不得读取 Review、难度、时间、内容或其他衍生排序。合同生效不单独授权实现。
+> **商业规范偏差（2026-07-14）**：Product Vision & Principles B6-A 已取代 ADR-001 的 Hybrid / Pro 分层，frontmatter 保持 `tier: undecided`。07-01 的配额、导出完成才扣费与入口裁决只作 tracked 历史；Release 1 实验可见时不得保留配额或 Pro，选择器不得读取 Review、难度、时间、内容或其他衍生排序。合同生效不单独授权实现。
 
 ## 1. 候选价值假设 (Why)
 
@@ -36,7 +36,7 @@ release_refs:
 - 实验能力是选择基础分类范围与资料数量，从未删除的合格资料中无权重、不重复随机抽取 `min(N, eligible)`，并复用 PDF 导出管线生成可预览、打印、分享或保存的资料集。
 - 只允许 `po-only` / `research` build 从 Library 的一个静态次级工具入口开放；`public-candidate` 完全隐藏。达到 cohort 门槛只触发新裁决，不自动公开。
 - 只能读取唯一资料库；不得引入 Profile 产品语义，不得绕开手动导出或削弱数据权利。
-- B6-A 下当前不得显示 Pro 引导、付费锁态、订阅档差异或“敬请期待”。现有配额耗尽 Toast 与不可达 Pro 分支是实现偏差，等待后续 implementation slice 依据 Release Contract 处理。
+- B6-A 下当前不得显示 Pro 引导、付费锁态、订阅档差异或“敬请期待”。现有配额耗尽 Toast 与不可达 Pro 分支是实现偏差，等待后续 implementation slice 依据 Release PRD 处理。
 - PDF 输出复用 `PDFExportService` 是现有技术事实；是否继续采用由实现 review 决定。
 
 ## 3. 当前实现结构 (How) — 遗留实证，不是产品 oracle
@@ -66,8 +66,8 @@ release_refs:
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P4 用户拥有数据） | SmartPaper 只能是可选附加值，不侵蚀核心路径或数据权利 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C5-E / C5-S1 | 仅指定 audience 的单一 Library 入口实验；可见即不限次、无 Pro；基础 selector 无权重且不重复；达到 cohort 门槛也只触发重新裁决 |
+| Vision | `../../product/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P4 用户拥有数据） | SmartPaper 只能是可选附加值，不侵蚀核心路径或数据权利 |
+| Release 1 PRD | `../../product/release-1-prd.md` C5-E / C5-S1 | 仅指定 audience 的单一 Library 入口实验；可见即不限次、无 Pro；基础 selector 无权重且不重复；达到 cohort 门槛也只触发重新裁决 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | 当前无有效 Pro 层；不显示 upsell、付费锁态或“敬请期待” |
 | 待验证假设 | `../../explanations/business-model.md` H8 | 验证附加价值，不预设转化或配额模式 |
 | 验收证据 | §4 当前实现回归 + C5-E / C5-S1 实验边界 | 不把代码现状当产品 oracle，也不把实验结果自动提升为公开范围 |
@@ -75,7 +75,7 @@ release_refs:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（简洁裁决 / 可选附加值 / 功能算法非推荐算法）
+- 原则：`../../product/vision.md`（简洁裁决 / 可选附加值 / 功能算法非推荐算法）
 - 商业 / 定价：`../../explanations/business-model.md`
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 当前用户旅程：`../../explanations/user-journeys.md`（无 SmartPaper 旅程承接；高级统计联动仅是 ADR-001 历史构想）

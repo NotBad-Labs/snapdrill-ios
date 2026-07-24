@@ -1,6 +1,6 @@
 # Phase 02d Results: Product Constitution and Release Contract
 
-> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/product/vision.md` 与 `docs/product/release-1-prd.md`。
 
 ## Outcome
 
@@ -27,7 +27,7 @@ One physical mega-document is not the goal. The target is one authority graph in
 
 | Normative question | Single owner | Ratifier / maintenance boundary |
 |---|---|---|
-| mission, primary user problem, value promise, durable non-goals and principle order | `docs/explanations/vision.md` | PO ratifies; agents may clarify without changing meaning |
+| mission, primary user problem, value promise, durable non-goals and principle order | `docs/product/vision.md` | PO ratifies; agents may clarify without changing meaning |
 | audience, positioning and UI/marketing guardrails | `docs/explanations/positioning-and-audience.md` | PO ratifies; legal facts require qualified review |
 | cross-feature design rules | `docs/explanations/design-principles.md` | design DRI maintains; workflow/product changes return to PO |
 | free/Pro boundary, monetization posture and pricing policy | `docs/explanations/business-model.md` | PO ratifies; candidate prices and hypotheses stay explicitly non-normative |
