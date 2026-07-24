@@ -226,7 +226,7 @@ struct LibraryDetailView: View {
         .accessibilityIdentifier("library.detail.root")
         .task(id: item.imagePath) {
             guard let path = item.imagePath else { loadedImage = nil; return }
-            let image = await imageStorage.loadImageAsync(path: path)
+            let image = await imageStorage.loadDownsampledImageAsync(path: path, maxLongSide: 1600)
             if !Task.isCancelled { loadedImage = image }
         }
         .task(id: answerImageTaskID) {
@@ -234,7 +234,7 @@ struct LibraryDetailView: View {
                 loadedAnswerImage = nil
                 return
             }
-            let image = await imageStorage.loadImageAsync(path: path)
+            let image = await imageStorage.loadDownsampledImageAsync(path: path, maxLongSide: 1600)
             if !Task.isCancelled { loadedAnswerImage = image }
         }
         .navigationTitle(L10n.Library.detail)

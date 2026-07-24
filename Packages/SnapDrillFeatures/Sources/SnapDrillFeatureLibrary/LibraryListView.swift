@@ -340,9 +340,7 @@ private struct LibraryItemThumbnail: View {
             guard let imagePath else {
                 return
             }
-            image = await Task.detached {
-                imageStorage.loadDownsampledImage(path: imagePath, maxLongSide: 240)
-            }.value
+            image = await imageStorage.loadDownsampledImageAsync(path: imagePath, maxLongSide: 240)
         }
     }
 }
