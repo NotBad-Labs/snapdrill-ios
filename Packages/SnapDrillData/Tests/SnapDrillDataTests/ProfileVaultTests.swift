@@ -201,11 +201,9 @@ struct ProfileManagerIngestTests {
 
     private func makeRestoreRepositoriesLikeCoordinator(for profile: Profile, vault: ProfileVault) async -> RepositoryContainer {
         let executor = await DataExecutor.createOffMainActor(storeURL: vault.storeURL(for: profile.id))
-        let scope = ProfileScope(id: profile.id, name: profile.name)
         return RepositoryContainer(
             executor: executor,
-            scope: scope,
-            profileDirectory: vault.profileDirectory(for: profile.id)
+            imageStorage: ImageStorage(baseDirectory: vault.profileDirectory(for: profile.id))
         )
     }
 

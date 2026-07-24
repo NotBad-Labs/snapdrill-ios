@@ -16,8 +16,6 @@ import SnapDrillCore
 
 /// 数据仓库容器（具体类，直接注入到 SwiftUI Environment）
 public final class RepositoryContainer {
-    /// 当前 Profile 隔离作用域
-    public let scope: ProfileScope
     /// 归档资料仓库
     public let archive: ArchiveRepository
     /// 分类维度仓库（L3）
@@ -30,48 +28,32 @@ public final class RepositoryContainer {
     /// 生产路径必须保活 DataExecutor；其内部 ModelContainer 是各 repository 的 ModelContext 根所有者。
     private let executor: DataExecutor?
 
-    /// Profile 图片存储根目录（用于构造 scoped ImageStorage）
-    private let profileDirectory: URL?
+    /// 与 UI/runtime 共用的图片存储实例。
+    private let imageStorage: ImageStorage
 
     /// 创建仓库容器（生产路径）
     /// - Parameters:
     ///   - executor: DataExecutor，向所有子仓库传递其 mainContext
-    ///   - scope: 当前 Profile 的隔离作用域
-    ///   - profileDirectory: Profile 根目录（用于图片操作）
-    public init(executor: DataExecutor, scope: ProfileScope, profileDirectory: URL) {
+    ///   - imageStorage: 当前 runtime 的图片存储
+    public init(executor: DataExecutor, imageStorage: ImageStorage) {
         self.executor = executor
-        self.scope = scope
-        self.profileDirectory = profileDirectory
+        self.imageStorage = imageStorage
         self.dimension = CategoryDimensionRepository(executor: executor)
         self.categoryValue = CategoryValueRepository(executor: executor)
         self.archive = ArchiveRepository(
             executor: executor,
-            imageStorageFactory: {
-                ImageStorage(baseDirectory: profileDirectory, scope: scope)
-            }
+            imageStorageFactory: { imageStorage }
         )
     }
 
-    /// 创建仓库容器（测试/Preview 路径，scope 使用占位值）
+    /// 创建仓库容器（测试/Preview 路径）
     /// - Parameter modelContext: 共享的 ModelContext
     public init(modelContext: ModelContext) {
         self.executor = nil
-        self.scope = ProfileScope(id: UUID(), name: "Test")
-        self.profileDirectory = nil
+        self.imageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory)
         self.archive = ArchiveRepository(modelContext: modelContext)
         self.dimension = CategoryDimensionRepository(modelContext: modelContext)
         self.categoryValue = CategoryValueRepository(modelContext: modelContext)
-    }
-
-    // MARK: - Private
-
-    /// 构造当前 Profile 隔离的 ImageStorage。
-    /// 生产路径使用 profileDirectory + scope；测试路径 fallback 到临时目录。
-    private func makeImageStorage() -> ImageStorage {
-        if let dir = profileDirectory {
-            return ImageStorage(baseDirectory: dir, scope: scope)
-        }
-        return ImageStorage(baseDirectory: FileManager.default.temporaryDirectory)
     }
 
     // MARK: - 跨仓库协调操作
@@ -91,9 +73,8 @@ public final class RepositoryContainer {
             throw error
         }
         // save 成功后清理图片文件（best-effort，async 避免阻塞主线程）
-        let storage = makeImageStorage()
         for path in imagePaths {
-            try? await storage.deleteImage(path: path) // best-effort: 单张删除失败不中断整批清理
+            try? await imageStorage.deleteImage(path: path) // best-effort: 单张删除失败不中断整批清理
         }
     }
 
@@ -204,9 +185,8 @@ public final class RepositoryContainer {
             try archive.saveContext()
 
             // 5. save 成功后清理旧图片文件（best-effort，不影响数据一致性）
-            let storage = makeImageStorage()
             for path in oldImagePaths {
-                try? await storage.deleteImage(path: path) // best-effort: 单张删除失败不中断整批
+                try? await imageStorage.deleteImage(path: path) // best-effort: 单张删除失败不中断整批
             }
 
             // 6. 恢复成功，清理安全网备份

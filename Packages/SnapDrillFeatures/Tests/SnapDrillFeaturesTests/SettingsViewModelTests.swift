@@ -339,7 +339,6 @@ final class SettingsViewModelTests {
         #expect(manager.profiles.contains { $0.id == foreignProfileData.profileId })
         let restored = await makeRepositories(
             profileId: foreignProfileData.profileId,
-            profileName: foreignProfileData.profileName,
             vault: vault
         )
         #expect(try restored.archive.totalCount() == foreignProfileData.reviewItems.count)
@@ -436,12 +435,11 @@ final class SettingsViewModelTests {
         )
     }
 
-    private func makeRepositories(profileId: UUID, profileName: String, vault: ProfileVault) async -> RepositoryContainer {
+    private func makeRepositories(profileId: UUID, vault: ProfileVault) async -> RepositoryContainer {
         let executor = await DataExecutor.createOffMainActor(storeURL: vault.storeURL(for: profileId))
         return RepositoryContainer(
             executor: executor,
-            scope: ProfileScope(id: profileId, name: profileName),
-            profileDirectory: vault.profileDirectory(for: profileId)
+            imageStorage: ImageStorage(baseDirectory: vault.profileDirectory(for: profileId))
         )
     }
 

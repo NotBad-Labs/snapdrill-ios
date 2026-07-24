@@ -237,10 +237,40 @@ struct DataExecutorTests {
     @Test("RepositoryContainer 通过 DataExecutor 构造可正常工作")
     func repositoryContainerViaExecutor() throws {
         let executor = DataExecutor(inMemory: true)
-        let repos = RepositoryContainer(executor: executor, scope: ProfileScope(id: UUID(), name: "Test"), profileDirectory: FileManager.default.temporaryDirectory)
+        let repos = RepositoryContainer(
+            executor: executor,
+            imageStorage: ImageStorage(baseDirectory: FileManager.default.temporaryDirectory)
+        )
         repos.archive.insert(ArchiveItemModel.mock(content: "container via executor"))
         try repos.archive.saveContext()
         #expect(try repos.archive.totalCount() == 1)
+    }
+
+    @Test("RepositoryContainer 与 runtime 共用 ImageStorage")
+    func repositoryContainerUsesInjectedImageStorage() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("RepositoryContainerImageStorage_\(UUID().uuidString)", isDirectory: true)
+        let imageURL = root.appendingPathComponent("images/injected.jpg")
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        try FileManager.default.createDirectory(
+            at: imageURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try Data("fixture".utf8).write(to: imageURL)
+
+        let executor = DataExecutor(inMemory: true)
+        let repositories = RepositoryContainer(
+            executor: executor,
+            imageStorage: ImageStorage(baseDirectory: root)
+        )
+        let item = ArchiveItemModel.mock(content: "shared image storage")
+        item.imagePath = "images/injected.jpg"
+        try repositories.archive.insertAndSave(item)
+
+        try await repositories.archive.delete(id: item.id)
+
+        #expect(!FileManager.default.fileExists(atPath: imageURL.path))
     }
 
     private func createIncidentFixtures(

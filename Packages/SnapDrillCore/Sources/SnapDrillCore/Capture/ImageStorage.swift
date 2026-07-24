@@ -37,22 +37,13 @@ public struct ImageStorage: Sendable {
 
     // MARK: - Properties
 
-    /// 图片存储根目录（Profile 隔离目录）
+    /// 图片存储根目录
     private let baseDirectory: URL
     private let publishImage: ImagePublisher
 
     // MARK: - Initialization
 
-    /// 创建 Profile 隔离的图片存储服务（生产路径）
-    /// - Parameters:
-    ///   - baseDirectory: Profile 图片根目录（如 `profiles/<id>/`）
-    ///   - scope: Profile 隔离作用域（用于日志/调试）
-    nonisolated public init(baseDirectory: URL, scope: ProfileScope) {
-        self.baseDirectory = baseDirectory
-        publishImage = Self.publishImageLive
-    }
-
-    /// 使用显式根目录创建图片存储服务（备份、测试或 Preview 路径）
+    /// 使用显式根目录创建图片存储服务。
     /// - Parameter baseDirectory: 图片存储根目录
     nonisolated public init(baseDirectory: URL) {
         self.baseDirectory = baseDirectory

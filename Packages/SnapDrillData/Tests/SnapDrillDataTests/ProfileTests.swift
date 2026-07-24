@@ -156,7 +156,6 @@ struct ProfileErrorTests {
 
         #expect(manager.activeProfileId == nextProfile.id)
         #expect(manager.activeScope?.id == nextProfile.id)
-        #expect(manager.activeRepositories.scope.id == nextProfile.id)
     }
 }
 
