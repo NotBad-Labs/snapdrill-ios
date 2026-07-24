@@ -26,6 +26,19 @@ extension AccessibilityAuditUITests {
         return app
     }
 
+    func launchOnboarding() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "--uitesting",
+            "--ui-test-core-surface",
+            "-hasCompletedOnboarding", "NO",
+            "-AppleLanguages", "(zh-Hans)",
+            "-AppleLocale", "zh_CN"
+        ]
+        app.launch()
+        return app
+    }
+
     func openPrimaryTab(index: Int, root: String, in app: XCUIApplication) -> Bool {
         guard app.tabBars.firstMatch.waitForExistence(timeout: 10) else {
             return false
@@ -82,29 +95,6 @@ extension AccessibilityAuditUITests {
         }
         _ = app.staticTexts["正在生成..."].waitForNonExistence(timeout: 12)
         return true
-    }
-
-    func openSymbolPicker(in app: XCUIApplication) -> Bool {
-        let manageCategories = app.buttons["settings.manageCategories"]
-        scrollUntilHittable(manageCategories, in: app, maxSwipes: 10)
-        guard manageCategories.waitForExistence(timeout: 5) else {
-            return false
-        }
-        manageCategories.tap()
-
-        guard waitForElement("settings.categoryManager.root", in: app) else {
-            return false
-        }
-        app.buttons["dim.row.category"].tap()
-        guard waitForElement("dimValueList.root.category", in: app) else {
-            return false
-        }
-        app.buttons["dimValue.资料"].tap()
-        guard waitForElement("dimValueEdit.root", in: app) else {
-            return false
-        }
-        app.buttons["dimValueEdit.iconPicker"].tap()
-        return waitForElement("symbolPicker.category.common", in: app)
     }
 
     func waitForElement(

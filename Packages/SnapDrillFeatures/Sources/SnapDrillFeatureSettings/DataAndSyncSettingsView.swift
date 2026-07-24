@@ -113,39 +113,41 @@ struct DataAndSyncSettingsView: View {
                 Text(L10n.Settings.backupFooter)
             }
 
-            // 数据导入
-            Section {
-                Button {
-                    showingImportFilePicker = true
-                } label: {
-                    DataActionRow(
-                        title: L10n.Settings.importCSV,
-                        subtitle: L10n.Settings.importCSVSubtitle,
-                        systemImage: "square.and.arrow.down.fill",
-                        tint: .indigo,
-                        isLoading: isOperationActive(.importCSV)
-                    )
-                }
-                .disabled(viewModel.isBackupInProgress)
-                .accessibilityIdentifier("settings.dataAndSync.importCSV")
-
-                if isOperationActive(.importCSV) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        if !viewModel.backupStatusMessage.isEmpty {
-                            Text(viewModel.backupStatusMessage)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        ProgressView(value: viewModel.backupProgress, total: 1.0)
+            if SettingsReleaseSurface.exposesOptionalCapabilities {
+                // 数据导入
+                Section {
+                    Button {
+                        showingImportFilePicker = true
+                    } label: {
+                        DataActionRow(
+                            title: L10n.Settings.importCSV,
+                            subtitle: L10n.Settings.importCSVSubtitle,
+                            systemImage: "square.and.arrow.down.fill",
+                            tint: .indigo,
+                            isLoading: isOperationActive(.importCSV)
+                        )
                     }
-                    .padding(.vertical, 4)
-                    .accessibleGroup(label: viewModel.backupStatusMessage)
-                    .accessibilityIdentifier("settings.dataAndSync.importProgress")
+                    .disabled(viewModel.isBackupInProgress)
+                    .accessibilityIdentifier("settings.dataAndSync.importCSV")
+
+                    if isOperationActive(.importCSV) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            if !viewModel.backupStatusMessage.isEmpty {
+                                Text(viewModel.backupStatusMessage)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            ProgressView(value: viewModel.backupProgress, total: 1.0)
+                        }
+                        .padding(.vertical, 4)
+                        .accessibleGroup(label: viewModel.backupStatusMessage)
+                        .accessibilityIdentifier("settings.dataAndSync.importProgress")
+                    }
+                } header: {
+                    Text(L10n.Settings.importData)
+                } footer: {
+                    Text(L10n.Settings.importCSVFormat)
                 }
-            } header: {
-                Text(L10n.Settings.importData)
-            } footer: {
-                Text(L10n.Settings.importCSVFormat)
             }
         }
         .listStyle(.insetGrouped)

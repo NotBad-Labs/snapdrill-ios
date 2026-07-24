@@ -66,7 +66,7 @@ public struct OnboardingView: View {
         ZStack {
             Color(uiColor: .systemBackground)
                 .ignoresSafeArea()
-                .accessibilityIdentifier("onboarding.root")
+                .accessibilityHidden(true)
 
             VStack(spacing: 0) {
                 topBar
@@ -93,7 +93,10 @@ public struct OnboardingView: View {
                     Label(L10n.Onboarding.previous, systemImage: "chevron.backward")
                         .font(.subheadline.weight(.medium))
                 }
-                .tint(.secondary)
+                .buttonStyle(.plain)
+                .foregroundStyle(.primary)
+                .frame(minWidth: 44, minHeight: 44)
+                .contentShape(Rectangle())
                 .accessibilityIdentifier("onboarding.previous")
             }
 
@@ -103,10 +106,13 @@ public struct OnboardingView: View {
                 completeOnboarding()
             }
             .font(.subheadline.weight(.medium))
-            .tint(.secondary)
+            .buttonStyle(.plain)
+            .foregroundStyle(.primary)
+            .frame(minWidth: 44, minHeight: 44)
+            .contentShape(Rectangle())
             .accessibilityIdentifier("onboarding.skip")
         }
-        .frame(minHeight: 32)
+        .frame(minHeight: 44)
         .padding(.bottom, 4)
     }
 
@@ -138,6 +144,7 @@ public struct OnboardingView: View {
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.capsule)
             .controlSize(.large)
+            .tint(Color(red: 0.03, green: 0.29, blue: 0.60))
             .frame(maxWidth: .infinity)
             .accessibilityIdentifier(isLastPage ? "onboarding.getStarted" : "onboarding.next")
         }

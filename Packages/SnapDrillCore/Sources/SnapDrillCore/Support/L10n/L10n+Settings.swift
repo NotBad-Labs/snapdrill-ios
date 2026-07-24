@@ -35,7 +35,7 @@ nonisolated extension L10n {
         public static let storageManagement = NSLocalizedString("settings.storage_management", value: "存储管理", comment: "存储管理")
         public static let storageImages = NSLocalizedString("settings.storage_images", value: "资料图片", comment: "图片存储占用")
         public static let storageTotal = NSLocalizedString("settings.storage_total", value: "总占用", comment: "总存储占用")
-        public static let storageFooter = NSLocalizedString("settings.storage_footer", value: "显示当前资料空间的存储占用。图片会自动压缩以节省空间。", comment: "存储管理说明")
+        public static let storageFooter = NSLocalizedString("settings.storage_footer", value: "显示本地资料库的存储占用。图片会自动压缩以节省空间。", comment: "存储管理说明")
 
         // 通用
         public static let general = NSLocalizedString("settings.general", value: "通用", comment: "通用区标题")

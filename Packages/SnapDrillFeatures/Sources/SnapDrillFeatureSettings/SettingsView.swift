@@ -79,7 +79,7 @@ public struct SettingsView: View {
     public var body: some View {
         NavigationStack(path: $router.path) {
             List {
-                if exposesOptionalSurfacesForUITesting {
+                if SettingsReleaseSurface.exposesOptionalCapabilities {
                     Section {
                         NavigationLink {
                             EditProfileView()
@@ -128,7 +128,7 @@ public struct SettingsView: View {
                     .accessibilityHint(L10n.Accessibility.fieldAnswerHint)
                 }
 
-                if exposesOptionalSurfacesForUITesting {
+                if SettingsReleaseSurface.exposesOptionalCapabilities {
                     Section {
                         Text(L10n.Settings.reviewSettings)
                             .font(.headline)
@@ -214,14 +214,16 @@ public struct SettingsView: View {
                         .accessibilityAddTraits(.isHeader)
                 }
 
-                // 6. 分类管理（L3：分类/来源/级别 + 用户自定义维度统一入口）
-                Section(L10n.Settings.categoryManagement) {
-                    NavigationLink {
-                        CategoryManagerView()
-                    } label: {
-                        SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.manageCategories)
+                if SettingsReleaseSurface.exposesOptionalCapabilities {
+                    // 6. 分类管理（L3：分类/来源/级别 + 用户自定义维度统一入口）
+                    Section(L10n.Settings.categoryManagement) {
+                        NavigationLink {
+                            CategoryManagerView()
+                        } label: {
+                            SettingsRow(icon: "folder.fill", gradientStart: .blue, gradientEnd: .indigo, title: L10n.Settings.manageCategories)
+                        }
+                        .accessibilityIdentifier("settings.manageCategories")
                     }
-                    .accessibilityIdentifier("settings.manageCategories")
                 }
 
                 // 7. 危险操作（独立分区，与日常操作物理隔离）
@@ -355,15 +357,6 @@ public struct SettingsView: View {
     }
 
     // MARK: - Private Helpers
-
-    private var exposesOptionalSurfacesForUITesting: Bool {
-#if DEBUG
-        let arguments = ProcessInfo.processInfo.arguments
-        return arguments.contains("--uitesting") && !arguments.contains("--ui-test-core-surface")
-#else
-        return false
-#endif
-    }
 
     @ViewBuilder
     private var bottomBreathingRoom: some View {

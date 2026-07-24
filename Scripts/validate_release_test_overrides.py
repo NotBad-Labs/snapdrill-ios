@@ -45,6 +45,7 @@ EXPECTED_CUSTOM_TOKEN_VALUES = frozenset(
         "--ui-test-library-edit-missing-answer",
         "--ui-test-library-edit-slow-image",
         "--ui-test-notification-permission-denied",
+        "--ui-test-optional-surface",
         "--ui-test-seed-durable-capture-draft",
         "--ui-test-seed-image-library",
     }

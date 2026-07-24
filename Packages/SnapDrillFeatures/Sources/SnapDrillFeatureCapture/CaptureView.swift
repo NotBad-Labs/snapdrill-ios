@@ -68,7 +68,7 @@ public struct CaptureView: View {
             [GridItem(.flexible()), GridItem(.flexible())]
         }
     }
-    
+
     // MARK: - Body
     
     /// 采集功能界面的视图层次
@@ -126,36 +126,38 @@ public struct CaptureView: View {
                             .accessibleButton(label: L10n.Capture.albumTitle, hint: L10n.Accessibility.albumHint)
                             .accessibilityIdentifier("capture.album")
                             
-                            // 3. 手动录入
-                            CaptureMethodCard(
-                                icon: "keyboard",
-                                title: L10n.Capture.manualTitle,
-                                subtitle: L10n.Capture.manualSubtitle,
-                                color: .orange,
-                                accessibilityHint: L10n.Accessibility.manualHint,
-                                accessibilityID: "capture.manual",
-                                isDisabled: isInteractionDisabled
-                            ) {
-                                // 以空状态导航到结果编辑页
-                                router.push(
-                                    .scannerResult(content: "", image: nil, draftToken: nil)
-                                )
-                            }
-                            
-                            // 4. 剪贴板粘贴
-                            CaptureMethodCard(
-                                icon: "doc.on.clipboard",
-                                title: L10n.Capture.clipboardTitle,
-                                subtitle: L10n.Capture.clipboardSubtitle,
-                                color: .gray,
-                                accessibilityHint: L10n.Accessibility.clipboardHint,
-                                accessibilityID: "capture.clipboard",
-                                isBusy: activeMethod == .clipboard,
-                                isDisabled: isInteractionDisabled
-                            ) {
-                                activeMethod = .clipboard
-                                viewModel.pasteFromClipboard(router: router)
-                                activeMethod = nil
+                            if exposesOptionalSurfacesForUITesting {
+                                // 3. 手动录入
+                                CaptureMethodCard(
+                                    icon: "keyboard",
+                                    title: L10n.Capture.manualTitle,
+                                    subtitle: L10n.Capture.manualSubtitle,
+                                    color: .orange,
+                                    accessibilityHint: L10n.Accessibility.manualHint,
+                                    accessibilityID: "capture.manual",
+                                    isDisabled: isInteractionDisabled
+                                ) {
+                                    // 以空状态导航到结果编辑页
+                                    router.push(
+                                        .scannerResult(content: "", image: nil, draftToken: nil)
+                                    )
+                                }
+
+                                // 4. 剪贴板粘贴
+                                CaptureMethodCard(
+                                    icon: "doc.on.clipboard",
+                                    title: L10n.Capture.clipboardTitle,
+                                    subtitle: L10n.Capture.clipboardSubtitle,
+                                    color: .gray,
+                                    accessibilityHint: L10n.Accessibility.clipboardHint,
+                                    accessibilityID: "capture.clipboard",
+                                    isBusy: activeMethod == .clipboard,
+                                    isDisabled: isInteractionDisabled
+                                ) {
+                                    activeMethod = .clipboard
+                                    viewModel.pasteFromClipboard(router: router)
+                                    activeMethod = nil
+                                }
                             }
 
                             // 5. 文档扫描

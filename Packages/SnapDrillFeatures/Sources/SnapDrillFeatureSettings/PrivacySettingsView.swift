@@ -53,40 +53,46 @@ struct PrivacySettingsView: View {
                 Text(L10n.Settings.dataCollection)
             }
 
-            Section {
-                Button {
-                    showingExportOptions = true
-                } label: {
-                    HStack {
-                        if viewModel?.isExporting == true {
-                            ProgressView()
-                                .controlSize(.small)
-                            Text(L10n.Settings.exporting)
-                                .foregroundStyle(.secondary)
-                        } else {
-                            Text(L10n.Settings.exportMyData)
-                            Spacer()
-                            Image(systemName: "square.and.arrow.up")
-                                .foregroundStyle(.tint)
+            if SettingsReleaseSurface.exposesOptionalCapabilities {
+                Section {
+                    Button {
+                        showingExportOptions = true
+                    } label: {
+                        HStack {
+                            if viewModel?.isExporting == true {
+                                ProgressView()
+                                    .controlSize(.small)
+                                Text(L10n.Settings.exporting)
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                Text(L10n.Settings.exportMyData)
+                                Spacer()
+                                Image(systemName: "square.and.arrow.up")
+                                    .foregroundStyle(.tint)
+                            }
                         }
                     }
-                }
-                .disabled(viewModel?.isExporting == true)
-                .accessibilityIdentifier("settings.privacyExport.exportButton")
-                .accessibilityHint(L10n.Accessibility.exportDataHint)
-                .confirmationDialog(L10n.Settings.chooseExportFormat, isPresented: $showingExportOptions, titleVisibility: .visible) {
-                    Button(L10n.Settings.jsonFormat) {
-                        viewModel?.startExport(format: .json)
+                    .disabled(viewModel?.isExporting == true)
+                    .accessibilityIdentifier("settings.privacyExport.exportButton")
+                    .accessibilityHint(L10n.Accessibility.exportDataHint)
+                    .confirmationDialog(
+                        L10n.Settings.chooseExportFormat,
+                        isPresented: $showingExportOptions,
+                        titleVisibility: .visible
+                    ) {
+                        Button(L10n.Settings.jsonFormat) {
+                            viewModel?.startExport(format: .json)
+                        }
+                        Button(L10n.Settings.csvFormat) {
+                            viewModel?.startExport(format: .csv)
+                        }
+                        Button(L10n.Common.cancel, role: .cancel) {}
                     }
-                    Button(L10n.Settings.csvFormat) {
-                        viewModel?.startExport(format: .csv)
-                    }
-                    Button(L10n.Common.cancel, role: .cancel) {}
+                } header: {
+                    Text(L10n.Settings.dataManagement)
+                } footer: {
+                    Text(L10n.Settings.exportDataFooter)
                 }
-            } header: {
-                Text(L10n.Settings.dataManagement)
-            } footer: {
-                Text(L10n.Settings.exportDataFooter)
             }
 
             if let error = viewModel?.exportError {

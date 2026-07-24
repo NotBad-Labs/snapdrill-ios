@@ -66,6 +66,17 @@ struct SnapDrillApp: App {
         default: return nil
         }
     }
+
+    private var exposesOptionalSurfacesForUITesting: Bool {
+#if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains("--uitesting")
+            && arguments.contains("--ui-test-optional-surface")
+            && !arguments.contains("--ui-test-core-surface")
+#else
+        return false
+#endif
+    }
     
     // MARK: - Body
     
@@ -87,6 +98,7 @@ struct SnapDrillApp: App {
                 }
                 // Share Extension 深链接处理：从共享容器读取图片并进入采集流程
                 .onOpenURL { url in
+                    guard exposesOptionalSurfacesForUITesting else { return }
                     guard url.scheme == "snapdrill", url.host == "share" else { return }
                     container.router.handleShareExtensionURL(url)
                 }
