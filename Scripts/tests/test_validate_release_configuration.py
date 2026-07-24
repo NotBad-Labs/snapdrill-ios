@@ -256,6 +256,31 @@ class ValidateReleaseConfigurationTests(unittest.TestCase):
                         any(key in error and "DEBUG" in error for error in errors)
                     )
 
+    def test_effective_release_swift_conditions_accept_explicit_target(self) -> None:
+        valid = valid_effective_release_settings()
+
+        for entry in valid:
+            target = entry["target"]
+            with self.subTest(target=target):
+                self.assertEqual(
+                    validator.validate_effective_release_settings(
+                        [entry],
+                        expected_targets=frozenset({target}),
+                    ),
+                    [],
+                )
+
+    def test_effective_release_swift_conditions_reject_wrong_explicit_target(self) -> None:
+        valid = valid_effective_release_settings()
+
+        self.assertNotEqual(
+            validator.validate_effective_release_settings(
+                [valid[0]],
+                expected_targets=frozenset({valid[1]["target"]}),
+            ),
+            [],
+        )
+
     def test_effective_release_swift_flags_reject_response_files(self) -> None:
         for value in (
             "$(inherited) @Configs/release-flags.rsp",

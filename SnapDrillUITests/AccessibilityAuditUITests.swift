@@ -26,11 +26,10 @@ final class AccessibilityAuditUITests: XCTestCase {
         prepareReportOutput()
 
         auditPrimaryTabs()
-        auditManualCaptureEditor()
+        auditCaptureResultEditor()
         auditLibraryDetailAndExportPreview()
-        auditSmartPaperConfig()
+        auditOnboarding()
         auditStoreRecovery()
-        auditSymbolPicker()
 
         writeReport()
         assertAuditGateIsClean()
@@ -54,8 +53,7 @@ final class AccessibilityAuditUITests: XCTestCase {
             PrimaryTab(index: 0, screen: "Dashboard Tab", root: "dashboard.root"),
             PrimaryTab(index: 1, screen: "Library Tab", root: "library.root"),
             PrimaryTab(index: 2, screen: "Capture Tab", root: "capture.root"),
-            PrimaryTab(index: 3, screen: "Review Tab", root: "review.root"),
-            PrimaryTab(index: 4, screen: "Settings Tab", root: "settings.root")
+            PrimaryTab(index: 3, screen: "Settings Tab", root: "settings.root")
         ]
 
         for tab in tabs {
@@ -70,31 +68,56 @@ final class AccessibilityAuditUITests: XCTestCase {
         app.terminate()
     }
 
-    private func auditManualCaptureEditor() {
-        let app = launchApp()
-        guard openPrimaryTab(index: 2, root: "capture.root", in: app) else {
-            recordBlocked(screen: "Manual Capture Editor", reason: "capture.root did not appear.", app: app)
+    private func auditCaptureResultEditor() {
+        let app = launchApp(extraArguments: ["--ui-test-capture-image-result"])
+        guard app.tabBars.firstMatch.waitForExistence(timeout: 10) else {
+            recordBlocked(screen: "Capture Result Editor", reason: "Tab bar did not appear.", app: app)
             app.terminate()
             return
         }
-
-        let manualButton = app.buttons["capture.manual"]
-        guard manualButton.waitForExistence(timeout: 5) else {
-            recordBlocked(screen: "Manual Capture Editor", reason: "capture.manual did not appear.", app: app)
-            app.terminate()
-            return
-        }
-        manualButton.tap()
+        app.tabBars.buttons.element(boundBy: 2).tap()
 
         if waitForElement("capture.result.root", in: app),
+           waitForElement("capture.result.questionImage", in: app),
            waitForElement("capture.contentEditor", in: app) {
-            recordAudit(screen: "Manual Capture Editor", rootIdentifier: "capture.result.root", app: app)
+            recordAudit(screen: "Capture Result Editor", rootIdentifier: "capture.result.root", app: app)
         } else {
             recordBlocked(
-                screen: "Manual Capture Editor",
-                reason: "Manual capture result editor did not appear.",
+                screen: "Capture Result Editor",
+                reason: "Image-backed capture result editor did not appear.",
                 app: app
             )
+        }
+
+        app.terminate()
+    }
+
+    private func auditOnboarding() {
+        let app = launchOnboarding()
+        guard waitForElement("onboarding.page.0", in: app, timeout: 10) else {
+            recordBlocked(screen: "Onboarding", reason: "onboarding.page.0 did not appear.", app: app)
+            app.terminate()
+            return
+        }
+
+        for pageIndex in 0..<4 {
+            let pageIdentifier = "onboarding.page.\(pageIndex)"
+            guard waitForElement(pageIdentifier, in: app) else {
+                recordBlocked(
+                    screen: "Onboarding Page \(pageIndex + 1)",
+                    reason: "\(pageIdentifier) did not appear.",
+                    app: app
+                )
+                break
+            }
+            recordAudit(
+                screen: "Onboarding Page \(pageIndex + 1)",
+                rootIdentifier: pageIdentifier,
+                app: app
+            )
+            if pageIndex < 3 {
+                app.buttons["onboarding.next"].tap()
+            }
         }
 
         app.terminate()
@@ -127,31 +150,6 @@ final class AccessibilityAuditUITests: XCTestCase {
         app.terminate()
     }
 
-    private func auditSmartPaperConfig() {
-        let app = launchApp()
-        guard openPrimaryTab(index: 1, root: "library.root", in: app) else {
-            recordBlocked(screen: "SmartPaper Config", reason: "library.root did not appear.", app: app)
-            app.terminate()
-            return
-        }
-
-        let smartPaperButton = app.buttons["library.smartPaperButton"]
-        guard smartPaperButton.waitForExistence(timeout: 5) else {
-            recordBlocked(screen: "SmartPaper Config", reason: "library.smartPaperButton did not appear.", app: app)
-            app.terminate()
-            return
-        }
-        smartPaperButton.tap()
-
-        if waitForElement("smartPaper.root", in: app) {
-            recordAudit(screen: "SmartPaper Config", rootIdentifier: "smartPaper.root", app: app)
-        } else {
-            recordBlocked(screen: "SmartPaper Config", reason: "smartPaper.root did not appear.", app: app)
-        }
-
-        app.terminate()
-    }
-
     private func auditStoreRecovery() {
         let app = launchApp(extraArguments: ["--ui-test-force-store-recovery"])
         if waitForElement("app.storeRecovery.root", in: app, timeout: 10) {
@@ -162,21 +160,4 @@ final class AccessibilityAuditUITests: XCTestCase {
         app.terminate()
     }
 
-    private func auditSymbolPicker() {
-        let app = launchApp()
-        guard openPrimaryTab(index: 4, root: "settings.root", in: app) else {
-            recordBlocked(screen: "Symbol Picker", reason: "settings.root did not appear.", app: app)
-            app.terminate()
-            return
-        }
-
-        guard openSymbolPicker(in: app) else {
-            recordBlocked(screen: "Symbol Picker", reason: "Symbol picker navigation did not complete.", app: app)
-            app.terminate()
-            return
-        }
-
-        recordAudit(screen: "Symbol Picker", rootIdentifier: "symbolPicker.category.common", app: app)
-        app.terminate()
-    }
 }

@@ -21,8 +21,8 @@ public struct CaptureResultView: View {
 
     // MARK: - Properties
 
-    // @Bindable 用于外部传入的 @Observable 对象，不持有所有权（区别于 @State）
-    @Bindable var viewModel: CaptureResultViewModel
+    // 结果页拥有表单生命周期，避免 navigation destination 重算时替换未保存状态。
+    @State private var viewModel: CaptureResultViewModel
 
     // 固定字段可见性（答案）。分类/来源/级别/自定义维度可见性按维度（VM）。
     @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false
@@ -30,7 +30,7 @@ public struct CaptureResultView: View {
     /// 创建采集结果视图
     /// - Parameter viewModel: 注入的 ViewModel
     public init(viewModel: CaptureResultViewModel) {
-        self.viewModel = viewModel
+        _viewModel = State(initialValue: viewModel)
     }
 
     // MARK: - Body

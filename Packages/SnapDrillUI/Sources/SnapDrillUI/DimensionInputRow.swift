@@ -112,7 +112,7 @@ public struct DimensionInputRow: View {
             }
         } label: {
             Text(selectedName ?? L10n.Capture.selectValue)
-                .foregroundStyle(selectedName == nil ? Color.secondary : Color.primary)
+                .foregroundStyle(Color.primary)
         }
         // 注：单值菜单的稳定 id 落在外层 row（capture.dimRow.<title>）——
         // SwiftUI 把带 id 的 HStack 折叠成单一无障碍元素、内层 Menu 自身 id 不 surface（实证）。
@@ -152,7 +152,13 @@ public struct DimensionInputRow: View {
 
     private var newValueChip: some View {
         Button { showNewValueAlert = true } label: {
-            Image(systemName: "plus")
+            Group {
+                if model.options.isEmpty {
+                    Label(L10n.Capture.addValueTitle(model.title), systemImage: "plus")
+                } else {
+                    Image(systemName: "plus")
+                }
+            }
                 .font(.subheadline)
                 .padding(.horizontal, 10)
                 .padding(.vertical, 5)

@@ -96,6 +96,18 @@ public actor DataExecutor {
         self.container = container
     }
 
+    /// 打开已由 LocalLibrary startup 选定的生产 store。
+    ///
+    /// 与 legacy Profile 路径不同，此入口严格 fail closed：打开失败直接抛错，不隔离原文件、
+    /// 不发布空 store，也不降级到内存容器。上层必须进入 LocalLibrary 恢复协调。
+    private init(strictStoreURL: URL) throws {
+        do {
+            self.container = try Self.makeContainer(inMemory: false, storeURL: strictStoreURL)
+        } catch {
+            throw PersistenceError.containerInitializationFailed(underlying: error)
+        }
+    }
+
     // MARK: - Factory
 
     /// 在非 MainActor 执行器上创建 DataExecutor，避免 #599 死锁。
@@ -113,6 +125,18 @@ public actor DataExecutor {
     ) async -> DataExecutor {
         await Task.detached {
             DataExecutor(inMemory: inMemory, storeURL: storeURL)
+        }.value
+    }
+
+    /// 在非 MainActor 执行器上严格打开 LocalLibrary store。
+    ///
+    /// 此入口只供唯一生产 LocalLibrary runtime 使用。失败不改变 store 文件集，也不创建
+    /// 第二个 runtime；调用方负责把错误映射为启动阻塞或 storeRecovery。
+    public static func openLocalLibraryStore(
+        at storeURL: URL
+    ) async throws -> DataExecutor {
+        try await Task.detached {
+            try DataExecutor(strictStoreURL: storeURL)
         }.value
     }
 

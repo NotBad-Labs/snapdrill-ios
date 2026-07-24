@@ -5,7 +5,7 @@ status: implemented
 tier: free
 blocked_by: []
 mode: full
-last_updated: 2026-07-21
+last_updated: 2026-07-24
 intent_refs:
   - vision:P1
   - vision:P2
@@ -23,6 +23,7 @@ release_refs:
   - release-1:P2-B-A
   - release-1:P2-C-A
   - release-1:P2-G-A
+  - release-1:D-META-A
 release_outcomes:
   - M4
   - M10
@@ -48,7 +49,7 @@ release_outcomes:
 - **搜索**：基于 OCR 文字内容匹配，使用标准导航栏搜索栏（用户记得题目关键词即可检索）。
 - **多维过滤**：所有已配置动态维度均可过滤（分类 / 来源 / 级别 / 标签 / 自定义属性）；维度间 AND、维度内 OR，条件可叠加组合生效。难度不再是 `ArchiveItemModel` 静态字段，若用户需要“难度/级别”语义，应通过字段管理器创建或启用对应动态维度。
 - **编辑**：进入资料详情可看 App-managed 主图、OCR 文字、元数据、答案；Must 编辑覆盖基础分类 / 标签与主内容，可只补答案而不动主内容。动态字段及尚未开启字段的扩展属于 Candidate optional。
-- **字段配置系统（Candidate optional）**：固定字段（内容）永不可关；内置分类 / 来源 / 级别 / 标签默认不在录入页显示，用户按需开启；自定义维度默认可见。系统字段选项列表可增删改；重命名级联更新所有引用该选项的资料；**已被资料使用的选项禁止删除**（数据完整性）。单值 / 多值转换只消费 [M1-A](../../reference/local-library-data-contract.md#22-taxonomy-cardinality-转换m1-a)，违反目标 cardinality 时整体拒绝并显示违反资料数量。未被 manifest 纳入时零入口、零副作用。
+- **基础整理与字段配置**：D-META-A 要求通用“分类”在采集预览默认可见但可跳过，标签以次级入口提供；两者属于 M4 Must。来源 / 级别默认隐藏，可在设置中按需开启，且不得解释为学科、年级、难度或掌握度。自定义维度管理仍为 Candidate optional；系统字段选项列表、重命名和单值 / 多值转换只在对应管理能力获准时出现，并消费 [M1-A](../../reference/local-library-data-contract.md#22-taxonomy-cardinality-转换m1-a) 的失败原子性约束。
 - **批量操作（Candidate optional）**：编辑按钮进入选择模式 → 勾选多条资料 → 批量打标签（追加目标标签、不移除既有标签）/ 批量删除。批量编辑系统字段不做；未被 manifest 纳入时零入口、零副作用。
 - **删除 + 撤销（D4-B）**：单条删除与五秒撤销机会属于 Must。点击删除时持久化绝对 deadline；后台不提前永久删除，deadline 前回到前台继续显示剩余时间，deadline 过后在前台恢复或下次启动幂等完成。D4S-A complete operation 建立稳定 prestate 前必须等待该状态按 deadline 收敛，不得提前提交或静默撤销。新批次必须先等待上一批收敛，再获得自己的五秒窗口。批量删除本身是 Candidate optional；仅支持最近一次删除的单级撤销，不做回收站、摇一摇撤销或确认弹窗。
 - **分享卡片（ShareCard，hidden）**：当前实现可把单条资料生成图片并走系统 ShareSheet；它不属于 C2-Optional 可由 manifest 纳入的范围，重入需新上游裁决。

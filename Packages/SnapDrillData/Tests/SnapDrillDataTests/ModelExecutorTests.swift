@@ -104,6 +104,29 @@ struct DataExecutorTests {
         #expect(try repo.totalCount() == 1)
     }
 
+    @Test("LocalLibrary strict open 失败时不隔离、不重建且不降级")
+    func strictLocalLibraryOpenFailsWithoutMutation() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("DataExecutorStrictOpen_\(UUID().uuidString)")
+        let storeURL = root.appendingPathComponent("library.store")
+        let originalBytes = Data("not a sqlite store".utf8)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        try originalBytes.write(to: storeURL)
+        let childrenBefore = try Set(FileManager.default.contentsOfDirectory(atPath: root.path))
+
+        do {
+            _ = try await DataExecutor.openLocalLibraryStore(at: storeURL)
+            Issue.record("损坏 LocalLibrary store 不应被打开或降级")
+        } catch {
+            #expect(error is PersistenceError)
+        }
+
+        #expect(try Data(contentsOf: storeURL) == originalBytes)
+        #expect(try Set(FileManager.default.contentsOfDirectory(atPath: root.path)) == childrenBefore)
+    }
+
     @Test("磁盘 store 打不开时隔离保留原文件并上报恢复事件")
     func diskStoreFailureIsolatesCorruptStoreAndReportsEvent() async throws {
         let root = FileManager.default.temporaryDirectory
@@ -237,10 +260,40 @@ struct DataExecutorTests {
     @Test("RepositoryContainer 通过 DataExecutor 构造可正常工作")
     func repositoryContainerViaExecutor() throws {
         let executor = DataExecutor(inMemory: true)
-        let repos = RepositoryContainer(executor: executor, scope: ProfileScope(id: UUID(), name: "Test"), profileDirectory: FileManager.default.temporaryDirectory)
+        let repos = RepositoryContainer(
+            executor: executor,
+            imageStorage: ImageStorage(baseDirectory: FileManager.default.temporaryDirectory)
+        )
         repos.archive.insert(ArchiveItemModel.mock(content: "container via executor"))
         try repos.archive.saveContext()
         #expect(try repos.archive.totalCount() == 1)
+    }
+
+    @Test("RepositoryContainer 与 runtime 共用 ImageStorage")
+    func repositoryContainerUsesInjectedImageStorage() async throws {
+        let root = FileManager.default.temporaryDirectory
+            .appendingPathComponent("RepositoryContainerImageStorage_\(UUID().uuidString)", isDirectory: true)
+        let imageURL = root.appendingPathComponent("images/injected.jpg")
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        try FileManager.default.createDirectory(
+            at: imageURL.deletingLastPathComponent(),
+            withIntermediateDirectories: true
+        )
+        try Data("fixture".utf8).write(to: imageURL)
+
+        let executor = DataExecutor(inMemory: true)
+        let repositories = RepositoryContainer(
+            executor: executor,
+            imageStorage: ImageStorage(baseDirectory: root)
+        )
+        let item = ArchiveItemModel.mock(content: "shared image storage")
+        item.imagePath = "images/injected.jpg"
+        try repositories.archive.insertAndSave(item)
+
+        try await repositories.archive.delete(id: item.id)
+
+        #expect(!FileManager.default.fileExists(atPath: imageURL.path))
     }
 
     private func createIncidentFixtures(

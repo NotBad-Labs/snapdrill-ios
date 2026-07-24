@@ -79,6 +79,7 @@ struct ImageStorageTests {
             #expect(storage.loadImage(path: path) == nil)
             #expect(await storage.loadImageAsync(path: path) == nil)
             #expect(storage.loadDownsampledImage(path: path) == nil)
+            #expect(await storage.loadDownsampledImageAsync(path: path) == nil)
             #expect(storage.imageFileURL(path: path) == nil)
             try await storage.deleteImage(path: path)
         }
@@ -89,6 +90,7 @@ struct ImageStorageTests {
         #expect(fileManager.fileExists(atPath: validURL.path))
         #expect(storage.loadImage(path: "images/custom-photo.jpg") != nil)
         #expect(storage.loadDownsampledImage(path: "images/custom-photo.jpg") != nil)
+        #expect(await storage.loadDownsampledImageAsync(path: "images/custom-photo.jpg") != nil)
         #expect(storage.imageFileURL(path: "images/custom-photo.jpg") == validURL)
 
         try await storage.deleteImage(path: "images/custom-photo.jpg")
@@ -121,6 +123,7 @@ struct ImageStorageTests {
         let symlinkedStorage = ImageStorage(baseDirectory: base)
         #expect(symlinkedStorage.loadImage(path: "images/victim.jpg") == nil)
         #expect(symlinkedStorage.loadDownsampledImage(path: "images/victim.jpg") == nil)
+        #expect(await symlinkedStorage.loadDownsampledImageAsync(path: "images/victim.jpg") == nil)
         #expect(symlinkedStorage.imageFileURL(path: "images/victim.jpg") == nil)
         #expect(await symlinkedStorage.imageDirectorySize() == 0)
         try await symlinkedStorage.deleteImage(path: "images/victim.jpg")

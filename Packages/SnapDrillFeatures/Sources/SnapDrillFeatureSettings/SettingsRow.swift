@@ -30,7 +30,7 @@ struct SettingsRow: View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(gradientEnd)
+                .foregroundStyle(Color.primary)
                 .frame(width: 30, height: 30)
                 .background {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)

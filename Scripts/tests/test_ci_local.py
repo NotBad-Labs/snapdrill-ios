@@ -257,18 +257,24 @@ class CILocalTests(unittest.TestCase):
             )
         )
         self.assertFalse(any(line.startswith("grep|") for line in log))
-        self.assertNotIn("-scheme SnapDrill ", "\n".join(log))
         self.assertNotIn("-skip-testing", "\n".join(log))
         self.assertFalse(any(line.startswith("xcpretty|") for line in log))
         release_settings = [
             line
             for line in log
             if line.startswith("xcodebuild|")
-            and "-scheme SnapDrillShare" in line
             and "-configuration Release" in line
             and "-showBuildSettings -json" in line
         ]
-        self.assertEqual(len(release_settings), 2)
+        self.assertEqual(len(release_settings), 4)
+        self.assertEqual(
+            sum("-scheme SnapDrill " in line for line in release_settings),
+            2,
+        )
+        self.assertEqual(
+            sum("-scheme SnapDrillShare " in line for line in release_settings),
+            2,
+        )
         self.assertTrue(
             any("-destination generic/platform=iOS Simulator" in line for line in release_settings)
         )
@@ -277,7 +283,11 @@ class CILocalTests(unittest.TestCase):
         )
         self.assertEqual(
             sum("--effective-release-settings-stdin" in line for line in log),
-            2,
+            4,
+        )
+        self.assertEqual(
+            sum("--expected-release-target" in line for line in log),
+            4,
         )
         package_dumps = [
             line

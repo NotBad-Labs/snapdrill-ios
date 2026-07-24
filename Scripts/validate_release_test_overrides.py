@@ -15,7 +15,7 @@ from typing import Dict, Iterable, List, Mapping, NamedTuple, Optional, Sequence
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LEXER_PATH = Path(__file__).resolve().with_name("swift_source_lexer.py")
 
-EXPECTED_PRODUCTION_SWIFT_FILE_COUNT = 208
+EXPECTED_PRODUCTION_SWIFT_FILE_COUNT = 210
 EXPECTED_SENTINELS = frozenset(
     {
         "Packages/SnapDrillCore/Sources/SnapDrillCore/Support/AppConfiguration.swift",
@@ -33,6 +33,7 @@ EXPECTED_CUSTOM_TOKEN_VALUES = frozenset(
         "--ui-test-capture-image-result",
         "--ui-test-capture-pdf-page-picker",
         "--ui-test-capture-scan-page-picker",
+        "--ui-test-core-surface",
         "--ui-test-data-sync-backup-progress",
         "--ui-test-data-sync-import-progress",
         "--ui-test-durable-capture-draft",
@@ -44,6 +45,7 @@ EXPECTED_CUSTOM_TOKEN_VALUES = frozenset(
         "--ui-test-library-edit-missing-answer",
         "--ui-test-library-edit-slow-image",
         "--ui-test-notification-permission-denied",
+        "--ui-test-optional-surface",
         "--ui-test-seed-durable-capture-draft",
         "--ui-test-seed-image-library",
     }

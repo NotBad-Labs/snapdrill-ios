@@ -12,17 +12,9 @@
 		AG_BF_LIBRARY /* SnapDrillFeatureLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_LIBRARY /* SnapDrillFeatureLibrary */; };
 		AG_BF_REVIEW /* SnapDrillFeatureReview in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_REVIEW /* SnapDrillFeatureReview */; };
 		AG_BF_SETTINGS /* SnapDrillFeatureSettings in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_SETTINGS /* SnapDrillFeatureSettings */; };
-		B8989386BBFDC051AA9CE0CC /* SnapDrillShare.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		476BBD2C3C76074DFC775765 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B27BD9572E560D0600E69277 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 1461CA3057053272D0AE578A;
-			remoteInfo = SnapDrillShare;
-		};
 		982EEE0D9ABEB4564D07FA18 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B27BD9572E560D0600E69277 /* Project object */;
@@ -38,20 +30,6 @@
 			remoteInfo = SnapDrill;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		D986938E14E3A8A9CD01A0AD /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				B8989386BBFDC051AA9CE0CC /* SnapDrillShare.appex in Embed App Extensions */,
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0E66BDA302EA72542A2B2DE8 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = SnapDrill/Assets.xcassets; sourceTree = "<group>"; };
@@ -768,12 +746,10 @@
 				B27BD95B2E560D0600E69277 /* Sources */,
 				B27BD95C2E560D0600E69277 /* Frameworks */,
 				B27BD95D2E560D0600E69277 /* Resources */,
-				D986938E14E3A8A9CD01A0AD /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				0B1EAB07FC58E6A9E95EA481 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				B27BD9612E560D0700E69277 /* SnapDrill */,
@@ -947,12 +923,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		0B1EAB07FC58E6A9E95EA481 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = SnapDrillShare;
-			target = 1461CA3057053272D0AE578A /* SnapDrillShare */;
-			targetProxy = 476BBD2C3C76074DFC775765 /* PBXContainerItemProxy */;
-		};
 		33A35C3649588F24A46FD365 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = SnapDrill;
@@ -1028,7 +998,6 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.global</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to capture and recognize the materials you choose.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import the images you choose.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1065,7 +1034,6 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.global</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to capture and recognize the materials you choose.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import the images you choose.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

@@ -50,3 +50,16 @@ public final class SettingsRouter: @MainActor FeatureRouter {
     /// 初始化路由器
     public init() {}
 }
+
+enum SettingsReleaseSurface {
+    static var exposesOptionalCapabilities: Bool {
+#if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains("--uitesting")
+            && arguments.contains("--ui-test-optional-surface")
+            && !arguments.contains("--ui-test-core-surface")
+#else
+        return false
+#endif
+    }
+}

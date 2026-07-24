@@ -74,8 +74,10 @@ struct AppRootView: View {
                     )
                 }
 
-                Tab(L10n.Review.title, systemImage: "clock.arrow.circlepath", value: AppTab.review) {
-                    ReviewView(router: router.reviewRouter)
+                if exposesOptionalSurfacesForUITesting {
+                    Tab(L10n.Review.title, systemImage: "clock.arrow.circlepath", value: AppTab.review) {
+                        ReviewView(router: router.reviewRouter)
+                    }
                 }
 
                 Tab(L10n.Settings.title, systemImage: "gear", value: AppTab.settings) {
@@ -122,6 +124,17 @@ struct AppRootView: View {
     }
     
     // MARK: - Private Helpers
+
+    private var exposesOptionalSurfacesForUITesting: Bool {
+#if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains("--uitesting")
+            && arguments.contains("--ui-test-optional-surface")
+            && !arguments.contains("--ui-test-core-surface")
+#else
+        return false
+#endif
+    }
 
     private func shouldShowDegradedModeWarning(for profileManager: ProfileManager) -> Bool {
         if profileManager.isUsingInMemoryFallback {

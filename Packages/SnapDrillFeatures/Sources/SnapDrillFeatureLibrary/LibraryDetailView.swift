@@ -107,16 +107,18 @@ struct LibraryDetailView: View {
                             .font(.caption)
                             .foregroundStyle(.primary)
 
-                        Spacer()
+                        if LibraryReleaseSurface.exposesOptionalCapabilities {
+                            Spacer()
 
-                        if item.isScheduled {
-                            Text("\(L10n.Library.nextReview): \(item.nextReviewAt.formatted(date: .abbreviated, time: .omitted))")
-                                .font(.caption)
-                                .foregroundStyle(.blue)
-                        } else {
-                            Text(L10n.Library.notScheduled)
-                                .font(.caption)
-                                .foregroundStyle(.primary)
+                            if item.isScheduled {
+                                Text("\(L10n.Library.nextReview): \(item.nextReviewAt.formatted(date: .abbreviated, time: .omitted))")
+                                    .font(.caption)
+                                    .foregroundStyle(.blue)
+                            } else {
+                                Text(L10n.Library.notScheduled)
+                                    .font(.caption)
+                                    .foregroundStyle(.primary)
+                            }
                         }
                     }
                 }
@@ -224,7 +226,7 @@ struct LibraryDetailView: View {
         .accessibilityIdentifier("library.detail.root")
         .task(id: item.imagePath) {
             guard let path = item.imagePath else { loadedImage = nil; return }
-            let image = await imageStorage.loadImageAsync(path: path)
+            let image = await imageStorage.loadDownsampledImageAsync(path: path, maxLongSide: 1600)
             if !Task.isCancelled { loadedImage = image }
         }
         .task(id: answerImageTaskID) {
@@ -232,7 +234,7 @@ struct LibraryDetailView: View {
                 loadedAnswerImage = nil
                 return
             }
-            let image = await imageStorage.loadImageAsync(path: path)
+            let image = await imageStorage.loadDownsampledImageAsync(path: path, maxLongSide: 1600)
             if !Task.isCancelled { loadedAnswerImage = image }
         }
         .navigationTitle(L10n.Library.detail)
@@ -248,35 +250,35 @@ struct LibraryDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 HStack(spacing: 16) {
-                    // 分享题目卡片
-                    Button {
-                        shareQuestionCard()
-                    } label: {
-                        if isSharing {
-                            ProgressView()
-                                .controlSize(.small)
-                        } else {
-                            Image(systemName: "square.and.arrow.up")
+                    if LibraryReleaseSurface.exposesOptionalCapabilities {
+                        Button {
+                            shareQuestionCard()
+                        } label: {
+                            if isSharing {
+                                ProgressView()
+                                    .controlSize(.small)
+                            } else {
+                                Image(systemName: "square.and.arrow.up")
+                            }
                         }
-                    }
-                    .accessibleButton(label: L10n.Library.share)
-                    .accessibilityIdentifier("library.detail.shareButton")
-                    .disabled(isSharing)
+                        .accessibleButton(label: L10n.Library.share)
+                        .accessibilityIdentifier("library.detail.shareButton")
+                        .disabled(isSharing)
 
-                    // 单题快速打印
-                    Button {
-                        printSingleItem()
-                    } label: {
-                        if isPrinting {
-                            ProgressView()
-                                .controlSize(.small)
-                        } else {
-                            Image(systemName: "printer")
+                        Button {
+                            printSingleItem()
+                        } label: {
+                            if isPrinting {
+                                ProgressView()
+                                    .controlSize(.small)
+                            } else {
+                                Image(systemName: "printer")
+                            }
                         }
+                        .accessibleButton(label: L10n.Library.printSingle)
+                        .accessibilityIdentifier("library.detail.printButton")
+                        .disabled(isPrinting)
                     }
-                    .accessibleButton(label: L10n.Library.printSingle)
-                    .accessibilityIdentifier("library.detail.printButton")
-                    .disabled(isPrinting)
 
                     Button {
                         isEditing = true

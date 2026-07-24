@@ -27,9 +27,9 @@ struct ExportOptionsSheet: View {
     private var imageStorage: ImageStorage { profileManager.activeImageStorage }
 
     @State private var showingPDFPreview = false
-    @State private var hideAnswers = true
-    @State private var showBlankAnswerArea = true
-    @State private var showHeader = true
+    @State private var hideAnswers = false
+    @State private var showBlankAnswerArea = false
+    @State private var showHeader = false
     @State private var itemsPerPage = 2
     @State private var isExportingZIP = false
     @State private var zipURL: URL?
@@ -65,46 +65,50 @@ struct ExportOptionsSheet: View {
                             .accessibleButton(label: L10n.Library.exportPDF, hint: L10n.Accessibility.exportPDFHint)
                             .accessibilityIdentifier("library.export.pdf")
 
-                            // 2. CSV (.csv)
-                            ShareLink(
-                                item: ReviewExport(items: items, format: .csv),
-                                preview: SharePreview(L10n.Library.exportCSV, image: Image(systemName: "tablecells"))
-                            ) {
-                                ExportOptionLabel(
-                                    title: L10n.Library.exportCSV,
-                                    subtitle: L10n.Library.exportCSVHint,
-                                    systemImage: "tablecells",
-                                    tint: .green
-                                )
-                            }
-                            .accessibleButton(label: L10n.Library.exportCSV, hint: L10n.Accessibility.exportCSVHint)
-                            .accessibilityIdentifier("library.export.csv")
+                            if LibraryReleaseSurface.exposesOptionalCapabilities {
+                                // 2. CSV (.csv)
+                                ShareLink(
+                                    item: ReviewExport(items: items, format: .csv),
+                                    preview: SharePreview(L10n.Library.exportCSV, image: Image(systemName: "tablecells"))
+                                ) {
+                                    ExportOptionLabel(
+                                        title: L10n.Library.exportCSV,
+                                        subtitle: L10n.Library.exportCSVHint,
+                                        systemImage: "tablecells",
+                                        tint: .green
+                                    )
+                                }
+                                .accessibleButton(label: L10n.Library.exportCSV, hint: L10n.Accessibility.exportCSVHint)
+                                .accessibilityIdentifier("library.export.csv")
 
-                            // 3. 原图 ZIP
-                            Button {
-                                exportImagesZIP()
-                            } label: {
-                                ExportOptionLabel(
-                                    title: L10n.Library.exportImages,
-                                    subtitle: isExportingZIP ? L10n.Library.exportingImages : L10n.Library.exportImagesHint,
-                                    systemImage: "photo.on.rectangle.angled",
-                                    tint: .purple,
-                                    isLoading: isExportingZIP
-                                )
+                                // 3. 原图 ZIP
+                                Button {
+                                    exportImagesZIP()
+                                } label: {
+                                    ExportOptionLabel(
+                                        title: L10n.Library.exportImages,
+                                        subtitle: isExportingZIP ? L10n.Library.exportingImages : L10n.Library.exportImagesHint,
+                                        systemImage: "photo.on.rectangle.angled",
+                                        tint: .purple,
+                                        isLoading: isExportingZIP
+                                    )
+                                }
+                                .accessibilityIdentifier("library.export.zip")
+                                .disabled(isExportingZIP)
                             }
-                            .accessibilityIdentifier("library.export.zip")
-                            .disabled(isExportingZIP)
                         }
 
                         Section(L10n.Export.pdfOptions) {
-                            Toggle(L10n.Export.hideAnswers, isOn: $hideAnswers)
-                                .accessibilityIdentifier("library.export.hideAnswers")
-                            if hideAnswers {
-                                Toggle(L10n.Export.showBlankArea, isOn: $showBlankAnswerArea)
-                                    .accessibilityIdentifier("library.export.showBlankAnswerArea")
+                            if LibraryReleaseSurface.exposesOptionalCapabilities {
+                                Toggle(L10n.Export.hideAnswers, isOn: $hideAnswers)
+                                    .accessibilityIdentifier("library.export.hideAnswers")
+                                if hideAnswers {
+                                    Toggle(L10n.Export.showBlankArea, isOn: $showBlankAnswerArea)
+                                        .accessibilityIdentifier("library.export.showBlankAnswerArea")
+                                }
+                                Toggle(L10n.Export.showHeader, isOn: $showHeader)
+                                    .accessibilityIdentifier("library.export.showHeader")
                             }
-                            Toggle(L10n.Export.showHeader, isOn: $showHeader)
-                                .accessibilityIdentifier("library.export.showHeader")
                             Picker(L10n.Export.itemsPerPage, selection: $itemsPerPage) {
                                 Text("1").tag(1)
                                 Text("2").tag(2)

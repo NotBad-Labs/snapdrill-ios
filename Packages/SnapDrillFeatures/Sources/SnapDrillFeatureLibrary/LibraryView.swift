@@ -124,16 +124,18 @@ public struct LibraryView: View {
                         .fontWeight(.bold)
                     } else {
                         HStack(spacing: 12) {
-                            NavigationLink(value: LibraryDestination.smartPaper) {
-                                Image(systemName: "doc.richtext")
+                            if LibraryReleaseSurface.exposesOptionalCapabilities {
+                                NavigationLink(value: LibraryDestination.smartPaper) {
+                                    Image(systemName: "doc.richtext")
+                                }
+                                .accessibilityLabel(L10n.SmartPaper.title)
+                                .accessibilityIdentifier("library.smartPaperButton")
                             }
-                            .accessibilityLabel(L10n.SmartPaper.title)
-                            .accessibilityIdentifier("library.smartPaperButton")
 
                             // 排序（Apple Reminders 风格 Menu）
                             if let vm = viewModel {
                                 Menu {
-                                    ForEach(LibrarySortOption.allCases) { option in
+                                    ForEach(visibleSortOptions) { option in
                                         Button {
                                             vm.sortOption = option
                                         } label: {
@@ -157,6 +159,15 @@ public struct LibraryView: View {
                                 Image(systemName: "line.3.horizontal.decrease.circle")
                             }
                             .accessibilityIdentifier("library.filterButton")
+
+                            if viewModel?.filteredItems.isEmpty == false {
+                                Button(L10n.Library.selectItems) {
+                                    withAnimation {
+                                        editMode = .active
+                                    }
+                                }
+                                .accessibilityIdentifier("library.selectButton")
+                            }
                         }
                     }
                 }
@@ -181,16 +192,18 @@ public struct LibraryView: View {
                         
                         Spacer()
 
-                        // 批量打标签
-                        Button {
-                            isBatchTagPresented = true
-                        } label: {
-                            Label(L10n.Library.batchTag, systemImage: "tag")
-                        }
-                        .accessibilityIdentifier("library.selection.batchTag")
-                        .disabled(selectedItemIDs.isEmpty)
+                        if LibraryReleaseSurface.exposesOptionalCapabilities {
+                            // 批量打标签
+                            Button {
+                                isBatchTagPresented = true
+                            } label: {
+                                Label(L10n.Library.batchTag, systemImage: "tag")
+                            }
+                            .accessibilityIdentifier("library.selection.batchTag")
+                            .disabled(selectedItemIDs.isEmpty)
 
-                        Spacer()
+                            Spacer()
+                        }
 
                         Button {
                             guard let vm = viewModel else { return }
@@ -288,6 +301,13 @@ public struct LibraryView: View {
                 .ignoresSafeArea()
             }
         }
+    }
+
+    private var visibleSortOptions: [LibrarySortOption] {
+        if LibraryReleaseSurface.exposesOptionalCapabilities {
+            return LibrarySortOption.allCases
+        }
+        return [.createdAt, .category]
     }
     
     // MARK: - Private Helpers

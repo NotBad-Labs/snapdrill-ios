@@ -123,8 +123,9 @@ public final class ProfileManager {
         let executor = DataExecutor(inMemory: true)
         self.executor = executor
         self.activeContainer = executor.container
-        self.activeRepositories = RepositoryContainer(executor: executor, scope: scope, profileDirectory: FileManager.default.temporaryDirectory)
-        self.activeImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory, scope: scope)
+        let imageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory)
+        self.activeRepositories = RepositoryContainer(executor: executor, imageStorage: imageStorage)
+        self.activeImageStorage = imageStorage
         syncExecutorStatus(.healthy)
         SnapDrillLogger.data.info("ProfileManager: in-memory 模式初始化完成")
     }
@@ -142,12 +143,9 @@ public final class ProfileManager {
         self.scopesByProfileId = state.scopesByProfileId
         self.executor = executor
         self.activeContainer = executor.container
-        self.activeRepositories = RepositoryContainer(
-            executor: executor,
-            scope: state.scope,
-            profileDirectory: state.profileDirectory
-        )
-        self.activeImageStorage = ImageStorage(baseDirectory: state.profileDirectory, scope: state.scope)
+        let imageStorage = ImageStorage(baseDirectory: state.profileDirectory)
+        self.activeRepositories = RepositoryContainer(executor: executor, imageStorage: imageStorage)
+        self.activeImageStorage = imageStorage
         self.activeScope = state.scope
         syncExecutorStatus(executorStatus)
 
@@ -250,8 +248,9 @@ public final class ProfileManager {
 
         self.executor = executor
         activeContainer = executor.container
-        activeRepositories = RepositoryContainer(executor: executor, scope: scope, profileDirectory: profileDir)
-        activeImageStorage = ImageStorage(baseDirectory: profileDir, scope: scope)
+        let imageStorage = ImageStorage(baseDirectory: profileDir)
+        activeRepositories = RepositoryContainer(executor: executor, imageStorage: imageStorage)
+        activeImageStorage = imageStorage
         activeScope = scope
         syncExecutorStatus(executorStatus)
 
@@ -388,12 +387,9 @@ public final class ProfileManager {
         let executor = DataExecutor(inMemory: true)
         self.executor = executor
         activeContainer = executor.container
-        activeRepositories = RepositoryContainer(
-            executor: executor,
-            scope: scope,
-            profileDirectory: FileManager.default.temporaryDirectory
-        )
-        activeImageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory, scope: scope)
+        let imageStorage = ImageStorage(baseDirectory: FileManager.default.temporaryDirectory)
+        activeRepositories = RepositoryContainer(executor: executor, imageStorage: imageStorage)
+        activeImageStorage = imageStorage
         activeScope = scope
         syncExecutorStatus(.healthy)
         activeProfileId = profile.id

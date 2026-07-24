@@ -37,22 +37,13 @@ public struct ImageStorage: Sendable {
 
     // MARK: - Properties
 
-    /// 图片存储根目录（Profile 隔离目录）
+    /// 图片存储根目录
     private let baseDirectory: URL
     private let publishImage: ImagePublisher
 
     // MARK: - Initialization
 
-    /// 创建 Profile 隔离的图片存储服务（生产路径）
-    /// - Parameters:
-    ///   - baseDirectory: Profile 图片根目录（如 `profiles/<id>/`）
-    ///   - scope: Profile 隔离作用域（用于日志/调试）
-    nonisolated public init(baseDirectory: URL, scope: ProfileScope) {
-        self.baseDirectory = baseDirectory
-        publishImage = Self.publishImageLive
-    }
-
-    /// 使用显式根目录创建图片存储服务（备份、测试或 Preview 路径）
+    /// 使用显式根目录创建图片存储服务。
     /// - Parameter baseDirectory: 图片存储根目录
     nonisolated public init(baseDirectory: URL) {
         self.baseDirectory = baseDirectory
@@ -190,9 +181,16 @@ public struct ImageStorage: Sendable {
     /// - Parameter path: 图片的相对路径 (e.g., "images/xyz.jpg")
     /// - Returns: 加载的 UIImage，如果失败返回 nil
     nonisolated public func loadImageAsync(path: String) async -> UIImage? {
-        await Task.detached(priority: .userInitiated) { [self] in
-            self.loadImage(path: path)
-        }.value
+        let task: Task<UIImage?, Never> = Task.detached(priority: .userInitiated) { [self] in
+            guard !Task.isCancelled else { return nil }
+            let image = self.loadImage(path: path)
+            return Task.isCancelled ? nil : image
+        }
+        return await withTaskCancellationHandler {
+            await task.value
+        } onCancel: {
+            task.cancel()
+        }
     }
 
     /// 从本地加载降采样图片（同步，ImageIO 流式解码）
@@ -206,6 +204,7 @@ public struct ImageStorage: Sendable {
     ///   - maxLongSide: 长边像素上限（默认 1200，A4 150dpi 足够）
     /// - Returns: 降采样后的 UIImage，失败时回退到 `loadImage(path:)`
     nonisolated public func loadDownsampledImage(path: String, maxLongSide: Int = 1200) -> UIImage? {
+        guard !Task.isCancelled else { return nil }
         guard let fileURL = existingRegularFileURL(for: path) else { return nil }
 
         let options: [CFString: Any] = [
@@ -215,14 +214,34 @@ public struct ImageStorage: Sendable {
             kCGImageSourceThumbnailMaxPixelSize: maxLongSide
         ]
 
-        guard let source = CGImageSourceCreateWithURL(fileURL as CFURL, nil),
+        guard !Task.isCancelled,
+              let source = CGImageSourceCreateWithURL(fileURL as CFURL, nil),
               let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            guard !Task.isCancelled else { return nil }
             // ImageIO 失败时回退到全分辨率加载（可能导致内存峰值偏高）
             SnapDrillLogger.generic.warning("ImageIO 降采样失败，回退到全分辨率加载: \(path)")
             return UIImage(contentsOfFile: fileURL.path)
         }
 
-        return UIImage(cgImage: cgImage)
+        return Task.isCancelled ? nil : UIImage(cgImage: cgImage)
+    }
+
+    /// 从本地异步加载降采样图片，并把调用方取消传播给后台解码任务。
+    ///
+    /// 适用于列表缩略图和详情页内联预览。SwiftUI `.task` 在视图离屏时取消，
+    /// 此入口会阻止已取消任务继续回写图片状态。
+    nonisolated public func loadDownsampledImageAsync(
+        path: String,
+        maxLongSide: Int = 1200
+    ) async -> UIImage? {
+        let task: Task<UIImage?, Never> = Task.detached(priority: .userInitiated) { [self] in
+            self.loadDownsampledImage(path: path, maxLongSide: maxLongSide)
+        }
+        return await withTaskCancellationHandler {
+            await task.value
+        } onCancel: {
+            task.cancel()
+        }
     }
 
     // MARK: - 存储统计

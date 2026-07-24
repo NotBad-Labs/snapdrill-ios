@@ -132,7 +132,7 @@ nonisolated extension L10n {
         public static let fieldSourceHint = NSLocalizedString("accessibility.field_source_hint", value: "开启后录入时显示来源选择", comment: "VoiceOver 来源字段提示")
         public static let fieldLevelHint = NSLocalizedString("accessibility.field_level_hint", value: "开启后录入时显示级别选择", comment: "VoiceOver 级别字段提示")
         public static let fieldAnswerHint = NSLocalizedString("accessibility.field_answer_hint", value: "开启后录入时显示答案输入", comment: "VoiceOver 答案字段提示")
-        public static let clearAllDataHint = NSLocalizedString("accessibility.clear_all_data_hint", value: "删除所有资料、标签和回顾记录，不可恢复", comment: "VoiceOver 清除数据提示")
+        public static let clearAllDataHint = NSLocalizedString("accessibility.clear_all_data_hint", value: "删除资料库中的所有资料、分类和标签，不可恢复", comment: "VoiceOver 清除数据提示")
         public static let generateTestDataHint = NSLocalizedString("accessibility.generate_test_data_hint", value: "生成模拟数据用于调试", comment: "VoiceOver 生成测试数据提示")
         public static let setAvatarHint = NSLocalizedString("accessibility.set_avatar_hint", value: "从相册或系统图标中选择头像", comment: "VoiceOver 设置头像提示")
         public static func avatarColorName(_ index: Int) -> String {

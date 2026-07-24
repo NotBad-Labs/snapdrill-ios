@@ -100,9 +100,12 @@ struct SettingsBackupCoordinator {
                 data = try repositories.collectProfileBackupData(profileName: profile.name, profileId: profile.id)
             } else {
                 // 非活跃 Profile 临时创建 DataExecutor，避免回落到旧同步容器路径。
+                let profileDirectory = vault.profileDirectory(for: profile.id)
                 let tempExecutor = await DataExecutor.createOffMainActor(storeURL: vault.storeURL(for: profile.id))
-                let scope = ProfileScope(id: profile.id, name: profile.name)
-                let tempRepos = RepositoryContainer(executor: tempExecutor, scope: scope, profileDirectory: vault.profileDirectory(for: profile.id))
+                let tempRepos = RepositoryContainer(
+                    executor: tempExecutor,
+                    imageStorage: ImageStorage(baseDirectory: profileDirectory)
+                )
                 data = try tempRepos.collectProfileBackupData(profileName: profile.name, profileId: profile.id)
             }
             profileDataList.append(data)
@@ -246,8 +249,10 @@ struct SettingsBackupCoordinator {
         let profileDir = vault.profileDirectory(for: profile.id)
         let storeURL = vault.storeURL(for: profile.id)
         let executor = await DataExecutor.createOffMainActor(storeURL: storeURL)
-        let scope = ProfileScope(id: profile.id, name: profile.name)
-        return RepositoryContainer(executor: executor, scope: scope, profileDirectory: profileDir)
+        return RepositoryContainer(
+            executor: executor,
+            imageStorage: ImageStorage(baseDirectory: profileDir)
+        )
     }
 
     private func restoreActiveProfileIfNeeded(_ preRestoreActiveProfileId: UUID) async throws {
@@ -319,8 +324,10 @@ struct SettingsBackupCoordinator {
             return repositories
         }
         let executor = await DataExecutor.createOffMainActor(storeURL: vault.storeURL(for: profileData.profileId))
-        let scope = ProfileScope(id: profileData.profileId, name: profileData.profileName)
-        return RepositoryContainer(executor: executor, scope: scope, profileDirectory: vault.profileDirectory(for: profileData.profileId))
+        return RepositoryContainer(
+            executor: executor,
+            imageStorage: ImageStorage(baseDirectory: vault.profileDirectory(for: profileData.profileId))
+        )
     }
 
     /// 恢复前自动备份当前数据到临时目录。任何不完整或写入失败都在 mutation 前中止恢复。

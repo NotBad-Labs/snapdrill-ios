@@ -35,7 +35,7 @@ nonisolated extension L10n {
         public static let storageManagement = NSLocalizedString("settings.storage_management", value: "存储管理", comment: "存储管理")
         public static let storageImages = NSLocalizedString("settings.storage_images", value: "资料图片", comment: "图片存储占用")
         public static let storageTotal = NSLocalizedString("settings.storage_total", value: "总占用", comment: "总存储占用")
-        public static let storageFooter = NSLocalizedString("settings.storage_footer", value: "显示当前资料空间的存储占用。图片会自动压缩以节省空间。", comment: "存储管理说明")
+        public static let storageFooter = NSLocalizedString("settings.storage_footer", value: "显示本地资料库的存储占用。图片会自动压缩以节省空间。", comment: "存储管理说明")
 
         // 通用
         public static let general = NSLocalizedString("settings.general", value: "通用", comment: "通用区标题")
@@ -51,10 +51,10 @@ nonisolated extension L10n {
         public static let manageCategories = NSLocalizedString("settings.manage_categories", value: "管理分类维度", comment: "管理分类维度（L3 动态维度统一入口）")
         public static let manageSources = NSLocalizedString("settings.manage_sources", value: "管理来源", comment: "管理来源")
         public static let manageLevels = NSLocalizedString("settings.manage_levels", value: "管理级别", comment: "管理级别")
-        public static let clearAllData = NSLocalizedString("settings.clear_all_data", value: "清空所有数据", comment: "清空所有数据")
-        public static let clearConfirmTitle = NSLocalizedString("settings.clear_confirm_title", value: "确认清空所有数据？", comment: "清空确认标题")
-        public static let clearConfirmMessage = NSLocalizedString("settings.clear_confirm_message", value: "此操作将删除所有资料、分类和标签，且不可恢复。", comment: "清空确认信息")
-        public static let clearConfirmButton = NSLocalizedString("settings.clear_confirm_button", value: "清空所有", comment: "确认清空按钮")
+        public static let clearAllData = NSLocalizedString("settings.clear_all_data", value: "清空资料库", comment: "清空资料库")
+        public static let clearConfirmTitle = NSLocalizedString("settings.clear_confirm_title", value: "确认清空资料库？", comment: "清空确认标题")
+        public static let clearConfirmMessage = NSLocalizedString("settings.clear_confirm_message", value: "此操作将删除资料库中的所有资料、分类和标签，且不可恢复。", comment: "清空确认信息")
+        public static let clearConfirmButton = NSLocalizedString("settings.clear_confirm_button", value: "清空资料库", comment: "确认清空按钮")
         public static let clearFailed = NSLocalizedString("settings.clear_failed", value: "清空数据失败，请稍后重试", comment: "清空数据失败错误")
         public static let dangerZone = NSLocalizedString("settings.danger_zone", value: "危险操作", comment: "危险操作分区标题")
         public static let dangerZoneFooter = NSLocalizedString("settings.danger_zone_footer", value: "以下操作不可撤销，请谨慎使用", comment: "危险操作分区说明")

@@ -16,6 +16,19 @@ enum CaptureMethod {
     case pdf
 }
 
+extension CaptureView {
+    var exposesOptionalSurfacesForUITesting: Bool {
+#if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains("--uitesting")
+            && arguments.contains("--ui-test-optional-surface")
+            && !arguments.contains("--ui-test-core-surface")
+#else
+        return false
+#endif
+    }
+}
+
 #if DEBUG
 #Preview {
     @Bindable var router = CaptureRouter()
