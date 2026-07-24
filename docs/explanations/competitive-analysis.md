@@ -1,79 +1,80 @@
 ---
-last_verified: 2026-05-25
+last_verified: 2026-07-24
 layer: pattern
-audit_note: VALID_WITH_GAP — 竞品数据 time-sensitive，需季度刷新
+audit_note: Current official store descriptions support workflow-pattern comparison; they do not prove SnapDrill market demand.
 gap_type: time_sensitive_external
-gap_due: 2026-09-30
+gap_due: 2026-10-31
 gap_owner: product
-gap_evidence_required: 竞品（Anki / GoodNotes / Notion / Apple Notes）当季最新功能与定价
-review_gate: product fact refresh required before updating competitor claims; last_verified intentionally not refreshed by docs cleanup
+gap_evidence_required: Refresh official product pages before changing product claims or public positioning.
+review_gate: External evidence may shape candidates but cannot override Product Constitution or Release Contract.
 ---
-# SnapDrill 竞品分析
+# SnapDrill 竞品模式分析
 
-> 上游依赖：`vision.md`（产品定位、差异化）、`business-model.md`（商业模式）。
+> 上游依赖：`vision.md`（产品定位）与 `release-1-contract.md`（Release 1 产品形态）。
+> 本文只提取成熟产品反复验证过的交互模式，不复制其教育内容、增长或商业体系。
 
-## 行业格局
+## 比较边界
 
-SnapDrill 的直接竞品横跨两类：通用扫描归档工具，以及围绕题目/试卷资料优化的垂直工具。下表聚焦后者，因为它们最容易在采集、整理、导出和打印闭环上与 SnapDrill 被用户比较；这不改变 SnapDrill 的通用效率工具定位。
+SnapDrill 的首个切口会与中国大陆错题本和试卷整理 App 被用户放在一起比较，但产品身份不同：
 
-| 梯队 | 代表产品 | 特点 |
+- 橙果错题本、小猿搜题、作业帮等首先是教育内容或辅导平台；
+- 试卷宝等产品更接近“扫描、整理、打印”的垂直工具；
+- SnapDrill 坚持通用效率工具定位，面向成年人处理试卷和学习资料，但不提供题库、搜题、解题、课程或儿童账户。
+
+因此，竞品只能回答“用户已经习惯怎样完成任务”，不能回答“SnapDrill 应成为哪类产品”。
+
+## 当前外部证据
+
+| 产品 | 官方页面可见的核心模式 | 对 SnapDrill 的含义 |
 |---|---|---|
-| 巨头附属 | 喵喵机（作业帮）、小猿口算（猿辅导）、快对 | 背靠亿级题库，免费引流卖硬件/课程 |
-| 垂直工具 | 蜜蜂试卷、试卷宝、A+错题本、橙果错题本 | 以去手写/试卷还原为核心卖点，订阅制。SnapDrill 仅把图片增强保留为未来候选，当前差异化是 local-first、零 SnapDrill 账户与可携带资料 |
-| 独立小众 | 刺猬错题本、纠错大师、错题plus | 功能轻量，用户量小 |
+| [橙果错题本](https://apps.apple.com/cn/app/id1240025662) | 拍照、多题录入、去手写、知识点、组卷、Word / PDF 与打印，并延伸到班级和练习内容 | 采集后整理、批量处理和打印链值得吸收；知识点、班级、内容推荐和教育身份拒绝 |
+| [小猿搜题](https://apps.apple.com/cn/app/id906995758) | 拍照解题、解析 / 相似题、错题收藏、导出打印 | “一次采集 -> 留存 -> 导出”模式值得吸收；解题、解析、相似题和薄弱点训练拒绝 |
+| [作业帮](https://apps.apple.com/cn/app/id803781859) | 作业检查、拍照答疑、知识点学习、错题整理和个性化练习 | 错题整理证明分类与找回的重要性；课程、答疑、学习报告和个性化推荐拒绝 |
+| [试卷宝](https://apps.apple.com/cn/app/id1624848373) | 试卷边缘处理、去手写、分类整理、备注、PDF、分享与打印 | 与 SnapDrill 核心链最接近；分类、备注、选择后打印可吸收，云端依赖、会员门槛和教育限定不继承 |
 
-## 竞品致命缺陷（用户真实痛点，来自知乎测评）
+这些页面证明相关模式已经在正式产品中长期存在，但不能证明具体功能、定价或市场规模适合 SnapDrill。任何市场需求结论仍需真实用户证据。
 
-1. **录入界面拥挤** — 一屏塞满字段，容易误操作（SnapDrill 对策：默认仅开启学科）
-2. **付费限制录入** — 橙果免费 50 题后收费，部分 App 每天 10 题（SnapDrill 对策：永不限制）
-3. **注册流程繁琐** — 要求手机号+学校+年级+位置权限（SnapDrill 对策：零注册）
-4. **OCR 不准 + 强制校对** — 用户被迫修正识别错误（SnapDrill 对策：展示但不强迫校对）
-5. **打印要会员** — 基础功能付费化（SnapDrill 对策：基础 PDF 导出免费）
+## Adopt / Adapt / Reject
 
-## SnapDrill 的差异化定位
+### Adopt：直接采用的工具模式
 
-| 维度 | 喵喵机（最大竞品） | SnapDrill |
-|---|---|---|
-| 定位 | 搜题+练题+打印 | 采集→整理 / 找回→导出 / 打印 |
-| 商业模式 | App 免费 + 卖打印机硬件 | Release 1 免费、无广告、无 IAP；未来商业化未定 |
-| 数据 | 云端存储，收集用户信息 | local-first、无 SnapDrill 账户、永久手动备份；Apple 私有同步仅为候选假设 |
-| 注册 | 手机号必须 | 无注册 |
-| 平台 | Android 优先，iOS 体验一般 | iOS 原生精品 |
-| 题库 | 2.5 亿题库（作业帮） | 无题库（我们是工具不是内容） |
-| 技术 | 第三方 OCR + 云端匹配 | Apple Vision 原生端上识别 |
+- 采集后进入可确认的预览与编辑，而不是静默入库。
+- 在保存附近提供轻量分类，使内容进入资料库时即可被找回。
+- 图片与可编辑文字并存，OCR 不替代用户原始材料。
+- 资料库支持搜索、分类 / 标签过滤、查看、编辑和安全删除。
+- 用户选择若干资料后生成 PDF，并进入系统预览、打印、分享或保存。
+- 连续处理纸张、照片或 PDF 时尽量减少重复步骤。
 
-## 与 Anki 的本质区别（2026-03-23 从 product-vision.md 迁入）
+### Adapt：去教育化后采用
 
-Anki 是"记忆工具"——用户为了记住知识而制卡。
-SnapDrill 是个人资料工具——用户为了留存和复用有价值的纸张 / PDF 材料而采集，核心价值链终点是导出 / 打印。Review 与 SmartPaper 是可选复用能力，不是 Pro 或核心承诺。
+| 教育产品常见表达 | SnapDrill 的通用表达 |
+|---|---|
+| 科目 | 分类 |
+| 知识点 / 考点 | 标签 |
+| 题干 | 资料内容 |
+| 错解 / 正解 | 可选参考内容 |
+| 试卷分类 | 资料分类 |
+| 错题组卷 | 选择资料后生成 PDF；SmartPaper 仍是非公开实验 |
+| 学习阶段 / 难度 | 不内置；通用来源 / 级别仅按需开启 |
 
-当前首个切口是处理结构化纸张 / PDF 的成年人；这是待外部证据验证的工作流假设，不是已证实的大众市场结论。
+### Reject：不进入当前产品
 
-## 隐形竞品：通用工具的替代威胁
+- 题库、搜题、自动解题、答案匹配、相似题和课程推荐；
+- 学校、班级、年级、儿童、家长或教师身份模型；
+- 提分、薄弱点、排名、签到、连续学习、积分和焦虑驱动文案；
+- 以注册、云端内容或会员付费作为核心采集、整理、备份或打印前置条件；
+- 把当前代码中的 Review、SmartPaper、Pro、Profile 或动态字段数量反向解释为用户需求。
 
-除题目/试卷资料垂直工具外，用户可能用通用工具替代 SnapDrill 的部分功能。这些通用工具不以学习资料为唯一场景，但覆盖了采集和存储环节。
+## Release 1 产品结论
 
-| 通用工具 | 覆盖的能力 | 未覆盖的练习题场景 |
-|---|---|---|
-| **Apple 备忘录 + 扫描文稿** | 免费扫描（自动边缘检测/透视校正）、OCR 文字搜索（Live Text）、iCloud 同步、文件夹/标签/Smart Folder 过滤 | 未提供题目语义结构（科目/难度/答案配对）、未提供连续裁剪同一张图的采集流程、未提供按学科/难度过滤后导出练习卷、未提供间隔重复复习 |
-| **Notion** | 数据库驱动的结构化笔记、模板、Education Plan（主要面向高等教育，K-12 适用性有限） | 未提供原生文档扫描、对扫描件 OCR 能力有限（依赖前置 OCR）、学习场景需用户自建模板配置成本较高、未提供间隔重复复习 |
-| **GoodNotes** | 手写 OCR 搜索、PDF 标注、Study Sets + Smart Learn（基于 spaced repetition 的复习系统） | 未提供面向练习题的结构化采集流程和元数据管理。定价事实须在使用前重新核验 |
+1. 核心链保持：**采集 -> 整理 / 找回 -> 导出 / 打印**。
+2. D-META-A 在预览与编辑页默认显示一个可跳过的通用“分类”字段；标签作为次级入口。
+3. 来源 / 级别默认隐藏并仅按需开启；不内置学科、年级、章节、知识点、题型、错因或掌握度。
+4. 竞品的批量采集、去手写和智能拆分只保留为未来候选，不进入 Release 1 Must。
+5. live code 用于评估实现成本和发现偏差，不能作为新增产品范围的来源。
 
-**为什么 Apple 备忘录不是充分替代**：
-- 备忘录扫描的是通用"文档"，SnapDrill 采集的是"题目"——题目有科目、难度、答案、标签等结构化元数据，备忘录未提供这些维度
-- 备忘录未提供"连续裁剪同一张图上的多道题"的采集流程优化
-- 备忘录虽支持标签和 Smart Folder 过滤，但不支持按科目/难度维度过滤后导出练习卷
-- 备忘录未提供间隔重复复习系统
+## 通用替代工具
 
-**观察**：通用工具覆盖了"拍照存档"的基础需求，但未针对"练习题管理"场景做优化。SnapDrill 的差异化在于题目语义结构、针对练习题的采集流程和导出/打印闭环——这些是通用工具通过配置难以复制的垂直能力。
+Apple 备忘录已经提供文稿扫描、OCR 搜索、文件夹和标签；它证明“扫描 + 搜索 + 标签”是通用工具能力，而不是教育专属能力。SnapDrill 的当前差异应来自更短的结构化纸张 / PDF 采集到打印闭环，而不是堆叠教育字段。
 
-## 相关文档
-
-| 文档 | 关系 | 说明 |
-|---|---|---|
-| `vision.md` | 上游 | 产品定位、差异化策略 |
-| `business-model.md` | 相关 | 商业模式、定价策略 |
-
----
-
-> 核验来源（2026-04-07）：[Apple Notes 扫描](https://support.apple.com/en-asia/108963)、[Apple Notes 标签](https://support.apple.com/en-us/102288)、[Notion Education](https://www.notion.com/product/notion-for-education)、[GoodNotes Smart Learn](https://support.goodnotes.com/hc/en-us/articles/7353756529551)、[GoodNotes 定价](https://www.goodnotes.com/pricing)
+核验来源：[Apple 扫描文稿](https://support.apple.com/108963)、[Apple Notes 标签与智能文件夹](https://support.apple.com/102288)。

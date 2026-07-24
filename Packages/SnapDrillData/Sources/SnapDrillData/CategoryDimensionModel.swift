@@ -87,10 +87,11 @@ extension CategoryDimensionModel {
         "\(Self.visibilityKeyPrefix)\(systemKey ?? id.uuidString)"
     }
 
-    /// 采集页 / 管理页可见性的缺省值（仅当 UserDefaults 无显式设置时生效）：
-    /// 用户自建维度默认可见；所有内置维度默认隐藏，保持首次录入极简并避免把通用资料归档
-    /// 预先框进学习阶段场景。用户可在分类管理中按需打开内置维度。
+    /// 采集页 / 管理页可见性的缺省值（仅当 UserDefaults 无显式设置时生效）。
+    /// D-META-A：通用分类默认可见，标签作为次级入口可见；来源 / 级别默认隐藏。
+    /// 用户明确创建的自定义维度继续默认可见。
     public var defaultCaptureVisibility: Bool {
-        !isBuiltIn
+        guard isBuiltIn else { return true }
+        return systemKey == CategorySystemKey.category || systemKey == CategorySystemKey.tag
     }
 }

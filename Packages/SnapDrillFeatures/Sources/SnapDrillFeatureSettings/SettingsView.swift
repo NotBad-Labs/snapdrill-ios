@@ -50,8 +50,8 @@ public struct SettingsView: View {
     private static let sourceVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.source)"
     private static let levelVisibilityKey = "\(CategoryDimensionModel.visibilityKeyPrefix)\(CategorySystemKey.level)"
 
-    // 录入字段可见性：内置分类/来源/级别默认隐藏；用户在这里或分类管理中按需打开。
-    @AppStorage(Self.categoryVisibilityKey) private var showCategoryField: Bool = false
+    // D-META-A：分类默认显示；来源/级别默认隐藏，用户可按需打开。
+    @AppStorage(Self.categoryVisibilityKey) private var showCategoryField: Bool = true
     @AppStorage(Self.sourceVisibilityKey) private var showSourceField: Bool = false
     @AppStorage(Self.levelVisibilityKey) private var showLevelField: Bool = false
     @AppStorage(UDKey.captureFieldAnswer) private var showAnswerField: Bool = false

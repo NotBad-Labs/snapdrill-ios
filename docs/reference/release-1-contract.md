@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-21
+last_verified: 2026-07-24
 layer: release-contract
 release: 1
 product_role: release-prd
@@ -10,8 +10,9 @@ ratified_at:
   release_safety_boundaries: 2026-07-19
   capture_draft_retention: 2026-07-20
   backup_v3_product_semantics: 2026-07-21
+  metadata_defaults: 2026-07-24
 activation: effective_when_merged_to_develop
-ratified_decisions: ["C1-A", "C2-Core", "C2-Image", "C2-Optional", "C2-Personalization", "C3", "C4-D", "C5-E", "C5-S1", "C6-A", "DATA-1", "DATA-1-E", "DATA-1-R", "D1-B", "D2-A", "D3-B", "D4-B", "D5-A", "#932-A", "#891-copy", "S1-A", "M1-A", "D4S-A", "ORI-A", "P1-A", "P2-B-A", "P2-C-A", "P2-D-A", "P2-E-A", "P2-F-A", "P2-G-A"]
+ratified_decisions: ["C1-A", "C2-Core", "C2-Image", "C2-Optional", "C2-Personalization", "C3", "C4-D", "C5-E", "C5-S1", "C6-A", "DATA-1", "DATA-1-E", "DATA-1-R", "D1-B", "D2-A", "D3-B", "D4-B", "D5-A", "#932-A", "#891-copy", "S1-A", "M1-A", "D4S-A", "ORI-A", "P1-A", "P2-B-A", "P2-C-A", "P2-D-A", "P2-E-A", "P2-F-A", "P2-G-A", "D-META-A"]
 pending_decisions: []
 upstream:
   - ../explanations/vision.md
@@ -35,6 +36,11 @@ upstream:
 卡片、像素布局、类型名、package 边界或当前实现，也不允许通过“代码已经存在”反向扩大范围。
 
 发生冲突时：Product Constitution 决定耐久产品方向；本文决定 Release 1；feature spec 细化单功能；代码、测试和发布实证只证明当前实现。
+
+Release 1 的产品 shaping 按“当前 effective 规范与 PO 最新明确意图 -> 已发布成熟产品的当前交互模式
+-> live code 的可实现性与偏差证据”取证。旧 PR、issue、审计和聊天默认不重新进入需求输入，也不因
+编号、标签或历史接受状态而恢复执行权；只有当前安全、数据 / wire、法律或测试契约仍显式引用时，
+才按该引用的最小范围核验。竞品用于学习任务结构，不能覆盖 SnapDrill 的通用效率工具定位。
 
 ### 决策摘要
 
@@ -71,8 +77,11 @@ upstream:
 | P2-E-A | RATIFIED | 图片保存时生成 canonical JPEG；方向与颜色先烘焙，透明像素铺白；Backup 不修图，非 canonical active image 拒绝导出 |
 | P2-F-A | RATIFIED | Backup 生命周期为 idle / running / completed / cancelled / failed；取消非错误，校验超时可重试且不等于损坏 |
 | P2-G-A | RATIFIED | 答案文字保留空字符串与 NULL；taxonomy icon / color 保存时规范化且必填；每条资料最多一张主图和一张答案图 |
+| D-META-A | RATIFIED | 采集预览默认显示一个可跳过的通用“分类”字段；标签是次级入口；来源 / 级别仅按需开启；不内置教育领域字段 |
 
-后续裁决的 shaping 与 PO ratification 回执保留在 [#882](https://github.com/NotBad-Labs/snapdrill-ios/issues/882)、[#885](https://github.com/NotBad-Labs/snapdrill-ios/issues/885)、[#906](https://github.com/NotBad-Labs/snapdrill-ios/issues/906)、[#907](https://github.com/NotBad-Labs/snapdrill-ios/issues/907)、[#910](https://github.com/NotBad-Labs/snapdrill-ios/issues/910)、[#918](https://github.com/NotBad-Labs/snapdrill-ios/issues/918)、[#884](https://github.com/NotBad-Labs/snapdrill-ios/issues/884)、[#932](https://github.com/NotBad-Labs/snapdrill-ios/issues/932)、[#950](https://github.com/NotBad-Labs/snapdrill-ios/issues/950)、[#956](https://github.com/NotBad-Labs/snapdrill-ios/issues/956) 与 [#891](https://github.com/NotBad-Labs/snapdrill-ios/issues/891)。这些 issue 是来源证据；合入 `develop` 后的本文与 owning contract / feature spec 才是规范权威。
+后续裁决的 PO ratification 回执保留在 [#882](https://github.com/NotBad-Labs/snapdrill-ios/issues/882)、[#885](https://github.com/NotBad-Labs/snapdrill-ios/issues/885)、[#906](https://github.com/NotBad-Labs/snapdrill-ios/issues/906)、[#907](https://github.com/NotBad-Labs/snapdrill-ios/issues/907)、[#910](https://github.com/NotBad-Labs/snapdrill-ios/issues/910)、[#918](https://github.com/NotBad-Labs/snapdrill-ios/issues/918)、[#884](https://github.com/NotBad-Labs/snapdrill-ios/issues/884)、[#932](https://github.com/NotBad-Labs/snapdrill-ios/issues/932)、[#950](https://github.com/NotBad-Labs/snapdrill-ios/issues/950)、[#956](https://github.com/NotBad-Labs/snapdrill-ios/issues/956) 与 [#891](https://github.com/NotBad-Labs/snapdrill-ios/issues/891)。这些 issue 只保留审计来源，不再作为需求待办；合入 `develop` 后的本文与 owning contract / feature spec 才是规范权威。
+
+D-META-A 由 PO 于 2026-07-24 在真实采集流程 dogfood 后批准。该裁决直接记录在本合同与 owning feature spec，不为单一默认值另建平行 PRD 或 decision file。
 
 ## 2. 目标产物
 
@@ -135,8 +144,9 @@ Release 1 服务处理结构化纸张、照片或 PDF 材料的成年人。考�
 
 | 能力簇 | 默认处置 |
 |---|---|
-| 基础分类 / 标签的选择、搜索和过滤 | Must；支持一个资料库内的通用整理，不预设教育领域字段或孩子身份 |
-| 自定义字段 / 动态维度管理 | Candidate optional；不得让首次采集依赖配置 |
+| 基础分类 / 标签的选择、搜索和过滤 | Must；D-META-A 要求分类默认可见但可跳过，标签以次级入口提供；支持一个资料库内的通用整理 |
+| 来源 / 级别 | Secondary opt-in；采集页默认隐藏，可在设置中按需开启；不得解释为学科、年级、难度或掌握度 |
+| 自定义字段 / 动态维度管理 | Candidate optional；默认隐藏，不得让首次采集依赖配置 |
 | 批量打标签、批量删除 | Candidate optional；若纳入，部分失败必须给出结果摘要 |
 | ShareCard | Hidden by default；不属于 PDF / 打印 Must |
 | 去答案、留白、页眉页码、单条快速打印 | Candidate optional；基础多选 PDF / 系统打印不得依赖这些增强项 |
@@ -145,6 +155,21 @@ Release 1 服务处理结构化纸张、照片或 PDF 材料的成年人。考�
 | Dashboard analytics、高级统计 | Hidden / out of scope |
 
 Capability Manifest 是一次候选构建的实证附件，只能缩小本合同允许的范围，不能新增产品权威；`pre-freeze`、未列入或未经 PO build 授权均视为隐藏。Candidate optional 的缺陷不得破坏 Must 路径，任何 S0 / S1、隐私或 AX 阻断都会使该能力从候选移除或先修复，不能用“可选”豁免质量。
+
+### 3.4 核心表面与默认行为
+
+本表冻结 Release 1 的产品形态与默认行为，不冻结像素布局、具体控件类型或代码结构。成熟错题本产品只作为交互模式证据；SnapDrill 采用其“采集后立即整理、稍后找回、选择后导出打印”的工具链，不继承教育内容平台语义。
+
+| 表面 | Release 1 默认形态 | 必须成立 / 不得出现 |
+|---|---|---|
+| Onboarding | 解释采集、整理 / 找回、导出 / 打印和 local-first | 可跳过；不要求注册、Profile、学校、年级或科目配置；不介绍 Review、SmartPaper、Pro |
+| Dashboard | 普通启动默认首屏；Capture 与 Library 一步可达；可显示本地资料状态 | 不出现课程、学习进度、连续记录、排名、Profile、Pro 或 analytics |
+| Capture 入口 | 相机 / 文档扫描、相册、PDF 是 Must | 手动、剪贴板和 Share Extension 未被 manifest 纳入时完全隐藏 |
+| 预览与编辑 | 显示用户确认的图片、可编辑 OCR 文本和可选元数据；无分类仍可保存 | **D-META-A**：默认显示通用“分类”，可选已有值或现场新建；标签作为次级入口；来源 / 级别默认隐藏；不得内置教育领域字段 |
+| Library | 一个资料库；默认按最近录入呈现；支持搜索、分类 / 标签过滤、查看、编辑和可撤销删除 | 不显示孩子、班级、课程、题库、推荐内容或多个资料空间 |
+| 详情 / 编辑 | 图片与正文可读；可编辑正文、分类 / 标签和已纳入的字段 | OCR 不覆盖图片真相；optional 字段不得阻断查看或保存 |
+| 选择与导出 | 选择资料后生成基础 PDF，进入系统预览、打印、分享或保存 | 打印是独立终点；不依赖 SmartPaper、去答案、封面、Word、会员或云服务 |
+| Settings | 维护真实通用偏好、数据 / 备份、隐私、法律与应用信息 | 不出现 Profile、Review 目标 / 提醒、Pro / IAP 或未批准能力预告；来源 / 级别仅作为可选录入字段开关 |
 
 ## 4. 启动与 Dashboard
 
@@ -270,6 +295,6 @@ Release 1 不包含：
 1. PO 已于 2026-07-13 至 2026-07-20 批准摘要表列出的 Gate C 与后续精确决策；它们在本权威及 owning feature / Data Contract 同步合入后 effective。
 2. 本文及必要 thin pointers 通过文档门禁和独立语义复核。
 3. PR 合并获得 PO 单独授权并进入 `develop`；合并前仍是 ratified candidate。
-4. 本合同 docs-only PR 同步对齐受 Gate C 与后续裁决直接影响的产品说明、feature spec、结果 oracle、发布 evidence plan、术语与导航索引；这些改动用于移除旧规范冲突并建立追溯，不授权或包含代码、导航、schema / wire 实现。
+4. 产品契约收口同步对齐受 Gate C 与后续裁决直接影响的产品说明、feature spec、结果 oracle、发布 evidence plan、术语与导航索引；已 ratify 默认行为可以在同一有界 slice 中实现并验证，但不能借此新增能力、schema / wire 或发布授权。
 5. PR #868 已关闭且不再是实现路径，只保留为历史影响证据。单资料库生产收敛必须从最新 `develop` 按独立切片重新 shaping；精确 Backup Wire、可崩溃恢复和对应 fixtures 仍须由 owning contract 与单独授权约束。
 6. 本合同一经 effective，在新 Release Contract 或明确 supersession 合入前持续有效。

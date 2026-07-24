@@ -153,18 +153,20 @@ final class CategoryValueListViewModelTests {
         #expect(UserDefaults.standard.object(forKey: key) as? Bool == true)
     }
 
-    @Test("默认可见性：内置维度默认隐藏，用户自建维度默认可见")
-    func defaultVisibility_builtInHidden_customVisible() throws {
+    @Test("D-META-A 默认可见性：分类和标签可见，来源隐藏，用户自建维度可见")
+    func defaultVisibility_coreMetadataVisible_secondaryHidden() throws {
         let category = try makeDimension(name: "分类", isBuiltIn: true, systemKey: CategorySystemKey.category)
         let source = try makeDimension(name: "来源", isBuiltIn: true, systemKey: CategorySystemKey.source)
+        let tag = try makeDimension(name: "标签", isBuiltIn: true, systemKey: CategorySystemKey.tag)
         let custom = try makeDimension(name: "章节")  // 用户自建（isBuiltIn=false）
-        let dims = [category, source, custom]
+        let dims = [category, source, tag, custom]
         // 清掉可能被其他测试写过的稳定 systemKey 对应 key，确保读到的是 defaultCaptureVisibility
         for d in dims { UserDefaults.standard.removeObject(forKey: d.captureVisibilityKey) }
         defer { for d in dims { UserDefaults.standard.removeObject(forKey: d.captureVisibilityKey) } }
 
-        #expect(CategoryValueListViewModel(dimension: category, repositories: repos).isVisibleInCapture == false)
+        #expect(CategoryValueListViewModel(dimension: category, repositories: repos).isVisibleInCapture == true)
         #expect(CategoryValueListViewModel(dimension: source, repositories: repos).isVisibleInCapture == false)
+        #expect(CategoryValueListViewModel(dimension: tag, repositories: repos).isVisibleInCapture == true)
         #expect(CategoryValueListViewModel(dimension: custom, repositories: repos).isVisibleInCapture == true)
     }
 }

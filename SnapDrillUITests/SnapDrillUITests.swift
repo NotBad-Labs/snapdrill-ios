@@ -438,7 +438,7 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-onboarding-07-skip-completed")
     }
 
-    /// UI-freeze evidence: capture the manual Capture result editor without default taxonomy fields.
+    /// UI-freeze evidence: D-META-A shows optional category and secondary tags by default.
     func testUIFreezeCaptureManualResultEditorScreenshots() {
         let app = XCUIApplication()
         app.launchArguments = l3LaunchArguments()
@@ -459,9 +459,11 @@ final class SnapDrillUITests: XCTestCase {
         dismissKeyboardIfPresent(in: app)
         addScreenshot(named: "ui-freeze-capture-02-manual-filled-editor")
 
-        XCTAssertFalse(app.buttons["capture.dimRow.分类"].exists, "默认手动录入不应暴露分类字段")
-        XCTAssertFalse(app.buttons["capture.dimRow.分类"].exists, "默认手动录入不应预先要求分类")
-        addScreenshot(named: "ui-freeze-capture-03-no-default-category")
+        let category = app.buttons["capture.dimRow.分类"]
+        scrollUntilHittable(category, in: app)
+        XCTAssertTrue(category.waitForExistence(timeout: 5), "默认手动录入应显示可跳过的通用分类")
+        XCTAssertTrue(app.descendants(matching: .any)["capture.dimRow.标签"].exists, "标签应作为次级入口显示")
+        addScreenshot(named: "ui-freeze-capture-03-default-metadata")
 
         let save = app.buttons["capture.saveButton"]
         XCTAssertTrue(save.waitForExistence(timeout: 5), "保存按钮应仍然可用")

@@ -212,8 +212,8 @@ public final class CaptureResultViewModel {
 
     // MARK: - 维度选择 / 新建（供 View 经 DimensionInputRow 驱动）
 
-    /// 某维度是否在录入页可见（per-维度可见性；缺省走 defaultCaptureVisibility：
-    /// 用户自建维度默认可见，内置维度默认隐藏；管理界面写入显式开关覆盖缺省）
+    /// 某维度是否在录入页可见（per-维度可见性；缺省走 D-META-A：
+    /// 分类 / 标签和用户自建维度可见，来源 / 级别隐藏；显式开关覆盖缺省）
     public func isDimensionVisible(_ dimension: CategoryDimensionModel) -> Bool {
         UserDefaults.standard.object(forKey: dimension.captureVisibilityKey) as? Bool ?? dimension.defaultCaptureVisibility
     }

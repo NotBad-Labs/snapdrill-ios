@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-15
+last_verified: 2026-07-24
 layer: pattern
 ---
 # SnapDrill 术语表
@@ -44,7 +44,7 @@ layer: pattern
 |---|---|---|---|
 | **OCR** | Optical Character Recognition | Apple Vision 端上光学字符识别，用于生成搜索索引和可复制文本。App-managed 可读图片是内容真相，OCR 是辅助 | `CaptureViewModel` (Features) |
 | **SM-2** | SM-2 Algorithm | SuperMemo 2 间隔重复调度算法，计算每个资料项的下次回顾时间 | `ReviewScheduler` (Core) |
-| **字段配置** | Field Configuration | 用户在分类管理中按需开关分类、来源、级别、标签等录入维度。当前 canonical 内置维度 key 为 `category` / `source` / `level` / `tag`；`category` 是主分类维度，不等同于整个 `CategoryDimensionModel` 维度系统；`level` 是通用层级/阶段字段，不默认表达学习年龄段。 | `CategorySystemKey`, `CategoryDimensionModel.defaultCaptureVisibility`, `CategoryValueListViewModel.isVisibleInCapture` |
+| **字段配置** | Field Configuration | D-META-A 下，`category` 是默认可见但可跳过的主分类，`tag` 是次级多选入口；`source` / `level` 默认隐藏并仅按需开启。当前 canonical key 为 `category` / `source` / `level` / `tag`；这些通用字段不得被解释为学科、年级、知识点、难度或掌握度，自定义维度管理仍为 Candidate optional。 | `CategorySystemKey`, `CategoryDimensionModel.defaultCaptureVisibility`, `CategoryValueListViewModel.isVisibleInCapture` |
 | **连续录入** | Continuous Capture | 保存一项资料后自动回到相机界面，支持批量录入不中断 | `CaptureRouter` (Features) |
 | **软删除** | Soft Delete | 5 秒绝对期限内的持久待删状态；后台与重启不缩短窗口，期限后幂等执行真实删除 | 当前 `DeletionScheduler` 为待收敛实现 |
 
