@@ -131,7 +131,10 @@ def validate_project(project: object) -> list[str]:
     return errors
 
 
-def validate_effective_release_settings(payload: object) -> list[str]:
+def validate_effective_release_settings(
+    payload: object,
+    expected_targets: frozenset[str] = RELEASE_XCODE_TARGET_NAMES,
+) -> list[str]:
     """Validate JSON emitted by xcodebuild -showBuildSettings -json."""
 
     if not isinstance(payload, list):
@@ -152,10 +155,10 @@ def validate_effective_release_settings(payload: object) -> list[str]:
         entries[target] = entry
 
     actual_targets = set(entries)
-    if actual_targets != RELEASE_XCODE_TARGET_NAMES:
+    if actual_targets != expected_targets:
         errors.append(
             "effective Release targets must be "
-            f"{sorted(RELEASE_XCODE_TARGET_NAMES)!r}, found {sorted(actual_targets)!r}"
+            f"{sorted(expected_targets)!r}, found {sorted(actual_targets)!r}"
         )
 
     for target, entry in entries.items():
@@ -346,7 +349,23 @@ def main(argv: Iterable[str] | None = None) -> int:
         action="store_true",
         help="validate swift package dump-package JSON from standard input",
     )
+    parser.add_argument(
+        "--expected-release-target",
+        action="append",
+        choices=sorted(RELEASE_XCODE_TARGET_NAMES),
+        help=(
+            "expected target in effective Release settings; repeat for multiple targets "
+            "(defaults to all production targets)"
+        ),
+    )
     arguments = parser.parse_args(argv)
+    if (
+        arguments.expected_release_target
+        and not arguments.effective_release_settings_stdin
+    ):
+        parser.error(
+            "--expected-release-target requires --effective-release-settings-stdin"
+        )
 
     if (
         arguments.effective_release_settings_stdin
@@ -358,7 +377,14 @@ def main(argv: Iterable[str] | None = None) -> int:
             errors = [f"effective settings are not valid JSON: {error}"]
         else:
             if arguments.effective_release_settings_stdin:
-                errors = validate_effective_release_settings(payload)
+                expected_targets = frozenset(
+                    arguments.expected_release_target
+                    or RELEASE_XCODE_TARGET_NAMES
+                )
+                errors = validate_effective_release_settings(
+                    payload,
+                    expected_targets=expected_targets,
+                )
             else:
                 errors = validate_effective_package_settings(payload)
     else:
