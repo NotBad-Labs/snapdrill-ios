@@ -35,7 +35,7 @@ release_outcomes:
 
 > **产品重基线（2026-07-19）**：B4-A 将手动备份 / 恢复确立为永久数据权利，Release 1 PRD 的 DATA-1 / DATA-1-E / DATA-1-R 固定 epoch、完整备份、未加密提示和恢复材料保留边界。D1-B 选择 purpose-built SQLite `.snapdrillbackup`，D3-B 固定 degraded pre-restore snapshot 语义，#891 固定逐次导出提示文案。S1-A 与 D4S-A 分别提供统一数据接受边界和 complete-operation snapshot / barrier；精确规则只由 Local Library Data Contract 拥有。frontmatter 与技术章节仍只记录当前实现；现有 Profile ZIP wire、图片 best-effort 与自动清理是待 owning Data Contracts 收敛的偏差，不得冒充目标已实现。
 
-> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
+> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 PRD 符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / tech 聚合（docs 重组 B）。
 

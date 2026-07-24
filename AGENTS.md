@@ -107,6 +107,7 @@ UI / AX、archive、安装、隐私网络实证或发布候选 lineage；高层�
 | CI、签名、TestFlight 与发布 | `docs/how-to/release-and-ci.md` + `Configs/Toolchain.env` |
 | 其他文档与生成索引 | `docs/README.md` |
 
-私有记忆只是可丢弃缓存。项目 Skill 只封装重复工作流，运行时必须读取 live SSOT；不得复制
-产品基线、架构快照、角色品牌或发布状态。Agent 控制面若改变权威、PO gate、数据安全、
-验证或 merge / release 边界，必须使用独立 PR 评审，不能在功能补丁中顺手修改。
+私有记忆只是可丢弃缓存；关键客观事实的唯一归属与禁止入仓边界见
+`docs/reference/document-control.md`。项目 Skill 只封装重复工作流，运行时必须读取 live SSOT；
+不得复制产品基线、架构快照、角色品牌或发布状态。Agent 控制面若改变权威、PO gate、
+数据安全、验证或 merge / release 边界，必须使用独立 PR 评审，不能在功能补丁中顺手修改。

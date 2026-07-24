@@ -12,8 +12,8 @@ check, shape the task further or ask PO instead of silently choosing.
 Every task entering the bet, active write, or frozen merge queue needs a
 **current admission brief**.
 This is an internal execution record, not a fourth product SSOT: it points to
-effective authority instead of restating Product Vision & Principles, the Release
-Product Contract, or feature specs.
+effective authority instead of restating Product Vision & Principles, the
+Release 1 PRD, or feature specs.
 
 An issue, PR, audit, report, chat handoff, label, historical PO comment or
 authorization, and an old CI result are evidence by default. Age, number,
@@ -103,8 +103,8 @@ Release scope。
 
 PO rulings live in their authority document, not in this file. Examples:
 
-- durable product / data / commercial / platform rulings -> Product
-  Constitution at `docs/product/vision.md` and its direct policy owner
+- durable product / data / commercial / platform rulings -> Product Vision &
+  Principles at `docs/product/vision.md` and its direct policy owner
 - current-release scope / non-goal / acceptance rulings -> the current dated
   Release PRD
 - positioning rulings -> `docs/explanations/positioning-and-audience.md`
@@ -128,7 +128,7 @@ merge. A ruling becomes effective only when its owning authority is merged into
 `develop`. Existing tracked norms remain effective until explicitly
 superseded. Draft implementation may precede a contract for comparison, but a
 cross-feature, data/wire, public, business, or platform change may not merge
-before its upstream product or release contract.
+before its upstream Product Vision, Release PRD, or owning contract.
 
 常设委托只授权 Green 执行至 Draft PR。产品裁决仍走五态生命周期；merge 仍是使候选进入
 `develop` 的独立 PO 动作。

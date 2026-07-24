@@ -130,7 +130,7 @@ Release 1 服务处理结构化纸张、照片或 PDF 材料的成年人。考�
 
 ### 3.3 可见能力处置规则
 
-当前实现不自动产生 Release 1 范围。除 Must 和本 PRD单独批准的实验外，其余表面默认隐藏，只有按 [Release 1 Capability Manifest](../reference/release-1-capability-manifest.md) 的版本化路径与 schema 生成的不可变冻结件逐项列为 `included`、满足对应门禁并随该 build 获得 PO 授权后才可见。
+当前实现不自动产生 Release 1 范围。除 Must 和本 PRD 单独批准的实验外，其余表面默认隐藏，只有按 [Release 1 Capability Manifest](../reference/release-1-capability-manifest.md) 的版本化路径与 schema 生成的不可变冻结件逐项列为 `included`、满足对应门禁并随该 build 获得 PO 授权后才可见。
 
 每个 manifest 必须声明 `audience: po-only | research | public-candidate`。`hidden` 表示该 build 对该能力**零入口、零激活、零副作用**：没有 Tab、Dashboard / Library / Onboarding / Settings 入口、通知 / 徽标、任何可由用户或系统触发的 deep link / App Intent / Shortcut / Spotlight / widget、状态恢复路径、可达 AX 元素或公开元数据；启动、后台、升级和遗留调度也不得执行该能力、写入其状态或产生网络 / 文件 / 数据副作用。不可达且不执行的代码可以保留。不同 commit、build、audience 或 capability set 都是新候选，旧 build 的证据不能无说明继承。
 
@@ -145,7 +145,7 @@ Release 1 服务处理结构化纸张、照片或 PDF 材料的成年人。考�
 | 每日回顾目标、按回顾状态排序、Review 提醒 | Hidden；C4-D 的实验范围不包含这些表面，未来只有新裁决才可 include |
 | Dashboard analytics、高级统计 | Hidden / out of scope |
 
-Capability Manifest 是一次候选构建的实证附件，只能缩小本 PRD允许的范围，不能新增产品权威；`pre-freeze`、未列入或未经 PO build 授权均视为隐藏。Candidate optional 的缺陷不得破坏 Must 路径，任何 S0 / S1、隐私或 AX 阻断都会使该能力从候选移除或先修复，不能用“可选”豁免质量。
+Capability Manifest 是一次候选构建的实证附件，只能缩小本 PRD 允许的范围，不能新增产品权威；`pre-freeze`、未列入或未经 PO build 授权均视为隐藏。Candidate optional 的缺陷不得破坏 Must 路径，任何 S0 / S1、隐私或 AX 阻断都会使该能力从候选移除或先修复，不能用“可选”豁免质量。
 
 ## 4. 启动与 Dashboard
 

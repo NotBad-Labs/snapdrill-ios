@@ -154,6 +154,63 @@ class ValidateDocsTests(unittest.TestCase):
             )
         )
 
+    def test_line_wrapped_legacy_authority_term_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        ready_doc = validate_docs.DOCS_ROOT / "how-to" / "definition-of-ready.md"
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == ready_doc:
+                return f"{text}\nRelease\nProduct Contract\n"
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_current_product_authority_terms(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                error.startswith("docs/how-to/definition-of-ready.md:")
+                and "obsolete product authority term 'Release Product Contract'"
+                in error
+                for error in errors
+            )
+        )
+
+    def test_repository_fact_ownership_policy_is_complete(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_repository_fact_ownership(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_private_agent_memory_cannot_own_a_decision_receipt(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.PO_DECISION_LOG:
+                return f"{text}\n| now | durable rule | Claude 记忆 |\n"
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_repository_fact_ownership(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                error.startswith("docs/decisions/po-decision-log.md:")
+                and "relies on private agent memory" in error
+                for error in errors
+            )
+        )
+
     def test_missing_product_vision_layer_fails_closed(self) -> None:
         errors: list[str] = []
         original_read = validate_docs.read

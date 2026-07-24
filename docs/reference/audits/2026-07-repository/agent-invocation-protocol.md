@@ -1,6 +1,8 @@
 # External Agent Invocation Protocol
 
-> Validated 2026-07-16 for the repository audit. This file records the exact local CLI contracts used by Codex C1; it does not grant any external agent write, merge or release authority.
+> Validated 2026-07-24 against the installed CLI help and read-only smoke calls. This file records
+> the exact local CLI contracts used by Codex C1; it does not grant any external agent write, merge
+> or release authority.
 
 ## Sources
 
@@ -28,7 +30,7 @@ The installed binary's `--help` remains the final compatibility check for the pi
 8. Raw transcript/debug/brain artifacts stay temporary and are removed after normalization. Never retain auth/debug logs: they may contain credentials.
 9. After every external run, confirm the audit worktree and main checkout have no new tracked or untracked changes attributable to the reviewer.
 
-## Claude Code 2.1.206
+## Claude Code 2.1.217
 
 Official docs distinguish `--allowedTools` from `--tools`: the former only pre-approves matching tools, while the latter restricts the available built-ins. Audit calls therefore use `--tools`.
 
@@ -48,7 +50,8 @@ claude \
 
 - `--safe-mode` disables CLAUDE.md auto-loading, skills, plugins, hooks, MCP and auto-memory for this invocation. The reviewer may still read an in-scope file explicitly.
 - `--no-session-persistence` prevents the print-mode conversation from becoming resumable local state.
-- Smoke result: with the audit worktree as cwd, the command read `AGENTS.md` and returned its exact first heading without creating files.
+- 2026-07-24 smoke and documentation-standardization review completed with
+  `claude-fable-5[1m]`, read-only tools and no repository changes.
 
 ## Antigravity 1.1.2
 
@@ -75,7 +78,7 @@ AGY_CLI_DISABLE_AUTO_UPDATE=true agy \
 - `AGY_CLI_DISABLE_AUTO_UPDATE=true` follows the official troubleshooting guidance and prevents a background updater from changing the tool during a scripted phase.
 - Smoke result: from `develop@d62fead8`, the command read `AGENTS.md` and returned its exact first heading without repository changes.
 
-## Grok CLI 0.2.101
+## Grok CLI 0.2.111
 
 ```bash
 grok \
@@ -96,8 +99,13 @@ grok \
 - `--permission-mode plan` and the read-only tool list provide separate controls. An authenticated 0.2.101
   smoke with fixed `grok-4.5` returned the requested sentinel without tool use; the temporary session was
   deleted afterward.
-- `grok models` must show `grok-4.5` before the phase. A one-time debug smoke confirmed `currentModelId=grok-4.5`, high reasoning effort and response metadata `modelId=grok-4.5`; the debug file was then deleted because debug logs can include auth material.
+- Run `grok models` and a no-tool sentinel before the phase. On 2026-07-24 the model list printed an
+  unauthenticated banner while still listing `grok-4.5`; the pinned headless sentinel and subsequent
+  read-only review both completed. Treat the live sentinel as capability evidence, not the banner as
+  a definitive authentication-state report.
 - `--no-auto-update` is the official headless recommendation; `--no-memory`, `--no-subagents` and `--disable-web-search` make the independent reviewer boundary explicit.
+- Non-fatal turn-delta / session-signal sync warnings do not invalidate a complete response, but must
+  be reported if the response itself is partial or missing.
 - The current repository is larger than Grok's 50 MiB automatic bundle limit because of UI evidence. `bundle_create_failed` is non-fatal for local Read/Grep/Glob, but must be reported if it accompanies an incomplete audit.
 
 ## Invalid Runs

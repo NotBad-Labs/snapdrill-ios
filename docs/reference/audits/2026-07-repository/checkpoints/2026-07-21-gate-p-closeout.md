@@ -7,7 +7,7 @@ three-layer SSOT and live repository state. It does not claim that Release 1 con
 that any optional capability is included, that the Capability Manifest is frozen, or that merge,
 upload, TestFlight, go/no-go, or release is authorized.
 
-The Release 1 Product Contract remains the sole PRD for Release 1. This slice adds no `PRD.md` and
+The Release 1 PRD remains the sole PRD for Release 1. This slice adds no `PRD.md` and
 no fourth SSOT layer.
 
 ## T0 And Current Admission
@@ -30,14 +30,14 @@ below was reopened against the exact live base and effective owning documents.
 
 ## Effective Inputs
 
-1. Product Constitution: `docs/product/vision.md`
-2. Release 1 Product Contract: `docs/product/release-1-prd.md`
+1. Product Vision & Principles: `docs/product/vision.md`
+2. Release 1 PRD: `docs/product/release-1-prd.md`
 3. Active feature specs under `docs/features/active/`
 4. Release proof-plan owner: `docs/how-to/release-and-ci.md`
 
-The live Contract was sufficient as the Release 1 PRD. The mechanical gaps were downstream:
+The live PRD was sufficient. The mechanical gaps were downstream:
 
-- the ten Must outcomes had list positions but no stable M1-M10 identities in their owning Contract;
+- the ten Must outcomes had list positions but no stable M1-M10 identities in their owning PRD;
 - active feature specs did not declare which Must outcomes they own or directly contribute to;
 - the operational M1-M10 oracle / DRI table existed but was not machine checked;
 - release-operations consumers were fabricated by a generator constant instead of being declared by
@@ -47,7 +47,7 @@ These are traceability and validation gaps, not unresolved product semantics.
 
 ## Closure
 
-- Label the existing ten Contract outcomes M1-M10 without changing their wording or order.
+- Label the existing ten PRD outcomes M1-M10 without changing their wording or order.
 - Add `release_outcomes` to every active feature spec. An empty list is valid for an implemented but
   Release 1-optional feature; every M1-M10 identity must still have at least one active owner.
 - Declare release-operations decision consumers in `release-and-ci.md` frontmatter.
@@ -64,7 +64,7 @@ invalid operations consumers, decision-table drift, ratified / pending overlap, 
 
 ## Independent Challenge
 
-Claude Fable 5 reviewed only the live Contract, active feature specs, release operations document,
+Claude Fable 5 reviewed only the live PRD, active feature specs, release operations document,
 generator, and generator tests. It was not shown historical audit conclusions or implementation
 branches. Its findings matched the local reconstruction: no duplicate PRD was needed, the missing
 work was stable outcome identity, ownership, proof-plan validation, and removal of fabricated

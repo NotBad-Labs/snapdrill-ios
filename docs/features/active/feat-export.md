@@ -26,7 +26,7 @@ release_outcomes:
 
 > **产品重基线（2026-07-19）**：导出 / 打印与永久手动备份属于宪章核心承诺。C2-Core 要求打印作为独立正式终点，并把分享 / 保存视为并列出口；D2-A 固定基础 PDF 无封面及物理页数；D4S-A 将 selected PDF / CSV 明确归为 partial export，不等待完整资料库 barrier，也不冒充完整备份。PDF 增强按 C2-Optional 逐 build 冻结，SmartPaper 仅按 C5-E / C5-S1 的非公开实验边界复用管线。frontmatter 与技术章节仍只记录当前实现；旧 Profile / Pro 分层不得驱动新工作。
 
-> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
+> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 PRD 符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys + tech architecture / NFR 聚合（docs 重组 B）。
 

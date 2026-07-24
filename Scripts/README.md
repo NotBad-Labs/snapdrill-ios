@@ -11,7 +11,7 @@
 | `ci_github.py` | GitHub Actions fail-closed helper：精确工具 / runtime 身份、结构化 exact simulator 选择与唯一 `.xctestrun` |
 | `setup.sh` | 新开发者入职的一键环境配置（待完善） |
 | `pre-commit` | Git pre-commit hook（提交前自动检查） |
-| `generate_feature_status.py` | 由各 feature spec frontmatter 生成 `docs/reference/feature-status.md`（实现状态单写；不表示 Release 合同符合；产物勿手改，pre-commit/CI 校验） |
+| `generate_feature_status.py` | 由各 feature spec frontmatter 生成 `docs/reference/feature-status.md`（实现状态单写；不表示 Release PRD 符合；产物勿手改，pre-commit/CI 校验） |
 | `generate_intent_traceability.py` | 由各 feature spec `intent_refs` / `release_refs` / `release_outcomes` 和发布运维文档生成 durable intent、Release 1 决策消费边与 M1-M10 owner / proof-plan 索引；Release ID 与 Must ID 从 effective contract 读取，缺 consumer、active owner 或 oracle / DRI 时失败（产物勿手改，pre-commit/CI 校验） |
 | `test_doc_generators.py` | 文档生成器单元测试（覆盖意图追溯索引与功能状态看板的成功与失败路径，pre-commit/CI 校验） |
 | `validate_document_control.py` | 检查所有 repository Markdown 的角色 / 生命周期唯一归属、历史降级标识、本地链接 / anchor 与 alias |

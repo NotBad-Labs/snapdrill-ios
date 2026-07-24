@@ -2,7 +2,7 @@
 """扫描 docs/features/**/feat-*.md 的 YAML frontmatter，自动生成实现状态索引。
 
 B 方案（状态自动单写）：各 feature spec 的 frontmatter 是实现状态的唯一来源；
-本脚本把它们汇总成只读看板。实现存在不等于 Release 1 合同符合、公开可达或发布就绪。
+本脚本把它们汇总成只读看板。实现存在不等于 Release 1 PRD 符合、公开可达或发布就绪。
 
 用法：
     python3 Scripts/generate_feature_status.py            # 生成 / 覆盖看板

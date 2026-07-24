@@ -23,21 +23,26 @@ except ModuleNotFoundError:
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_ROOT = REPO_ROOT / "docs"
 PACKAGES_ROOT = REPO_ROOT / "Packages"
-SKILLS_ROOT = REPO_ROOT / ".claude" / "skills"
 PRODUCT_VISION = DOCS_ROOT / "product" / "vision.md"
 RELEASE_ONE_PRD = DOCS_ROOT / "product" / "release-1-prd.md"
+PO_DECISION_LOG = DOCS_ROOT / "decisions" / "po-decision-log.md"
 
-CURRENT_PRODUCT_AUTHORITY_ENTRYPOINTS = {
-    REPO_ROOT / "README.md",
-    REPO_ROOT / "AGENTS.md",
-    DOCS_ROOT / "README.md",
-}
-LEGACY_PRODUCT_AUTHORITY_TERMS = {
-    "Product Constitution",
-    "Release Product Contract",
-    "Release 1 Product Contract",
-    "Release Contract",
-}
+LEGACY_PRODUCT_AUTHORITY_PATTERNS = (
+    ("Product Constitution", re.compile(r"Product\s+Constitution")),
+    ("Release Product Contract", re.compile(r"Release\s+Product\s+Contract")),
+    ("Release 1 Product Contract", re.compile(r"Release\s+1\s+Product\s+Contract")),
+    ("Release Contract", re.compile(r"Release\s+Contract")),
+    ("Release 合同", re.compile(r"Release\s+(?:1\s+)?合同")),
+)
+PRIVATE_FACT_HOLDER_PATTERNS = (
+    ("home-relative path", re.compile(r"(?<![\w`])~/")),
+    ("absolute user path", re.compile(r"/Users/[^/\s]+/")),
+    ("file URL", re.compile(r"file://")),
+    (
+        "private agent memory",
+        re.compile(r"(?:Claude|Codex|Grok|Gemini|Agent|agent)\s+记忆"),
+    ),
+)
 
 HISTORICAL_ADRS = {
     DOCS_ROOT / "decisions" / "ADR-003-dual-region-release.md": "suspended",
@@ -68,6 +73,24 @@ LEGAL_OR_FACT_GATED_DOCS = {
     DOCS_ROOT / "explanations" / "privacy-compliance.md",
     DOCS_ROOT / "explanations" / "competitive-analysis.md",
     DOCS_ROOT / "decisions" / "ADR-005-analytics-privacy-strategy.md",
+}
+REPOSITORY_FACT_POLICY_REQUIREMENTS = {
+    DOCS_ROOT / "reference" / "document-control.md": {
+        "key facts have a tracked owner": (
+            "仓库事实归属",
+            "关键客观事实",
+            "owning tracked source",
+        ),
+        "private state is not an owner": ("不得成为关键事实的", "唯一持有者"),
+        "external findings require verification": (
+            "外部复核输出只是候选证据",
+            "当前 DRI 必须重新验证",
+        ),
+        "raw transcripts and secrets stay out of Git": (
+            "raw transcript 不入仓",
+            "不得进入 Git",
+        ),
+    },
 }
 POST_PIVOT_BASELINE = "2026-06-13"
 VISION_REF_PATTERN = re.compile(r"^vision:P([1-9][0-9]*)$")
@@ -368,15 +391,11 @@ def iter_taxonomy_contract_docs() -> Iterable[Path]:
 
 
 def iter_current_product_authority_surfaces() -> Iterable[Path]:
-    yield from sorted(CURRENT_PRODUCT_AUTHORITY_ENTRYPOINTS)
-    if SKILLS_ROOT.exists():
-        yield from sorted(SKILLS_ROOT.rglob("*.md"))
-    if PACKAGES_ROOT.exists():
-        yield from sorted(
-            path
-            for path in PACKAGES_ROOT.rglob("*.md")
-            if is_repo_owned_package_doc(path)
-        )
+    markdown_paths = validate_document_control.tracked_markdown_paths(REPO_ROOT)
+    for relative_path in sorted(markdown_paths):
+        path = REPO_ROOT / relative_path
+        if not is_inactive_historical_doc(path):
+            yield path
 
 
 def has_any(haystack: str, needles: set[str]) -> bool:
@@ -673,13 +692,36 @@ def validate_product_document_authority(errors: list[str]) -> None:
 def validate_current_product_authority_terms(errors: list[str]) -> None:
     for path in iter_current_product_authority_surfaces():
         text = read(path)
-        for term in sorted(LEGACY_PRODUCT_AUTHORITY_TERMS):
-            if term not in text:
+        for term, pattern in LEGACY_PRODUCT_AUTHORITY_PATTERNS:
+            match = pattern.search(text)
+            if match is None:
                 continue
             errors.append(
-                f"{rel(path)}:{line_number(text, term)}: obsolete product authority "
+                f"{rel(path)}:{text[:match.start()].count(chr(10)) + 1}: "
+                "obsolete product authority "
                 f"term '{term}'; use Product Vision & Principles or Release 1 PRD"
             )
+
+
+def validate_repository_fact_ownership(errors: list[str]) -> None:
+    for path, requirements in REPOSITORY_FACT_POLICY_REQUIREMENTS.items():
+        validate_required_markers(
+            path,
+            requirements,
+            "repository fact ownership policy",
+            errors,
+        )
+
+    text = read(PO_DECISION_LOG)
+    for label, pattern in PRIVATE_FACT_HOLDER_PATTERNS:
+        match = pattern.search(text)
+        if match is None:
+            continue
+        errors.append(
+            f"{rel(PO_DECISION_LOG)}:{text[:match.start()].count(chr(10)) + 1}: "
+            f"decision receipt relies on {label}; promote the durable fact to a "
+            "tracked owner"
+        )
 
 
 def validate_required_markers(
@@ -732,6 +774,7 @@ def run_checks() -> list[str]:
     validate_taxonomy_canonical_terms(errors, warnings)
     validate_product_document_authority(errors)
     validate_current_product_authority_terms(errors)
+    validate_repository_fact_ownership(errors)
     validate_feature_intent(errors)
     validate_current_admission(errors)
     validate_merge_authorization(errors)

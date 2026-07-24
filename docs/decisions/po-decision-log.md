@@ -43,8 +43,20 @@
 | 07-05 | **零 AX 警告再发版**（选了最严选项；审计翻强制门禁） | `docs/reference/appstore-metadata.md` 发版检查清单 |
 | 07-05 | 双盲 P1 清单确认（XXXL 遮挡 / 恢复页清理 / VoiceOver / 文案成品） | Q2 缺陷池 §六 + Q3-A 实现 |
 | 07-06 | Q3-A 文案 5 条批准（含“搜索”占位符）；`uploadSymbols=true` | PR #852 / #854 描述 |
-| 07-07 | **四方独立零信任审计（Claude / grok / agy / Codex）= 一致 GO**；放行进入真机 dogfood；零 P0 / P1 / blocker | 本台账 + `~/Developer/snapdrill-agent-reports/2026-07-07-four-way-zero-trust-scorecard.md` |
+| 07-07 | **四方独立零信任审计（Claude / grok / agy / Codex）= 一致 GO**；放行进入真机 dogfood；零 P0 / P1 / blocker | 本台账 §B.1 的最小历史回执；不再依赖仓库外 scorecard |
 | 07-07 | 审计浮现 **6 类 P2 加固全部延后**至 TestFlight 后队列（含 Tier-A #1 Share GPS），不阻 dogfood | 本台账 + §F 队列 |
+
+### B.1 2026-07-07 四方审计最小历史回执
+
+- 2026-07-24 从当时本机 scorecard 复核并转录；原文件 SHA-256：
+  `da72a572e21fb419968c601a83bc6766f9bbe853899fef5af1ccfcad026c22ab`。仓库外文件不再是
+  本裁决的唯一持有者。
+- 原报告只记录 base 为当时 `develop`，未记录精确 commit；因此该结论只能解释当时允许 PO
+  进入真机 dogfood，不能证明当前代码或发布候选绿色。
+- 四路均给出 GO / conditional GO，报告零 P0、零 P1、零 dogfood blocker，并归并出 6 类 P2；
+  Claude 路称逐文件覆盖 297 个文件，其他三路为轴向或高流量抽样。
+- 已知证据边界：四路都未运行 `xcodebuild test`；真机、打印、OCR、并发和 OOM 仍需 dogfood。
+  §F 的 6 类 P2 是历史快照，只有重新通过 Current Admission 才能恢复执行。
 
 ## C. 路线与优先级
 
@@ -60,7 +72,7 @@
 |---|---|---|
 | 06-27 | **记忆最小化、真相入仓**：agent 私有记忆只是可丢弃缓存 | `AGENTS.md` + `docs/how-to/parallel-lanes.md` |
 | 06-30 | 协作模型：Claude shape → Codex 执行（可挑战）→ Claude 只读复核 → PO 合并；已被 07-16 的角色制协作模型 supersede | 历史记录；当前权威见 `docs/how-to/parallel-lanes.md` |
-| 07-01~04 | 三次纠正“不可能 / 必须人工”论 → Codex 可 dogfood、可绕系统面板、坐标点击破墙 | Claude 记忆（no-premature-impossibility）；过程记录在 checkpoint |
+| 07-01~04 | 三次纠正“不可能 / 必须人工”论；当前耐久规则是先核对 live 工具、API 与可复现实证，再报告真实边界 | `AGENTS.md` §2 + `docs/how-to/parallel-lanes.md` §3；私有记忆不再是 owner |
 | 07-02 | **规划 freshness 对账成为习惯**并固化入仓 | `docs/how-to/parallel-lanes.md` §3（PR #849） |
 | 07-06 | **多窗口并行模式采用**（主刀 / 副刀 / 运维 / QA；write ≤ 2；合并串行） | `docs/how-to/parallel-lanes.md` 多窗口小节（PR #855） |
 | 07-06 | 老窗口退役；PO 转发降级为提醒信号（Claude 自查仓库为准） | 本台账 |
@@ -72,7 +84,7 @@
 
 | 日期 | 决策 | 归属 |
 |---|---|---|
-| 06-27 | 23 个历史分支与旧 worktree **不备份直接删除**；Codex 记忆硬抹除 | 已执行 |
+| 06-27 | 23 个历史分支与旧 worktree **不备份直接删除**；Codex 本地会话缓存清除 | 已执行 |
 | 07-06 | 10 + 1 个旧分支（含 6 个含独有工作的）全部删除 | 已执行；C3 报告 |
 | 07-06 | pbxproj 584 行 Firebase 死引用：先丢弃、后专刀正式清理 | PR（pbxproj-firebase-deadrefs） |
 

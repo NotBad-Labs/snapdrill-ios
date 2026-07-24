@@ -23,7 +23,7 @@ release_outcomes:
 
 > **Release 1 目标（2026-07-14）**：[Release 1 PRD](../../product/release-1-prd.md) C3 规定普通启动默认进入 Dashboard，并将其收敛为核心任务入口和可执行状态概览；不批准现有卡片或五 Tab。C2-Personalization 隐藏身份装饰，C4-D 只允许 Review 在非公开实验 build 从 Library 次级入口出现。当前实现与该目标仍有偏差，合同生效不单独授权代码修改。
 
-> 人读摘要：🛠 当前实现收敛中（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
+> 人读摘要：🛠 当前实现收敛中（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 PRD 符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 扫描各 spec 的 frontmatter **自动生成**，禁止手改（pre-commit 校验）。
 > 本 spec 高内聚承载该功能 Why / What / How / Verify，不拆散到多文件（docs 重组 B）。
 > 本文件于 2026-06-02 由 Batch 2 审计补建——Dashboard 代码先行存在而无 owning spec（孤儿代码，KI-03），多个 active spec（review / library / capture）消费其统计口径却无归属定义；本 spec 据 `DashboardView` / `DashboardViewModel` 实证补齐。高级统计代码与历史产品主张归 `../backlog/feat-advanced-stats.md`，不是当前商业承诺。
