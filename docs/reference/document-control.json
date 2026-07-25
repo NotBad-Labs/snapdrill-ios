@@ -69,8 +69,7 @@
         "docs/reference/glossary.md",
         "docs/reference/local-library-data-contract.md",
         "docs/reference/non-functional-requirements.md",
-        "docs/product/release-1-prd.md",
-        "docs/reference/scope-and-roadmap.md"
+        "docs/product/release-1-prd.md"
       ]
     },
     {
@@ -83,7 +82,8 @@
         "docs/features/backlog/feat-image-enhance.md",
         "docs/features/backlog/feat-smartpaper.md",
         "docs/features/backlog/feat-word-export.md",
-        "docs/reference/appstore-metadata.md"
+        "docs/reference/appstore-metadata.md",
+        "docs/reference/scope-and-roadmap.md"
       ]
     },
     {
