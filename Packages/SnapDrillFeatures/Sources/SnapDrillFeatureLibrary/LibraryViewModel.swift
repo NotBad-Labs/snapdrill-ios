@@ -205,7 +205,7 @@ public final class LibraryViewModel {
     /// coalescing 机制：Task{} 体在 MainActor 上异步入队、待当前同步执行让出后才跑，故 resetFilters() 的连发 setter
     /// 会先跑完所有 cancel，被取消任务进 body 后即被下方 `guard !Task.isCancelled` 短路 → 最终只一次 fetch。
     /// ⚠️ 该 coalescing 依赖 fetchFilteredModels 同步 + MainActor 串行（末次写回胜）；若其改 async 则 coalescing 弱化
-    /// （见 docs/ui-redesign/flagship-cross-layer-contracts.md I4 的 off-main 讨论）。
+    /// Repository 内部负责 off-main 查询，调用方只消费返回的稳定快照。
     private func scheduleRefresh(debounced: Bool) {
         refreshTask?.cancel()
         refreshTask = Task { [weak self] in

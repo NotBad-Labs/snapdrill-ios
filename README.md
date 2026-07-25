@@ -1,65 +1,65 @@
 # SnapDrill
 
-**SnapDrill** 是一款简洁、私有、原生的成人效率工具：以最低摩擦，把纸张、照片和 PDF
-变成可搜索、可整理、可打印的个人资料库。试卷与题目是擅长处理的内容类型，但产品不是
-教辅内容平台。
+SnapDrill 是一款 iPhone 通用效率工具，用于把纸张、照片和 PDF 变成可搜索、可整理、
+可导出和可打印的个人资料库。
+
+产品借鉴错题整理类 App 的高效工作流，但不提供题库、搜题、解题、课程、社区或儿童账号。
+教育材料只是允许处理的内容之一，不是产品身份。
+
+## 当前状态
+
+- 尚未上线，没有外部用户或兼容性承诺。
+- 当前代码仍有与目标产品不一致的历史实现；差异见
+  [ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+- 产品目标只由 [PRD.md](docs/PRD.md) 定义，不能从现有代码、旧 issue、旧 PR 或 Git 历史反推。
+- Git 历史保留全部旧文档，可用于追责和回滚，但不参与当前决策。
 
 ## 文档
 
-| 文档 | 用途 |
+仓库只维护五份当前文档，依赖方向保持单向：
+
+| 文档 | 负责回答 |
 |---|---|
-| [Product Vision & Principles](docs/product/vision.md) | 长期产品方向、定位、原则和耐久边界 |
-| [Release 1 PRD](docs/product/release-1-prd.md) | 当前发布的目标、范围、非目标和验收结果 |
-| [Feature Specs](docs/features/) | 单功能的 Why / What / How / Verify |
-| [文档导航](docs/README.md) | 架构、数据契约、设计、操作、ADR 和生成索引 |
-| [AGENTS.md](AGENTS.md) | 编码 Agent 的执行边界与完成证据；不是产品文档 |
+| [PRD.md](docs/PRD.md) | 做什么、为谁做、明确不做什么 |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | 代码如何承载产品，以及当前有哪些实现偏差 |
+| [DATA.md](docs/DATA.md) | 本地数据、图片、删除、备份和恢复必须满足什么 |
+| [DEVELOPMENT.md](docs/DEVELOPMENT.md) | 人和 Agent 如何开发、验证、提交与合并 |
+| [RELEASE.md](docs/RELEASE.md) | 候选构建如何验证、签名、分发与发布 |
 
-根 README 是人和 Agent 的唯一冷启动入口。产品要求沿
-`Product Vision & Principles -> Release PRD -> Feature Spec -> 验收标准` 读取；当前实现以
-`origin/develop` 的代码、测试、构建、设备和发布证据为准。两者不一致时记录偏差，不能用
-当前代码反向改写产品要求。
+新增长期文档前，优先更新上述 owner。临时调查、截图、日志和审计结果放在 PR、CI artifact
+或本地临时目录，不进入当前文档树。
 
-## 当前工作与发布事实
+## 技术栈
 
-- **当前执行**：[Pull requests](https://github.com/NotBad-Labs/snapdrill-ios/pulls) /
-  [Issues](https://github.com/NotBad-Labs/snapdrill-ios/issues)；旧 PR、issue 和报告默认只是历史证据。
-- **实现状态**：[自动生成的功能状态](docs/reference/feature-status.md) + 当前代码和验证结果。
-- **发布流程**：[release-and-ci.md](docs/how-to/release-and-ci.md)；每个候选都必须重新验证签名、
-  隐私、构建、安装和 App Store Connect 事实。
-- **当前发行边界**：美国 NotBad Labs L.L.C. 全球版，iPhone-only，英文 + 简体中文，免费、
-  无广告、无 IAP。精确约束由 [Release 1 PRD](docs/product/release-1-prd.md) 维护。
+- iOS 26.0+
+- Swift 6.3 strict concurrency
+- SwiftUI
+- SwiftData
+- 四个本地 Swift Package：Core、Data、UI、Features
 
-## 架构设计
-
-App target 是薄 composition root，功能和基础能力由 Swift Package Manager 模块隔离。
-依赖必须朝 Core 收敛，Core 保持零第三方依赖。完整拓扑、依赖规则和当前偏差见
-[architecture.md](docs/explanations/architecture.md)；各包的公开职责见 [Packages](Packages/)。
-
-## 环境要求
-
-- **Xcode**: 26.6 (`17F113`)
-- **iOS**: 26.0+
-- **SwiftLint**: 0.63.2
-
-routine source gate 的精确工具身份只维护在 [`Configs/Toolchain.env`](Configs/Toolchain.env)；本段是便于阅读的当前快照。
-
-## 快速开始
-
-1. 克隆仓库: `git clone https://github.com/NotBad-Labs/snapdrill-ios.git`
-2. 安装依赖工具: 确保已安装 SwiftLint。
-3. 打开项目: 双击 `SnapDrill.xcodeproj`。
-4. 运行: 选择 `SnapDrill` Scheme，在模拟器或真机上运行。
-
-## 测试
-
-在 clean committed checkout 上运行 canonical local source gate：
+## 本地验证
 
 ```bash
+# 快速静态检查
+swiftlint --strict
+python3 Scripts/validate_docs.py --check
+
+# 完整源码门禁，要求 clean committed checkout
 bash Scripts/ci-local.sh
 ```
 
-该入口固定工具身份，依次执行 SwiftLint、脚本与文档门禁、依赖方向检查、`AllTests` CI configuration 的 `build-for-testing` 和 `test-without-building`，并要求唯一 `.xctestrun`。它不运行 app XCUITest / AX，也不证明 archive、安装、隐私 / 网络或候选发布状态；高风险改动仍按 [`docs/how-to/parallel-lanes.md`](docs/how-to/parallel-lanes.md) 补对应证据。
+`swift test` 不适用于本仓库。Xcode 测试统一使用 `AllTests` scheme 与 `AllTests` test plan。
+准确工具链版本见 `Configs/Toolchain.env`。
 
-### 快照重录
+## 目录
 
-`SnapshotRecord` 只用于明确选择的 snapshot test，不属于默认测试路径。重录前必须限定具体测试，重录后人工审查每一处 baseline diff；禁止用全量重录让当前实现反向改写测试 oracle。
+```text
+SnapDrill/                 App composition root
+SnapDrillShare/            Share Extension
+Packages/SnapDrillCore/    领域类型、服务协议、纯算法
+Packages/SnapDrillData/    SwiftData、Repository、文件与备份
+Packages/SnapDrillUI/      公共 SwiftUI 组件和路由协议
+Packages/SnapDrillFeatures/用户工作流和界面
+Scripts/                   本地与 CI 验证工具
+docs/                      五份当前文档
+```

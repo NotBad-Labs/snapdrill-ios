@@ -309,9 +309,6 @@ class CILocalTests(unittest.TestCase):
     def test_each_python_gate_failure_is_propagated(self) -> None:
         patterns = (
             "-m unittest",
-            "generate_feature_status.py",
-            "generate_intent_traceability.py",
-            "test_doc_generators.py",
             "validate_docs.py",
             "validate_capture_contract.py",
             "validate_release_configuration.py",
@@ -446,15 +443,17 @@ class CILocalTests(unittest.TestCase):
             )
         )
 
-    def test_default_plan_and_readme_cannot_select_snapshot_record(self) -> None:
+    def test_default_plan_and_readme_use_the_canonical_gate(self) -> None:
         plan = json.loads(TEST_PLAN.read_text(encoding="utf-8"))
         configurations = [item.get("name") for item in plan.get("configurations", [])]
         self.assertEqual(configurations.count("CI"), 1)
         self.assertGreater(len(plan.get("testTargets", [])), 0)
 
         readme = README.read_text(encoding="utf-8")
-        testing = readme.split("## 测试", maxsplit=1)[1]
-        default_path = testing.split("### 快照重录", maxsplit=1)[0]
+        default_path = readme.split("## 本地验证", maxsplit=1)[1].split(
+            "## 目录",
+            maxsplit=1,
+        )[0]
         self.assertIn("bash Scripts/ci-local.sh", default_path)
         self.assertNotIn("SnapshotRecord", default_path)
         self.assertNotIn("Cmd+U", default_path)

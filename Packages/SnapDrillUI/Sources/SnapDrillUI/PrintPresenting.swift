@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  Release 1 打印能力的 presentation adapter。
+//  系统打印能力的 presentation adapter。
 //
 //  分层意图：Core 只负责生成 PDF `Data`（`PDFExportService`），对 UIKit 一无所知；
 //  本文件把吃 UIView 的 `UIPrintInteractionController` 呈现逻辑集中在 UI 层，做成
@@ -14,7 +14,7 @@
 //  `PrintOutcome`。当前 Feature 只在系统打印界面活跃期间用 `AppActivityTracker`
 //  阻塞 Profile 切换；尚未记录“已成功打印”的业务事件。
 //
-//  契约来源：docs/features/active/feat-export.md。
+//  产品结果由 docs/PRD.md 定义。
 //  adapter 只消费已有 PDF Data，绝不生成 PDF。
 //
 
