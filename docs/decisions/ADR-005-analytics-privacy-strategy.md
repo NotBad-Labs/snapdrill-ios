@@ -24,9 +24,9 @@ App composition root 注入 `NoOpAnalyticsService`，既有 analytics 调用点�
 继续由 `NoOpAnalyticsService` 满足，以保持调用方边界而不产生网络副作用。
 
 设备诊断使用 Apple MetricKit，并只在设备本地处理和持久化。任何自动上传、用户主动导出、
-功能使用账本或远程 dashboard 都不属于本 ADR；是否进入某个 Release 由 effective PRD 与 owning
-feature spec 决定。现有本地账本 / 自愿快照候选口径由 `analytics-events.md` 保存，不因此获得
-实现授权。
+功能使用账本、用户自愿快照或远程 dashboard 都不属于本 ADR；是否进入某个 Release 必须重新
+经过产品、隐私与 owning feature shaping。`analytics-events.md` 只记录当前未启用协议的词汇与
+调用点，不能成为未来遥测方案或实现授权。
 
 ## 备选方案（Alternatives）
 
@@ -53,6 +53,6 @@ feature spec 决定。现有本地账本 / 自愿快照候选口径由 `analytic
 
 - [Product Vision & Principles](../product/vision.md)：local-first、无开发者内容云和数据所有权；
 - [Release 1 PRD](../product/release-1-prd.md)：当前发布范围与明确非目标；
-- [Analytics Events](../reference/analytics-events.md)：未启用事件词汇与未来本地候选口径；
+- [Analytics Events](../reference/analytics-events.md)：当前未启用的事件词汇与调用点；
 - [隐私与合规](../explanations/privacy-compliance.md)：公开隐私承诺与 legal-gated 内容；
 - [Apple MetricKit](https://developer.apple.com/documentation/metrickit)：系统提供的设备诊断与性能报告。
