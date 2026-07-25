@@ -1,6 +1,6 @@
 # 2026-07 Agent 控制面评审
 
-> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/product/vision.md` 与 `docs/product/release-1-prd.md`。
 
 > 状态：完成（受限盲评；平台策略阻断 2 / 6 个外部 run，见 §6）
 > 固定基线：`develop@64f54b816030cd73906287ce7fa376db19971bc1`

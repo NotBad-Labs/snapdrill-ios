@@ -1,6 +1,6 @@
 # ``SnapDrillFeatureCapture``
 
-> 当前实现 API 参考；用户可见范围以 Capture feature spec 与 Release Contract 为准。
+> 当前实现 API 参考；用户可见范围以 Capture feature spec 与 Release 1 PRD 为准。
 
 资料采集功能模块，提供拍照、文档扫描和 OCR 结果确认流程。
 

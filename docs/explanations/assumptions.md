@@ -2,7 +2,7 @@
 last_verified: 2026-07-12
 layer: assumptions
 derived_from:
-  - vision.md
+  - ../product/vision.md
 ---
 # 待验证假设登记
 
@@ -32,6 +32,6 @@ derived_from:
 
 ## 关联
 
-- 上游：[vision.md](vision.md)
+- 上游：[vision.md](../product/vision.md)
 - 工作流：[../how-to/shape-up.md](../how-to/shape-up.md)
 - 功能规格：[../features/](../features/)

@@ -21,18 +21,18 @@ release_outcomes:
 
 # Feature: 首页概览（Dashboard）
 
-> **Release 1 目标（2026-07-14）**：[Release 1 Contract](../../reference/release-1-contract.md) C3 规定普通启动默认进入 Dashboard，并将其收敛为核心任务入口和可执行状态概览；不批准现有卡片或五 Tab。C2-Personalization 隐藏身份装饰，C4-D 只允许 Review 在非公开实验 build 从 Library 次级入口出现。当前实现与该目标仍有偏差，合同生效不单独授权代码修改。
+> **Release 1 目标（2026-07-14）**：[Release 1 PRD](../../product/release-1-prd.md) C3 规定普通启动默认进入 Dashboard，并将其收敛为核心任务入口和可执行状态概览；不批准现有卡片或五 Tab。C2-Personalization 隐藏身份装饰，C4-D 只允许 Review 在非公开实验 build 从 Library 次级入口出现。当前实现与该目标仍有偏差，合同生效不单独授权代码修改。
 
-> 人读摘要：🛠 当前实现收敛中（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
+> 人读摘要：🛠 当前实现收敛中（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 PRD 符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 扫描各 spec 的 frontmatter **自动生成**，禁止手改（pre-commit 校验）。
 > 本 spec 高内聚承载该功能 Why / What / How / Verify，不拆散到多文件（docs 重组 B）。
 > 本文件于 2026-06-02 由 Batch 2 审计补建——Dashboard 代码先行存在而无 owning spec（孤儿代码，KI-03），多个 active spec（review / library / capture）消费其统计口径却无归属定义；本 spec 据 `DashboardView` / `DashboardViewModel` 实证补齐。高级统计代码与历史产品主张归 `../backlog/feat-advanced-stats.md`，不是当前商业承诺。
 
-## 1. 为什么做 (Why) — 纯 why，不混实现/UI 细节
+## 1. 为什么做 (Why)
 - **痛点 / 价值**：用户回到 App 时需要直接开始或恢复采集、找回最近资料，并进入资料库，而不是先理解统计或身份体系。Dashboard 把这些高频任务收敛为稳定起点，降低在多个功能区之间判断下一步的成本。
 - **定位与原则归属**：首页是核心价值链（采集 -> 整理 / 找回 -> 导出 / 打印）的**任务入口和可执行状态概览**。Review 是可选复用能力，不能通过首页层级反向变成核心。
 
-## 2. Release 1 规则 (What)
+## 2. 需求规则 (What)
 - **默认目的地**：onboarding 完成后的普通启动进入 Dashboard；deep link 和阻塞性 store 恢复可以覆盖。
 - **核心入口**：Capture 与 Library 一次操作可达，且在视觉与 accessibility 内容顺序中先于 Review；空资料库一次操作开始 Capture。
 - **可执行状态**：可以显示未完成草稿、最近资料和能直接进入对应内容的本地事实。
@@ -42,7 +42,25 @@ release_outcomes:
 - **前置依赖**：Release 1 目标只依赖 `feat-library`（最近资料 / 资料库入口）和 `feat-capture`（草稿恢复 + 采集入口）。当前代码仍读取 `feat-review` 的待回顾 / 已回顾口径，属于 C3 / C4 对齐前的实现依赖，不构成目标架构。
 - **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP；Dashboard 不承担升级转化。未来高级统计是否存在及如何商业化均未裁决。
 
-## 3. 当前实现证据 (How) — 非 Release 1 目标设计
+### 详细契约
+
+#### A. 首页状态与导航
+
+- Dashboard 必须区分 loading / empty / content / error 四类状态；读取失败不得展示伪造数据。
+- 空状态应引导用户去采集或导入资料，不使用教育化、儿童化或游戏化激励。
+- 普通启动、Capture / Library 一次操作可达和 forbidden-surface 缺席必须有 UI / AX 断言。
+
+#### B. 统计与不可用能力隐藏
+
+- 首页只展示能进入对应内容的本地事实；Release 1 不展示趋势、完成率、高级统计、Pro、付费或“稍后推出”锁态。
+- 隐藏候选能力不得阻断免费核心闭环，也不得暗示当前用户数据已经上传或云端分析。
+
+#### C. 导航与共享 L10n
+
+- Capture / Library 入口只做导航；草稿恢复 / 丢弃使用 Capture 拥有的确认流程，不由 Dashboard 静默执行。
+- 已知共享 key：`L10n.Library.categoryManager` 被 Dashboard 使用。后续应迁入 Common/Shared 或显式登记共享。
+
+## 3. 技术设计 (How)
 
 > 本节只解释为什么当前 build 会出现 Review hero / Bento 统计和相应依赖，供实现影响分析；§2 才是 Release 1 目标。
 
@@ -62,25 +80,7 @@ release_outcomes:
 - **NFR**：首页加载与刷新不阻塞主线程；`reviewDataDidChange` 刷新去抖避免高频抖动；无额外埋点要求。
 
 
-## 5. Release 1 Contract（首页概览 / 统计 / 锁态）
-
-### A. 首页状态与导航
-
-- Dashboard 必须区分 loading / empty / content / error 四类状态；读取失败不得展示伪造数据。
-- 空状态应引导用户去采集或导入资料，不使用教育化、儿童化或游戏化激励。
-- 普通启动、Capture / Library 一次操作可达和 forbidden-surface 缺席必须有 UI / AX 断言。
-
-### B. 统计与不可用能力隐藏
-
-- 首页只展示能进入对应内容的本地事实；Release 1 不展示趋势、完成率、高级统计、Pro、付费或“稍后推出”锁态。
-- 隐藏候选能力不得阻断免费核心闭环，也不得暗示当前用户数据已经上传或云端分析。
-
-### C. 导航与共享 L10n
-
-- Capture / Library 入口只做导航；草稿恢复 / 丢弃使用 Capture 拥有的确认流程，不由 Dashboard 静默执行。
-- 已知共享 key：`L10n.Library.categoryManager` 被 Dashboard 使用。后续应迁入 Common/Shared 或显式登记共享。
-
-### D. Enforcement
+### Enforcement
 
 | 契约项 | Enforcement |
 |---|---|
@@ -94,8 +94,8 @@ release_outcomes:
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P1 采集摩擦最低 / P2 简洁 / P5 成人生产力工具） | 首页直接服务采集、续作和找回，不用统计或可选 Review 主导入口 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Personalization / C3 / C4-D | 普通启动默认 Dashboard；Capture / Library 一步可达；禁止 Profile / Pro / analytics / Review hero |
+| Vision | `../../product/vision.md`（P1 采集摩擦最低 / P2 简洁 / P5 成人生产力工具） | 首页直接服务采集、续作和找回，不用统计或可选 Review 主导入口 |
+| Release 1 PRD | `../../product/release-1-prd.md` C2-Personalization / C3 / C4-D | 普通启动默认 Dashboard；Capture / Library 一步可达；禁止 Profile / Pro / analytics / Review hero |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A：Release 1 免费、无广告、无 IAP） | 隐藏高级统计、Pro 与“稍后推出”锁态，不承担升级转化 |
 | 待验证假设 | 无（只读聚合，不独立验证假设） | — |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
@@ -103,6 +103,6 @@ release_outcomes:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（导航极简 / 核心价值链）
+- 原则：`../../product/vision.md`（导航极简 / 核心价值链）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 相关 / 依赖 feature：`feat-review.md`（SM-2 待回顾/已回顾口径）、`feat-library.md`（资料库总数 / 字段管理）、`feat-capture.md`（草稿恢复 / 采集入口）、`../backlog/feat-advanced-stats.md`（未获当前范围授权的候选）

@@ -23,7 +23,7 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 ## 节奏与纪律
 
 - **周期长度**：起步 **2–4 周**（不是 6 周）。赌注可大小不一（原书附录允许）。WIP=1（一次只赌一个主项目）。
-- **三个模式**（原书 Ch.9 New products）：**R&D**（核心流程还不确定→赌 spike，不指望出货）/ **Production**（流程已能点通→周期末出 TestFlight 增量）/ **Cleanup**（上架前打磨）。当前处于产品重基线 shaping：Release 1 Product Contract 生效前，不因代码完成度推断为 Production。
+- **三个模式**（原书 Ch.9 New products）：**R&D**（核心流程还不确定→赌 spike，不指望出货）/ **Production**（流程已能点通→周期末出 TestFlight 增量）/ **Cleanup**（上架前打磨）。当前处于产品重基线 shaping：Release 1 PRD 生效前，不因代码完成度推断为 Production。
 - **🔑 不可省的纪律（PMF 前）**：**每个 bet 必须绑一个学习目标**。这是 Shape Up 不覆盖的「做错产品」风险的补丁——betting 时除了问「做得完吗」，还要问「这若成功，改变哪条赌注（assumptions.md 的 H#）的置信度？用什么可观察信号？」答不出就别赌。
 - **质量地板（ship 的判据，原书 Ch.14 Compare to baseline）**：当它**比用户当前替代方案更好**就 ship，不是完美时。对要拿 PMF 信号的目标用户，地板 = **不崩 + 核心路径可靠 + 像模像样 + EXIF/隐私扎实**；不是每个 edge case/动画完美。先你自己 dogfood 过地板，**再**邀真实用户（内测用户也是用户、且稀缺不可再生）。
 - **circuit breaker**：到期不延期。没做完=shaping/scope 错了，打回重塑，不加时间。
@@ -44,7 +44,7 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 
 ## ⚠️ 不删能跑的代码
 
-「轻装上阵」=**冻结未验证功能的规划重量**，不是因为整洁偏好就删代码。代码价值的判据来自 Product Constitution / Release Contract 与 live 实证，不来自 agent 私有记忆。effective contract 可以明确授权保留、隐藏或删除某项能力；在 contract 之前，不得新增投入，也不得用“已经能跑”反向生成产品承诺。
+「轻装上阵」=**冻结未验证功能的规划重量**，不是因为整洁偏好就删代码。代码价值的判据来自 Product Vision & Principles / Release PRD 与 live 实证，不来自 agent 私有记忆。effective contract 可以明确授权保留、隐藏或删除某项能力；在 contract 之前，不得新增投入，也不得用“已经能跑”反向生成产品承诺。
 
 ---
 
@@ -62,7 +62,7 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 - 任何 Agent 的全局架构 / 生命周期规划都只作为 shaping input；它不能自动变成 roadmap、
   当前 bet 或并行状态 SSOT，仍需 orchestrator 的 live repo 实证审查与 PO 拍板。
 - 逐功能**实现状态**以 [`../reference/feature-status.md`](../reference/feature-status.md)（自动生成）
-  为准，不在本文件重复罗列；Release disposition 与合同符合性仍由 Release Contract、owning
+  为准，不在本文件重复罗列；Release disposition 与合同符合性仍由 Release PRD、owning
   feature spec 和验证证据裁决。
 
 Gate P 起源记录见
@@ -72,7 +72,7 @@ Appetite、Scopes、No-gos 或 Exit。
 
 ### Parked（明确不赌、停止投入，但代码留着 · 取舍的牙齿）
 
-`feature-status.md` 只说明实现状态，不拥有投资范围。Product Constitution v1 与 Release 1
+`feature-status.md` 只说明实现状态，不拥有投资范围。Product Vision & Principles 与 Release 1
 Contract 均已 effective；代码投入仍需要当前已接受 bet，不能只凭合同存在自行启动：
 
 - Dashboard —— 默认首屏由 C3 固定；当前卡片 / 五 Tab 不自动获批，代码投入等待独立 implementation bet。
@@ -83,6 +83,6 @@ Contract 均已 effective；代码投入仍需要当前已接受 bet，不能只
 
 ### 链接
 - 方法原典：<https://basecamp.com/shapeup>
-- 为什么/愿景：[`../explanations/vision.md`](../explanations/vision.md)
+- 为什么/愿景：[`../product/vision.md`](../product/vision.md)
 - 待验证假设（赌注内容 + 推翻信号）：[`../explanations/assumptions.md`](../explanations/assumptions.md)
 - 逐功能状态（SSOT）：[`../reference/feature-status.md`](../reference/feature-status.md)

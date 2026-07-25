@@ -1,6 +1,6 @@
 # Dashboard 首页屏发布级打磨清单（已确认）
 
-> **文档状态：已取代的历史 UI 证据。** 本文保留旧实现、截图和当时裁决，不再是当前 UI 合同或 release checklist；当前要求以 `docs/explanations/vision.md` -> `docs/reference/release-1-contract.md` -> owning feature spec 为准。
+> **文档状态：已取代的历史 UI 证据。** 本文保留旧实现、截图和当时裁决，不再是当前 UI 合同或 release checklist；当前要求以 `docs/product/vision.md` -> `docs/product/release-1-prd.md` -> owning feature spec 为准。
 
 > 状态：PO 已确认并进入实现。本文收敛 Dashboard 首页屏打磨范围、完成线、文案候选和验证方式，并记录本轮实现取舍。
 

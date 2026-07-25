@@ -83,9 +83,9 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **Phase 04a/04b/04d 结果**：`phases/04a-results.md` / `phases/04b-results.md` / `phases/04d-results.md`
 - **Phase 05 P1 triage（历史 fixed-base 结果）**：`phases/05-p1-triage-results.md`；
   旧 `checkpoints/phase-05-in-progress.md` 已由当前 checkpoint supersede
-- **当前产品治理状态**：Product Constitution、Release 1 Product Contract、Local Library Data
+- **当前产品治理状态**：Product Vision & Principles、Release 1 PRD、Local Library Data
   Contract 与 Agent control plane 已在 `develop` effective；#868 已关闭且不得复活，后续单资料库
-  实现必须从当前合同和最新 `develop` 重新 shaping
+  实现必须从当前 PRD / data contract 和最新 `develop` 重新 shaping
 - **下一步**：Gate P 候选合入后，按 P1-A / M6 和 live Capture / Data Contract 执行已重新准入的
   Capture draft S0 修复；旧 issue 只作路由 handle，不继承旧 scope。其他历史编号只有经新的
   Current Admission 复核后才能进入 write 或冻结队列

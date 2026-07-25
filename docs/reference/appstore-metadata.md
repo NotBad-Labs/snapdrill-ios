@@ -6,7 +6,7 @@ activation: effective_when_release_1_contract_is_on_develop
 freshness:
   max_age_days: 30
   decay_trigger: [release_contract_change, app_store_submission]
-audit_note: BLOCKED — Product Constitution and Release 1 scope are fixed, but final claims, screenshots and review notes wait for a conforming release build
+audit_note: BLOCKED — Product Vision & Principles and Release 1 scope are fixed, but final claims, screenshots and review notes wait for a conforming release build
 gap_type: missing_release_build_evidence
 gap_due: release_candidate
 gap_owner: product-release
@@ -15,7 +15,7 @@ review_gate: PO / legal / ASO final review required; do not submit this shaping 
 ---
 # App Store 元数据（待 Release build 实证）
 
-> **不可提交**：本更新在分支 / PR 中仍等待 Release 1 Contract follow-up decisions effective；同一更新合入 `develop` 后，产品范围 blocker 才转为 release-build evidence blocker。届时公开边界为：Dashboard 是默认任务枢纽，optional 默认隐藏，Review / SmartPaper 在 `public-candidate` 完全隐藏，Apple Silicon Mac 与 Apple Vision Pro compatibility distribution 均退出 Release 1。关键词、完整描述、宣传文本、截图和审核备注仍须等待实际候选 build、隐私 / 签名实证与 PO / legal / ASO 复核，不能从合同直接生成发布事实。
+> **不可提交**：本更新在分支 / PR 中仍等待 Release 1 PRD follow-up decisions effective；同一更新合入 `develop` 后，产品范围 blocker 才转为 release-build evidence blocker。届时公开边界为：Dashboard 是默认任务枢纽，optional 默认隐藏，Review / SmartPaper 在 `public-candidate` 完全隐藏，Apple Silicon Mac 与 Apple Vision Pro compatibility distribution 均退出 Release 1。关键词、完整描述、宣传文本、截图和审核备注仍须等待实际候选 build、隐私 / 签名实证与 PO / legal / ASO 复核，不能从合同直接生成发布事实。
 
 ## 已批准的公开边界
 

@@ -1,15 +1,15 @@
 # AGENTS.md
 
-> SnapDrill 编码 Agent 的最小启动契约。它负责路由权威、执行边界和完成证据，不是产品
-> SSOT、架构快照或 API 手册。`CLAUDE.md` 是指向本文件的兼容软链接。
+> 先读根 [`README.md`](README.md)。本文件只规定编码 Agent 的执行边界和完成证据，不是产品
+> 文档、架构快照或 API 手册。`CLAUDE.md` 是指向本文件的兼容软链接。
 
 ## 1. 优先级与真相源
 
 具体权威高于通用启发式。本文件中的行为原则不能覆盖产品、数据、安全、隐私、发布、平台
 指令或当前任务的精确契约。
 
-- **产品应该是什么**：`develop` 中 effective 的 Product Constitution
-  (`docs/explanations/vision.md`) > 当前 Release Product Contract > 所属产品政策 /
+- **产品应该是什么**：`develop` 中 effective 的 Product Vision & Principles
+  (`docs/product/vision.md`) > 当前 Release PRD (`docs/product/release-1-prd.md`) > 所属产品政策 /
   typed decision > owning feature spec > 验收标准。
 - **产品现在是什么**：live 代码、测试、构建、设备和发布实证 > 自动生成状态与当前事实文档
   > 历史材料与 Agent 私有记忆。
@@ -66,7 +66,7 @@ PO-facing 更新使用自然语言，不要求 PO 学习内部风险或 WIP 代�
 ## 5. 项目不变量
 
 - SnapDrill 是 iOS 26+、Swift 6 strict concurrency 的 SwiftUI App。Release 1 的产品范围以
-  Product Constitution 与 Release 1 Contract 为准，不从当前代码、旧 ADR 或 Draft PR 反推。
+  Product Vision & Principles 与 Release 1 PRD 为准，不从当前代码、旧 ADR 或 Draft PR 反推。
 - App 是 composition root。Package 依赖必须朝 Core 收敛；Core 不反向依赖 Feature / UI /
   Data，且保持零第三方依赖。精确 DAG 与当前偏差只在 `docs/explanations/architecture.md` 维护。
 - Release 1 是 local-first、无 SnapDrill 账户的单一资料库。数据路径、恢复、备份、删除和
@@ -99,18 +99,15 @@ UI / AX、archive、安装、隐私网络实证或发布候选 lineage；高层�
 
 | 任务 | 权威入口 |
 |---|---|
-| 产品身份、原则、当前发布范围 | `docs/explanations/vision.md` + `docs/reference/release-1-contract.md` |
+| 产品身份、原则、当前发布范围 | `docs/product/vision.md` + `docs/product/release-1-prd.md` |
 | 单功能行为与状态 | owning `docs/features/**/feat-*.md` + `docs/reference/feature-status.md` |
 | 开工、PO gate、worktree、授权与 T0-T4 | `docs/how-to/definition-of-ready.md` + `docs/how-to/parallel-lanes.md` |
-| 架构、依赖、并发、DI | `docs/explanations/architecture.md` |
-| 数据、备份、恢复与 wire | `docs/reference/local-library-data-contract.md` + `docs/reference/backup-wire-format.md` |
-| API 已知坑点 | `docs/reference/api-pitfalls.md` |
+| 架构、数据、备份与 API | `docs/explanations/architecture.md` + owning `docs/reference/*contract.md` + `docs/reference/api-pitfalls.md` |
 | UI / UX、AX、本地化与术语 | owning feature spec + `docs/explanations/design-principles.md` + `docs/reference/glossary.md` |
 | CI、签名、TestFlight 与发布 | `docs/how-to/release-and-ci.md` + `Configs/Toolchain.env` |
-| 本地 hooks 与脚本行为 | tracked `Scripts/pre-commit` + `Scripts/hooks/pre-push` + owning script tests |
-| 隐私、平台与 NFR | `docs/explanations/privacy-compliance.md` + `docs/reference/apple-platform-limits.md` + `docs/reference/non-functional-requirements.md` |
-| 文档角色 / 生命周期、生成状态和意图索引 | `docs/reference/document-control.md` + `docs/README.md` |
+| 其他文档与生成索引 | `docs/README.md` |
 
-私有记忆只是可丢弃缓存。项目 Skill 只封装重复工作流，运行时必须读取 live SSOT；不得复制
-产品基线、架构快照、角色品牌或发布状态。Agent 控制面若改变权威、PO gate、数据安全、
-验证或 merge / release 边界，必须使用独立 PR 评审，不能在功能补丁中顺手修改。
+私有记忆只是可丢弃缓存；关键客观事实的唯一归属与禁止入仓边界见
+`docs/reference/document-control.md`。项目 Skill 只封装重复工作流，运行时必须读取 live SSOT；
+不得复制产品基线、架构快照、角色品牌或发布状态。Agent 控制面若改变权威、PO gate、
+数据安全、验证或 merge / release 边界，必须使用独立 PR 评审，不能在功能补丁中顺手修改。

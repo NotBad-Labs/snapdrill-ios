@@ -23,7 +23,28 @@ except ModuleNotFoundError:
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DOCS_ROOT = REPO_ROOT / "docs"
 PACKAGES_ROOT = REPO_ROOT / "Packages"
-RELEASE_ONE_CONTRACT = DOCS_ROOT / "reference" / "release-1-contract.md"
+PRODUCT_VISION = DOCS_ROOT / "product" / "vision.md"
+RELEASE_ONE_PRD = DOCS_ROOT / "product" / "release-1-prd.md"
+ACTIVE_FEATURES_ROOT = DOCS_ROOT / "features" / "active"
+SCOPE_AND_ROADMAP = DOCS_ROOT / "reference" / "scope-and-roadmap.md"
+PO_DECISION_LOG = DOCS_ROOT / "decisions" / "po-decision-log.md"
+
+LEGACY_PRODUCT_AUTHORITY_PATTERNS = (
+    ("Product Constitution", re.compile(r"Product\s+Constitution")),
+    ("Release Product Contract", re.compile(r"Release\s+Product\s+Contract")),
+    ("Release 1 Product Contract", re.compile(r"Release\s+1\s+Product\s+Contract")),
+    ("Release Contract", re.compile(r"Release\s+Contract")),
+    ("Release 合同", re.compile(r"Release\s+(?:1\s+)?合同")),
+)
+PRIVATE_FACT_HOLDER_PATTERNS = (
+    ("home-relative path", re.compile(r"(?<![\w`])~/")),
+    ("absolute user path", re.compile(r"/Users/[^/\s]+/")),
+    ("file URL", re.compile(r"file://")),
+    (
+        "private agent memory",
+        re.compile(r"(?:Claude|Codex|Grok|Gemini|Agent|agent)\s+记忆"),
+    ),
+)
 
 HISTORICAL_ADRS = {
     DOCS_ROOT / "decisions" / "ADR-003-dual-region-release.md": "suspended",
@@ -55,6 +76,24 @@ LEGAL_OR_FACT_GATED_DOCS = {
     DOCS_ROOT / "explanations" / "competitive-analysis.md",
     DOCS_ROOT / "decisions" / "ADR-005-analytics-privacy-strategy.md",
 }
+REPOSITORY_FACT_POLICY_REQUIREMENTS = {
+    DOCS_ROOT / "reference" / "document-control.md": {
+        "key facts have a tracked owner": (
+            "仓库事实归属",
+            "关键客观事实",
+            "owning tracked source",
+        ),
+        "private state is not an owner": ("不得成为关键事实的", "唯一持有者"),
+        "external findings require verification": (
+            "外部复核输出只是候选证据",
+            "当前 DRI 必须重新验证",
+        ),
+        "raw transcripts and secrets stay out of Git": (
+            "raw transcript 不入仓",
+            "不得进入 Git",
+        ),
+    },
+}
 POST_PIVOT_BASELINE = "2026-06-13"
 VISION_REF_PATTERN = re.compile(r"^vision:P([1-9][0-9]*)$")
 ADR_REF_PATTERN = re.compile(r"^ADR-[0-9]{3}$")
@@ -64,6 +103,82 @@ FRONTMATTER_DATE_PATTERN = re.compile(
     re.MULTILINE,
 )
 PRD_FILENAME_PATTERN = re.compile(r"(?:^|[-_.])prd(?:[-_.]|$)", re.IGNORECASE)
+H2_PATTERN = re.compile(r"^## ([^\n]+)$", re.MULTILINE)
+
+ACTIVE_FEATURE_NUMBERED_HEADINGS = (
+    "1. 为什么做 (Why)",
+    "2. 需求规则 (What)",
+    "3. 技术设计 (How)",
+    "4. 验证标准 (Verify)",
+)
+ACTIVE_FEATURE_ALLOWED_H2 = {
+    *ACTIVE_FEATURE_NUMBERED_HEADINGS,
+    "意图追溯（永久保留）",
+    "当前执行准入（非产品 SSOT）",
+    "关联",
+}
+ROADMAP_REQUIRED_MARKERS = {
+    "candidate-only role": (
+        "只维护尚未进入当前发布承诺的跨功能候选及其重入条件",
+        "不定义当前发布范围",
+    ),
+    "product authority pointers": (
+        "Product Vision & Principles",
+        "Release 1 PRD",
+        "feature spec",
+    ),
+    "candidate table disclaimer": (
+        "不是功能承诺或 Release 1 状态表",
+    ),
+}
+ROADMAP_PARALLEL_AUTHORITY_HEADINGS = (
+    "## 当前上游边界",
+    "## Release 1 投资边界",
+    "## 能力簇状态",
+    "## 耐久非目标",
+)
+COLD_START_ENTRYPOINT_REQUIREMENTS = {
+    REPO_ROOT / "README.md": {
+        "unique cold-start entrypoint": (
+            "根 README 是人和 Agent 的唯一冷启动入口",
+        ),
+        "product authority routes": (
+            "docs/product/vision.md",
+            "docs/product/release-1-prd.md",
+            "docs/features/",
+        ),
+        "AGENTS is not product authority": (
+            "AGENTS.md",
+            "不是产品文档",
+        ),
+    },
+    DOCS_ROOT / "README.md": {
+        "route back to root README": (
+            "从仓库根 [README](../README.md) 开始",
+        ),
+        "root owns cold start": (
+            "它是人和 Agent 的唯一冷启动入口",
+        ),
+        "navigation only": (
+            "本页只负责",
+            "不复制产品范围",
+        ),
+    },
+    REPO_ROOT / "AGENTS.md": {
+        "read root README first": (
+            "先读根 [`README.md`](README.md)",
+        ),
+        "execution rules are not product authority": (
+            "不是产品",
+            "文档、架构快照或 API 手册",
+        ),
+    },
+}
+COLD_START_DECLARATION = "唯一冷启动入口"
+COLD_START_DECLARATION_OWNERS = {
+    REPO_ROOT / "README.md",
+    DOCS_ROOT / "README.md",
+}
 
 CURRENT_ADMISSION_POLICY_REQUIREMENTS = {
     REPO_ROOT / "AGENTS.md": {
@@ -75,8 +190,8 @@ CURRENT_ADMISSION_POLICY_REQUIREMENTS = {
     },
     DOCS_ROOT / "README.md": {
         "Current Admission owner link": ("definition-of-ready.md#current-admission",),
-        "historical artifacts are evidence only": ("默认都只提供证据",),
-        "admission is not product authority": ("不新增产品",),
+        "historical artifacts are evidence only": ("默认只是证据",),
+        "admission is not product authority": ("执行准入不产生", "产品要求"),
     },
     DOCS_ROOT / "how-to" / "definition-of-ready.md": {
         "historical artifacts are evidence only": ("are evidence by default",),
@@ -353,6 +468,14 @@ def iter_taxonomy_contract_docs() -> Iterable[Path]:
         yield from sorted(path for path in PACKAGES_ROOT.rglob("*.md") if is_repo_owned_package_doc(path))
 
 
+def iter_current_product_authority_surfaces() -> Iterable[Path]:
+    markdown_paths = validate_document_control.tracked_markdown_paths(REPO_ROOT)
+    for relative_path in sorted(markdown_paths):
+        path = REPO_ROOT / relative_path
+        if not is_inactive_historical_doc(path):
+            yield path
+
+
 def has_any(haystack: str, needles: set[str]) -> bool:
     lower = haystack.lower()
     return any(needle.lower() in lower for needle in needles)
@@ -428,7 +551,7 @@ def resolve_doc_ref(ref: str) -> tuple[Path | None, str | None]:
     base, _, anchor = ref.partition("#")
 
     if VISION_REF_PATTERN.match(base):
-        return DOCS_ROOT / "explanations" / "vision.md", base
+        return DOCS_ROOT / "product" / "vision.md", base
 
     if ADR_REF_PATTERN.match(base):
         matches = sorted((DOCS_ROOT / "decisions").glob(f"{base}-*.md"))
@@ -580,52 +703,203 @@ def validate_feature_intent(errors: list[str]) -> None:
             errors.append(f"{rel(path)}: missing intent traceability row '验收证据'")
 
 
-def validate_release_prd_authority(errors: list[str]) -> None:
-    contract_frontmatter, _ = parse_frontmatter(read(RELEASE_ONE_CONTRACT))
-    if contract_frontmatter.get("layer") != "release-contract":
+def validate_frontmatter_document_references(errors: list[str]) -> None:
+    repo_root = REPO_ROOT.resolve()
+    for path in sorted(DOCS_ROOT.rglob("*.md")):
+        frontmatter, _ = parse_frontmatter(read(path))
+        for field in ("derived_from", "upstream"):
+            references = frontmatter.get(field)
+            if references is None:
+                continue
+            if not isinstance(references, list):
+                errors.append(f"{rel(path)}: {field} must be a list")
+                continue
+            for reference in references:
+                if not isinstance(reference, str):
+                    errors.append(f"{rel(path)}: {field} entry must be a string")
+                    continue
+                raw_path, _, anchor = reference.partition("#")
+                if not raw_path.endswith(".md"):
+                    continue
+                target = (path.parent / raw_path).resolve()
+                if not is_under(target, repo_root) or not target.is_file():
+                    errors.append(
+                        f"{rel(path)}: {field} target does not exist: {reference}"
+                    )
+                    continue
+                if anchor and not has_heading_anchor(target, anchor):
+                    errors.append(
+                        f"{rel(path)}: {field} anchor not found: {reference}"
+                    )
+
+
+def validate_active_feature_structure(errors: list[str]) -> None:
+    for path in sorted(ACTIVE_FEATURES_ROOT.glob("feat-*.md")):
+        headings = H2_PATTERN.findall(read(path))
+        numbered_headings = [
+            heading for heading in headings if re.match(r"^[0-9]+\.", heading)
+        ]
+        if numbered_headings != list(ACTIVE_FEATURE_NUMBERED_HEADINGS):
+            errors.append(
+                f"{rel(path)}: numbered H2 sections must be exactly "
+                "Why / What / How / Verify in that order"
+            )
+        for heading in headings:
+            if heading in ACTIVE_FEATURE_ALLOWED_H2:
+                continue
+            errors.append(
+                f"{rel(path)}: unexpected H2 '{heading}'; merge durable content "
+                "into Why / What / How / Verify instead of creating a parallel "
+                "contract or PRD surface"
+            )
+
+
+def validate_roadmap_boundaries(errors: list[str]) -> None:
+    validate_required_markers(
+        SCOPE_AND_ROADMAP,
+        ROADMAP_REQUIRED_MARKERS,
+        "candidate roadmap boundary",
+        errors,
+    )
+    text = read(SCOPE_AND_ROADMAP)
+    for heading in ROADMAP_PARALLEL_AUTHORITY_HEADINGS:
+        if heading not in text:
+            continue
         errors.append(
-            "docs/reference/release-1-contract.md: layer must be 'release-contract'"
-        )
-    if str(contract_frontmatter.get("release")) != "1":
-        errors.append("docs/reference/release-1-contract.md: release must be 1")
-    if contract_frontmatter.get("product_role") != "release-prd":
-        errors.append(
-            "docs/reference/release-1-contract.md: product_role must be 'release-prd'"
+            f"{rel(SCOPE_AND_ROADMAP)}: parallel product authority heading "
+            f"'{heading}'; point to Product Vision / Release PRD instead"
         )
 
+
+def validate_cold_start_entrypoint(errors: list[str]) -> None:
+    for path, requirements in COLD_START_ENTRYPOINT_REQUIREMENTS.items():
+        validate_required_markers(
+            path,
+            requirements,
+            "cold-start entrypoint",
+            errors,
+        )
+
+    markdown_paths = validate_document_control.tracked_markdown_paths(REPO_ROOT)
+    for relative_path in sorted(markdown_paths):
+        path = REPO_ROOT / relative_path
+        if (
+            path in COLD_START_DECLARATION_OWNERS
+            or is_inactive_historical_doc(path)
+        ):
+            continue
+        if COLD_START_DECLARATION in read(path):
+            errors.append(
+                f"{rel(path)}: competing cold-start declaration; root README "
+                "is the only cold-start owner and docs/README.md is its router"
+            )
+
+
+def validate_product_document_authority(errors: list[str]) -> None:
+    vision_frontmatter, _ = parse_frontmatter(read(PRODUCT_VISION))
+    if vision_frontmatter.get("layer") != "product-vision":
+        errors.append("docs/product/vision.md: layer must be 'product-vision'")
+    if vision_frontmatter.get("authority") != "po":
+        errors.append("docs/product/vision.md: authority must be 'po'")
+
+    prd_frontmatter, _ = parse_frontmatter(read(RELEASE_ONE_PRD))
+    if prd_frontmatter.get("layer") != "release-prd":
+        errors.append(
+            "docs/product/release-1-prd.md: layer must be 'release-prd'"
+        )
+    if str(prd_frontmatter.get("release")) != "1":
+        errors.append("docs/product/release-1-prd.md: release must be 1")
+    if prd_frontmatter.get("product_role") != "release-prd":
+        errors.append(
+            "docs/product/release-1-prd.md: product_role must be 'release-prd'"
+        )
+    prd_text = read(RELEASE_ONE_PRD)
+    if (
+        "下表只是稳定决策 ID 的审阅索引" not in prd_text
+        or "不独立定义完整约束" not in prd_text
+    ):
+        errors.append(
+            "docs/product/release-1-prd.md: decision summary must state that it "
+            "is an index and does not independently define complete constraints"
+        )
+
+    product_visions: list[Path] = []
     release_one_prds: list[Path] = []
-    release_one_contracts: list[Path] = []
+    release_one_prd_layers: list[Path] = []
     markdown_paths = validate_document_control.tracked_markdown_paths(REPO_ROOT)
     for relative_path in sorted(markdown_paths):
         path = REPO_ROOT / relative_path
         frontmatter, _ = parse_frontmatter(read(path))
+        if frontmatter.get("layer") == "product-vision":
+            product_visions.append(path)
         if (
             frontmatter.get("product_role") == "release-prd"
             and str(frontmatter.get("release")) == "1"
         ):
             release_one_prds.append(path)
         if (
-            frontmatter.get("layer") == "release-contract"
+            frontmatter.get("layer") == "release-prd"
             and str(frontmatter.get("release")) == "1"
         ):
-            release_one_contracts.append(path)
-        if PRD_FILENAME_PATTERN.search(path.stem):
+            release_one_prd_layers.append(path)
+        if path != RELEASE_ONE_PRD and PRD_FILENAME_PATTERN.search(path.stem):
             errors.append(
                 f"{rel(path)}: PRD-named Markdown duplicates or obscures the owning "
-                "Release Product Contract"
+                "Release PRD"
             )
 
-    if release_one_prds != [RELEASE_ONE_CONTRACT]:
+    if product_visions != [PRODUCT_VISION]:
+        rendered = ", ".join(rel(path) for path in product_visions) or "none"
+        errors.append(
+            "Product direction must have exactly one product-vision layer at "
+            f"docs/product/vision.md; found: {rendered}"
+        )
+    if release_one_prds != [RELEASE_ONE_PRD]:
         rendered = ", ".join(rel(path) for path in release_one_prds) or "none"
         errors.append(
             "Release 1 must have exactly one declared PRD authority at "
-            f"docs/reference/release-1-contract.md; found: {rendered}"
+            f"docs/product/release-1-prd.md; found: {rendered}"
         )
-    if release_one_contracts != [RELEASE_ONE_CONTRACT]:
-        rendered = ", ".join(rel(path) for path in release_one_contracts) or "none"
+    if release_one_prd_layers != [RELEASE_ONE_PRD]:
+        rendered = ", ".join(rel(path) for path in release_one_prd_layers) or "none"
         errors.append(
-            "Release 1 must have exactly one release-contract layer at "
-            f"docs/reference/release-1-contract.md; found: {rendered}"
+            "Release 1 must have exactly one release-prd layer at "
+            f"docs/product/release-1-prd.md; found: {rendered}"
+        )
+
+
+def validate_current_product_authority_terms(errors: list[str]) -> None:
+    for path in iter_current_product_authority_surfaces():
+        text = read(path)
+        for term, pattern in LEGACY_PRODUCT_AUTHORITY_PATTERNS:
+            match = pattern.search(text)
+            if match is None:
+                continue
+            errors.append(
+                f"{rel(path)}:{text[:match.start()].count(chr(10)) + 1}: "
+                "obsolete product authority "
+                f"term '{term}'; use Product Vision & Principles or Release 1 PRD"
+            )
+
+
+def validate_repository_fact_ownership(errors: list[str]) -> None:
+    for path, requirements in REPOSITORY_FACT_POLICY_REQUIREMENTS.items():
+        validate_required_markers(
+            path,
+            requirements,
+            "repository fact ownership policy",
+            errors,
+        )
+
+    text = read(PO_DECISION_LOG)
+    for label, pattern in PRIVATE_FACT_HOLDER_PATTERNS:
+        match = pattern.search(text)
+        if match is None:
+            continue
+        errors.append(
+            f"{rel(PO_DECISION_LOG)}:{text[:match.start()].count(chr(10)) + 1}: "
+            f"decision receipt relies on {label}; promote the durable fact to a "
+            "tracked owner"
         )
 
 
@@ -677,8 +951,14 @@ def run_checks() -> list[str]:
     validate_positioning_resets(errors)
     validate_contextual_positioning_terms(errors, warnings)
     validate_taxonomy_canonical_terms(errors, warnings)
-    validate_release_prd_authority(errors)
+    validate_product_document_authority(errors)
+    validate_current_product_authority_terms(errors)
+    validate_repository_fact_ownership(errors)
     validate_feature_intent(errors)
+    validate_frontmatter_document_references(errors)
+    validate_active_feature_structure(errors)
+    validate_roadmap_boundaries(errors)
+    validate_cold_start_entrypoint(errors)
     validate_current_admission(errors)
     validate_merge_authorization(errors)
     return errors

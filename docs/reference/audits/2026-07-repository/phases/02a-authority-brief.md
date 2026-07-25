@@ -1,6 +1,6 @@
 # Phase 02a Brief: Authority and Product Truth
 
-> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/explanations/vision.md` 与 `docs/reference/release-1-contract.md`。
+> **文档状态：固定基线历史证据。** 本文只描述当时基线，不提供当前排期或执行授权；当前恢复入口见 `docs/reference/audits/2026-07-repository/README.md`，产品规范见 `docs/product/vision.md` 与 `docs/product/release-1-prd.md`。
 
 ## Fixed Base
 
@@ -17,7 +17,7 @@ Does the tracked normative chain express one coherent current product, or do aut
 ## Primary Scope
 
 - `docs/README.md`
-- `docs/explanations/vision.md`
+- `docs/product/vision.md`
 - `docs/explanations/positioning-and-audience.md`
 - `docs/explanations/design-principles.md`
 - `docs/explanations/business-model.md`

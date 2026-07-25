@@ -10,10 +10,10 @@ description: SnapDrill 发布就绪检查的薄执行层。当用户要求"发�
 `docs/how-to/release-and-ci.md` 是当前发布操作流程的 owner。本 skill 只是薄执行层，不是产品
 权威、发布状态快照或第二份检查清单：
 
-1. **每次运行的第一步**：完整读取 live checkout 的 `AGENTS.md`、
-   `docs/reference/document-control.md` 和 `docs/how-to/release-and-ci.md`。
+1. **每次运行的第一步**：从根 `README.md` 冷启动，再完整读取 live checkout 的
+   `AGENTS.md`、`docs/reference/document-control.md` 和 `docs/how-to/release-and-ci.md`。
 2. 本文件**不记载任何易变事实**：版本号、Build 号、Team ID、Bundle ID、依赖清单、服务数量、检查清单条目、当前发布状态，一律以当次读取的文档与 live 代码实证为准。
-3. **规范链**回答“应该发布什么”：effective Product Constitution -> Release Product Contract ->
+3. **规范链**回答“应该发布什么”：effective Product Vision & Principles -> Release 1 PRD ->
    owning feature / data / privacy contract。**实证链**回答“当前构建是什么”：live code、测试、
    archive、设备与 ASC 证据。两条链不一致时标记 release gap；不得用当前代码反向改写产品规范。
 4. `AGENTS.md` 与本 skill 属于 `operations/current`，只路由执行。私有 Memory、历史审计和旧

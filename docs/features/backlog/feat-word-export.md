@@ -19,7 +19,7 @@ release_refs:
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 requirements / business 聚合（docs 重组 B）。`mode: lightweight`（backlog）——仅 Why + What 必填，How / Verify 待实现补，不为未实现功能编造假设计。
 >
-> **商业规范偏差（2026-07-12）**：Product Constitution B6-A 已把 Word 与 Pro 降为未来候选，frontmatter 已改为 `tier: undecided`。外部价值证据、新商业裁决与 Release Product Contract 生效前不得实现或公开承诺。
+> **商业规范偏差（2026-07-12）**：Product Vision & Principles B6-A 已把 Word 与 Pro 降为未来候选，frontmatter 已改为 `tier: undecided`。外部价值证据、新商业裁决与 Release PRD 生效前不得实现或公开承诺。
 
 ## 1. 候选价值假设 (Why)
 
@@ -46,8 +46,8 @@ release_refs:
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P3 免费层完成核心闭环 / P4 用户拥有数据） | Word 若回归只能是可选格式，不能削弱基础导出与数据权利 |
-| Release 1 Contract | `../../reference/release-1-contract.md` §7 (`release-1:section-7`) | Word 导出是 Release 1 明确非目标；该引用只固定隐藏边界，不表示候选纳入 |
+| Vision | `../../product/vision.md`（P3 免费层完成核心闭环 / P4 用户拥有数据） | Word 若回归只能是可选格式，不能削弱基础导出与数据权利 |
+| Release 1 PRD | `../../product/release-1-prd.md` §7 (`release-1:section-7`) | Word 导出是 Release 1 明确非目标；该引用只固定隐藏边界，不表示候选纳入 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | 当前无有效 Pro 层、价格或订阅降级规则 |
 | 待验证假设 | 无（承接 H3 导出/打印是高价值终点） | — |
 | 验收证据 | 等待外部价值证据、PoC 与新 contract（backlog lightweight） | 见本 spec Verify 节 |
@@ -55,7 +55,7 @@ release_refs:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P3 免费层完成核心闭环 / P4 数据属于用户）
+- 原则：`../../product/vision.md`（P3 免费层完成核心闭环 / P4 数据属于用户）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`
 - 历史决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（已被 B6-A 取代）

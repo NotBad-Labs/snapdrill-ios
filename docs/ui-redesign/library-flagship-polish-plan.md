@@ -1,6 +1,6 @@
 # Library 旗舰屏发布级打磨清单（PO 已确认）
 
-> **文档状态：已取代的历史 UI 证据。** 本文保留旧实现、截图和当时裁决，不再是当前 UI 合同或 release checklist；当前要求以 `docs/explanations/vision.md` -> `docs/reference/release-1-contract.md` -> owning feature spec 为准。
+> **文档状态：已取代的历史 UI 证据。** 本文保留旧实现、截图和当时裁决，不再是当前 UI 合同或 release checklist；当前要求以 `docs/product/vision.md` -> `docs/product/release-1-prd.md` -> owning feature spec 为准。
 
 > 状态：PO 已批准默认建议（2026-06-15）。本文收敛 Library 第一屏打磨范围，并作为本轮实现合同。
 

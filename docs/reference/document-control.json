@@ -54,7 +54,7 @@
         "docs/explanations/design-principles.md",
         "docs/explanations/positioning-and-audience.md",
         "docs/explanations/privacy-compliance.md",
-        "docs/explanations/vision.md",
+        "docs/product/vision.md",
         "docs/features/active/feat-backup.md",
         "docs/features/active/feat-capture.md",
         "docs/features/active/feat-dashboard.md",
@@ -69,7 +69,7 @@
         "docs/reference/glossary.md",
         "docs/reference/local-library-data-contract.md",
         "docs/reference/non-functional-requirements.md",
-        "docs/reference/release-1-contract.md",
+        "docs/product/release-1-prd.md",
         "docs/reference/scope-and-roadmap.md"
       ]
     },
@@ -140,6 +140,7 @@
       "lifecycle": "frozen",
       "paths": [
         "docs/reference/audits/2026-07-agent-control-plane-review.md",
+        "docs/reference/audits/2026-07-documentation-standardization-review.md",
         "docs/reference/audits/2026-07-repository/rebaseline-contract.md",
         "docs/reference/audits/2026-07-repository/checkpoints/2026-07-16-rebaseline.md"
       ],

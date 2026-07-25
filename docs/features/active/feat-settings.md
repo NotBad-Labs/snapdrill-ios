@@ -29,14 +29,14 @@ release_outcomes:
 
 > **产品重基线（2026-07-19）**：Release 1 用户可见面隐藏 Profile 管理、昵称、头像、座右铭以及 Review 目标、排序、外观和提醒 / 通知；同时隐藏 Pro、CloudKit、Word 等不可用升级界面。语言与 App 外观是真实通用设置。D5-A 将主要破坏性操作固定为“清空资料库 / Clear Library”，不是 App factory reset。S1-A 统一约束 Settings import / edit 输入，D4S-A 区分完整备份 / 恢复 / 清库与 JSON / CSV partial export。frontmatter 与技术章节仍记录当前实现，不能把已有身份或 Review 设置反推为获准范围。
 
-> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
+> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 PRD 符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / 技术文档聚合（docs 重组 B）。
 
 ## 1. 为什么做 (Why)
 - **痛点 / 价值**：用户不需要理解 App 内部概念。设置服务于控制权、可理解性和信任，让用户管理语言、外观、本地数据与法律入口，不承担身份塑造、Review 留存或升级转化。
 - **海外华人场景**：App 内语言直选（不依赖系统设置）是海外华人用户的核心需求——系统语言英文、内容主要为中文时仍能用中文界面。
-- **原则归属**：P5 成人生产力工具（零学习曲线、不贩卖焦虑、中性成熟）+ P2 简洁（设置克制，不堆复杂度）+ P4 用户拥有数据·零注册（个性化资料纯本地、不外传）。详见 `../../explanations/vision.md`。
+- **原则归属**：P5 成人生产力工具（零学习曲线、不贩卖焦虑、中性成熟）+ P2 简洁（设置克制，不堆复杂度）+ P4 用户拥有数据·零注册（个性化资料纯本地、不外传）。详见 `../../product/vision.md`。
 
 ## 2. 需求规则 (What)
 - **身份与 Review 设置**：昵称、座右铭、头像、每日回顾目标、回顾排序、卡片外观和提醒 / 通知仍存在于当前代码，但 Release 1 必须隐藏。C4-D 只允许非公开实验 build 从 Library 的一个静态入口进入 Review，不授权第二个 Settings 入口或后台调度。
@@ -46,11 +46,33 @@ release_outcomes:
 - **清空资料库（D5-A）**：删除全部已保存资料、这些资料引用的 App-managed 主图 / 答案图、分类 / 字段 / 关联，以及附着于这些资料的 Review 调度状态。它不是“清除所有数据”：未保存采集草稿、语言 / 外观 / 通知偏好、未解决 recovery incident 和沙盒外用户文件保留各自生命周期。
 - **数据边界（S1-A）**：Settings 承载的 CSV / JSON import、字段管理和恢复入口统一消费 [Local Library Data Contract](../../reference/local-library-data-contract.md) §2.1；超限或无效内容必须拒绝并保留旧状态，不得截断。
 - **操作完整性（D4S-A）**：完整备份、restore 与 Clear Library 进入 complete-operation prestate / barrier；Settings JSON / CSV export 是 partial，不等待该 barrier，也不显示为完整资料库备份。
-- **Candidate optional 设置**：字段管理器与 JSON / CSV 导入导出默认隐藏；只有 Release 1 Contract 已列入、冻结 manifest 显式纳入并通过对应数据 / 隐私 / AX 门禁才可见。
+- **Candidate optional 设置**：字段管理器与 JSON / CSV 导入导出默认隐藏；只有 Release 1 PRD 已列入、冻结 manifest 显式纳入并通过对应数据 / 隐私 / AX 门禁才可见。
 - **未获范围授权的当前表面**：媒体缓存清理、帮助中心、角色预设和匿名遥测开关必须隐藏，不能由 manifest 单独纳入；重入需先修改上游 contract。生产仍注入 `NoOpAnalyticsService`，端侧 MetricKit 不由旧遥测开关控制。
 - **边界 / 不做**：不在 App 内构建帮助搜索系统；角色预设不进入 Onboarding；用户资料不外传、不做账号体系。现有 Profile 管理入口是 B5-A 已废止的实现遗留，必须隐藏或删除。
 - **前置依赖**：无。设置是承载入口的容器层，所托管的导出、备份和字段管理各自有独立 feature spec。
 - **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP；Settings 不展示 Pro、CloudKit、Word 或其他不可用升级入口。当前生产环境没有后端遥测实现。
+
+### 详细契约
+
+#### A. 设置项行为
+
+- Settings 中每个 toggle、sheet、导航项必须表达真实行为；无实现或无副作用的控件不得伪装成已启用功能。
+- 设置项保存失败必须用户可见；不能只写日志或静默恢复旧值。
+- Release 1 不提供用户可见的 Profile 创建、切换、删除或管理入口；现有入口属于待重基线实现偏差。
+- Settings 的通用破坏性入口必须命名为“清空资料库 / Clear Library”，并在确认面准确列出其拥有的资料、图片、taxonomy 与附着 Review 状态；不得命名为“清除所有数据”或暗示 factory reset。
+- recovery incident 的导出、显式删除和“导出并删除”由 DATA-1-R 的独立管理入口拥有；Clear Library 不能调用或绕过该生命周期。
+- complete backup / restore / Clear Library 与 JSON / CSV partial export 的并发和快照语义只消费 D4S-A；Settings 不定义第二套 barrier 或 prestate，也不把 fail-fast partial request 显示为已排队或已导出。
+
+#### B. 诊断与隐私
+
+- 生产 analytics 注入为 `NoOpAnalyticsService`；端侧 MetricKit 诊断不受 Settings 中的旧“诊断”开关控制。
+- Release 1 隐藏旧诊断 / 匿名遥测 UI，且当前 manifest 不得单独纳入；移除或不可达化控件不得改变底层 MetricKit、`NoOpAnalyticsService` 或 DI 的安全行为。
+- 任何隐私状态声明必须与 App Store Privacy Manifest、代码注入和公开隐私政策一致。
+
+#### C. 法律入口
+
+- 服务条款、隐私政策、儿童隐私等法律正文属于 legal-gated 内容；Settings 只能链接、标记和路由到律师线，不自行改写正文。
+- 外部链接失败、取消或无网络时应有用户可见反馈。
 
 ## 3. 技术设计 (How)
 - **模块归属**：`Packages/SnapDrillFeatures/SnapDrillFeatureSettings`（依赖 Library）。通知能力经 `SnapDrillCore` 的 `NotificationServiceProtocol`（ServiceContainer 注入）；复习卡片字号经 `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)`，Per-Profile 隔离。
@@ -79,29 +101,7 @@ release_outcomes:
   - **文案约束**：Settings 与隐私政策文案必须继续与发布构建、Privacy Manifest、App Store Privacy 标签及律师审查一致；不得声称当前版本会自动发送使用分析、崩溃报告、题目内容或设备明细。
 
 
-## 5. Contracts（设置 / 诊断 / 法律入口）
-
-### A. 设置项行为
-
-- Settings 中每个 toggle、sheet、导航项必须表达真实行为；无实现或无副作用的控件不得伪装成已启用功能。
-- 设置项保存失败必须用户可见；不能只写日志或静默恢复旧值。
-- Release 1 不提供用户可见的 Profile 创建、切换、删除或管理入口；现有入口属于待重基线实现偏差。
-- Settings 的通用破坏性入口必须命名为“清空资料库 / Clear Library”，并在确认面准确列出其拥有的资料、图片、taxonomy 与附着 Review 状态；不得命名为“清除所有数据”或暗示 factory reset。
-- recovery incident 的导出、显式删除和“导出并删除”由 DATA-1-R 的独立管理入口拥有；Clear Library 不能调用或绕过该生命周期。
-- complete backup / restore / Clear Library 与 JSON / CSV partial export 的并发和快照语义只消费 D4S-A；Settings 不定义第二套 barrier 或 prestate，也不把 fail-fast partial request 显示为已排队或已导出。
-
-### B. 诊断与隐私
-
-- 生产 analytics 注入为 `NoOpAnalyticsService`；端侧 MetricKit 诊断不受 Settings 中的旧“诊断”开关控制。
-- Release 1 隐藏旧诊断 / 匿名遥测 UI，且当前 manifest 不得单独纳入；移除或不可达化控件不得改变底层 MetricKit、`NoOpAnalyticsService` 或 DI 的安全行为。
-- 任何隐私状态声明必须与 App Store Privacy Manifest、代码注入和公开隐私政策一致。
-
-### C. 法律入口
-
-- 服务条款、隐私政策、儿童隐私等法律正文属于 legal-gated 内容；Settings 只能链接、标记和路由到律师线，不自行改写正文。
-- 外部链接失败、取消或无网络时应有用户可见反馈。
-
-### D. Enforcement
+### Enforcement
 
 | 契约项 | Enforcement |
 |---|---|
@@ -117,9 +117,9 @@ release_outcomes:
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P2 简洁 / P4 用户拥有数据·零注册 / P5 成人生产力工具） | 设置服务控制权与信任；偏好纯本地不外传；中性成熟 |
-| Product Constitution | `../../explanations/vision.md` B5-A / B6-A（effective） | 用户可见面不呈现 Profile / Workspace；Settings 不展示不可用升级入口 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Personalization / C3 / C4-D / D5-A / S1-A / D4S-A | Dashboard 不呈现身份装饰；Settings 隐藏身份字段与全部 Review 设置 / 调度入口；Clear Library 不冒充 factory reset；输入接受与 complete / partial operation 语义消费 Local Library Data Contract |
+| Vision | `../../product/vision.md`（P2 简洁 / P4 用户拥有数据·零注册 / P5 成人生产力工具） | 设置服务控制权与信任；偏好纯本地不外传；中性成熟 |
+| Product Vision & Principles | `../../product/vision.md` B5-A / B6-A（effective） | 用户可见面不呈现 Profile / Workspace；Settings 不展示不可用升级入口 |
+| Release 1 PRD | `../../product/release-1-prd.md` C2-Personalization / C3 / C4-D / D5-A / S1-A / D4S-A | Dashboard 不呈现身份装饰；Settings 隐藏身份字段与全部 Review 设置 / 调度入口；Clear Library 不冒充 factory reset；输入接受与 complete / partial operation 语义消费 Local Library Data Contract |
 | 产品政策 / ADR | `../../decisions/ADR-005-analytics-privacy-strategy.md`（全球零后端行为采集，遥测开关本地化、生产 NoOp） | 匿名遥测开关不发送逐事件行为；端侧 MetricKit 独立于该开关 |
 | 待验证假设 | 无（承载容器层，所托管功能各自验证假设） | — |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
@@ -127,7 +127,7 @@ release_outcomes:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P2 简洁 / P4 用户拥有数据·零注册 / P5 成人生产力工具）
+- 原则：`../../product/vision.md`（P2 简洁 / P4 用户拥有数据·零注册 / P5 成人生产力工具）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（旅程 7：备份 / 恢复；App 内语言切换贯穿各成人旅程）
 - 决策：`../../decisions/ADR-005-analytics-privacy-strategy.md`（全球生产零后端行为采集）

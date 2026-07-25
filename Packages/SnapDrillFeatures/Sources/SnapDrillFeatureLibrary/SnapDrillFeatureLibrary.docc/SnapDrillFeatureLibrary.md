@@ -1,6 +1,6 @@
 # ``SnapDrillFeatureLibrary``
 
-> 当前实现 API 参考；公开工具栏、批量能力和 SmartPaper 可达性由 Release Contract 与
+> 当前实现 API 参考；公开工具栏、批量能力和 SmartPaper 可达性由 Release 1 PRD 与
 > Library feature spec 决定。
 
 资料库浏览与管理模块，支持搜索、过滤、编辑和导出。

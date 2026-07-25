@@ -2,15 +2,16 @@
 last_verified: 2026-07-13
 layer: pattern
 derived_from:
-  - vision.md#首个工作流切口
-  - vision.md#核心价值链
-  - vision.md#数据与身份定位
-  - vision.md#产品定位
+  - ../product/vision.md#首个工作流切口
+  - ../product/vision.md#核心价值链
+  - ../product/vision.md#数据与身份定位
+  - ../product/vision.md#产品定位
   - positioning-and-audience.md
 ---
 # SnapDrill 用户旅程
 
-> **上游依赖**：`vision.md`（使命、产品原则）、`positioning-and-audience.md`（通用受众定位）。
+> **上游依赖**：[Product Vision & Principles](../product/vision.md) 与
+> [定位与受众](positioning-and-audience.md)。
 >
 > 本文件用“处理结构化纸张 / PDF 的成年人”这一首个切口，验证产品是否支撑采集、整理 / 找回、导出 / 打印。
 > 用户是管理自己资料的成年人；产品也服务成年人整理家庭资料，但不建立儿童独立账户、儿童模式或儿童专属体验。
@@ -180,8 +181,8 @@ derived_from:
 
 | 文档 | 关系 | 说明 |
 |---|---|---|
-| `vision.md` | 上游 | 使命、产品原则 |
-| `positioning-and-audience.md` | 上游 | 通用受众定位与受众 guardrail |
+| [Product Vision & Principles](../product/vision.md) | 上游 | 使命、产品原则 |
+| [定位与受众](positioning-and-audience.md) | 上游 | 通用受众定位与受众 guardrail |
 | `design-principles.md` | 相关 | 跨功能设计与交互规则 |
 | `../reference/scope-and-roadmap.md` | 相关 | 候选能力与重入边界；不定义 Release 1 |
 | `../features/` | 下游 | 各功能 Verify 节承接旅程对应的验收用例 |

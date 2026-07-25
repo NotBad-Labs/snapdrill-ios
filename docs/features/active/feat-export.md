@@ -26,14 +26,14 @@ release_outcomes:
 
 > **产品重基线（2026-07-19）**：导出 / 打印与永久手动备份属于宪章核心承诺。C2-Core 要求打印作为独立正式终点，并把分享 / 保存视为并列出口；D2-A 固定基础 PDF 无封面及物理页数；D4S-A 将 selected PDF / CSV 明确归为 partial export，不等待完整资料库 barrier，也不冒充完整备份。PDF 增强按 C2-Optional 逐 build 冻结，SmartPaper 仅按 C5-E / C5-S1 的非公开实验边界复用管线。frontmatter 与技术章节仍只记录当前实现；旧 Profile / Pro 分层不得驱动新工作。
 
-> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
+> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 PRD 符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys + tech architecture / NFR 聚合（docs 重组 B）。
 
 ## 1. 为什么做 (Why)
 - **痛点 / 价值**：用户归档资料的最终目的之一是把内容输出到纸上或其他工作流——导出 / 打印是产品价值链的终点（采集 → 整理 / 找回 → **导出 / 打印**）。"数据属于用户"不是口号，而是可导出、可打印、可带走；缺失基础导出会把数据锁在 App 中。
 - **定位**：基础多选 PDF 与系统打印是日常导出主入口。增强导出（去答案、留白、页眉页码）是 Candidate optional，默认隐藏；即使 manifest 纳入也不得成为付费墙。
-- **原则归属**：P4 数据属于用户（可导出/可打印/可带走）。任何功能若损害"录入/管理"的简洁性就不该做——导出/打印作为价值链终点服从此铁律。详见 `../../explanations/vision.md`。
+- **原则归属**：P4 数据属于用户（可导出/可打印/可带走）。任何功能若损害"录入/管理"的简洁性就不该做——导出/打印作为价值链终点服从此铁律。详见 `../../product/vision.md`。
 
 ## 2. 需求规则 (What)
 - **PDF 导出（基础，免费）**：资料库过滤后批量导出，含**导出前预览**，支持分享与打印。
@@ -49,7 +49,27 @@ release_outcomes:
   - **本 feature 只覆盖 PDF 导出与打印**。JSON / CSV 结构化数据导出是同级数据导出能力（隐私设置页 / 资料库面板），`.snapdrillbackup` 全量备份 / 恢复是独立 feature；本 spec 不展开。
   - **"去答案打印"（隐藏答案字段，布局层）** 与候选的图片处理增强（图片层）是不同层面，不应混淆；图片增强不是当前 Pro 或 Release 1 承诺。
 - **前置依赖**：无。智能组卷（`../backlog/feat-smartpaper.md`）**复用本 feature 的 PDFExportService 管线**作为输出末端——是本 feature 的下游消费方。
-- **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP；已纳入 Release Contract 的导出 / 打印能力不得承担升级转化。Word 与图片增强只是候选假设，不是 Pro、价格或发布时间承诺。
+- **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP；已纳入 Release PRD 的导出 / 打印能力不得承担升级转化。Word 与图片增强只是候选假设，不是 Pro、价格或发布时间承诺。
+
+### 详细契约
+
+#### A. 输入与输出
+
+- 导出入口必须传入明确的资料集合和选项；空集合不得进入 PDF 渲染器，也不得生成空 PDF/CSV。
+- 基础 PDF 第一张物理页就是内容页；不得生成未计入页码或纸张数量的强制封面。
+- PDF、分享、打印结果必须区分 completed / cancelled / failed；用户取消不等于失败。
+- 导出成功只能在文件生成或系统交互完成后提示，不得在后台任务启动时提前宣称成功。
+
+#### B. 分享与打印
+
+- 分享走系统 share sheet；打印走 `PrintPresenting` adapter 或系统打印面板。代码中的 iPad anchor 属非 shipping 实现约束，不构成 B7-A 的 iPad 发布承诺。
+- 已知缺口：打印已通过 `PrintPresenting` adapter 接入系统打印面板；真实 AirPrint 打印机 dogfood 仍需补齐。
+- 打印/分享失败必须用户可见，并保留 retry 路径。
+
+#### C. 活动追踪与隐私
+
+- 导出、分享、打印、备份等长任务必须通过 `AppActivityTracker` 阻止会破坏一致性的并发数据操作。当前阻止 Profile 切换只是待退场实现机制，不是产品契约。
+- PDF 渲染应使用 autoreleasepool 防 OOM；导出内容不得重新引入图片 EXIF GPS/位置信息。
 
 ## 3. 技术设计 (How)
 - **模块归属**：PDF 渲染/排版管线 `SnapDrillCore/Service/PDFExportService`（统一 PDF 引擎，注入于 `ServiceContainer.pdfExport`）；打印呈现走 `SnapDrillUI/PrintPresenting` adapter（生产默认 `LivePrintPresenter`，内部使用 `UIPrintInteractionController`，iPad 需要有效 anchor）。
@@ -82,27 +102,7 @@ release_outcomes:
   - 若 manifest 纳入 CSV 导出，以 `=+-@` 开头的值前加 tab（CSV 注入防护；属同级数据导出）。
 
 
-## 5. Contracts（PDF / 分享 / 打印）
-
-### A. 输入与输出
-
-- 导出入口必须传入明确的资料集合和选项；空集合不得进入 PDF 渲染器，也不得生成空 PDF/CSV。
-- 基础 PDF 第一张物理页就是内容页；不得生成未计入页码或纸张数量的强制封面。
-- PDF、分享、打印结果必须区分 completed / cancelled / failed；用户取消不等于失败。
-- 导出成功只能在文件生成或系统交互完成后提示，不得在后台任务启动时提前宣称成功。
-
-### B. 分享与打印
-
-- 分享走系统 share sheet；打印走 `PrintPresenting` adapter 或系统打印面板。代码中的 iPad anchor 属非 shipping 实现约束，不构成 B7-A 的 iPad 发布承诺。
-- 已知缺口：打印已通过 `PrintPresenting` adapter 接入系统打印面板；真实 AirPrint 打印机 dogfood 仍需补齐。
-- 打印/分享失败必须用户可见，并保留 retry 路径。
-
-### C. 活动追踪与隐私
-
-- 导出、分享、打印、备份等长任务必须通过 `AppActivityTracker` 阻止会破坏一致性的并发数据操作。当前阻止 Profile 切换只是待退场实现机制，不是产品契约。
-- PDF 渲染应使用 autoreleasepool 防 OOM；导出内容不得重新引入图片 EXIF GPS/位置信息。
-
-### D. Enforcement
+### Enforcement
 
 | 契约项 | Enforcement |
 |---|---|
@@ -118,9 +118,9 @@ release_outcomes:
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P4 用户拥有数据 / P2 简洁） | 导出/打印是价值链一等终点；数据可导出可打印可带走；不损害录入/管理简洁 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C2-Core / C2-Optional / C5-E / C5-S1 / D2-A / D4S-A | 打印是独立终点，分享 / 保存不能替代；基础 PDF 无封面且页数闭合；selected export 只作 partial snapshot；增强项与 SmartPaper 不能顺带扩张 |
-| 结果 / 发布证据消费者 | `../../reference/release-1-contract.md` C6-A | 真实打印结果可供发布 gate 取证；不表示本 feature 拥有 release-operations 裁决或已经完成验证 |
+| Vision | `../../product/vision.md`（P4 用户拥有数据 / P2 简洁） | 导出/打印是价值链一等终点；数据可导出可打印可带走；不损害录入/管理简洁 |
+| Release 1 PRD | `../../product/release-1-prd.md` C2-Core / C2-Optional / C5-E / C5-S1 / D2-A / D4S-A | 打印是独立终点，分享 / 保存不能替代；基础 PDF 无封面且页数闭合；selected export 只作 partial snapshot；增强项与 SmartPaper 不能顺带扩张 |
+| 结果 / 发布证据消费者 | `../../product/release-1-prd.md` C6-A | 真实打印结果可供发布 gate 取证；不表示本 feature 拥有 release-operations 裁决或已经完成验证 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | Release 1 免费、无广告、无 IAP；Word / 图片增强只作候选，不作为升级承诺 |
 | 待验证假设 | `../../explanations/assumptions.md` H3（导出/打印是归档后的高价值终点） | 导出/打印使用率验证 H3 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
@@ -128,7 +128,7 @@ release_outcomes:
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P4 数据属于用户）
+- 原则：`../../product/vision.md`（P4 数据属于用户）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（旅程 6：导出 / 打印，含去答案 / 留白 / 快速打印）
 - 商业政策：`../../explanations/business-model.md`

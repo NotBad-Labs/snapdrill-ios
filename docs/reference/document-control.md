@@ -1,7 +1,7 @@
 # 文档控制面
 
 > 本文件定义仓库文档的角色与生命周期，不是产品 SSOT 的第四层。产品规范仍只有
-> Product Constitution -> Release Product Contract -> owning feature spec。
+> Product Vision & Principles -> Release PRD -> owning feature spec。
 
 ## 为什么需要分类
 
@@ -15,7 +15,7 @@ Markdown，避免新文件在首次 commit 时绕过分类。
 
 | Role | 能做什么 | 不能做什么 |
 |---|---|---|
-| `authority` | 在自身 scope 内定义规范、契约或已批准候选 | 低层权威不能覆盖 Product Constitution / Release Contract |
+| `authority` | 在自身 scope 内定义规范、契约或已批准候选 | 低层权威不能覆盖 Product Vision & Principles / Release PRD |
 | `operations` | 定义当前工作方式、验证和恢复入口 | 不能定义产品范围、用户语义或发布承诺 |
 | `evidence` | 描述 live 实现、固定基线、测试或审计结果 | 不能从“已经实现”反推“应该发布” |
 | `generated` | 从 owning source 生成只读索引 | 不能手改或成为新的源数据 |
@@ -43,8 +43,35 @@ Markdown，避免新文件在首次 commit 时绕过分类。
    等句子时，也只描述当时基线。
 3. `operations` 与 Agent skill 每次运行必须重新读取 live authority；它们不得复制产品范围。
 4. `generated` 文件由 owner generator 的 `--check` 证明一致，不使用 hash 推断是否手改。
-5. UI 历史证据继续保留截图与缺陷记录，但当前 UI 验收必须从 Release Contract、owning feature
+5. UI 历史证据继续保留截图与缺陷记录，但当前 UI 验收必须从 Release PRD、owning feature
    spec、设计原则与 live UI / AX 证据重新生成。
+
+## 仓库事实归属
+
+任何影响产品、架构、数据 / wire、安全 / 隐私、发布或协作的**关键客观事实**，必须有唯一
+owning tracked source。关键事实是：其他 lane 必须依赖，且丢失或错误会改变产品语义、兼容性、
+安全姿态、发布 / 授权状态或协作权威的耐久、可验证陈述。能从 tracked 代码或配置机械重建的
+事实以代码或配置为 owner，文档只提供入口；不能机械重建的事实进入下表对应 owner。
+
+| 事实类别 | 唯一 owner |
+|---|---|
+| 长期产品身份、原则与耐久边界 | `docs/product/vision.md` |
+| 当前发布目标、范围、非目标与结果 | `docs/product/release-1-prd.md` |
+| 单功能行为 | owning `docs/features/**/feat-*.md` |
+| 架构与 durable design decision | `docs/explanations/architecture.md` / typed ADR |
+| 数据、backup wire、安全、隐私与 NFR | owning `docs/reference/*contract.md`、NFR、隐私说明或 typed ADR |
+| 工具链、签名、发布步骤与候选证据 | tracked config、Xcode project / entitlements、`release-and-ci.md` 与对应 manifest |
+| admission、并行、验证与授权 | `AGENTS.md`、`definition-of-ready.md`、`parallel-lanes.md` |
+| 裁决回执 | `po-decision-log.md` 的 thin pointer，最终仍指向上述 owning authority |
+
+对话、Agent 私有记忆、仓库外报告和未跟踪笔记只能用于发现或临时缓存，不得成为关键事实的
+唯一持有者。外部复核输出只是候选证据；当前 DRI 必须重新验证 path:line、命令或 live 行为，
+再把耐久结论写入 owning tracked source，或写入带 fixed base、scope、verified / unverified
+边界的 `docs/reference/audits/` 证据。raw transcript 不入仓，也不成为权威。
+
+密钥、凭据、个人数据、签名私钥、raw debug / auth log，以及没有跨 lane 持久价值的临时构建
+日志、CI 噪声和 WIP scratch **不得进入 Git**。若合规要求保留这类材料，应进入批准的受控
+存储，只在仓库记录不含秘密的 owner、保留政策和可验证回执。
 
 ## 历史工作制品与当前准入
 

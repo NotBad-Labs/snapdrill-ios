@@ -1,18 +1,18 @@
 ---
-last_verified: 2026-07-20
-layer: product-constitution
+last_verified: 2026-07-24
+layer: product-vision
 authority: po
-constitution_version: 1
+vision_version: 1
 ratified_at: 2026-07-12
 activation: effective_when_merged_to_develop
 ---
-# SnapDrill Product Constitution v1（产品宪章）
+# SnapDrill Product Vision & Principles（产品愿景与原则）
 
-> 本文件是 SnapDrill 第一层产品 SSOT，也是仓库内当前产品意图的最高权威。它在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective baseline。
+> 本文件定义 SnapDrill 的长期产品方向和原则，是仓库内当前产品意图的最高权威。它在分支或 PR 中只是已批准候选，合入 `develop` 后才成为 effective baseline。
 >
-> 第二层是一个有界、带日期的 Release Product Contract，同时承担该次发布的唯一 PRD 角色；
-> 第三层是各 feature spec。不得再建立一份平行 `PRD.md` 复制范围或需求。代码、测试、构建与
-> 真机证据只证明当前实现，不能反向改写这三层规范。
+> 当前发布需求由 [Release 1 PRD](release-1-prd.md) 定义，单功能行为由各 feature spec 定义。
+> 不得建立平行 PRD 复制范围或需求。代码、测试、构建与真机证据只证明当前实现，不能反向
+> 改写产品目标。
 
 ## v1 裁决摘要
 
@@ -52,7 +52,8 @@ SnapDrill 是面向通用受众的原生成人效率工具，扫描、归档和�
 - 产品不是题库、搜题、解题、内容社区或内容分发平台。
 - 产品不以社交、游戏化、焦虑文案或增长机制代替真实工具价值。
 
-具体受众信号与合规 guardrail 见 [positioning-and-audience.md](positioning-and-audience.md)。
+具体受众信号与合规 guardrail 见
+[positioning-and-audience.md](../explanations/positioning-and-audience.md)。
 
 ## 核心价值链
 
@@ -65,7 +66,8 @@ SnapDrill 是面向通用受众的原生成人效率工具，扫描、归档和�
 - **导出 / 打印**：让资料离开 App，进入纸张、文件或用户选择的其他工作流。
 - **回顾与 SmartPaper**：可以提供附加复用价值，但不得占据、阻塞或复杂化主路径。
 
-具体输入渠道、字段、输出格式和附加功能是否属于某次发布，由 Release Contract 和 feature spec 决定，不能从当前代码数量反推。
+具体输入渠道、字段、输出格式和附加功能是否属于某次发布，由相应 Release PRD 和 feature spec
+决定，不能从当前代码数量反推。
 
 ## 数据与身份定位
 
@@ -82,9 +84,10 @@ SnapDrill 是面向通用受众的原生成人效率工具，扫描、归档和�
 - Release 1 免费、无广告、无 IAP。
 - 当前没有有效的 Pro 层、价格、试用期、付费配额、CloudKit 或 Word 商业承诺；不可用的购买、升级和“即将推出 Pro”界面必须隐藏。
 - 核心价值链不得靠限制录入数量、锁定用户资料、阻断手动备份或添加水印来变现。
-- Pro、Apple 私有同步、Word 和其他高级输出可以保留为候选假设，但需要外部价值证据、新的商业裁决、StoreKit / 隐私 contract 和独立 Release Contract 才能生效。
+- Pro、Apple 私有同步、Word 和其他高级输出可以保留为候选假设，但需要外部价值证据、新的商业裁决、StoreKit / 隐私 contract 和独立 Release PRD 才能生效。
 
-现行商业政策与候选假设见 [business-model.md](business-model.md)。历史 Hybrid 配额和订阅定价不得作为当前产品依据。
+现行商业政策与候选假设见 [business-model.md](../explanations/business-model.md)。历史 Hybrid
+配额和订阅定价不得作为当前产品依据。
 
 ## 平台与区域
 
@@ -94,8 +97,9 @@ SnapDrill 是面向通用受众的原生成人效率工具，扫描、归档和�
 - iPad 与中国大陆专项发行路线均已退出当前范围；任何恢复都必须重新立项，补齐产品、UI、测试、签名、元数据、隐私和发布证据。
 - 已挂起的账号、Bundle、App Group 或其他资源可以保留作为可逆资产，但不构成当前承诺。
 
-生产 Team、Bundle、签名和已验证构建属于实证事实，以根 `README.md`、live 配置、代码和发布
-证据为准；`AGENTS.md` 只负责把 Agent 路由到这些 owner。
+生产 Team、Bundle、签名和已验证构建属于实证事实，以 `Configs/Shared.xcconfig`、Xcode
+project / entitlements、live archive 与 [release-and-ci.md](../how-to/release-and-ci.md) 为准；
+根 `README.md` 和 `AGENTS.md` 只负责路由到这些 owner。
 
 ## 耐久非目标
 
@@ -142,7 +146,7 @@ SnapDrill 是面向通用受众的原生成人效率工具，扫描、归档和�
 5. **朴素分享优于增长机制**：分享用于交付资料，不做水印、裂变任务或社交关系链。
 6. **信任优于省事**：自动化不确定时留白；任何自动结果必须可见、可改、可撤销。
 
-## 三层 SSOT 与变更生命周期
+## 产品需求层次与变更生命周期
 
 ```text
 exploration
@@ -151,31 +155,32 @@ exploration
   -> 归属权威合入 develop（effective）
   -> superseded
 
-Product Constitution
-  -> Release Product Contract
+Product Vision & Principles
+  -> Release PRD
   -> Feature Spec
   -> 验收标准
   -> 代码与测试
 ```
 
-1. Product Constitution 只定义耐久产品身份、原则和跨功能边界。
-2. Release Contract 同时是该次发布的唯一 PRD，定义目标产物、Must outcomes、明确非目标和
-   结果级验收；不另建平行 PRD。
+1. Product Vision & Principles 只定义耐久产品身份、原则和跨功能边界。
+2. Release PRD 定义该次发布的目标产物、Must outcomes、明确非目标和结果级验收；不另建平行
+   PRD。
 3. Feature spec 定义单功能的可观察行为，不得创造上游产品不变量。
 4. 下游规范必须引用上游依据；找不到依据的需求是孤儿需求。
 5. 分支、PR、聊天、当前代码和测试都不能自行使产品裁决生效。
-6. 跨 feature、数据 / wire、公开承诺、商业或平台边界的变更，合并前必须先有 effective 的上游产品或 release contract。
+6. 跨 feature、数据 / wire、公开承诺、商业或平台边界的变更，合并前必须先有 effective 的
+   上游产品文档或 Release PRD。
 7. 旧 tracked 规范持续有效，直到新权威明确 supersede；历史材料保留指针但不能驱动新工作。
 
 ## 下游权威
 
 | 文档 | 单一职责 |
 |---|---|
-| [positioning-and-audience.md](positioning-and-audience.md) | 首个切口、通用受众、UI / 营销 / 法律复核边界 |
-| [design-principles.md](design-principles.md) | 宪章约束内的跨功能设计规则 |
-| [business-model.md](business-model.md) | 当前商业政策、商业假设与重入条件 |
-| [assumptions.md](assumptions.md) | 可证伪的产品假设及证据方法 |
-| [user-journeys.md](user-journeys.md) | 宪章约束内的代表性工作流 |
-| [Release 1 Product Contract](../reference/release-1-contract.md) | Release 1 唯一 PRD：范围、非目标和结果级验收 |
+| [positioning-and-audience.md](../explanations/positioning-and-audience.md) | 首个切口、通用受众、UI / 营销 / 法律复核边界 |
+| [design-principles.md](../explanations/design-principles.md) | 产品原则约束内的跨功能设计规则 |
+| [business-model.md](../explanations/business-model.md) | 当前商业政策、商业假设与重入条件 |
+| [assumptions.md](../explanations/assumptions.md) | 可证伪的产品假设及证据方法 |
+| [user-journeys.md](../explanations/user-journeys.md) | 产品原则约束内的代表性工作流 |
+| [Release 1 PRD](release-1-prd.md) | Release 1 范围、非目标和结果级验收 |
 | [../features/](../features/) | 单功能 Why / What / How / Verify |
 | [../reference/feature-status.md](../reference/feature-status.md) | 当前实现状态，仅属实证链 |

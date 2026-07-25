@@ -52,7 +52,7 @@ class ValidateDocsTests(unittest.TestCase):
 
         self.assertEqual(
             target,
-            validate_docs.DOCS_ROOT / "explanations" / "vision.md",
+            validate_docs.DOCS_ROOT / "product" / "vision.md",
         )
         self.assertEqual(anchor, "vision:P4")
         self.assertTrue(validate_docs.ref_target_exists(target, anchor))
@@ -115,12 +115,396 @@ class ValidateDocsTests(unittest.TestCase):
             errors,
         )
 
-    def test_release_one_contract_is_the_only_declared_prd(self) -> None:
+    def test_frontmatter_document_references_resolve(self) -> None:
         errors: list[str] = []
 
-        validate_docs.validate_release_prd_authority(errors)
+        validate_docs.validate_frontmatter_document_references(errors)
 
         self.assertEqual(errors, [])
+
+    def test_stale_frontmatter_document_path_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        assumptions = (
+            validate_docs.DOCS_ROOT / "explanations" / "assumptions.md"
+        )
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == assumptions:
+                return text.replace(
+                    "  - ../product/vision.md",
+                    "  - vision.md",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_frontmatter_document_references(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/explanations/assumptions.md: "
+            "derived_from target does not exist: vision.md",
+            errors,
+        )
+
+    def test_stale_upstream_document_path_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.RELEASE_ONE_PRD:
+                return text.replace(
+                    "  - vision.md",
+                    "  - missing-vision.md",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_frontmatter_document_references(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/product/release-1-prd.md: "
+            "upstream target does not exist: missing-vision.md",
+            errors,
+        )
+
+    def test_active_feature_specs_use_one_why_what_how_verify_structure(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_active_feature_structure(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_parallel_contract_heading_in_active_feature_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        feature = (
+            validate_docs.DOCS_ROOT / "features" / "active" / "feat-library.md"
+        )
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == feature:
+                return text.replace(
+                    "## 意图追溯（永久保留）",
+                    "## 5. Parallel Contracts\n\n"
+                    "Duplicate requirements.\n\n"
+                    "## 意图追溯（永久保留）",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_active_feature_structure(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                "unexpected H2 '5. Parallel Contracts'" in error
+                for error in errors
+            )
+        )
+
+    def test_renamed_feature_what_heading_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        feature = (
+            validate_docs.DOCS_ROOT / "features" / "active" / "feat-dashboard.md"
+        )
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == feature:
+                return text.replace(
+                    "## 2. 需求规则 (What)",
+                    "## 2. Release 1 PRD",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_active_feature_structure(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                "numbered H2 sections must be exactly" in error
+                for error in errors
+            )
+        )
+        self.assertTrue(
+            any("unexpected H2 '2. Release 1 PRD'" in error for error in errors)
+        )
+
+    def test_candidate_roadmap_does_not_repeat_product_authority(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_roadmap_boundaries(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_root_readme_is_the_only_cold_start_entrypoint(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_cold_start_entrypoint(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_missing_root_readme_cold_start_marker_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        root_readme = validate_docs.REPO_ROOT / "README.md"
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == root_readme:
+                return text.replace(
+                    "根 README 是人和 Agent 的唯一冷启动入口",
+                    "根 README 是一个入口",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_cold_start_entrypoint(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                "cold-start entrypoint missing requirement" in error
+                for error in errors
+            )
+        )
+
+    def test_competing_cold_start_declaration_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        feature = (
+            validate_docs.DOCS_ROOT / "features" / "active" / "feat-library.md"
+        )
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == feature:
+                return f"{text}\n本文件是唯一冷启动入口。\n"
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_cold_start_entrypoint(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/features/active/feat-library.md: competing cold-start "
+            "declaration; root README is the only cold-start owner and "
+            "docs/README.md is its router",
+            errors,
+        )
+
+    def test_roadmap_product_authority_heading_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.SCOPE_AND_ROADMAP:
+                return f"{text}\n## 耐久非目标\n\nDuplicated from Vision.\n"
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_roadmap_boundaries(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any("parallel product authority heading" in error for error in errors)
+        )
+
+    def test_release_one_prd_is_the_only_declared_prd(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_product_document_authority(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_release_prd_summary_declares_index_only_role(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.RELEASE_ONE_PRD:
+                return text.replace(
+                    "下表只是稳定决策 ID 的审阅索引，不独立定义完整约束。",
+                    "",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_product_document_authority(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/product/release-1-prd.md: decision summary must state that it "
+            "is an index and does not independently define complete constraints",
+            errors,
+        )
+
+    def test_current_product_authority_surfaces_use_standard_terms(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_current_product_authority_terms(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_legacy_product_authority_term_in_package_doc_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        package_readme = validate_docs.PACKAGES_ROOT / "SnapDrillCore" / "README.md"
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == package_readme:
+                return f"{text}\nRelease Contract\n"
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_current_product_authority_terms(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                error.startswith("Packages/SnapDrillCore/README.md:")
+                and "obsolete product authority term 'Release Contract'" in error
+                for error in errors
+            )
+        )
+
+    def test_line_wrapped_legacy_authority_term_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        ready_doc = validate_docs.DOCS_ROOT / "how-to" / "definition-of-ready.md"
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == ready_doc:
+                return f"{text}\nRelease\nProduct Contract\n"
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_current_product_authority_terms(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                error.startswith("docs/how-to/definition-of-ready.md:")
+                and "obsolete product authority term 'Release Product Contract'"
+                in error
+                for error in errors
+            )
+        )
+
+    def test_repository_fact_ownership_policy_is_complete(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_repository_fact_ownership(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_private_agent_memory_cannot_own_a_decision_receipt(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.PO_DECISION_LOG:
+                return f"{text}\n| now | durable rule | Claude 记忆 |\n"
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_repository_fact_ownership(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                error.startswith("docs/decisions/po-decision-log.md:")
+                and "relies on private agent memory" in error
+                for error in errors
+            )
+        )
+
+    def test_missing_product_vision_layer_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.PRODUCT_VISION:
+                return text.replace("layer: product-vision\n", "layer: explanation\n")
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_product_document_authority(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/product/vision.md: layer must be 'product-vision'",
+            errors,
+        )
+        self.assertTrue(
+            any(
+                "Product direction must have exactly one product-vision layer"
+                in error
+                for error in errors
+            )
+        )
+
+    def test_duplicate_product_vision_layer_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.RELEASE_ONE_PRD:
+                return text.replace("layer: release-prd\n", "layer: product-vision\n")
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_product_document_authority(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                "Product direction must have exactly one product-vision layer"
+                in error
+                and "docs/product/release-1-prd.md" in error
+                for error in errors
+            )
+        )
 
     def test_missing_release_prd_role_fails_closed(self) -> None:
         errors: list[str] = []
@@ -128,18 +512,18 @@ class ValidateDocsTests(unittest.TestCase):
 
         def fake_read(path: Path) -> str:
             text = original_read(path)
-            if path == validate_docs.RELEASE_ONE_CONTRACT:
+            if path == validate_docs.RELEASE_ONE_PRD:
                 return text.replace("product_role: release-prd\n", "")
             return text
 
         validate_docs.read = fake_read
         try:
-            validate_docs.validate_release_prd_authority(errors)
+            validate_docs.validate_product_document_authority(errors)
         finally:
             validate_docs.read = original_read
 
         self.assertIn(
-            "docs/reference/release-1-contract.md: "
+            "docs/product/release-1-prd.md: "
             "product_role must be 'release-prd'",
             errors,
         )
@@ -153,16 +537,14 @@ class ValidateDocsTests(unittest.TestCase):
     def test_duplicate_release_prd_role_fails_closed(self) -> None:
         errors: list[str] = []
         original_read = validate_docs.read
-        duplicate_path = (
-            validate_docs.DOCS_ROOT / "explanations" / "vision.md"
-        )
+        duplicate_path = validate_docs.DOCS_ROOT / "product" / "vision.md"
 
         def fake_read(path: Path) -> str:
             text = original_read(path)
             if path == duplicate_path:
                 return text.replace(
-                    "layer: product-constitution\n",
-                    "layer: product-constitution\n"
+                    "layer: product-vision\n",
+                    "layer: product-vision\n"
                     "release: 1\n"
                     "product_role: release-prd\n",
                 )
@@ -170,44 +552,42 @@ class ValidateDocsTests(unittest.TestCase):
 
         validate_docs.read = fake_read
         try:
-            validate_docs.validate_release_prd_authority(errors)
+            validate_docs.validate_product_document_authority(errors)
         finally:
             validate_docs.read = original_read
 
         self.assertTrue(
             any(
                 "Release 1 must have exactly one declared PRD authority" in error
-                and "docs/explanations/vision.md" in error
+                and "docs/product/vision.md" in error
                 for error in errors
             )
         )
 
-    def test_duplicate_release_contract_layer_fails_closed(self) -> None:
+    def test_duplicate_release_prd_layer_fails_closed(self) -> None:
         errors: list[str] = []
         original_read = validate_docs.read
-        duplicate_path = (
-            validate_docs.DOCS_ROOT / "explanations" / "vision.md"
-        )
+        duplicate_path = validate_docs.DOCS_ROOT / "product" / "vision.md"
 
         def fake_read(path: Path) -> str:
             text = original_read(path)
             if path == duplicate_path:
                 return text.replace(
-                    "layer: product-constitution\n",
-                    "layer: release-contract\nrelease: 1\n",
+                    "layer: product-vision\n",
+                    "layer: release-prd\nrelease: 1\n",
                 )
             return text
 
         validate_docs.read = fake_read
         try:
-            validate_docs.validate_release_prd_authority(errors)
+            validate_docs.validate_product_document_authority(errors)
         finally:
             validate_docs.read = original_read
 
         self.assertTrue(
             any(
-                "Release 1 must have exactly one release-contract layer" in error
-                and "docs/explanations/vision.md" in error
+                "Release 1 must have exactly one release-prd layer" in error
+                and "docs/product/vision.md" in error
                 for error in errors
             )
         )
@@ -233,7 +613,7 @@ class ValidateDocsTests(unittest.TestCase):
             fake_tracked_paths
         )
         try:
-            validate_docs.validate_release_prd_authority(errors)
+            validate_docs.validate_product_document_authority(errors)
         finally:
             validate_docs.read = original_read
             validate_docs.validate_document_control.tracked_markdown_paths = (
@@ -242,7 +622,7 @@ class ValidateDocsTests(unittest.TestCase):
 
         self.assertIn(
             "PRD.md: PRD-named Markdown duplicates or obscures the owning "
-            "Release Product Contract",
+            "Release PRD",
             errors,
         )
 

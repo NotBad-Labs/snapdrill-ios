@@ -26,8 +26,8 @@ review_gate: legal review required before changing legal conclusions; last_verif
 
 ## 关联文档
 
-- `vision.md` — 产品定位与数据伦理
-- `business-model.md` — 商业模式与隐私承诺
+- [Product Vision & Principles](../product/vision.md) — 产品定位与数据伦理
+- [商业政策](business-model.md) — 商业模式与隐私承诺
 - `../decisions/ADR-002-remove-att-authorization.md` — ATT 移除决策
 
 ## 版权合规边界

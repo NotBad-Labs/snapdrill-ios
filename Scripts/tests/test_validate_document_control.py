@@ -71,6 +71,62 @@ class DocumentControlTests(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertEqual(set(assignments), self.paths)
 
+    def test_required_assignments_pass(self) -> None:
+        assignments = {
+            "README.md": {
+                "role": "evidence",
+                "lifecycle": "current",
+            },
+            "docs/product/vision.md": {
+                "role": "authority",
+                "lifecycle": "effective",
+            },
+        }
+
+        errors = document_control.validate_required_assignments(
+            assignments,
+            {
+                "README.md": ("evidence", "current"),
+                "docs/product/vision.md": ("authority", "effective"),
+            },
+        )
+
+        self.assertEqual(errors, [])
+
+    def test_required_assignment_role_fails_closed(self) -> None:
+        assignments = {
+            "README.md": {
+                "role": "authority",
+                "lifecycle": "effective",
+            },
+        }
+
+        errors = document_control.validate_required_assignments(
+            assignments,
+            {"README.md": ("evidence", "current")},
+        )
+
+        self.assertEqual(
+            errors,
+            [
+                "document-control.json: README.md must be evidence/current, "
+                "found authority/effective"
+            ],
+        )
+
+    def test_missing_required_assignment_fails_closed(self) -> None:
+        errors = document_control.validate_required_assignments(
+            {},
+            {"README.md": ("evidence", "current")},
+        )
+
+        self.assertEqual(
+            errors,
+            [
+                "document-control.json: required assignment missing: README.md"
+            ],
+        )
+
     def test_unclassified_markdown_fails(self) -> None:
         paths = self.paths | {"docs/unclassified.md"}
         (self.root / "docs" / "unclassified.md").write_text("# New\n", encoding="utf-8")

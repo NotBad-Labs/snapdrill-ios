@@ -4,7 +4,8 @@ layer: pattern
 ---
 # SnapDrill Analytics 事件字典
 
-> 上游依赖：`../explanations/assumptions.md`。Release 1 的结果级成功证据见 [Release 1 Product Contract](release-1-contract.md) 与 `../how-to/release-and-ci.md`。
+> 上游依赖：`../explanations/assumptions.md`。Release 1 的结果级成功证据见
+> [Release 1 PRD](../product/release-1-prd.md) 与 `../how-to/release-and-ci.md`。
 > 本文件是 Analytics 事件的 SSOT。新增/修改事件必须同步本文档。
 > 代码定义见 `AnalyticsEvent` 枚举（`Packages/SnapDrillCore/Sources/SnapDrillCore/Service/AnalyticsServiceProtocol.swift`）。
 
@@ -19,9 +20,10 @@ layer: pattern
 
 ## 候选学习信号（非 Release 验收）
 
-> 本节于 2026-05-29 自 `../explanations/vision.md` 迁移（vision 瘦身重构：vision 只留 why，本类规格归本文档）。
+> 本节于 2026-05-29 自 `../product/vision.md` 迁移（vision 瘦身重构：vision 只留 why，本类规格归本文档）。
 
-这些信号帮助检验 assumptions，但不能替代 [Release 1 Product Contract](release-1-contract.md)，也不能让 optional 功能自动成为 Must。
+这些信号帮助检验 assumptions，但不能替代
+[Release 1 PRD](../product/release-1-prd.md)，也不能让 optional 功能自动成为 Must。
 
 > ⚠️ 以下指标仅作为设计校准方向。生产版本没有逐事件数据源；涉及本字典事件的指标在实现隐私合规的本地账本或自愿快照前不可计算。当前使用 App Store Connect、用户访谈和 TestFlight 反馈。
 
@@ -104,7 +106,7 @@ vision 中定义的成功信号仍可使用本字典统一事件命名，但当�
 
 | 文档 | 关系 | 说明 |
 |---|---|---|
-| `../explanations/vision.md` | 上游 | 成功信号定义 |
+| `../product/vision.md` | 上游 | 成功信号定义 |
 | `feature-status.md` | 相关 | 功能使用事件对应 |
 
 ## 维护规则

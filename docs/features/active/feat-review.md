@@ -19,16 +19,16 @@ release_outcomes: []
 
 # Feature: 回顾（SM-2 间隔调度）
 
-> **产品重基线（2026-07-14）**：Product Constitution v1 将回顾定义为不得抢占核心链路的可选附加值；Release 1 Contract C4-D 只允许 `po-only` / `research` build 通过 Library 的单一静态次级入口实验，`public-candidate` 完全隐藏。无主 Tab、Dashboard cue / 计数、Onboarding 介绍、Settings 控件、通知、徽标或隐式恢复入口；达到预登记 cohort 门槛也只触发重新裁决。frontmatter 与技术章节仍记录当前实现，不代表这些偏差获准保留。
+> **产品重基线（2026-07-14）**：Product Vision & Principles 将回顾定义为不得抢占核心链路的可选附加值；Release 1 PRD C4-D 只允许 `po-only` / `research` build 通过 Library 的单一静态次级入口实验，`public-candidate` 完全隐藏。无主 Tab、Dashboard cue / 计数、Onboarding 介绍、Settings 控件、通知、徽标或隐式恢复入口；达到预登记 cohort 门槛也只触发重新裁决。frontmatter 与技术章节仍记录当前实现，不代表这些偏差获准保留。
 
-> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 合同符合、公开可达或发布就绪。
+> 人读摘要：🧩 当前实现存在（当前分层：free）。派生自上方 frontmatter；frontmatter 仅是本功能实现状态的单一来源，不表示 Release 1 PRD 符合、公开可达或发布就绪。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business 聚合（docs 重组 B）。
 
 ## 1. 为什么做 (Why)
 - **痛点 / 价值**：用户扫描、整理后的资料需要一个低摩擦的回看机制，避免重要内容只被归档而不再被处理。SM-2 间隔调度让资料库具备持续复用价值。
 - **定位**：回顾是**可选留存层 / 免费附加值**，不是产品核心，**不向儿童学习、打卡或游戏化记忆工具靠拢**；若复杂度开始挤压采集/管理/导出主路径，以 vision P2 简洁裁决。
-- **原则归属**：P3 免费层完成核心闭环（核心永久免费、回顾为免费附加值）+ P5 成人生产力工具（零学习曲线、不贩卖焦虑）。详见 `../../explanations/vision.md`。
+- **原则归属**：P3 免费层完成核心闭环（核心永久免费、回顾为免费附加值）+ P5 成人生产力工具（零学习曲线、不贩卖焦虑）。详见 `../../product/vision.md`。
 
 ## 2. 需求规则 (What)
 - **SM-2 间隔回顾**：翻卡 + 滑动评估（有印象 / 没印象）。
@@ -40,6 +40,25 @@ release_outcomes: []
 - **边界 / 不做**：不做打卡、连续天数、成就弹窗；回顾入口在信息架构中不得压过采集与资料库。
 - **前置依赖**：无。候选高级统计可以消费 Review 产出的 SM-2 数据；SmartPaper 当前实现中的 SM-2 依赖是遗留偏差，C5-S1 明确禁止 Release 1 实验 selector 使用 Review / SM-2。
 - **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP。非公开实验中的 Review 不做付费墙；公开可见性与任何未来商业化都需要新 contract。
+
+### 详细契约
+
+#### A. 回顾卡片状态
+
+- 回顾卡片默认只展示题面/资料内容；参考内容默认隐藏，用户显式点击或手势触发后才显示。
+- 显示参考内容不得重置当前队列、评级状态或会话进度。
+- 空队列、加载中、完成、错误四类状态应有明确 UI；不能让用户停在无反馈的空白页。
+
+#### B. 评级语义
+
+- `有印象` / `Recalled` 表示用户认为自己已回忆起内容，应延长回顾间隔；`没印象` / `Forgot` 表示稍后需要再次出现。
+- 按钮、左右滑、stamp、VoiceOver hint、会话摘要必须使用同一组语义；取消手势或退出会话不应被记录成评级。
+- 保留“回顾”命名，不回退到校园化或儿童化的“复习/练习/闯关”语言。
+
+#### C. 会话一致性
+
+- 每次评级只能作用于当前可见资料；队列进度、summary 和回顾计划必须来源于同一会话快照。
+- 已知缺口：外部删除当前回顾资料的处理仍是 GAP-R1；在 ViewModel 暴露明确状态前，UI 不应伪造已处理结果。
 
 ## 3. 技术设计 (How)
 - **模块归属**：SM-2 引擎 `SnapDrillCore`（`ReviewScheduler` / `SM2State`）；当前 Dashboard 聚合位于 `SnapDrillFeatureDashboard`，但 C3 / C4-D 的 Release 1 目标不消费 Review cue / 计数。
@@ -66,40 +85,7 @@ release_outcomes: []
 - **数据保证**：只更新唯一资料库中被评估资料的回顾状态、不改资料主内容；每次评估只落库一次（重复手势 / 点击不得双重更新）；结果摘要必须与本轮成功提交的评估一致。
 - **NFR**：卡片大图用降采样加载（`loadDownsampledImage`）控制延迟与内存；因每次评估即时落库，**中途退出不丢已评估进度**（仅未评估题保留到期）。
 
-## 5. Review flagship polish checklist (2026-06-17)
-
-**Scope**：仅处理 Review 屏族（入口概览、回顾会话、卡片正反面、底部动作、完成摘要）及其直接 L10n / a11y 文案。其它屏、发布硬化、bundle 名、TestFlight、Pro 功能、Core/Data/OCR 引擎不在本轮。
-
-**Completion line**：
-- 入口概览、加载/错误/空/完成态都应有明确用户反馈，不留空白或“点了没反应”的状态。
-- 卡片会话保留“手势 + 等价按钮 + VoiceOver”三条路径；底部动作不得依赖仅红/绿或仅图标理解。
-- Review 对外可见文案改为通用受众生产力语义：`回顾 / 没印象 / 有印象 / 已回顾 / 需回看`；避免儿童化、游戏化、打气式语言。
-- 视觉与 Library / Capture 的基线一致：系统 grouped 背景、低阴影、清晰分割、适中圆角、克制蓝色强调；移除大面积紫蓝渐变和游戏化成功动效。
-- 保留已存在的 VoiceOver 标签、a11y hints、selected traits、`accessibilityIdentifier` 相关路径。
-- 若发现需要 ViewModel/Core/Data 新状态才能正确表达，应登记为跨层 blocker，不在本 UI PR 中重写逻辑。
-- `swiftlint --strict` 与 `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests` 必须通过。
-
-
-## 6. Contracts（回顾 / 评级 / 会话一致性）
-
-### A. 回顾卡片状态
-
-- 回顾卡片默认只展示题面/资料内容；参考内容默认隐藏，用户显式点击或手势触发后才显示。
-- 显示参考内容不得重置当前队列、评级状态或会话进度。
-- 空队列、加载中、完成、错误四类状态应有明确 UI；不能让用户停在无反馈的空白页。
-
-### B. 评级语义
-
-- `有印象` / `Recalled` 表示用户认为自己已回忆起内容，应延长回顾间隔；`没印象` / `Forgot` 表示稍后需要再次出现。
-- 按钮、左右滑、stamp、VoiceOver hint、会话摘要必须使用同一组语义；取消手势或退出会话不应被记录成评级。
-- 保留“回顾”命名，不回退到校园化或儿童化的“复习/练习/闯关”语言。
-
-### C. 会话一致性
-
-- 每次评级只能作用于当前可见资料；队列进度、summary 和回顾计划必须来源于同一会话快照。
-- 已知缺口：外部删除当前回顾资料的处理仍是 GAP-R1；在 ViewModel 暴露明确状态前，UI 不应伪造已处理结果。
-
-### D. Enforcement
+### Enforcement
 
 | 契约项 | Enforcement |
 |---|---|
@@ -113,8 +99,8 @@ release_outcomes: []
 
 | 层 | 上游依据 | 本功能承接 |
 |---|---|---|
-| Vision | `../../explanations/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P5 成人生产力工具） | 复习是可选留存层、免费附加值；不向 Anki 靠拢、不贩卖焦虑；无障碍是基础质量 |
-| Release 1 Contract | `../../reference/release-1-contract.md` C3 / C4-D | Dashboard 不由 Review 主导；只按指定 audience、单一 Library 入口和预登记证据实验，不自动公开 |
+| Vision | `../../product/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P5 成人生产力工具） | 复习是可选留存层、免费附加值；不向 Anki 靠拢、不贩卖焦虑；无障碍是基础质量 |
+| Release 1 PRD | `../../product/release-1-prd.md` C3 / C4-D | Dashboard 不由 Review 主导；只按指定 audience、单一 Library 入口和预登记证据实验，不自动公开 |
 | 产品政策 / ADR | `../../explanations/business-model.md`（B6-A） | Release 1 免费、无广告、无 IAP；数据驱动候选不构成 Pro 承诺 |
 | 待验证假设 | `../../explanations/assumptions.md` H9（可选回顾提升复用价值但不应拖向复杂记忆工具） | 复习使用率与复杂度验证 H9 |
 | 验收证据 | §4 验证标准 GWT + AllTests | 见本 spec Verify 节 |
@@ -122,7 +108,7 @@ release_outcomes: []
 找不到上游依据的需求是孤儿需求，不应直接实现。
 
 ## 关联
-- 原则：`../../explanations/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P5 成人生产力工具）
+- 原则：`../../product/vision.md`（P2 简洁 / P3 免费层完成核心闭环 / P5 成人生产力工具）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`（复习作用于旅程 2 归档、旅程 5 整理后的题目；本版本未单列复习旅程）
 - 商业政策：`../../explanations/business-model.md`

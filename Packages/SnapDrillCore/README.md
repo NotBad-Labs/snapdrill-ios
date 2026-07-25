@@ -1,7 +1,8 @@
 # SnapDrillCore
 
 > **文档角色：当前实现参考。** 类型存在不代表该能力属于 Release 1；产品范围与数据边界以
-> Product Constitution、Release Contract 和 owning contract 为准。
+> [Product Vision & Principles](../../docs/product/vision.md)、[Release 1 PRD](../../docs/product/release-1-prd.md)
+> 和 owning data / feature contract 为准。
 
 **核心逻辑层 (Core Logic Layer)**
 

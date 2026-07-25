@@ -316,9 +316,9 @@ PO 离线时，Incident DRI 可以完成分诊、修复、验证和本地 commit
 ---
 # Release 1 dogfood 与发布证据计划
 
-> **规范状态（2026-07-19）**：[Release 1 Product Contract](../reference/release-1-contract.md) 已承载 ratified Gate C、D1-B 至 D5-A、#932-A、#891 文案与 S1-A / M1-A / D4S-A / ORI-A，合入 `develop` 后成为本计划的产品 oracle。下列清单仍不授权实现、上传或发布；未纳入冻结 Capability Manifest 的 optional 能力必须隐藏，Review / SmartPaper 在 `public-candidate` 必须隐藏。
+> **规范状态（2026-07-19）**：[Release 1 PRD](../product/release-1-prd.md) 已承载 ratified Gate C、D1-B 至 D5-A、#932-A、#891 文案与 S1-A / M1-A / D4S-A / ORI-A，合入 `develop` 后成为本计划的产品 oracle。下列清单仍不授权实现、上传或发布；未纳入冻结 Capability Manifest 的 optional 能力必须隐藏，Review / SmartPaper 在 `public-candidate` 必须隐藏。
 >
-> **上游依赖**：Product Constitution v1 + [Release 1 Product Contract](../reference/release-1-contract.md) + 本文件 §发布流程。
+> **上游依赖**：Product Vision & Principles + [Release 1 PRD](../product/release-1-prd.md) + 本文件 §发布流程。
 >
 > Capability Manifest validator 经独立 slice 落地、候选冻结且 PO 授权对应动作后，才在真机上走完被纳入范围的项目。
 > 标注 ❌ 的项目必须修复后才能发版。
@@ -329,7 +329,7 @@ PO 离线时，Incident DRI 可以完成分诊、修复、验证和本地 commit
 
 ## Evidence plan（QA / Data / Security / Release DRI）
 
-本节承接 Release 1 Contract C6 的发布政策，但不是产品范围来源。DRI 可以随工具链和实现调整命令、设备、test ID 与 fault-injection 点；不得降低 M1-M10 结果覆盖。每份证据必须记录 candidate ID、audience、source commit、版本、build、ASC build ID、本地 archive hash、上传回执、安装变体身份、环境和附件路径。
+本节承接 Release 1 PRD C6 的发布政策，但不是产品范围来源。DRI 可以随工具链和实现调整命令、设备、test ID 与 fault-injection 点；不得降低 M1-M10 结果覆盖。每份证据必须记录 candidate ID、audience、source commit、版本、build、ASC build ID、本地 archive hash、上传回执、安装变体身份、环境和附件路径。
 
 | 阶段 | 最低进入条件 | 该阶段不能证明 |
 |---|---|---|
@@ -353,7 +353,7 @@ PO 离线时，Incident DRI 可以完成分诊、修复、验证和本地 commit
 | M9 | 静态数据流 / entitlement / manifest / policy 对账；禁网运行全部可达 Must + included optional；受控联网覆盖启动 / 后台 / 升级 / Share Extension，区分用户主动外发、Apple 系统流量与意外外发；持久化 / 备份图片 GPS 检查；结论一致 | Privacy / Security / Release |
 | M10 | 中英文、iPhone 17e / 17 / 17 Pro Max、默认 / xxxLarge / Accessibility 5 与 VoiceOver 最低矩阵；覆盖全部 Must、included optional、loading / empty / error / confirmation 和系统面板，旅程可完成且无阻断截断 / 遮挡 / 不可达操作；source settings、signed archive 与运行时证明 ORI-A 的 portrait-only App shell 且不旋转媒体内容，并与 ASC availability 一起证明 Mac / Vision Pro compatibility opt-out | UI / AX / QA / Release |
 
-成功标准和产品边界只来自 effective Release Contract；本表定义如何证明。每次候选必须保存一份 M1-M10 -> test / dogfood / attachment 索引，未覆盖项直接阻断 public go / no-go。
+成功标准和产品边界只来自 effective Release PRD；本表定义如何证明。每次候选必须保存一份 M1-M10 -> test / dogfood / attachment 索引，未覆盖项直接阻断 public go / no-go。
 
 ---
 

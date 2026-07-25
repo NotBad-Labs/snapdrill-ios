@@ -9,9 +9,9 @@ freshness:
 
 > “首发版”是仓库内部版本键 `Release 1` 的自然语言名称。本文定义其目标技术边界，
 > 不描述或合法化旧实现。产品范围由
-> [Product Constitution](vision.md) 与
-> [Release 1 Product Contract](../reference/release-1-contract.md) 决定；本文只回答怎样实现。
-> 当前代码与目标不一致时，按 Product Contract 的 M1-M10 结果 oracle 修复，不得反向修改产品目标。
+> [Product Vision & Principles](../product/vision.md) 与
+> [Release 1 PRD](../product/release-1-prd.md) 决定；本文只回答怎样实现。
+> 当前代码与目标不一致时，按 Release 1 PRD 的 M1-M10 结果 oracle 修复，不得反向修改产品目标。
 
 ## 1. 架构目标
 
@@ -41,7 +41,7 @@ SnapDrill.app
 3. store 打不开时 fail closed，进入明确恢复流程；不得创建临时空库、静默隔离损坏 store 或回退测试替身。
 4. Backup v3 是唯一对外完整备份 wire；development v1/v2 不参与生产读写。
 5. Review、SmartPaper、Pro、CloudKit、Profile 和未纳入 manifest 的 optional 在首发候选构建
-   （内部 audience：`public-candidate`）中必须满足 Product Contract §3.3 的 `hidden` 定义：
+   （内部 audience：`public-candidate`）中必须满足 Release 1 PRD §3.3 的 `hidden` 定义：
    零入口、零激活、零副作用。不可达且不执行的代码可以保留。
 6. Core 保持零外部依赖，模块依赖保持单向向下。
 
@@ -176,7 +176,7 @@ Profile-scoped service 分类被目标架构删除。资料库相关能力归 `L
 ## 6. 用户表面组合边界
 
 四个公开表面的职责、可见能力和隐藏语义只由
-[Release 1 Product Contract](../reference/release-1-contract.md) §3.3–§5 与对应 feature spec
+[Release 1 PRD](../product/release-1-prd.md) §3.3–§5 与对应 feature spec
 拥有。目标架构只规定：
 
 - public app shell 组合 Dashboard、Library、Capture 和 Settings 四个 Feature root。
@@ -186,7 +186,7 @@ Profile-scoped service 分类被目标架构删除。资料库相关能力归 `L
 
 ## 7. 测试架构
 
-测试 oracle 必须来自 Product Contract、owning feature / Data contract 或 NFR，不从现有实现倒推。
+测试 oracle 必须来自 Release 1 PRD、owning feature / Data contract 或 NFR，不从现有实现倒推。
 
 | 层级 | 证明内容 |
 |---|---|
