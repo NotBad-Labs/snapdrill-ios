@@ -23,6 +23,15 @@ VALID_ROLE_LIFECYCLES = {
     "template": {"current"},
     "alias": {"current"},
 }
+REQUIRED_ASSIGNMENTS = {
+    "README.md": ("evidence", "current"),
+    "AGENTS.md": ("operations", "current"),
+    "docs/README.md": ("operations", "current"),
+    "docs/product/vision.md": ("authority", "effective"),
+    "docs/product/release-1-prd.md": ("authority", "effective"),
+    "docs/reference/feature-status.md": ("generated", "current"),
+    "docs/reference/intent-traceability.md": ("generated", "current"),
+}
 
 INLINE_LINK_PATTERN = re.compile(
     r"!?\[[^\]\n]*\]\(\s*(?P<target><[^>\n]+>|[^)\s\n]+)"
@@ -278,6 +287,31 @@ def validate_registry(
     return errors, assignments
 
 
+def validate_required_assignments(
+    assignments: dict[str, dict[str, object]],
+    requirements: dict[str, tuple[str, str]] = REQUIRED_ASSIGNMENTS,
+) -> list[str]:
+    errors: list[str] = []
+    for path, (expected_role, expected_lifecycle) in requirements.items():
+        rule = assignments.get(path)
+        if rule is None:
+            errors.append(f"document-control.json: required assignment missing: {path}")
+            continue
+        actual_role = rule.get("role")
+        actual_lifecycle = rule.get("lifecycle")
+        if (actual_role, actual_lifecycle) == (
+            expected_role,
+            expected_lifecycle,
+        ):
+            continue
+        errors.append(
+            f"document-control.json: {path} must be "
+            f"{expected_role}/{expected_lifecycle}, found "
+            f"{actual_role}/{actual_lifecycle}"
+        )
+    return errors
+
+
 def run_checks(
     root: Path = REPO_ROOT,
     registry_path: Path = REGISTRY_PATH,
@@ -289,6 +323,7 @@ def run_checks(
         return [f"document control setup failed: {error}"]
 
     errors, assignments = validate_registry(root, registry, markdown_paths)
+    errors.extend(validate_required_assignments(assignments))
     alias_paths = {
         path
         for path, rule in assignments.items()

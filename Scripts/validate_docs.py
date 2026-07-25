@@ -137,6 +137,48 @@ ROADMAP_PARALLEL_AUTHORITY_HEADINGS = (
     "## 能力簇状态",
     "## 耐久非目标",
 )
+COLD_START_ENTRYPOINT_REQUIREMENTS = {
+    REPO_ROOT / "README.md": {
+        "unique cold-start entrypoint": (
+            "根 README 是人和 Agent 的唯一冷启动入口",
+        ),
+        "product authority routes": (
+            "docs/product/vision.md",
+            "docs/product/release-1-prd.md",
+            "docs/features/",
+        ),
+        "AGENTS is not product authority": (
+            "AGENTS.md",
+            "不是产品文档",
+        ),
+    },
+    DOCS_ROOT / "README.md": {
+        "route back to root README": (
+            "从仓库根 [README](../README.md) 开始",
+        ),
+        "root owns cold start": (
+            "它是人和 Agent 的唯一冷启动入口",
+        ),
+        "navigation only": (
+            "本页只负责",
+            "不复制产品范围",
+        ),
+    },
+    REPO_ROOT / "AGENTS.md": {
+        "read root README first": (
+            "先读根 [`README.md`](README.md)",
+        ),
+        "execution rules are not product authority": (
+            "不是产品",
+            "文档、架构快照或 API 手册",
+        ),
+    },
+}
+COLD_START_DECLARATION = "唯一冷启动入口"
+COLD_START_DECLARATION_OWNERS = {
+    REPO_ROOT / "README.md",
+    DOCS_ROOT / "README.md",
+}
 
 CURRENT_ADMISSION_POLICY_REQUIREMENTS = {
     REPO_ROOT / "AGENTS.md": {
@@ -729,6 +771,30 @@ def validate_roadmap_boundaries(errors: list[str]) -> None:
         )
 
 
+def validate_cold_start_entrypoint(errors: list[str]) -> None:
+    for path, requirements in COLD_START_ENTRYPOINT_REQUIREMENTS.items():
+        validate_required_markers(
+            path,
+            requirements,
+            "cold-start entrypoint",
+            errors,
+        )
+
+    markdown_paths = validate_document_control.tracked_markdown_paths(REPO_ROOT)
+    for relative_path in sorted(markdown_paths):
+        path = REPO_ROOT / relative_path
+        if (
+            path in COLD_START_DECLARATION_OWNERS
+            or is_inactive_historical_doc(path)
+        ):
+            continue
+        if COLD_START_DECLARATION in read(path):
+            errors.append(
+                f"{rel(path)}: competing cold-start declaration; root README "
+                "is the only cold-start owner and docs/README.md is its router"
+            )
+
+
 def validate_product_document_authority(errors: list[str]) -> None:
     vision_frontmatter, _ = parse_frontmatter(read(PRODUCT_VISION))
     if vision_frontmatter.get("layer") != "product-vision":
@@ -892,6 +958,7 @@ def run_checks() -> list[str]:
     validate_frontmatter_document_references(errors)
     validate_active_feature_structure(errors)
     validate_roadmap_boundaries(errors)
+    validate_cold_start_entrypoint(errors)
     validate_current_admission(errors)
     validate_merge_authorization(errors)
     return errors

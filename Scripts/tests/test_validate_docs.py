@@ -252,6 +252,66 @@ class ValidateDocsTests(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_root_readme_is_the_only_cold_start_entrypoint(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_cold_start_entrypoint(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_missing_root_readme_cold_start_marker_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        root_readme = validate_docs.REPO_ROOT / "README.md"
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == root_readme:
+                return text.replace(
+                    "根 README 是人和 Agent 的唯一冷启动入口",
+                    "根 README 是一个入口",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_cold_start_entrypoint(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                "cold-start entrypoint missing requirement" in error
+                for error in errors
+            )
+        )
+
+    def test_competing_cold_start_declaration_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        feature = (
+            validate_docs.DOCS_ROOT / "features" / "active" / "feat-library.md"
+        )
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == feature:
+                return f"{text}\n本文件是唯一冷启动入口。\n"
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_cold_start_entrypoint(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/features/active/feat-library.md: competing cold-start "
+            "declaration; root README is the only cold-start owner and "
+            "docs/README.md is its router",
+            errors,
+        )
+
     def test_roadmap_product_authority_heading_fails_closed(self) -> None:
         errors: list[str] = []
         original_read = validate_docs.read

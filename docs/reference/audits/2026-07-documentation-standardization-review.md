@@ -105,3 +105,25 @@ auth log 与临时输入包仍不入仓。
 - `git diff --check`：通过。
 
 本轮仍未修改 Swift 源码、产品需求、stable decision / intent ID、data / wire policy 或用户行为。
+
+## 目标级完成性审计
+
+2026-07-25，C1 以 `1f48987c4f059ba0abebac979879f0ccb9ed5935` 为 candidate parent，
+按目标而不是现有 diff 反推逐项证据：
+
+| 目标要求 | 当前证据 | 结论 |
+|---|---|---|
+| 根 README 是唯一冷启动入口 | 根 `README.md` 明确路由 Vision / PRD / Feature Specs；`docs/README.md` 只作导航，`AGENTS.md` 先路由回根 README | 内容成立；补 fail-closed marker 与竞争声明门禁 |
+| 长期方向只有一个 Product Vision & Principles | tracked Markdown 中只有 `docs/product/vision.md` 声明 `layer: product-vision` | 成立 |
+| 当前发布需求只有一个 Release 1 PRD | tracked Markdown 中只有 `docs/product/release-1-prd.md` 声明 Release 1 `product_role: release-prd`，且无第二个 PRD 命名文件 | 成立 |
+| 单功能行为只有 Feature Spec | 九个 active spec 均只有 Why / What / How / Verify 四个编号 H2；roadmap 与设计原则不复制当前发布要求 | 成立 |
+| 文档角色、生命周期与链接受控 | 129 个 tracked Markdown 全部分配唯一 registry rule；critical entry / authority / generated 文件的 role / lifecycle 新增固定断言 | 成立 |
+| 追溯与生成状态可重建 | feature-status 与 intent-traceability `--check` 通过；未知、pending、重复、未消费 release ref 和无 owner outcome 均 fail closed | 成立 |
+| 需求语义和稳定 ID 不变 | base 与 candidate 的 Vision ID 都是 `P1`–`P6`；31 个 `ratified_decisions` 逐字一致；两轮外部只读监督的保留 finding 均由 C1 本地重现 | 成立 |
+| 代码行为不变 | candidate 相对 `origin/develop` 只改 Markdown、文档 registry JSON、validator Python 与测试，没有 Swift 或产品配置差异；本地和 PR `Build & Test` 通过 | 成立 |
+
+门禁扩展后，51 项 `validate_docs` 测试、12 项 `validate_document_control` 测试、35 项生成器测试、
+182 项脚本回归测试与 SwiftLint 280 个文件零违规全部通过。
+
+本节不把 candidate 提前声明为 effective。只有包含上述门禁的精确 head 经 CI 绿色、PO 单独授权并
+合入 `develop` 后，本次文档标准化目标才满足生效条件。
