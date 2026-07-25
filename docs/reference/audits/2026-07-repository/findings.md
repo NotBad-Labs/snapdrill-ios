@@ -1,5 +1,9 @@
 # Verified Finding Ledger
 
+> **文档状态：固定基线历史证据。** 本表冻结 2026-07 审计在各 fixed base 上的复核结果，
+> 不代表当前缺陷、优先级或执行队列。任何条目重入都必须从 live `develop` 与 effective owner
+> 重新建立 Current Admission。
+
 > 本表只收录 C1 在固定 base 上复核后的结论。外部 agent 原始报告和未验证 hypothesis 不进入本表。本表不是 feature status 或 roadmap。
 
 | ID | Severity | Category | Status | Base | Evidence | Decision / next check |

@@ -146,7 +146,7 @@ reviewer；只有 PO 或 shaping 明确分配 write lane 时才可修改仓库�
 - raw transcript、debug / auth log 和 brain artifact 留在临时目录并及时删除。
 
 项目级调用示例与当前已验证参数见
-`docs/reference/audits/2026-07-repository/agent-invocation-protocol.md`。
+`external-agent-review.md`。
 
 ## 6. 验证与完成信号
 

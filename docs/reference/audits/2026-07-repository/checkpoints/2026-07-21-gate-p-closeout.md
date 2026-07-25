@@ -1,5 +1,8 @@
 # 2026-07-21 Gate P Closeout
 
+> **文档状态：固定基线历史证据。** 本 checkpoint 只证明下述 fixed base 的 Gate P 收口，
+> 不提供当前恢复入口、排期或执行授权。
+
 ## Claim Boundary
 
 This checkpoint records the Gate P control-plane candidate reconstructed from the effective

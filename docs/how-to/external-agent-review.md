@@ -1,6 +1,6 @@
-# External Agent Invocation Protocol
+# External Agent Read-Only Review
 
-> Validated 2026-07-24 against the installed CLI help and read-only smoke calls. This file records
+> Validated 2026-07-25 against the installed CLI help and bounded read-only smoke calls. This file records
 > the exact local CLI contracts used by Codex C1; it does not grant any external agent write, merge
 > or release authority.
 
@@ -53,7 +53,7 @@ claude \
 - 2026-07-24 smoke and documentation-standardization review completed with
   `claude-fable-5[1m]`, read-only tools and no repository changes.
 
-## Antigravity 1.1.2
+## Antigravity 1.1.6
 
 Antigravity uses project/workspace scoping. Running from an unregistered `/private/tmp` worktree once caused
 it to search unrelated parent/user directories. Use a fresh project plus an explicit minimal directory:
@@ -67,16 +67,21 @@ AGY_CLI_DISABLE_AUTO_UPDATE=true agy \
   --add-dir "$FIXED_BASE_CHECKOUT" \
   --mode plan \
   --sandbox \
-  --model 'Gemini 3.5 Flash (High)' \
+  --model gemini-3.6-flash-high \
+  --effort high \
   --print-timeout 15m \
   --print "$PROMPT"
 ```
 
 - Put all flags before `--print`; in this CLI version `--print` consumes the following argument as the prompt. Placing `--mode` after it caused the agent to answer a question about `--mode` instead of running the audit.
 - `--new-project` avoids resuming prior project conversation context; `--add-dir` fixes the readable workspace.
-- `--mode plan` and `--sandbox` are the available hard controls in 1.1.2. The prompt must also prohibit network access and artifact creation; any generated Antigravity brain artifact is temporary output, not repository evidence.
+- `--mode plan` and `--sandbox` are the available hard controls in 1.1.6. The prompt must also prohibit network access and artifact creation; any generated Antigravity brain artifact is temporary output, not repository evidence.
 - `AGY_CLI_DISABLE_AUTO_UPDATE=true` follows the official troubleshooting guidance and prevents a background updater from changing the tool during a scripted phase.
-- Smoke result: from `develop@d62fead8`, the command read `AGENTS.md` and returned its exact first heading without repository changes.
+- 2026-07-25 live evidence: `agy --version`, `agy --help`, and `agy models` succeeded; the model list included
+  `gemini-3.6-flash-high`. A no-file, no-tool sentinel was then rejected by the service eligibility check
+  because Antigravity is not currently available for this account location. This is a live account/service
+  eligibility state, not evidence that the CLI or model identifier is invalid. Do not send repository material
+  or silently fall back to 3.5 Flash until a fresh sentinel succeeds.
 
 ## Grok CLI 0.2.111
 

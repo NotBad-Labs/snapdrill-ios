@@ -33,13 +33,12 @@
         "Scripts/README.md",
         "docs/README.md",
         "docs/how-to/definition-of-ready.md",
+        "docs/how-to/external-agent-review.md",
         "docs/how-to/parallel-lanes.md",
         "docs/how-to/release-and-ci.md",
         "docs/how-to/repository-audit.md",
         "docs/how-to/shape-up.md",
         "docs/decisions/README.md",
-        "docs/reference/audits/2026-07-repository/README.md",
-        "docs/reference/audits/2026-07-repository/agent-invocation-protocol.md",
         "docs/reference/document-control.md"
       ]
     },
@@ -98,9 +97,7 @@
         "docs/explanations/competitive-analysis.md",
         "docs/explanations/user-journeys.md",
         "docs/reference/api-pitfalls.md",
-        "docs/reference/apple-platform-limits.md",
-        "docs/reference/audits/2026-07-repository/checkpoints/2026-07-21-gate-p-closeout.md",
-        "docs/reference/audits/2026-07-repository/findings.md"
+        "docs/reference/apple-platform-limits.md"
       ],
       "patterns": [
         "Packages/*/README.md",
@@ -126,6 +123,9 @@
         "docs/reference/audits/2026-07-agent-control-plane-review.md",
         "docs/reference/audits/2026-07-documentation-standardization-review.md",
         "docs/reference/audits/2026-07-po-decision-receipts.md",
+        "docs/reference/audits/2026-07-repository/README.md",
+        "docs/reference/audits/2026-07-repository/checkpoints/2026-07-21-gate-p-closeout.md",
+        "docs/reference/audits/2026-07-repository/findings.md",
         "docs/reference/audits/2026-07-repository/rebaseline-contract.md",
         "docs/reference/audits/2026-07-repository/checkpoints/2026-07-16-rebaseline.md"
       ],

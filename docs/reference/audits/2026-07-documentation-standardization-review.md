@@ -22,7 +22,7 @@
 | Grok | Grok CLI `0.2.111` / `grok-4.5`, high | `ACCEPT-WITH-CHANGES` |
 
 raw transcript、debug / auth log 与会话材料未入仓；reviewer 没有仓库写工具。调用合同与已验证
-参数由当前 [`agent-invocation-protocol.md`](2026-07-repository/agent-invocation-protocol.md)
+参数由当前 [`external-agent-review.md`](../../how-to/external-agent-review.md)
 维护。
 
 ## 复核共识

@@ -47,6 +47,7 @@ Product Vision & Principles
 | [并行协作](how-to/parallel-lanes.md) | lane、worktree、WIP、验证等级与合并授权 |
 | [Shape Up](how-to/shape-up.md) | shaping、betting、building 与 cool-down |
 | [发布与 CI](how-to/release-and-ci.md) | 本地验证、签名、TestFlight 与发布证据 |
+| [外部 Agent 只读复核](how-to/external-agent-review.md) | Claude、Antigravity 与 Grok 的当前 headless 边界和实证 |
 | [AGENTS.md](../AGENTS.md) | 编码 Agent 的最小执行规则；不是产品或架构权威 |
 
 当前工作由 [GitHub pull requests](https://github.com/NotBad-Labs/snapdrill-ios/pulls) 和

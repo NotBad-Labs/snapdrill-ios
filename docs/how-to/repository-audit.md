@@ -29,7 +29,7 @@
 同一 slice 中每个获授权的独立 reviewer 使用同一份中性 brief，彼此看不到先前结论。模型多数票
 不是事实；任何结论进入仓库前都由 orchestrator 在 live base 上重跑命令并核对 `file:line`。
 私有仓库内容外发前还必须按
-[`agent-invocation-protocol.md`](../reference/audits/2026-07-repository/agent-invocation-protocol.md)
+[`external-agent-review.md`](external-agent-review.md)
 取得 PO 对 vendor 与最小 payload 的明确授权。
 
 角色约束：

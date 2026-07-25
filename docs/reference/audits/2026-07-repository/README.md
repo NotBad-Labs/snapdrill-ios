@@ -1,5 +1,10 @@
 # 2026-07 Repository Audit
 
+> **文档状态：固定基线历史证据。** 本目录记录 2026-07-10 启动的固定基线审计，不提供当前
+> 排期、恢复入口或执行授权。当前工作从仓库根 README、effective 产品 / 工程权威和 live
+> GitHub 状态重新准入；外部 Agent 的当前调用方式见
+> [`external-agent-review.md`](../../../how-to/external-agent-review.md)。
+
 ## Charter
 
 - **PO 授权日期**：2026-07-10
@@ -28,7 +33,7 @@
 | Failure share | 26.9% | 只表示 run 结论；需按根因、重跑和当时目标分类后才能判断浪费 |
 
 工具和真实模型握手（2026-07-10 固定审计快照；当前调用参数以
-[`agent-invocation-protocol.md`](agent-invocation-protocol.md) 为准）：
+[`external-agent-review.md`](../../../how-to/external-agent-review.md) 为准）：
 
 | Lane | CLI | 已验证模型 |
 |---|---|---|
@@ -70,7 +75,7 @@ Gemini CLI 已移除；Google 订阅入口统一为 Antigravity。Gemini API 是
 - **方法**：`docs/how-to/repository-audit.md`
 - **文档角色与生命周期**：`../../document-control.md`
 - **报告模板**：`report-template.md`
-- **外部 agent 调用协议**：`agent-invocation-protocol.md`
+- **外部 agent 调用协议**：`../../../how-to/external-agent-review.md`
 - **再基线契约**：`rebaseline-contract.md`
 - **finding ledger**：`findings.md`
 - **00b 结果**：`phases/00b-results.md`
