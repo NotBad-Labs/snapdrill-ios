@@ -64,7 +64,6 @@
         "docs/features/active/feat-profile.md",
         "docs/features/active/feat-review.md",
         "docs/features/active/feat-settings.md",
-        "docs/reference/analytics-events.md",
         "docs/reference/backup-wire-format.md",
         "docs/reference/glossary.md",
         "docs/reference/local-library-data-contract.md",
@@ -96,6 +95,7 @@
         "docs/explanations/assumptions.md",
         "docs/explanations/competitive-analysis.md",
         "docs/explanations/user-journeys.md",
+        "docs/reference/analytics-events.md",
         "docs/reference/api-pitfalls.md",
         "docs/reference/apple-platform-limits.md"
       ],

@@ -29,6 +29,7 @@ REQUIRED_ASSIGNMENTS = {
     "docs/README.md": ("operations", "current"),
     "docs/product/vision.md": ("authority", "effective"),
     "docs/product/release-1-prd.md": ("authority", "effective"),
+    "docs/reference/analytics-events.md": ("evidence", "current"),
     "docs/reference/feature-status.md": ("generated", "current"),
     "docs/reference/intent-traceability.md": ("generated", "current"),
 }

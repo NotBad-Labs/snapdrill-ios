@@ -718,6 +718,40 @@ class ValidateDocsTests(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_current_documents_do_not_reintroduce_stale_lifecycle_sections(
+        self,
+    ) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_current_document_lifecycle(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_stale_release_snapshot_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        release_ops = (
+            validate_docs.DOCS_ROOT / "how-to" / "release-and-ci.md"
+        )
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == release_ops:
+                return f"{text}\n### 当前发布实证快照（旧）\n"
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_current_document_lifecycle(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/how-to/release-and-ci.md: stale lifecycle marker in current "
+            "document: ### 当前发布实证快照",
+            errors,
+        )
+
     def test_current_admission_template_requires_base_and_evidence(self) -> None:
         path = (
             validate_docs.REPO_ROOT

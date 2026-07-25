@@ -34,7 +34,7 @@ assumptions, detailed evidence and merge order needed by that risk.
 
 These fields are for agent execution and auditability. PO-facing updates use
 plain language: **自动处理中**, **需要 PO 裁决**, or **等待合并授权**. PO does
-not need to learn or repeat internal labels such as P-A, T0-T4, active write, or
+not need to learn or repeat internal labels such as T0-T4, active write, or
 frozen queue unless that detail helps a decision.
 
 An existing task remains admissible only when its brief contains the applicable
@@ -79,10 +79,9 @@ again merely because the implementation is user-visible.
 
 ## Standing Delegation
 
-PO 于 2026-07-20 批准常设委托（历史代号 P-A）：现有 Release PRD 承担该次发布的唯一 PRD，不新增
-平行 `PRD.md`；Gate P 期间暂停新的 non-blocker feature 投入；当前已接受 bet 内的 Green 任务
-可由 owning agent 自主推进至 Draft PR。该委托减少重复操作授权，不转移产品、合并或发布
-决策权。
+PO 于 2026-07-20 批准常设委托：现有 Release PRD 承担该次发布的唯一 PRD，不新增平行
+`PRD.md`；当前已接受 bet 内的 Green 任务可由 owning agent 自主推进至 Draft PR。该委托
+减少重复操作授权，不转移产品、合并或发布决策权。
 
 常设委托只决定“已经选中的工作如何继续”，不允许 agent 自行改变当前 bet、产品优先级或
 Release scope。

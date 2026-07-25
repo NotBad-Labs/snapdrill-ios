@@ -262,6 +262,26 @@ MERGE_AUTHORIZATION_POLICY_REQUIREMENTS = {
     },
 }
 
+CURRENT_DOCUMENT_STALE_MARKERS = {
+    DOCS_ROOT / "reference" / "analytics-events.md": (
+        "本文件是 Analytics 事件的 SSOT",
+        "## 候选学习信号",
+        "## 成功信号映射",
+    ),
+    DOCS_ROOT / "how-to" / "release-and-ci.md": (
+        "### 当前发布实证快照",
+        "## 历史 current-build 路由清单",
+    ),
+    DOCS_ROOT / "how-to" / "shape-up.md": (
+        "Gate P 起源记录见",
+        "### Parked（",
+    ),
+    DOCS_ROOT / "how-to" / "definition-of-ready.md": (
+        "Gate P 期间",
+        "历史代号 P-A",
+    ),
+}
+
 CURRENT_ADMISSION_COMMON_TEMPLATE_FIELDS = {
     "base and current evidence": ("Base / current evidence",),
     "authority and outcome": ("Authority / outcome",),
@@ -1080,6 +1100,17 @@ def validate_merge_authorization(errors: list[str]) -> None:
         )
 
 
+def validate_current_document_lifecycle(errors: list[str]) -> None:
+    for path, markers in CURRENT_DOCUMENT_STALE_MARKERS.items():
+        text = read(path)
+        for marker in markers:
+            if marker not in text:
+                continue
+            errors.append(
+                f"{rel(path)}: stale lifecycle marker in current document: {marker}"
+            )
+
+
 def run_checks() -> list[str]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -1098,6 +1129,7 @@ def run_checks() -> list[str]:
     validate_cold_start_entrypoint(errors)
     validate_current_admission(errors)
     validate_merge_authorization(errors)
+    validate_current_document_lifecycle(errors)
     return errors
 
 

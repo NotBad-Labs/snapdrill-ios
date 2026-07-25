@@ -23,7 +23,7 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 ## 节奏与纪律
 
 - **周期长度**：起步 **2–4 周**（不是 6 周）。赌注可大小不一（原书附录允许）。WIP=1（一次只赌一个主项目）。
-- **三个模式**（原书 Ch.9 New products）：**R&D**（核心流程还不确定→赌 spike，不指望出货）/ **Production**（流程已能点通→周期末出 TestFlight 增量）/ **Cleanup**（上架前打磨）。当前处于产品重基线 shaping：Release 1 PRD 生效前，不因代码完成度推断为 Production。
+- **三个模式**（原书 Ch.9 New products）：**R&D**（核心流程还不确定→赌 spike，不指望出货）/ **Production**（流程已能点通→周期末出 TestFlight 增量）/ **Cleanup**（上架前打磨）。具体 bet 的模式写在 current admission brief；本方法文档不保存会过期的“当前阶段”。
 - **🔑 不可省的纪律（PMF 前）**：**每个 bet 必须绑一个学习目标**。这是 Shape Up 不覆盖的「做错产品」风险的补丁——betting 时除了问「做得完吗」，还要问「这若成功，改变哪条赌注（assumptions.md 的 H#）的置信度？用什么可观察信号？」答不出就别赌。
 - **质量地板（ship 的判据，原书 Ch.14 Compare to baseline）**：当它**比用户当前替代方案更好**就 ship，不是完美时。对要拿 PMF 信号的目标用户，地板 = **不崩 + 核心路径可靠 + 像模像样 + EXIF/隐私扎实**；不是每个 edge case/动画完美。先你自己 dogfood 过地板，**再**邀真实用户（内测用户也是用户、且稀缺不可再生）。
 - **circuit breaker**：到期不延期。没做完=shaping/scope 错了，打回重塑，不加时间。
@@ -35,7 +35,7 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
 - **Bet / Pitch** → PO 明确接受、并通过
   [`Current Admission`](definition-of-ready.md#current-admission) 的 live GitHub issue / PR，
   或 PO 指定的具名范围文档；固定包含
-  Problem / Appetite / Solution / Rabbit holes / No-gos（原书 Ch.6）。P-A 常设委托不允许
+  Problem / Appetite / Solution / Rabbit holes / No-gos（原书 Ch.6）。常设委托不允许
   Agent 自选 bet；它只允许 owning agent 在当前已接受 bet 内自主推进 Green bounded task 至
   Draft PR。
 - **Scopes** → 在 bet 或 building 中，按产品结构竖切（非前后端分工，原书 Ch.12）。
@@ -65,21 +65,9 @@ PO 的痛=「大致知道**建什么**，但不清楚**怎么建/步骤**」=交
   为准，不在本文件重复罗列；Release disposition 与合同符合性仍由 Release PRD、owning
   feature spec 和验证证据裁决。
 
-Gate P 起源记录见
-[Issue #956](https://github.com/NotBad-Labs/snapdrill-ios/issues/956)，但该编号和历史接受状态只作
-定位证据。剩余 slice 仍须以当前 base 通过 Current Admission；本文件不复制其 Problem、
-Appetite、Scopes、No-gos 或 Exit。
-
-### Parked（明确不赌、停止投入，但代码留着 · 取舍的牙齿）
-
-`feature-status.md` 只说明实现状态，不拥有投资范围。Product Vision & Principles 与 Release 1
-Contract 均已 effective；代码投入仍需要当前已接受 bet，不能只凭合同存在自行启动：
-
-- Dashboard —— 默认首屏由 C3 固定；当前卡片 / 五 Tab 不自动获批，代码投入等待独立 implementation bet。
-- Review、SmartPaper —— 只允许 C4-D / C5-E 定义的 `po-only` / `research` 有界实验，公开候选隐藏；当前实现可作为偏差证据，任何对齐仍需独立 implementation bet。
-- Pro/StoreKit #479、CloudKit #485、Word 导出 #486、付费配额 —— 不属于 Release 1，只是未来候选假设。
-- Multi-Profile —— 产品目标已退休；#868 已关闭且不得作为恢复路径。后续从最新 `develop` 按 Profile-free Backup Wire、可崩溃恢复 Data Contract 与 S0 / S1 优先级独立 shaping。
-- 公开上架合规队列 —— **不阻塞 TestFlight 内测**（隐私/分析策略见 [`../decisions/ADR-005-analytics-privacy-strategy.md`](../decisions/ADR-005-analytics-privacy-strategy.md)），延到决定公开上架时。
+具体功能的 include / exclude / optional / parked 状态只由 Product Vision & Principles、当前
+Release PRD、owning feature spec 与已接受 bet 决定。本方法文档不复制产品清单、历史 Gate、
+issue 编号或某轮实施状态。
 
 ### 链接
 - 方法原典：<https://basecamp.com/shapeup>

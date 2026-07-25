@@ -93,6 +93,14 @@ class DocumentControlTests(unittest.TestCase):
 
         self.assertEqual(errors, [])
 
+    def test_analytics_protocol_is_required_current_evidence(self) -> None:
+        self.assertEqual(
+            document_control.REQUIRED_ASSIGNMENTS[
+                "docs/reference/analytics-events.md"
+            ],
+            ("evidence", "current"),
+        )
+
     def test_required_assignment_role_fails_closed(self) -> None:
         assignments = {
             "README.md": {
