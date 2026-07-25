@@ -61,6 +61,29 @@ release_outcomes:
 - **前置依赖**：无。备份 / 恢复经 `AppActivityTracker` 互斥保护，关键操作期间阻止破坏性数据操作。
 - **商业政策**：手动备份 / 恢复是 B4-A 的永久免费数据权利，不得成为订阅门槛。B6-A 下 Release 1 免费、无广告、无 IAP；iCloud、图片增强和高级导出都只是候选假设。
 
+### 详细契约
+
+#### A. 操作状态
+
+- Backup / restore 必须区分 `idle` / `running` 和 terminal `completed` / `cancelled` / `failed`；运行中要有可见进度或明确等待反馈。CSV 导入导出沿用相同的取消非错误原则，但不据此扩大 Backup wire。
+- 用户取消不等于失败；校验 timeout 是可重试失败且不等于文件损坏；系统失败必须展示可理解错误，不只写日志。selector commit barrier 后的取消 / timeout 由恢复协调收敛，不能覆盖已发生的 publication 结果。
+- 同一时间只能有一个破坏性或长耗时数据操作；并发请求应禁用或排队。
+
+#### B. 数据边界
+
+- 完整备份必须包含唯一资料库的必要数据和图片引用；恢复前必须先校验 schema / version，不得部分写入后才报错。
+- CSV/JSON 导入导出属于本地文件操作，不暗示云同步或远程备份。
+- 已知缺口：GAP-R6 指出 `CSVParser` 对字段不匹配不够严格；在修复前，UI 不应宣称 CSV 导入已覆盖所有格式错误。
+
+#### C. 隐私与安全
+
+- Release 1 备份未加密。调用系统 share sheet / 文件选择器前，App 必须明确警告该文件可能包含私人文字与图片；系统面板中的二次确认不能替代这条 App 内提示。
+- 每次导出在生成备份前展示同一提示，不提供 remembered bypass。PO 批准的精确文案为：
+  - zh-Hans 标题：`导出未加密备份？`；正文：`备份文件未加密，可能包含私人文字和图片。请仅保存到可信位置，或分享给可信对象。`；主操作：`继续导出`；次操作：`取消`。
+  - English title: `Export an unencrypted backup?`; message: `This backup is not encrypted and may contain private text and images. Save it only to a trusted location, or share it only with people you trust.`; primary action: `Continue Export`; secondary action: `Cancel`.
+- Cancel 不创建备份、activity 或系统分享面；Continue 只生成一次并只展示一个系统分享面。分享面关闭后清理 App-owned 临时源文件；删除失败必须保留精确重试记录并显示非成功状态，不能用 `try?` 丢失未加密完整副本的所有权。
+- CSV 导出必须继续保留 formula injection 防护；图片备份不得重新引入 EXIF GPS/位置信息。
+
 ## 3. 技术设计 (How)
 - **模块归属**：
   - 当前备份引擎 `SnapDrillData`（`BackupService` 做 Profile ZIP v2 备份/恢复，actor 隔离；`BackupDTO` 备份数据传输对象；依赖 `ZIPFoundation`）。这是 epoch 前实现事实。D1-B 的 v3 writer / reader 必须使用 purpose-built SQLite application-file schema，不能复用 live SwiftData store。
@@ -107,30 +130,7 @@ release_outcomes:
   - 中断恢复：恢复前自动备份当前数据作为安全网（备份完整性）。
 
 
-## 5. Contracts（备份 / 恢复 / 数据导入导出）
-
-### A. 操作状态
-
-- Backup / restore 必须区分 `idle` / `running` 和 terminal `completed` / `cancelled` / `failed`；运行中要有可见进度或明确等待反馈。CSV 导入导出沿用相同的取消非错误原则，但不据此扩大 Backup wire。
-- 用户取消不等于失败；校验 timeout 是可重试失败且不等于文件损坏；系统失败必须展示可理解错误，不只写日志。selector commit barrier 后的取消 / timeout 由恢复协调收敛，不能覆盖已发生的 publication 结果。
-- 同一时间只能有一个破坏性或长耗时数据操作；并发请求应禁用或排队。
-
-### B. 数据边界
-
-- 完整备份必须包含唯一资料库的必要数据和图片引用；恢复前必须先校验 schema / version，不得部分写入后才报错。
-- CSV/JSON 导入导出属于本地文件操作，不暗示云同步或远程备份。
-- 已知缺口：GAP-R6 指出 `CSVParser` 对字段不匹配不够严格；在修复前，UI 不应宣称 CSV 导入已覆盖所有格式错误。
-
-### C. 隐私与安全
-
-- Release 1 备份未加密。调用系统 share sheet / 文件选择器前，App 必须明确警告该文件可能包含私人文字与图片；系统面板中的二次确认不能替代这条 App 内提示。
-- 每次导出在生成备份前展示同一提示，不提供 remembered bypass。PO 批准的精确文案为：
-  - zh-Hans 标题：`导出未加密备份？`；正文：`备份文件未加密，可能包含私人文字和图片。请仅保存到可信位置，或分享给可信对象。`；主操作：`继续导出`；次操作：`取消`。
-  - English title: `Export an unencrypted backup?`; message: `This backup is not encrypted and may contain private text and images. Save it only to a trusted location, or share it only with people you trust.`; primary action: `Continue Export`; secondary action: `Cancel`.
-- Cancel 不创建备份、activity 或系统分享面；Continue 只生成一次并只展示一个系统分享面。分享面关闭后清理 App-owned 临时源文件；删除失败必须保留精确重试记录并显示非成功状态，不能用 `try?` 丢失未加密完整副本的所有权。
-- CSV 导出必须继续保留 formula injection 防护；图片备份不得重新引入 EXIF GPS/位置信息。
-
-### D. Enforcement
+### Enforcement
 
 | 契约项 | Enforcement |
 |---|---|

@@ -2,9 +2,9 @@
 last_verified: 2026-07-21
 layer: product-policy
 derived_from:
-  - vision.md#商业定位
-  - vision.md#p3-免费层完成核心闭环
-  - vision.md#p4-用户拥有数据
+  - ../product/vision.md#商业定位
+  - ../product/vision.md#p3-免费层完成核心闭环
+  - ../product/vision.md#p4-用户拥有数据
 ---
 # SnapDrill 商业政策与候选假设
 
@@ -112,7 +112,7 @@ Release 1 没有订阅，本节不是当前功能承诺。若未来订阅获批�
 
 | 文档 | 关系 |
 |---|---|
-| [vision.md](../product/vision.md) | 上游 Product Vision & Principles 与商业 / 数据边界 |
+| [Product Vision & Principles](../product/vision.md) | 上游产品愿景、原则与商业 / 数据边界 |
 | [assumptions.md](assumptions.md) | 产品假设 H1-H3、H9-H12 |
 | [competitive-analysis.md](competitive-analysis.md) | 可更新的竞品证据，不定义当前商业政策 |
 | [../decisions/ADR-001-smart-paper-analytics-pricing.md](../decisions/ADR-001-smart-paper-analytics-pricing.md) | 已被 B6-A 取代的历史商业决策 |

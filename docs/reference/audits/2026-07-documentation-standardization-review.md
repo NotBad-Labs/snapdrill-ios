@@ -63,3 +63,45 @@ documentation-standardization 分支；validator 只检查可确定的结构、�
 
 本 slice 没有改 Swift 源码、产品需求、stable decision / intent ID 或用户行为。修复后不再依赖
 reviewer raw transcript、私有记忆或仓库外绝对路径重建上述事实。
+
+## Exact-head 精简复核
+
+2026-07-25，C1 对 Draft PR #980 的
+`96c88dd531bd3e7f0efe34c82a2fce09a9d7e756` 固定 head 再做一次同题只读监督：
+
+- 输入包约 324 KiB，只含 README、Product Vision & Principles、Release 1 PRD、active
+  feature specs、roadmap、文档控制面、validator 与测试；
+- prompt SHA-256：
+  `c13db80327898287c5a035dca658925260658cf0f92abaa8597ec31cd8054e91`；
+- Claude Code `2.1.217` / `claude-fable-5[1m]` 与 Grok CLI `0.2.111` /
+  `grok-4.5` high 均使用新会话、固定 cwd、只读工具、无 web、无 subagent 和无持久记忆；
+- 两路独立结论均为 `ACCEPT-WITH-CHANGES`。
+
+C1 随后在本地逐条重现并确认：
+
+1. `scope-and-roadmap.md` 重复了 Vision 的耐久边界和 PRD 的当前发布分类，应只保留候选组合、
+   重入条件与探索证据；
+2. 九个 active feature spec 在 Why / What / How / Verify 之外又增加 Contracts 或 PRD
+   H2，形成同一文件内的平行规范面；耐久正文必须保全并分别并入 What 与 Verify；
+3. `feat-review.md` 中带日期的 UI slice checklist 是历史执行材料，不应留在 effective spec；
+4. `design-principles.md` 不应再逐项复制 Dashboard 的产品要求；
+5. Release 1 PRD 的决策摘要必须声明自己只是索引，完整约束仍由 owning 正文拥有；
+6. validator 应只判断上述可确定结构，不用 LLM 或关键词推断需求语义。
+
+对应修复全部留在同一 documentation-standardization candidate 中；Feature Spec 原 Contracts
+除标题外的正文、表格和精确中英文文案经机械逐行比对均保留。raw reviewer transcript、debug /
+auth log 与临时输入包仍不入仓。
+
+修复后本地证据：
+
+- 稳定 decision / vision ID 集合与修复前 head 完全一致；
+- `python3 -m unittest Scripts.tests.test_validate_docs`：48 项通过；
+- `python3 Scripts/validate_docs.py --check` 与
+  `python3 Scripts/validate_document_control.py --check`：通过；
+- `bash Scripts/pre-commit`：SwiftLint 280 个文件零违规，35 项生成器测试和 176 项脚本
+  回归测试通过，其余文档、Capture 与 Release 配置门禁通过；
+- `xcodebuild build-for-testing -scheme AllTests -destination
+  'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests`：通过；
+- `git diff --check`：通过。
+
+本轮仍未修改 Swift 源码、产品需求、stable decision / intent ID、data / wire policy 或用户行为。

@@ -52,6 +52,28 @@ release_outcomes:
 - **前置依赖**：无。设置是承载入口的容器层，所托管的导出、备份和字段管理各自有独立 feature spec。
 - **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP；Settings 不展示 Pro、CloudKit、Word 或其他不可用升级入口。当前生产环境没有后端遥测实现。
 
+### 详细契约
+
+#### A. 设置项行为
+
+- Settings 中每个 toggle、sheet、导航项必须表达真实行为；无实现或无副作用的控件不得伪装成已启用功能。
+- 设置项保存失败必须用户可见；不能只写日志或静默恢复旧值。
+- Release 1 不提供用户可见的 Profile 创建、切换、删除或管理入口；现有入口属于待重基线实现偏差。
+- Settings 的通用破坏性入口必须命名为“清空资料库 / Clear Library”，并在确认面准确列出其拥有的资料、图片、taxonomy 与附着 Review 状态；不得命名为“清除所有数据”或暗示 factory reset。
+- recovery incident 的导出、显式删除和“导出并删除”由 DATA-1-R 的独立管理入口拥有；Clear Library 不能调用或绕过该生命周期。
+- complete backup / restore / Clear Library 与 JSON / CSV partial export 的并发和快照语义只消费 D4S-A；Settings 不定义第二套 barrier 或 prestate，也不把 fail-fast partial request 显示为已排队或已导出。
+
+#### B. 诊断与隐私
+
+- 生产 analytics 注入为 `NoOpAnalyticsService`；端侧 MetricKit 诊断不受 Settings 中的旧“诊断”开关控制。
+- Release 1 隐藏旧诊断 / 匿名遥测 UI，且当前 manifest 不得单独纳入；移除或不可达化控件不得改变底层 MetricKit、`NoOpAnalyticsService` 或 DI 的安全行为。
+- 任何隐私状态声明必须与 App Store Privacy Manifest、代码注入和公开隐私政策一致。
+
+#### C. 法律入口
+
+- 服务条款、隐私政策、儿童隐私等法律正文属于 legal-gated 内容；Settings 只能链接、标记和路由到律师线，不自行改写正文。
+- 外部链接失败、取消或无网络时应有用户可见反馈。
+
 ## 3. 技术设计 (How)
 - **模块归属**：`Packages/SnapDrillFeatures/SnapDrillFeatureSettings`（依赖 Library）。通知能力经 `SnapDrillCore` 的 `NotificationServiceProtocol`（ServiceContainer 注入）；复习卡片字号经 `@AppStorage(UDKey.cardFrontFontSize / cardContextFontSize)`，Per-Profile 隔离。
 - **关键机制 / 数据流**：
@@ -79,29 +101,7 @@ release_outcomes:
   - **文案约束**：Settings 与隐私政策文案必须继续与发布构建、Privacy Manifest、App Store Privacy 标签及律师审查一致；不得声称当前版本会自动发送使用分析、崩溃报告、题目内容或设备明细。
 
 
-## 5. Contracts（设置 / 诊断 / 法律入口）
-
-### A. 设置项行为
-
-- Settings 中每个 toggle、sheet、导航项必须表达真实行为；无实现或无副作用的控件不得伪装成已启用功能。
-- 设置项保存失败必须用户可见；不能只写日志或静默恢复旧值。
-- Release 1 不提供用户可见的 Profile 创建、切换、删除或管理入口；现有入口属于待重基线实现偏差。
-- Settings 的通用破坏性入口必须命名为“清空资料库 / Clear Library”，并在确认面准确列出其拥有的资料、图片、taxonomy 与附着 Review 状态；不得命名为“清除所有数据”或暗示 factory reset。
-- recovery incident 的导出、显式删除和“导出并删除”由 DATA-1-R 的独立管理入口拥有；Clear Library 不能调用或绕过该生命周期。
-- complete backup / restore / Clear Library 与 JSON / CSV partial export 的并发和快照语义只消费 D4S-A；Settings 不定义第二套 barrier 或 prestate，也不把 fail-fast partial request 显示为已排队或已导出。
-
-### B. 诊断与隐私
-
-- 生产 analytics 注入为 `NoOpAnalyticsService`；端侧 MetricKit 诊断不受 Settings 中的旧“诊断”开关控制。
-- Release 1 隐藏旧诊断 / 匿名遥测 UI，且当前 manifest 不得单独纳入；移除或不可达化控件不得改变底层 MetricKit、`NoOpAnalyticsService` 或 DI 的安全行为。
-- 任何隐私状态声明必须与 App Store Privacy Manifest、代码注入和公开隐私政策一致。
-
-### C. 法律入口
-
-- 服务条款、隐私政策、儿童隐私等法律正文属于 legal-gated 内容；Settings 只能链接、标记和路由到律师线，不自行改写正文。
-- 外部链接失败、取消或无网络时应有用户可见反馈。
-
-### D. Enforcement
+### Enforcement
 
 | 契约项 | Enforcement |
 |---|---|

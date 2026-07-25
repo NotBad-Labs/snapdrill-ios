@@ -28,11 +28,11 @@ release_outcomes:
 > 本 spec 高内聚承载该功能 Why / What / How / Verify，不拆散到多文件（docs 重组 B）。
 > 本文件于 2026-06-02 由 Batch 2 审计补建——Dashboard 代码先行存在而无 owning spec（孤儿代码，KI-03），多个 active spec（review / library / capture）消费其统计口径却无归属定义；本 spec 据 `DashboardView` / `DashboardViewModel` 实证补齐。高级统计代码与历史产品主张归 `../backlog/feat-advanced-stats.md`，不是当前商业承诺。
 
-## 1. 为什么做 (Why) — 纯 why，不混实现/UI 细节
+## 1. 为什么做 (Why)
 - **痛点 / 价值**：用户回到 App 时需要直接开始或恢复采集、找回最近资料，并进入资料库，而不是先理解统计或身份体系。Dashboard 把这些高频任务收敛为稳定起点，降低在多个功能区之间判断下一步的成本。
 - **定位与原则归属**：首页是核心价值链（采集 -> 整理 / 找回 -> 导出 / 打印）的**任务入口和可执行状态概览**。Review 是可选复用能力，不能通过首页层级反向变成核心。
 
-## 2. Release 1 规则 (What)
+## 2. 需求规则 (What)
 - **默认目的地**：onboarding 完成后的普通启动进入 Dashboard；deep link 和阻塞性 store 恢复可以覆盖。
 - **核心入口**：Capture 与 Library 一次操作可达，且在视觉与 accessibility 内容顺序中先于 Review；空资料库一次操作开始 Capture。
 - **可执行状态**：可以显示未完成草稿、最近资料和能直接进入对应内容的本地事实。
@@ -42,7 +42,25 @@ release_outcomes:
 - **前置依赖**：Release 1 目标只依赖 `feat-library`（最近资料 / 资料库入口）和 `feat-capture`（草稿恢复 + 采集入口）。当前代码仍读取 `feat-review` 的待回顾 / 已回顾口径，属于 C3 / C4 对齐前的实现依赖，不构成目标架构。
 - **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP；Dashboard 不承担升级转化。未来高级统计是否存在及如何商业化均未裁决。
 
-## 3. 当前实现证据 (How) — 非 Release 1 目标设计
+### 详细契约
+
+#### A. 首页状态与导航
+
+- Dashboard 必须区分 loading / empty / content / error 四类状态；读取失败不得展示伪造数据。
+- 空状态应引导用户去采集或导入资料，不使用教育化、儿童化或游戏化激励。
+- 普通启动、Capture / Library 一次操作可达和 forbidden-surface 缺席必须有 UI / AX 断言。
+
+#### B. 统计与不可用能力隐藏
+
+- 首页只展示能进入对应内容的本地事实；Release 1 不展示趋势、完成率、高级统计、Pro、付费或“稍后推出”锁态。
+- 隐藏候选能力不得阻断免费核心闭环，也不得暗示当前用户数据已经上传或云端分析。
+
+#### C. 导航与共享 L10n
+
+- Capture / Library 入口只做导航；草稿恢复 / 丢弃使用 Capture 拥有的确认流程，不由 Dashboard 静默执行。
+- 已知共享 key：`L10n.Library.categoryManager` 被 Dashboard 使用。后续应迁入 Common/Shared 或显式登记共享。
+
+## 3. 技术设计 (How)
 
 > 本节只解释为什么当前 build 会出现 Review hero / Bento 统计和相应依赖，供实现影响分析；§2 才是 Release 1 目标。
 
@@ -62,25 +80,7 @@ release_outcomes:
 - **NFR**：首页加载与刷新不阻塞主线程；`reviewDataDidChange` 刷新去抖避免高频抖动；无额外埋点要求。
 
 
-## 5. Release 1 PRD（首页概览 / 统计 / 锁态）
-
-### A. 首页状态与导航
-
-- Dashboard 必须区分 loading / empty / content / error 四类状态；读取失败不得展示伪造数据。
-- 空状态应引导用户去采集或导入资料，不使用教育化、儿童化或游戏化激励。
-- 普通启动、Capture / Library 一次操作可达和 forbidden-surface 缺席必须有 UI / AX 断言。
-
-### B. 统计与不可用能力隐藏
-
-- 首页只展示能进入对应内容的本地事实；Release 1 不展示趋势、完成率、高级统计、Pro、付费或“稍后推出”锁态。
-- 隐藏候选能力不得阻断免费核心闭环，也不得暗示当前用户数据已经上传或云端分析。
-
-### C. 导航与共享 L10n
-
-- Capture / Library 入口只做导航；草稿恢复 / 丢弃使用 Capture 拥有的确认流程，不由 Dashboard 静默执行。
-- 已知共享 key：`L10n.Library.categoryManager` 被 Dashboard 使用。后续应迁入 Common/Shared 或显式登记共享。
-
-### D. Enforcement
+### Enforcement
 
 | 契约项 | Enforcement |
 |---|---|

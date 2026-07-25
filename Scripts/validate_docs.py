@@ -25,6 +25,8 @@ DOCS_ROOT = REPO_ROOT / "docs"
 PACKAGES_ROOT = REPO_ROOT / "Packages"
 PRODUCT_VISION = DOCS_ROOT / "product" / "vision.md"
 RELEASE_ONE_PRD = DOCS_ROOT / "product" / "release-1-prd.md"
+ACTIVE_FEATURES_ROOT = DOCS_ROOT / "features" / "active"
+SCOPE_AND_ROADMAP = DOCS_ROOT / "reference" / "scope-and-roadmap.md"
 PO_DECISION_LOG = DOCS_ROOT / "decisions" / "po-decision-log.md"
 
 LEGACY_PRODUCT_AUTHORITY_PATTERNS = (
@@ -101,6 +103,40 @@ FRONTMATTER_DATE_PATTERN = re.compile(
     re.MULTILINE,
 )
 PRD_FILENAME_PATTERN = re.compile(r"(?:^|[-_.])prd(?:[-_.]|$)", re.IGNORECASE)
+H2_PATTERN = re.compile(r"^## ([^\n]+)$", re.MULTILINE)
+
+ACTIVE_FEATURE_NUMBERED_HEADINGS = (
+    "1. 为什么做 (Why)",
+    "2. 需求规则 (What)",
+    "3. 技术设计 (How)",
+    "4. 验证标准 (Verify)",
+)
+ACTIVE_FEATURE_ALLOWED_H2 = {
+    *ACTIVE_FEATURE_NUMBERED_HEADINGS,
+    "意图追溯（永久保留）",
+    "当前执行准入（非产品 SSOT）",
+    "关联",
+}
+ROADMAP_REQUIRED_MARKERS = {
+    "candidate-only role": (
+        "只维护尚未进入当前发布承诺的跨功能候选及其重入条件",
+        "不定义当前发布范围",
+    ),
+    "product authority pointers": (
+        "Product Vision & Principles",
+        "Release 1 PRD",
+        "feature spec",
+    ),
+    "candidate table disclaimer": (
+        "不是功能承诺或 Release 1 状态表",
+    ),
+}
+ROADMAP_PARALLEL_AUTHORITY_HEADINGS = (
+    "## 当前上游边界",
+    "## Release 1 投资边界",
+    "## 能力簇状态",
+    "## 耐久非目标",
+)
 
 CURRENT_ADMISSION_POLICY_REQUIREMENTS = {
     REPO_ROOT / "AGENTS.md": {
@@ -625,6 +661,74 @@ def validate_feature_intent(errors: list[str]) -> None:
             errors.append(f"{rel(path)}: missing intent traceability row '验收证据'")
 
 
+def validate_frontmatter_document_references(errors: list[str]) -> None:
+    repo_root = REPO_ROOT.resolve()
+    for path in sorted(DOCS_ROOT.rglob("*.md")):
+        frontmatter, _ = parse_frontmatter(read(path))
+        for field in ("derived_from", "upstream"):
+            references = frontmatter.get(field)
+            if references is None:
+                continue
+            if not isinstance(references, list):
+                errors.append(f"{rel(path)}: {field} must be a list")
+                continue
+            for reference in references:
+                if not isinstance(reference, str):
+                    errors.append(f"{rel(path)}: {field} entry must be a string")
+                    continue
+                raw_path, _, anchor = reference.partition("#")
+                if not raw_path.endswith(".md"):
+                    continue
+                target = (path.parent / raw_path).resolve()
+                if not is_under(target, repo_root) or not target.is_file():
+                    errors.append(
+                        f"{rel(path)}: {field} target does not exist: {reference}"
+                    )
+                    continue
+                if anchor and not has_heading_anchor(target, anchor):
+                    errors.append(
+                        f"{rel(path)}: {field} anchor not found: {reference}"
+                    )
+
+
+def validate_active_feature_structure(errors: list[str]) -> None:
+    for path in sorted(ACTIVE_FEATURES_ROOT.glob("feat-*.md")):
+        headings = H2_PATTERN.findall(read(path))
+        numbered_headings = [
+            heading for heading in headings if re.match(r"^[0-9]+\.", heading)
+        ]
+        if numbered_headings != list(ACTIVE_FEATURE_NUMBERED_HEADINGS):
+            errors.append(
+                f"{rel(path)}: numbered H2 sections must be exactly "
+                "Why / What / How / Verify in that order"
+            )
+        for heading in headings:
+            if heading in ACTIVE_FEATURE_ALLOWED_H2:
+                continue
+            errors.append(
+                f"{rel(path)}: unexpected H2 '{heading}'; merge durable content "
+                "into Why / What / How / Verify instead of creating a parallel "
+                "contract or PRD surface"
+            )
+
+
+def validate_roadmap_boundaries(errors: list[str]) -> None:
+    validate_required_markers(
+        SCOPE_AND_ROADMAP,
+        ROADMAP_REQUIRED_MARKERS,
+        "candidate roadmap boundary",
+        errors,
+    )
+    text = read(SCOPE_AND_ROADMAP)
+    for heading in ROADMAP_PARALLEL_AUTHORITY_HEADINGS:
+        if heading not in text:
+            continue
+        errors.append(
+            f"{rel(SCOPE_AND_ROADMAP)}: parallel product authority heading "
+            f"'{heading}'; point to Product Vision / Release PRD instead"
+        )
+
+
 def validate_product_document_authority(errors: list[str]) -> None:
     vision_frontmatter, _ = parse_frontmatter(read(PRODUCT_VISION))
     if vision_frontmatter.get("layer") != "product-vision":
@@ -642,6 +746,15 @@ def validate_product_document_authority(errors: list[str]) -> None:
     if prd_frontmatter.get("product_role") != "release-prd":
         errors.append(
             "docs/product/release-1-prd.md: product_role must be 'release-prd'"
+        )
+    prd_text = read(RELEASE_ONE_PRD)
+    if (
+        "下表只是稳定决策 ID 的审阅索引" not in prd_text
+        or "不独立定义完整约束" not in prd_text
+    ):
+        errors.append(
+            "docs/product/release-1-prd.md: decision summary must state that it "
+            "is an index and does not independently define complete constraints"
         )
 
     product_visions: list[Path] = []
@@ -776,6 +889,9 @@ def run_checks() -> list[str]:
     validate_current_product_authority_terms(errors)
     validate_repository_fact_ownership(errors)
     validate_feature_intent(errors)
+    validate_frontmatter_document_references(errors)
+    validate_active_feature_structure(errors)
+    validate_roadmap_boundaries(errors)
     validate_current_admission(errors)
     validate_merge_authorization(errors)
     return errors

@@ -47,6 +47,24 @@ release_outcomes:
 - **前置依赖**：无。唯一资料库的内部初始化归数据 / composition root，不由 Onboarding 建立用户可见 Profile 生命周期。
 - **商业政策**：B6-A 下 Onboarding 不嵌广告、IAP、Pro 引导或“即将推出”承诺。
 
+### 详细契约
+
+#### A. 首启流程
+
+- Onboarding 只解释产品价值和本地隐私边界，不在首屏直接请求相机、相册或通知权限。
+- 用户完成或跳过 Onboarding 后，状态必须持久化；后续再次进入不得重复打断，除非用户显式重置。
+- 完成、跳过、返回每个动作都应有清晰可达路径，不把用户困在单页引导中。
+
+#### B. 权限预期
+
+- 相机、相册、文件导入等权限请求应在 Capture 等 point-of-use 场景触发；Onboarding 只能做预期说明。
+- 权限预说明必须与系统权限用途串一致，不能承诺未实现的云同步、账号、自动备份或 AI 解题能力。
+
+#### C. 文案定位与 L10n 归属
+
+- Onboarding 对外文案必须面向通用效率工具，避免“错题/作业/儿童/年级/同学”等儿童教育信号。
+- 已知共享 key：`L10n.Onboarding.fieldConfigTitle` / `fieldConfigDescription` 被 Capture 结果页和提示视图复用。后续应迁入 Common/Shared 或显式登记共享，不应长期挂在 Onboarding 命名空间。
+
 ## 3. 技术设计 (How)
 - **模块归属**：`OnboardingView`（引导页）+ `OnboardingManager`（完成状态）位于 `SnapDrillUI`。`OnboardingManager` 在架构上是**显式豁免清单**成员（不挂 DI 容器，全局静态状态）。
 - **关键机制 / 数据流**：当前实现为多页滑动引导 → "开始使用"或翻完末页 → `OnboardingManager` 标记完成 → 进入 Dashboard，与 C3 目的地一致。完成状态是 App 全局状态。现有 Profile / TipKit 隔离属于 B5-A 待退场实现。
@@ -63,25 +81,7 @@ release_outcomes:
 - **NFR**：无（纯展示流，无大图加载 / 无落库 / 无中断恢复要求）。
 
 
-## 5. Contracts（首启 / 权限预期 / 文案定位）
-
-### A. 首启流程
-
-- Onboarding 只解释产品价值和本地隐私边界，不在首屏直接请求相机、相册或通知权限。
-- 用户完成或跳过 Onboarding 后，状态必须持久化；后续再次进入不得重复打断，除非用户显式重置。
-- 完成、跳过、返回每个动作都应有清晰可达路径，不把用户困在单页引导中。
-
-### B. 权限预期
-
-- 相机、相册、文件导入等权限请求应在 Capture 等 point-of-use 场景触发；Onboarding 只能做预期说明。
-- 权限预说明必须与系统权限用途串一致，不能承诺未实现的云同步、账号、自动备份或 AI 解题能力。
-
-### C. 文案定位与 L10n 归属
-
-- Onboarding 对外文案必须面向通用效率工具，避免“错题/作业/儿童/年级/同学”等儿童教育信号。
-- 已知共享 key：`L10n.Onboarding.fieldConfigTitle` / `fieldConfigDescription` 被 Capture 结果页和提示视图复用。后续应迁入 Common/Shared 或显式登记共享，不应长期挂在 Onboarding 命名空间。
-
-### D. Enforcement
+### Enforcement
 
 | 契约项 | Enforcement |
 |---|---|

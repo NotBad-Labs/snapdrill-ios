@@ -1,5 +1,5 @@
 ---
-last_verified: 2026-07-24
+last_verified: 2026-07-25
 layer: release-prd
 release: 1
 product_role: release-prd
@@ -38,6 +38,9 @@ upstream:
 细化单功能；代码、测试和发布实证只证明当前实现。
 
 ### 决策摘要
+
+下表只是稳定决策 ID 的审阅索引，不独立定义完整约束。发生摘要与正文差异时，以本文后续
+owning 章节及其明确引用的 Data Contract / feature spec 为准。
 
 | ID | 状态 | 推荐 / 已批准结论 |
 |---|---|---|

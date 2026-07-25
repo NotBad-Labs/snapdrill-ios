@@ -5,8 +5,8 @@ current_status: superseded
 historical_record: true
 current_authority: docs/explanations/business-model.md
 derived_from:
-  - vision.md#p3-免费层完成核心闭环
-  - business-model.md
+  - ../product/vision.md#p3-免费层完成核心闭环
+  - ../explanations/business-model.md
 freshness:
   max_age_days: 365
   decay_trigger: [decision_reverted, downstream_change]

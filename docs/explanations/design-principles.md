@@ -1,12 +1,13 @@
 ---
-last_verified: 2026-07-12
+last_verified: 2026-07-25
 layer: principle
 ---
 # 设计原则与全局规范
 
 > 本文档承载**跨功能**的总览与方法论：不属于任何单个 feature 的全局设计规则、信息架构、空状态与错误处理基线，以及缺陷严重度框架（S0-S3）。各功能专属的设计细节见对应 feature spec（`../features/active/` 与 `../features/backlog/`）。
 >
-> **上游依赖**：`vision.md`（使命、定位、用户、6 条原则、冲突裁决规则）。
+> **上游依赖**：[Product Vision & Principles](../product/vision.md)（使命、定位、用户、
+> 6 条原则、冲突裁决规则）。
 > 本文件定义「为什么这样设计」——设计决策、交互铁律、策略理由。
 > 具体功能行为见各 feature spec；发布范围与结果级验收见当前 Release PRD，`../reference/scope-and-roadmap.md` 只维护候选与重入边界。
 >
@@ -43,7 +44,8 @@ SnapDrill 是纯粹的效率工具。全局文案、Onboarding、成功反馈与
 
 ### 原则冲突裁决
 
-冲突裁决规则见 `vision.md`§产品原则、§耐久取舍与§三层 SSOT 与变更生命周期；本文档不重复列出，只在具体设计场景中引用。
+冲突裁决规则见 [Product Vision & Principles](../product/vision.md) §产品原则、§耐久取舍与
+§三层 SSOT 与变更生命周期；本文档不重复列出，只在具体设计场景中引用。
 
 ### 原则追溯标注
 
@@ -61,16 +63,13 @@ Product Vision & Principles 不定义虚构 KPI。当前产品假设及推翻信
 
 当前五个同级 Tab（首页 / 资料库 / 采集 / 回顾 / 设置）是实现事实，不是 Product Vision & Principles 或 Release 1 承诺。[Release 1 PRD](../product/release-1-prd.md) C3 规定普通启动默认进入 Dashboard，但不批准五 Tab 结构或 Review 的导航等级，也不单独授权实现。最终导航必须让采集、资料库和输出路径容易到达，且不得让附加能力主导首屏。
 
-### Dashboard 设计角色
+### Dashboard 设计应用
 
-Release 1 Dashboard 是单一资料库的**任务入口和可执行状态概览**，不是学习 / analytics 门户：
-- Capture 与 Library 一次操作可达；空资料库一次操作开始 Capture
-- 可以显示未完成草稿、最近资料和能直接进入对应内容的本地事实
-- Capture / Library 在视觉和 accessibility 顺序中先于任何 Review 入口
-- 不展示 Profile / Workspace、昵称 / 头像身份入口、Pro / IAP / locked / coming-soon 或 analytics 模块
-- Review 不使用 hero、进度环、连续记录或完成庆祝主导首屏
-
-现有 Review hero、问候 / 头像、四项统计和高级统计锁态是相对 Release 1 PRD 的已知偏差。C2-Personalization 隐藏身份装饰；C4-D / C5-E 只允许 Review / SmartPaper 在非公开实验 build 从 Library 的单一静态次级入口出现。上述目标不单独授权实现，必须进入有界 implementation bet。
+Dashboard 的发布行为、禁止表面和实现差距只由
+[Release 1 PRD](../product/release-1-prd.md) C2-Personalization / C3 / C4-D 与
+[Dashboard feature spec](../features/active/feat-dashboard.md) 定义。本文只补充跨界面设计解释：
+首屏优先呈现用户下一步可执行动作，而不是身份装饰、趋势报告或附加能力；视觉与
+accessibility 顺序必须服务核心价值链。
 
 **Dashboard 文案防焦虑约束**（承接 vision §不贩卖焦虑）：
 - 若保留数字，只显示能直接进入对应内容的**中性本地事实**

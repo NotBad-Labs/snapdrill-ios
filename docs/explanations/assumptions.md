@@ -2,7 +2,7 @@
 last_verified: 2026-07-12
 layer: assumptions
 derived_from:
-  - vision.md
+  - ../product/vision.md
 ---
 # 待验证假设登记
 

@@ -33,7 +33,7 @@ release_outcomes:
 - 一个本地资料库足以支持用户通过搜索、基础分类和标签整理不同主题，同时保持采集 -> 整理 / 找回 -> 导出 / 打印的主路径清晰；动态字段只是可选增强，不是移除 Multi-Profile 的成立前提。
 - 这是中等置信度、可重新裁决的产品假设，不是对未来内部架构的永久禁令。只有外部证据、PO 新裁决和新的 effective 权威才能让 Workspace / Profile 回归。
 
-## 2. 产品规则 (What)
+## 2. 需求规则 (What)
 
 - **一个可见资料库**：用户无需创建、命名、选择、切换或删除 Profile；所有用户可见资料属于同一个本地资料库。
 - **不规划 Workspace / Profile**：在新证据出现前，不新增资料库切换、独立工作区、家庭成员账户或相关设置入口。
@@ -43,7 +43,19 @@ release_outcomes:
 - **迁移边界**：仅 PO 的 epoch 前开发数据、偏好及 v1 / v2 备份可以重置或明确拒绝；一旦非 PO 获得 build 下载资格，本机升级与正式备份兼容承诺立即生效。对外 wire 必须 Profile-free；本地生命周期与恢复安全边界以 [Local Library Data Contract](../../reference/local-library-data-contract.md) 为准，wire / golden fixture 以 Backup Wire Contract 为准。
 - **实现中立**：是否保留内部 scope 类型、如何简化目录或 UserDefaults、是否迁移备份 schema，均属于工程设计，不能改变上述用户可见行为。
 
-## 3. 当前实现与候选 (How)
+### 详细契约
+
+#### A. 产品行为
+
+- Release 1 只呈现一个资料库，不保留隐藏的 Profile 管理入口或“稍后推出多个资料库”提示。
+- 未来 Workspace / Profile 只能通过新的产品证据、PO 裁决和 effective 上游权威重新进入。
+
+#### B. 数据安全
+
+- “无生产 / 内测用户需要迁移”只免除用户数据迁移需求，不免除备份恢复、路径安全、原子性和失败回滚验证。
+- backup wire、schemaVersion、golden fixtures 和 MigrationPlan 的任何变化必须由 owning Data Contract 明确授权；单资料库实现不得绕过 `local-library-data-contract.md` 的 generation / incident 状态。
+
+## 3. 技术设计 (How)
 
 - 当前 `develop` 仍由 `ProfileManager` 管理多个 SwiftData container、图片目录和 per-profile preferences；Profile 创建 / 切换 / 删除入口仍存在。这些是实证事实，也是待移除的复杂度，不是产品依据。
 - #868 已关闭且与当前基线冲突，只保留为影响分析和测试思路的历史证据。生产收敛必须从最新 `develop` 出发，按当前 Product / Release / Data Contract 拆成可验证的小切片。
@@ -60,19 +72,7 @@ Release 1 的产品验收如下；备份 / 恢复技术 oracle 由 DATA-1 下游
 - 手动备份 / 恢复继续可用；恢复失败保持原数据不变。路径、generation 与 D3-B oracle 由 Local Library Data Contract 验证；wire 兼容范围由 Backup Wire Contract 验证，不在本 spec 复制。
 - 代码、UI 测试和 AX 审计不得把内部遗留标识符误当成用户可见产品概念；是否保留程序标识符由实现 slice 决定。
 
-## 5. Contracts（退场边界）
-
-### A. 产品行为
-
-- Release 1 只呈现一个资料库，不保留隐藏的 Profile 管理入口或“稍后推出多个资料库”提示。
-- 未来 Workspace / Profile 只能通过新的产品证据、PO 裁决和 effective 上游权威重新进入。
-
-### B. 数据安全
-
-- “无生产 / 内测用户需要迁移”只免除用户数据迁移需求，不免除备份恢复、路径安全、原子性和失败回滚验证。
-- backup wire、schemaVersion、golden fixtures 和 MigrationPlan 的任何变化必须由 owning Data Contract 明确授权；单资料库实现不得绕过 `local-library-data-contract.md` 的 generation / incident 状态。
-
-### C. Enforcement
+### Enforcement
 
 | 契约项 | Enforcement |
 |---|---|

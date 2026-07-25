@@ -41,7 +41,7 @@ release_outcomes:
 - **定位**：管理与录入并列为主路径，是价值链核心环节而非附加值；任何损害"录入/管理"简洁性的功能都不该做（设计铁律）。分享卡片定位为**用户间一对一交流的样张图片**，不是社交分享——SnapDrill 不是社交产品（不做分享社区 / 跨用户推荐算法 / 行为信号采集 feed）。
 - **原则归属**：P1 采集摩擦最低（管理服务于"录入后立即可用"）+ P2 简洁（过滤维度克制、不做回收站 / 多级撤销）+ P4 数据属于用户与数据安全（删除可撤销）+ P5 成人生产力工具（零学习曲线、中性成熟）。详见 `../../product/vision.md`。
 
-## 2. 当前实现规则与 Release 1 分类 (What)
+## 2. 需求规则 (What)
 
 > 下列条目同时记录当前实现。Release 1 Must 是资料库搜索、查看、编辑、基础分类和可撤销删除；动态字段与批量操作是 manifest 可纳入的 Candidate optional。ShareCard 默认 hidden，按回顾状态排序随 C4-D hidden；后二者都不能由 manifest 单独纳入，重入需新上游裁决。
 - **资料库列表与排序**：默认按录入时间倒序（最新录入最可能需编辑补充）；当前实现可按录入时间 / 分类 / 回顾状态切换，非默认排序不属于 Must，其中按回顾状态排序必须隐藏。
@@ -55,6 +55,29 @@ release_outcomes:
 - **边界 / 不做**：不做独立难度字段 / 星级难度筛选；不做回收站 / 多级撤销栈；不做批量编辑系统字段；分享卡片不做社交分享 / 社区 / 推荐算法；不提供题库内容（工具非内容平台）。**PDF / JSON / CSV / `.snapdrillbackup` 导出与打印是同级 / 独立 feature**，本 spec 不展开（见 `feat-export.md`）。
 - **前置依赖**：无。回顾（`feat-review.md`）与候选 SmartPaper / 高级统计可消费本 feature 的资料、分类和过滤数据；导出（`feat-export.md`）以资料库过滤 / 选中结果集为输入。
 - **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP；资料库 Must 不承担升级转化。SmartPaper 只按 C5-E 的非公开实验边界出现，高级统计隐藏；未来公开可见性或商业化需要新 contract。
+
+### 详细契约
+
+#### A. 列表与筛选刷新
+
+- 列表必须区分 loading / empty / no-result / content 四类状态；筛选、搜索、排序切换时不得先展示半更新行（例如标签消失、星级左移）再移除整行。
+- 搜索防抖与筛选刷新应以稳定快照为边界；若 UI 无法避免中间态，应登记为 ViewModel/数据快照契约缺口，而不是用动画遮盖。
+- 多选状态下，全选、取消、导出入口必须与当前筛选结果一致；导出后选择状态清理或保留属于产品决策，不得由 UI 静默改变。
+
+#### B. 详情与参考内容
+
+- 从 Library 进入详情时，题目正文优先展示；参考内容默认收起，用户显式展开后才显示。
+- 展开/收起参考内容不得刷新整页或重置滚动位置；图标、标题与内容区域的变化应是局部状态变化。
+
+#### C. 导出 / 分享 / 打印入口
+
+- Library 只负责把当前筛选/选择集合交给导出流；PDF、分享、打印的行为契约见 `docs/features/active/feat-export.md`。
+- 空集合不得生成空文件；用户取消分享/打印不等于失败；生成失败必须用户可见，不只写日志。
+
+#### D. 文案与 L10n 归属
+
+- Library 对外文案必须保持通用受众定位，避免把资料库描述成儿童、作业或校园专用场景。
+- 已知共享 key：`L10n.Library.categoryManager` 被 Dashboard 复用。后续 L10n 归属整理应迁入 Common/Shared 或显式登记共享，不应长期挂在单屏命名空间。
 
 ## 3. 技术设计 (How)
 - **模块归属**：`SnapDrillFeatureLibrary`（资料库列表 / 搜索 / 过滤 / 详情 `LibraryDetailView` / 编辑 `LibraryEditViewModel` / `LibraryViewModel`）。`@Model` 类型 `ArchiveItemModel` / `CategoryDimensionModel` / `CategoryValueModel` 定义在 `SnapDrillData`，经 `ArchiveRepository` / `CategoryDimensionRepository` / `CategoryValueRepository` + `RepositoryContainer` 访问。删除窗口由 `DeletionScheduler`（App 级 Service，`SnapDrillCore`）管理。ShareCard 归 `SnapDrillFeatureLibrary/ShareCardView`。注意：备份 wire key `reviewItems` 与开发种子入口 `seedReviewItems` 是刻意保留的外部格式 / 调试入口名称，不代表主领域模型仍叫 `ReviewItem`。
@@ -92,29 +115,6 @@ release_outcomes:
   - complete operation 关闭准入后，Library 不接受新 mutation 或新 partial-snapshot acquisition；已准入 pending delete 的 undo / 到期 hard delete 仍可终结，已 detached 的 partial snapshot 可完成。
 - **NFR**：资料库列表加载 < 500ms（200 条，从 Dashboard 进入到渲染完成）；搜索响应 < 300ms（输入到结果更新）；滚动 60fps（快速滚动无掉帧）；资料库浏览内存 < 150MB（200 条，图片按需 + 降采样）。ShareCard 必须有隐藏负向证据；生产仍无逐事件后端 Analytics。
 
-
-## 5. Contracts（列表 / 详情 / 导出入口）
-
-### A. 列表与筛选刷新
-
-- 列表必须区分 loading / empty / no-result / content 四类状态；筛选、搜索、排序切换时不得先展示半更新行（例如标签消失、星级左移）再移除整行。
-- 搜索防抖与筛选刷新应以稳定快照为边界；若 UI 无法避免中间态，应登记为 ViewModel/数据快照契约缺口，而不是用动画遮盖。
-- 多选状态下，全选、取消、导出入口必须与当前筛选结果一致；导出后选择状态清理或保留属于产品决策，不得由 UI 静默改变。
-
-### B. 详情与参考内容
-
-- 从 Library 进入详情时，题目正文优先展示；参考内容默认收起，用户显式展开后才显示。
-- 展开/收起参考内容不得刷新整页或重置滚动位置；图标、标题与内容区域的变化应是局部状态变化。
-
-### C. 导出 / 分享 / 打印入口
-
-- Library 只负责把当前筛选/选择集合交给导出流；PDF、分享、打印的行为契约见 `docs/features/active/feat-export.md`。
-- 空集合不得生成空文件；用户取消分享/打印不等于失败；生成失败必须用户可见，不只写日志。
-
-### D. 文案与 L10n 归属
-
-- Library 对外文案必须保持通用受众定位，避免把资料库描述成儿童、作业或校园专用场景。
-- 已知共享 key：`L10n.Library.categoryManager` 被 Dashboard 复用。后续 L10n 归属整理应迁入 Common/Shared 或显式登记共享，不应长期挂在单屏命名空间。
 
 ### Enforcement
 

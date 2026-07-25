@@ -115,12 +115,194 @@ class ValidateDocsTests(unittest.TestCase):
             errors,
         )
 
+    def test_frontmatter_document_references_resolve(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_frontmatter_document_references(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_stale_frontmatter_document_path_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        assumptions = (
+            validate_docs.DOCS_ROOT / "explanations" / "assumptions.md"
+        )
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == assumptions:
+                return text.replace(
+                    "  - ../product/vision.md",
+                    "  - vision.md",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_frontmatter_document_references(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/explanations/assumptions.md: "
+            "derived_from target does not exist: vision.md",
+            errors,
+        )
+
+    def test_stale_upstream_document_path_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.RELEASE_ONE_PRD:
+                return text.replace(
+                    "  - vision.md",
+                    "  - missing-vision.md",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_frontmatter_document_references(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/product/release-1-prd.md: "
+            "upstream target does not exist: missing-vision.md",
+            errors,
+        )
+
+    def test_active_feature_specs_use_one_why_what_how_verify_structure(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_active_feature_structure(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_parallel_contract_heading_in_active_feature_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        feature = (
+            validate_docs.DOCS_ROOT / "features" / "active" / "feat-library.md"
+        )
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == feature:
+                return text.replace(
+                    "## 意图追溯（永久保留）",
+                    "## 5. Parallel Contracts\n\n"
+                    "Duplicate requirements.\n\n"
+                    "## 意图追溯（永久保留）",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_active_feature_structure(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                "unexpected H2 '5. Parallel Contracts'" in error
+                for error in errors
+            )
+        )
+
+    def test_renamed_feature_what_heading_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        feature = (
+            validate_docs.DOCS_ROOT / "features" / "active" / "feat-dashboard.md"
+        )
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == feature:
+                return text.replace(
+                    "## 2. 需求规则 (What)",
+                    "## 2. Release 1 PRD",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_active_feature_structure(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                "numbered H2 sections must be exactly" in error
+                for error in errors
+            )
+        )
+        self.assertTrue(
+            any("unexpected H2 '2. Release 1 PRD'" in error for error in errors)
+        )
+
+    def test_candidate_roadmap_does_not_repeat_product_authority(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_roadmap_boundaries(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_roadmap_product_authority_heading_fails_closed(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.SCOPE_AND_ROADMAP:
+                return f"{text}\n## 耐久非目标\n\nDuplicated from Vision.\n"
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_roadmap_boundaries(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any("parallel product authority heading" in error for error in errors)
+        )
+
     def test_release_one_prd_is_the_only_declared_prd(self) -> None:
         errors: list[str] = []
 
         validate_docs.validate_product_document_authority(errors)
 
         self.assertEqual(errors, [])
+
+    def test_release_prd_summary_declares_index_only_role(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.RELEASE_ONE_PRD:
+                return text.replace(
+                    "下表只是稳定决策 ID 的审阅索引，不独立定义完整约束。",
+                    "",
+                )
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_product_document_authority(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertIn(
+            "docs/product/release-1-prd.md: decision summary must state that it "
+            "is an index and does not independently define complete constraints",
+            errors,
+        )
 
     def test_current_product_authority_surfaces_use_standard_terms(self) -> None:
         errors: list[str] = []

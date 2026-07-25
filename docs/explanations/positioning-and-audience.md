@@ -2,9 +2,9 @@
 last_verified: 2026-07-12
 layer: product-policy
 derived_from:
-  - vision.md#首个工作流切口
-  - vision.md#产品定位
-  - vision.md#p5-冷静清晰成人生产力工具
+  - ../product/vision.md#首个工作流切口
+  - ../product/vision.md#产品定位
+  - ../product/vision.md#p5-冷静清晰成人生产力工具
 ---
 # 产品定位与受众
 

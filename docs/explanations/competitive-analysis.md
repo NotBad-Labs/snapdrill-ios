@@ -10,7 +10,8 @@ review_gate: product fact refresh required before updating competitor claims; la
 ---
 # SnapDrill 竞品分析
 
-> 上游依赖：`vision.md`（产品定位、差异化）、`business-model.md`（商业模式）。
+> 上游依赖：[Product Vision & Principles](../product/vision.md)（产品定位、差异化）与
+> [商业政策](business-model.md)。
 
 ## 行业格局
 
@@ -71,8 +72,8 @@ SnapDrill 是个人资料工具——用户为了留存和复用有价值的纸�
 
 | 文档 | 关系 | 说明 |
 |---|---|---|
-| `vision.md` | 上游 | 产品定位、差异化策略 |
-| `business-model.md` | 相关 | 商业模式、定价策略 |
+| [Product Vision & Principles](../product/vision.md) | 上游 | 产品定位、差异化策略 |
+| [商业政策](business-model.md) | 相关 | 商业模式、定价策略 |
 
 ---
 

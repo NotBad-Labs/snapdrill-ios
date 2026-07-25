@@ -41,6 +41,25 @@ release_outcomes: []
 - **前置依赖**：无。候选高级统计可以消费 Review 产出的 SM-2 数据；SmartPaper 当前实现中的 SM-2 依赖是遗留偏差，C5-S1 明确禁止 Release 1 实验 selector 使用 Review / SM-2。
 - **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP。非公开实验中的 Review 不做付费墙；公开可见性与任何未来商业化都需要新 contract。
 
+### 详细契约
+
+#### A. 回顾卡片状态
+
+- 回顾卡片默认只展示题面/资料内容；参考内容默认隐藏，用户显式点击或手势触发后才显示。
+- 显示参考内容不得重置当前队列、评级状态或会话进度。
+- 空队列、加载中、完成、错误四类状态应有明确 UI；不能让用户停在无反馈的空白页。
+
+#### B. 评级语义
+
+- `有印象` / `Recalled` 表示用户认为自己已回忆起内容，应延长回顾间隔；`没印象` / `Forgot` 表示稍后需要再次出现。
+- 按钮、左右滑、stamp、VoiceOver hint、会话摘要必须使用同一组语义；取消手势或退出会话不应被记录成评级。
+- 保留“回顾”命名，不回退到校园化或儿童化的“复习/练习/闯关”语言。
+
+#### C. 会话一致性
+
+- 每次评级只能作用于当前可见资料；队列进度、summary 和回顾计划必须来源于同一会话快照。
+- 已知缺口：外部删除当前回顾资料的处理仍是 GAP-R1；在 ViewModel 暴露明确状态前，UI 不应伪造已处理结果。
+
 ## 3. 技术设计 (How)
 - **模块归属**：SM-2 引擎 `SnapDrillCore`（`ReviewScheduler` / `SM2State`）；当前 Dashboard 聚合位于 `SnapDrillFeatureDashboard`，但 C3 / C4-D 的 Release 1 目标不消费 Review cue / 计数。
 - **关键机制 / 数据流**：评估依结果更新该资料的 `easeFactor / interval / nextReviewAt` 并推进下一条；正面 = 原内容（图文，**必须显示图片**，尤其图形资料），背面 = 参考答案/备注；左滑/没印象、右滑/有印象，**手势必有等价按钮**（HIG）；答案缺失仍可翻面评估。
@@ -66,40 +85,7 @@ release_outcomes: []
 - **数据保证**：只更新唯一资料库中被评估资料的回顾状态、不改资料主内容；每次评估只落库一次（重复手势 / 点击不得双重更新）；结果摘要必须与本轮成功提交的评估一致。
 - **NFR**：卡片大图用降采样加载（`loadDownsampledImage`）控制延迟与内存；因每次评估即时落库，**中途退出不丢已评估进度**（仅未评估题保留到期）。
 
-## 5. Review flagship polish checklist (2026-06-17)
-
-**Scope**：仅处理 Review 屏族（入口概览、回顾会话、卡片正反面、底部动作、完成摘要）及其直接 L10n / a11y 文案。其它屏、发布硬化、bundle 名、TestFlight、Pro 功能、Core/Data/OCR 引擎不在本轮。
-
-**Completion line**：
-- 入口概览、加载/错误/空/完成态都应有明确用户反馈，不留空白或“点了没反应”的状态。
-- 卡片会话保留“手势 + 等价按钮 + VoiceOver”三条路径；底部动作不得依赖仅红/绿或仅图标理解。
-- Review 对外可见文案改为通用受众生产力语义：`回顾 / 没印象 / 有印象 / 已回顾 / 需回看`；避免儿童化、游戏化、打气式语言。
-- 视觉与 Library / Capture 的基线一致：系统 grouped 背景、低阴影、清晰分割、适中圆角、克制蓝色强调；移除大面积紫蓝渐变和游戏化成功动效。
-- 保留已存在的 VoiceOver 标签、a11y hints、selected traits、`accessibilityIdentifier` 相关路径。
-- 若发现需要 ViewModel/Core/Data 新状态才能正确表达，应登记为跨层 blocker，不在本 UI PR 中重写逻辑。
-- `swiftlint --strict` 与 `xcodebuild build-for-testing -scheme AllTests -destination 'platform=iOS Simulator,name=iPhone 17' -testPlan AllTests` 必须通过。
-
-
-## 6. Contracts（回顾 / 评级 / 会话一致性）
-
-### A. 回顾卡片状态
-
-- 回顾卡片默认只展示题面/资料内容；参考内容默认隐藏，用户显式点击或手势触发后才显示。
-- 显示参考内容不得重置当前队列、评级状态或会话进度。
-- 空队列、加载中、完成、错误四类状态应有明确 UI；不能让用户停在无反馈的空白页。
-
-### B. 评级语义
-
-- `有印象` / `Recalled` 表示用户认为自己已回忆起内容，应延长回顾间隔；`没印象` / `Forgot` 表示稍后需要再次出现。
-- 按钮、左右滑、stamp、VoiceOver hint、会话摘要必须使用同一组语义；取消手势或退出会话不应被记录成评级。
-- 保留“回顾”命名，不回退到校园化或儿童化的“复习/练习/闯关”语言。
-
-### C. 会话一致性
-
-- 每次评级只能作用于当前可见资料；队列进度、summary 和回顾计划必须来源于同一会话快照。
-- 已知缺口：外部删除当前回顾资料的处理仍是 GAP-R1；在 ViewModel 暴露明确状态前，UI 不应伪造已处理结果。
-
-### D. Enforcement
+### Enforcement
 
 | 契约项 | Enforcement |
 |---|---|

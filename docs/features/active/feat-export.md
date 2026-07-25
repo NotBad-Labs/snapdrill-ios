@@ -51,6 +51,26 @@ release_outcomes:
 - **前置依赖**：无。智能组卷（`../backlog/feat-smartpaper.md`）**复用本 feature 的 PDFExportService 管线**作为输出末端——是本 feature 的下游消费方。
 - **商业政策**：B6-A 下 Release 1 免费、无广告、无 IAP；已纳入 Release PRD 的导出 / 打印能力不得承担升级转化。Word 与图片增强只是候选假设，不是 Pro、价格或发布时间承诺。
 
+### 详细契约
+
+#### A. 输入与输出
+
+- 导出入口必须传入明确的资料集合和选项；空集合不得进入 PDF 渲染器，也不得生成空 PDF/CSV。
+- 基础 PDF 第一张物理页就是内容页；不得生成未计入页码或纸张数量的强制封面。
+- PDF、分享、打印结果必须区分 completed / cancelled / failed；用户取消不等于失败。
+- 导出成功只能在文件生成或系统交互完成后提示，不得在后台任务启动时提前宣称成功。
+
+#### B. 分享与打印
+
+- 分享走系统 share sheet；打印走 `PrintPresenting` adapter 或系统打印面板。代码中的 iPad anchor 属非 shipping 实现约束，不构成 B7-A 的 iPad 发布承诺。
+- 已知缺口：打印已通过 `PrintPresenting` adapter 接入系统打印面板；真实 AirPrint 打印机 dogfood 仍需补齐。
+- 打印/分享失败必须用户可见，并保留 retry 路径。
+
+#### C. 活动追踪与隐私
+
+- 导出、分享、打印、备份等长任务必须通过 `AppActivityTracker` 阻止会破坏一致性的并发数据操作。当前阻止 Profile 切换只是待退场实现机制，不是产品契约。
+- PDF 渲染应使用 autoreleasepool 防 OOM；导出内容不得重新引入图片 EXIF GPS/位置信息。
+
 ## 3. 技术设计 (How)
 - **模块归属**：PDF 渲染/排版管线 `SnapDrillCore/Service/PDFExportService`（统一 PDF 引擎，注入于 `ServiceContainer.pdfExport`）；打印呈现走 `SnapDrillUI/PrintPresenting` adapter（生产默认 `LivePrintPresenter`，内部使用 `UIPrintInteractionController`，iPad 需要有效 anchor）。
   - **实现现状（GAP-R5 已接入，剩余 dogfood）**：`LibraryDetailView` 单题快速打印生成 PDF 后调用 `PrintPresenting.present(...)`；`ExportPreviewView` 的批量打印同样通过 `PrintPresenting`。旧 spec 所称"经 ShareSheet 间接打印、尚未接入 `UIPrintInteractionController`"已过期。剩余真实缺口是无 AirPrint 打印机 / 真机 AirPrint 三态 dogfood 尚未完成。
@@ -82,27 +102,7 @@ release_outcomes:
   - 若 manifest 纳入 CSV 导出，以 `=+-@` 开头的值前加 tab（CSV 注入防护；属同级数据导出）。
 
 
-## 5. Contracts（PDF / 分享 / 打印）
-
-### A. 输入与输出
-
-- 导出入口必须传入明确的资料集合和选项；空集合不得进入 PDF 渲染器，也不得生成空 PDF/CSV。
-- 基础 PDF 第一张物理页就是内容页；不得生成未计入页码或纸张数量的强制封面。
-- PDF、分享、打印结果必须区分 completed / cancelled / failed；用户取消不等于失败。
-- 导出成功只能在文件生成或系统交互完成后提示，不得在后台任务启动时提前宣称成功。
-
-### B. 分享与打印
-
-- 分享走系统 share sheet；打印走 `PrintPresenting` adapter 或系统打印面板。代码中的 iPad anchor 属非 shipping 实现约束，不构成 B7-A 的 iPad 发布承诺。
-- 已知缺口：打印已通过 `PrintPresenting` adapter 接入系统打印面板；真实 AirPrint 打印机 dogfood 仍需补齐。
-- 打印/分享失败必须用户可见，并保留 retry 路径。
-
-### C. 活动追踪与隐私
-
-- 导出、分享、打印、备份等长任务必须通过 `AppActivityTracker` 阻止会破坏一致性的并发数据操作。当前阻止 Profile 切换只是待退场实现机制，不是产品契约。
-- PDF 渲染应使用 autoreleasepool 防 OOM；导出内容不得重新引入图片 EXIF GPS/位置信息。
-
-### D. Enforcement
+### Enforcement
 
 | 契约项 | Enforcement |
 |---|---|
