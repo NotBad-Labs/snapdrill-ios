@@ -15,7 +15,7 @@
 | `generate_intent_traceability.py` | 由各 feature spec `intent_refs` / `release_refs` / `release_outcomes` 和发布运维文档生成 durable intent、Release 1 决策消费边与 M1-M10 owner / proof-plan 索引；Release ID 与 Must ID 从 effective contract 读取，缺 consumer、active owner 或 oracle / DRI 时失败（产物勿手改，pre-commit/CI 校验） |
 | `test_doc_generators.py` | 文档生成器单元测试（覆盖意图追溯索引与功能状态看板的成功与失败路径，pre-commit/CI 校验） |
 | `validate_document_control.py` | 检查所有 repository Markdown 的角色 / 生命周期唯一归属、历史降级标识、本地链接 / anchor 与 alias |
-| `validate_docs.py` | 检查高风险文档漂移：历史 ADR 状态、过时 Firebase 路线陈述、产品定位回退、feature spec 意图追溯、`intent_refs` 目标存在性与验收证据行 |
+| `validate_docs.py` | 检查高风险文档漂移：active ADR 准入/结构与退役索引、过时 Firebase 路线陈述、产品定位回退、feature spec 意图追溯、`intent_refs` 目标存在性与验收证据行 |
 | `validate_capture_contract.py` | 递归检查 Capture 契约文案边界：Capture 暴露 L10n、权限用途串和 Capture View 用户可见字符串，避免回退到旧错题本 / 儿童教育定位 |
 | `validate_release_configuration.py` | 结构化检查 `SnapDrill` App target 的 Debug / Release 平台边界；canonical CI 另校验 App、Share Extension 与所有 regular package targets 的有效 Release Swift 条件不含 `DEBUG` |
 | `validate_release_test_overrides.py` | 词法级检查生产 Swift 源码，阻止 Release 可达的 UI-test token、process-global selector 与 Mock service 引用；pre-commit 同时拒绝相关文件的部分暂存 |

@@ -12,11 +12,8 @@
 
 | 引用 | 含义 | 来源 |
 |---|---|---|
-| `ADR-001` | 历史记录（已取代，当前权威：business-model）：智能组卷与高级统计定价模型 | [../decisions/ADR-001-smart-paper-analytics-pricing.md](../decisions/ADR-001-smart-paper-analytics-pricing.md) |
-| `ADR-002` | 删除 ATT 授权弹窗 | [../decisions/ADR-002-remove-att-authorization.md](../decisions/ADR-002-remove-att-authorization.md) |
-| `ADR-003` | 历史记录（已挂起，当前权威：positioning-and-audience）：双账号双地区发布架构 | [../decisions/ADR-003-dual-region-release.md](../decisions/ADR-003-dual-region-release.md) |
-| `ADR-004` | 历史记录（已取代，当前权威：ADR-005）：国内版 Firebase-Free（中国大陆 build 不含 Firebase） | [../decisions/ADR-004-china-build-firebase-free.md](../decisions/ADR-004-china-build-firebase-free.md) |
-| `ADR-005` | 全球版分析与隐私遥测策略（端侧聚合 + Apple 免费层，不上后端行为采集） | [../decisions/ADR-005-analytics-privacy-strategy.md](../decisions/ADR-005-analytics-privacy-strategy.md) |
+| `ADR-002` | 不引入 App Tracking Transparency 授权链路 | [../decisions/ADR-002-remove-att-authorization.md](../decisions/ADR-002-remove-att-authorization.md) |
+| `ADR-005` | 生产环境无后端行为遥测，使用本地 MetricKit 诊断 | [../decisions/ADR-005-analytics-privacy-strategy.md](../decisions/ADR-005-analytics-privacy-strategy.md) |
 | `positioning-and-audience` | 定位与受众 guardrail | [../explanations/positioning-and-audience.md](../explanations/positioning-and-audience.md) |
 | `vision:P1` | 采集摩擦最低 | [../product/vision.md](../product/vision.md) |
 | `vision:P2` | 简洁优于功能堆叠 | [../product/vision.md](../product/vision.md) |
@@ -48,10 +45,7 @@
 
 | 上游意图 | 承接 Feature |
 |---|---|
-| [`ADR-001`](../decisions/ADR-001-smart-paper-analytics-pricing.md) | — |
 | [`ADR-002`](../decisions/ADR-002-remove-att-authorization.md) | [Onboarding 新手引导](../features/active/feat-onboarding.md) |
-| [`ADR-003`](../decisions/ADR-003-dual-region-release.md) | — |
-| [`ADR-004`](../decisions/ADR-004-china-build-firebase-free.md) | — |
 | [`ADR-005`](../decisions/ADR-005-analytics-privacy-strategy.md) | [采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）](../features/active/feat-capture.md) / [设置与个性化](../features/active/feat-settings.md) |
 | [`positioning-and-audience`](../explanations/positioning-and-audience.md) | [Onboarding 新手引导](../features/active/feat-onboarding.md) / [单一本地资料库（Multi-Profile 退场）](../features/active/feat-profile.md) |
 | [`vision:P1`](../product/vision.md) | [采集（拍照 / 文档扫描 / PDF 导入 / 手动 / 剪贴板）](../features/active/feat-capture.md) / [首页概览（Dashboard）](../features/active/feat-dashboard.md) / [资料库管理 + 分享卡片](../features/active/feat-library.md) |

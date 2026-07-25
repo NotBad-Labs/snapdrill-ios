@@ -27,7 +27,9 @@ PRODUCT_VISION = DOCS_ROOT / "product" / "vision.md"
 RELEASE_ONE_PRD = DOCS_ROOT / "product" / "release-1-prd.md"
 ACTIVE_FEATURES_ROOT = DOCS_ROOT / "features" / "active"
 SCOPE_AND_ROADMAP = DOCS_ROOT / "reference" / "scope-and-roadmap.md"
-PO_DECISION_LOG = DOCS_ROOT / "decisions" / "po-decision-log.md"
+ADR_ROOT = DOCS_ROOT / "decisions"
+ADR_POLICY = ADR_ROOT / "README.md"
+RETIRED_DECISIONS = ADR_ROOT / "retired-decisions.md"
 
 LEGACY_PRODUCT_AUTHORITY_PATTERNS = (
     ("Product Constitution", re.compile(r"Product\s+Constitution")),
@@ -36,21 +38,6 @@ LEGACY_PRODUCT_AUTHORITY_PATTERNS = (
     ("Release Contract", re.compile(r"Release\s+Contract")),
     ("Release 合同", re.compile(r"Release\s+(?:1\s+)?合同")),
 )
-PRIVATE_FACT_HOLDER_PATTERNS = (
-    ("home-relative path", re.compile(r"(?<![\w`])~/")),
-    ("absolute user path", re.compile(r"/Users/[^/\s]+/")),
-    ("file URL", re.compile(r"file://")),
-    (
-        "private agent memory",
-        re.compile(r"(?:Claude|Codex|Grok|Gemini|Agent|agent)\s+记忆"),
-    ),
-)
-
-HISTORICAL_ADRS = {
-    DOCS_ROOT / "decisions" / "ADR-003-dual-region-release.md": "suspended",
-    DOCS_ROOT / "decisions" / "ADR-004-china-build-firebase-free.md": "superseded",
-}
-
 STALE_CURRENT_CLAIMS = {
     "海外版保留 Firebase",
     "海外版 Firebase",
@@ -62,7 +49,6 @@ POSITIONING_RESET_CLAIMS = {
     "错题本 App 市场已形成三个梯队",
 }
 
-STALE_ALLOWED = set(HISTORICAL_ADRS)
 GENERATED_DOCS = {
     DOCS_ROOT / "reference" / "feature-status.md",
     DOCS_ROOT / "reference" / "intent-traceability.md",
@@ -97,6 +83,17 @@ REPOSITORY_FACT_POLICY_REQUIREMENTS = {
 POST_PIVOT_BASELINE = "2026-06-13"
 VISION_REF_PATTERN = re.compile(r"^vision:P([1-9][0-9]*)$")
 ADR_REF_PATTERN = re.compile(r"^ADR-[0-9]{3}$")
+ADR_FILENAME_PATTERN = re.compile(r"^(ADR-[0-9]{3})-[a-z0-9-]+\.md$")
+ADR_TITLE_PATTERN = re.compile(r"^# (ADR-[0-9]{3}): .+$", re.MULTILINE)
+RETIRED_ADR_ROW_PATTERN = re.compile(
+    r"^\|\s*(ADR-[0-9]{3})\s*\|[^|]+\|\s*(superseded|suspended|withdrawn)\b",
+    re.MULTILINE,
+)
+CURRENT_ADR_ROW_PATTERN = re.compile(
+    r"^\|\s*\[(ADR-[0-9]{3})\]\((ADR-[0-9]{3}-[a-z0-9-]+\.md)\)"
+    r"\s*\|[^|]+\|\s*accepted\s*\|$",
+    re.MULTILINE,
+)
 HEADING_PATTERN = re.compile(r"^#+\s+(.+?)\s*$", re.MULTILINE)
 FRONTMATTER_DATE_PATTERN = re.compile(
     r"^(last_verified|last_updated):\s*([0-9]{4}-[0-9]{2}-[0-9]{2})$",
@@ -116,6 +113,35 @@ ACTIVE_FEATURE_ALLOWED_H2 = {
     "意图追溯（永久保留）",
     "当前执行准入（非产品 SSOT）",
     "关联",
+}
+ACTIVE_ADR_STATUSES = {"proposed", "accepted"}
+ACTIVE_ADR_REQUIRED_HEADINGS = (
+    "背景（Context）",
+    "决策（Decision）",
+    "备选方案（Alternatives）",
+    "后果（Consequences）",
+    "验证与复议触发器（Validation）",
+    "关联权威（Related authorities）",
+)
+ADR_POLICY_REQUIREMENTS = {
+    "ADR scope": ("只保存当前可用于指导实现的", "技术取舍"),
+    "admission criteria": ("## 准入标准", "至少存在两个真实可行的技术方案"),
+    "non-ADR routing": ("以下内容不得创建 ADR", "Release 范围", "商业政策"),
+    "active statuses": ("`proposed`", "`accepted`"),
+    "proposed decisions stay candidates": (
+        "`authority/candidate`",
+        "不得被 feature",
+        "`intent_refs`",
+    ),
+    "retirement path": ("retired-decisions.md", "Git 历史"),
+}
+RETIRED_DECISION_REQUIREMENTS = {
+    "history-only role": (
+        "固定基线历史证据",
+        "不能",
+        "定义当前需求、范围、架构或执行顺序",
+    ),
+    "follow current owner": ("只跟随“当前 owner”列",),
 }
 ROADMAP_REQUIRED_MARKERS = {
     "candidate-only role": (
@@ -584,30 +610,145 @@ def ref_target_exists(target: Path, anchor: str | None) -> bool:
     return has_heading_anchor(target, anchor)
 
 
-def validate_historical_adrs(errors: list[str]) -> None:
-    for path, expected_status in HISTORICAL_ADRS.items():
-        text = read(path)
-        fm, body = parse_frontmatter(text)
-        current_status = fm.get("current_status")
-        if current_status != expected_status:
-            errors.append(
-                f"{rel(path)}: frontmatter current_status must be {expected_status!r}"
-            )
-        if fm.get("historical_record") is not True:
-            errors.append(f"{rel(path)}: frontmatter historical_record must be true")
-        if "current_authority" not in fm:
-            errors.append(f"{rel(path)}: frontmatter must name current_authority")
+def validate_architecture_decisions(errors: list[str]) -> None:
+    validate_required_markers(
+        ADR_POLICY,
+        ADR_POLICY_REQUIREMENTS,
+        "ADR policy",
+        errors,
+    )
 
-        first_block = "\n".join(body.splitlines()[:12])
-        if "历史" not in first_block or "不代表当前" not in first_block:
+    active_ids: set[str] = set()
+    accepted_files: dict[str, str] = {}
+    for path in sorted(ADR_ROOT.glob("ADR-*.md")):
+        text = read(path)
+        frontmatter, body = parse_frontmatter(text)
+        filename_match = ADR_FILENAME_PATTERN.fullmatch(path.name)
+        if filename_match is None:
             errors.append(
-                f"{rel(path)}: opening warning must say it is historical and not current truth"
+                f"{rel(path)}: active ADR filename must match ADR-NNN-kebab-case.md"
             )
+            continue
+
+        expected_id = filename_match.group(1)
+        active_ids.add(expected_id)
+        required_fields = {
+            "last_verified",
+            "layer",
+            "decision_id",
+            "status",
+            "decided_at",
+        }
+        missing = sorted(required_fields - frontmatter.keys())
+        if missing:
+            errors.append(f"{rel(path)}: missing ADR frontmatter fields {missing}")
+        if frontmatter.get("layer") != "architecture-decision":
+            errors.append(
+                f"{rel(path)}: layer must be 'architecture-decision'"
+            )
+        if frontmatter.get("decision_id") != expected_id:
+            errors.append(
+                f"{rel(path)}: decision_id must match filename ID {expected_id}"
+            )
+        status = frontmatter.get("status")
+        if status not in ACTIVE_ADR_STATUSES:
+            errors.append(
+                f"{rel(path)}: active ADR status must be one of "
+                f"{sorted(ACTIVE_ADR_STATUSES)}"
+            )
+        elif status == "accepted":
+            accepted_files[expected_id] = path.name
+        forbidden_fields = {
+            "current_authority",
+            "current_status",
+            "historical_record",
+        }
+        present_forbidden = sorted(forbidden_fields & frontmatter.keys())
+        if present_forbidden:
+            errors.append(
+                f"{rel(path)}: retired ADR fields are not allowed in active ADRs "
+                f"{present_forbidden}"
+            )
+
+        title_match = ADR_TITLE_PATTERN.search(body)
+        if title_match is None or title_match.group(1) != expected_id:
+            errors.append(
+                f"{rel(path)}: H1 must start with '# {expected_id}: '"
+            )
+        headings = H2_PATTERN.findall(body)
+        if tuple(headings) != ACTIVE_ADR_REQUIRED_HEADINGS:
+            errors.append(
+                f"{rel(path)}: ADR H2 headings must be exactly "
+                f"{list(ACTIVE_ADR_REQUIRED_HEADINGS)}"
+            )
+
+    policy_rows = {
+        match.group(1): match.group(2)
+        for match in CURRENT_ADR_ROW_PATTERN.finditer(read(ADR_POLICY))
+    }
+    if policy_rows != accepted_files:
+        errors.append(
+            f"{rel(ADR_POLICY)}: current ADR table must match accepted ADR files; "
+            f"found {policy_rows}, expected {accepted_files}"
+        )
+
+    validate_required_markers(
+        RETIRED_DECISIONS,
+        RETIRED_DECISION_REQUIREMENTS,
+        "retired decision index",
+        errors,
+    )
+    retired_text = read(RETIRED_DECISIONS)
+    retired_frontmatter, retired_body = parse_frontmatter(retired_text)
+    if retired_frontmatter.get("layer") != "decision-history":
+        errors.append(
+            f"{rel(RETIRED_DECISIONS)}: layer must be 'decision-history'"
+        )
+    retired_ids_value = retired_frontmatter.get("retired_ids")
+    if not isinstance(retired_ids_value, list) or not retired_ids_value:
+        errors.append(
+            f"{rel(RETIRED_DECISIONS)}: retired_ids must be a non-empty list"
+        )
+        retired_ids: list[str] = []
+    else:
+        retired_ids = [
+            item for item in retired_ids_value if isinstance(item, str)
+        ]
+        if len(retired_ids) != len(retired_ids_value):
+            errors.append(
+                f"{rel(RETIRED_DECISIONS)}: retired_ids entries must be strings"
+            )
+    if len(retired_ids) != len(set(retired_ids)):
+        errors.append(f"{rel(RETIRED_DECISIONS)}: retired_ids must be unique")
+
+    row_ids = [match.group(1) for match in RETIRED_ADR_ROW_PATTERN.finditer(retired_body)]
+    if row_ids != retired_ids:
+        errors.append(
+            f"{rel(RETIRED_DECISIONS)}: table ADR IDs must match retired_ids "
+            f"in order; found {row_ids}"
+        )
+    overlap = sorted(active_ids & set(retired_ids))
+    if overlap:
+        errors.append(
+            f"{rel(RETIRED_DECISIONS)}: IDs cannot be both active and retired {overlap}"
+        )
+
+    allowed_support_files = {"README.md", "retired-decisions.md"}
+    unexpected = sorted(
+        path.name
+        for path in ADR_ROOT.glob("*.md")
+        if not path.name.startswith("ADR-") and path.name not in allowed_support_files
+    )
+    if unexpected:
+        errors.append(
+            f"{rel(ADR_ROOT)}: unexpected decision documents {unexpected}; "
+            "route them to an owning authority or frozen evidence"
+        )
 
 
 def validate_stale_claims(errors: list[str]) -> None:
     for path in sorted(DOCS_ROOT.rglob("*.md")):
-        if path in STALE_ALLOWED or is_inactive_historical_doc(path):
+        if is_inactive_historical_doc(path):
             continue
         text = read(path)
         for phrase in STALE_CURRENT_CLAIMS:
@@ -617,7 +758,7 @@ def validate_stale_claims(errors: list[str]) -> None:
 
 def validate_positioning_resets(errors: list[str]) -> None:
     for path in sorted(DOCS_ROOT.rglob("*.md")):
-        if path in STALE_ALLOWED or is_inactive_historical_doc(path):
+        if is_inactive_historical_doc(path):
             continue
         text = read(path)
         for phrase in POSITIONING_RESET_CLAIMS:
@@ -695,6 +836,13 @@ def validate_feature_intent(errors: list[str]) -> None:
                 if target is None:
                     errors.append(f"{rel(path)}: intent_refs entry does not resolve: {ref}")
                     continue
+                base_ref = ref.partition("#")[0]
+                if ADR_REF_PATTERN.match(base_ref):
+                    target_frontmatter, _ = parse_frontmatter(read(target))
+                    if target_frontmatter.get("status") != "accepted":
+                        errors.append(
+                            f"{rel(path)}: intent_refs ADR must be accepted: {ref}"
+                        )
                 if not ref_target_exists(target, anchor):
                     errors.append(f"{rel(path)}: intent_refs anchor not found in {rel(target)}: {ref}")
         if "## 意图追溯" not in text:
@@ -891,17 +1039,6 @@ def validate_repository_fact_ownership(errors: list[str]) -> None:
             errors,
         )
 
-    text = read(PO_DECISION_LOG)
-    for label, pattern in PRIVATE_FACT_HOLDER_PATTERNS:
-        match = pattern.search(text)
-        if match is None:
-            continue
-        errors.append(
-            f"{rel(PO_DECISION_LOG)}:{text[:match.start()].count(chr(10)) + 1}: "
-            f"decision receipt relies on {label}; promote the durable fact to a "
-            "tracked owner"
-        )
-
 
 def validate_required_markers(
     path: Path,
@@ -946,7 +1083,7 @@ def validate_merge_authorization(errors: list[str]) -> None:
 def run_checks() -> list[str]:
     errors: list[str] = []
     warnings: list[str] = []
-    validate_historical_adrs(errors)
+    validate_architecture_decisions(errors)
     validate_stale_claims(errors)
     validate_positioning_resets(errors)
     validate_contextual_positioning_terms(errors, warnings)

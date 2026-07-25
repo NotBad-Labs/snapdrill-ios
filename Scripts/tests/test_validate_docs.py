@@ -58,11 +58,96 @@ class ValidateDocsTests(unittest.TestCase):
         self.assertTrue(validate_docs.ref_target_exists(target, anchor))
 
     def test_adr_ref_resolves_to_unique_decision_file(self) -> None:
-        target, anchor = validate_docs.resolve_doc_ref("ADR-001")
+        target, anchor = validate_docs.resolve_doc_ref("ADR-002")
 
-        self.assertEqual(target.name, "ADR-001-smart-paper-analytics-pricing.md")
+        self.assertEqual(target.name, "ADR-002-remove-att-authorization.md")
         self.assertIsNone(anchor)
         self.assertTrue(validate_docs.ref_target_exists(target, anchor))
+
+    def test_current_architecture_decisions_pass(self) -> None:
+        errors: list[str] = []
+
+        validate_docs.validate_architecture_decisions(errors)
+
+        self.assertEqual(errors, [])
+
+    def test_active_adr_rejects_retired_status(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        adr = validate_docs.ADR_ROOT / "ADR-002-remove-att-authorization.md"
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == adr:
+                return text.replace("status: accepted", "status: superseded")
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_architecture_decisions(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any("active ADR status must be one of" in error for error in errors)
+        )
+
+    def test_active_adr_requires_standard_sections(self) -> None:
+        errors = self.validation_errors_after_removing(
+            validate_docs.ADR_ROOT / "ADR-005-analytics-privacy-strategy.md",
+            ("## 备选方案（Alternatives）",),
+            validate_docs.validate_architecture_decisions,
+        )
+
+        self.assertTrue(
+            any("ADR H2 headings must be exactly" in error for error in errors)
+        )
+
+    def test_current_adr_table_matches_accepted_files(self) -> None:
+        errors = self.validation_errors_after_removing(
+            validate_docs.ADR_POLICY,
+            (
+                "| [ADR-005](ADR-005-analytics-privacy-strategy.md) "
+                "| 生产环境无后端行为遥测，使用本地 MetricKit 诊断 | accepted |",
+            ),
+            validate_docs.validate_architecture_decisions,
+        )
+
+        self.assertTrue(
+            any(
+                "current ADR table must match accepted ADR files" in error
+                for error in errors
+            )
+        )
+
+    def test_retired_decision_table_matches_declared_ids(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == validate_docs.RETIRED_DECISIONS:
+                return text.replace("| ADR-003 |", "| ADR-099 |")
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_architecture_decisions(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any("table ADR IDs must match retired_ids" in error for error in errors)
+        )
+
+    def test_retired_decision_index_requires_history_only_marker(self) -> None:
+        errors = self.validation_errors_after_removing(
+            validate_docs.RETIRED_DECISIONS,
+            ("定义当前需求、范围、架构或执行顺序",),
+            validate_docs.validate_architecture_decisions,
+        )
+
+        self.assertTrue(any("retired decision index" in error for error in errors))
 
     def test_stem_ref_and_heading_anchor_resolve(self) -> None:
         target, anchor = validate_docs.resolve_doc_ref("positioning-and-audience#已决定位")
@@ -90,6 +175,30 @@ class ValidateDocsTests(unittest.TestCase):
         self.assertEqual(target.name, "positioning-and-audience.md")
         self.assertEqual(anchor, "not-real-anchor")
         self.assertFalse(validate_docs.ref_target_exists(target, anchor))
+
+    def test_feature_intent_rejects_proposed_adr(self) -> None:
+        errors: list[str] = []
+        original_read = validate_docs.read
+        adr = validate_docs.ADR_ROOT / "ADR-002-remove-att-authorization.md"
+
+        def fake_read(path: Path) -> str:
+            text = original_read(path)
+            if path == adr:
+                return text.replace("status: accepted", "status: proposed")
+            return text
+
+        validate_docs.read = fake_read
+        try:
+            validate_docs.validate_feature_intent(errors)
+        finally:
+            validate_docs.read = original_read
+
+        self.assertTrue(
+            any(
+                "intent_refs ADR must be accepted: ADR-002" in error
+                for error in errors
+            )
+        )
 
     def test_feature_specs_require_acceptance_evidence_row(self) -> None:
         errors: list[str] = []
@@ -428,30 +537,6 @@ class ValidateDocsTests(unittest.TestCase):
         validate_docs.validate_repository_fact_ownership(errors)
 
         self.assertEqual(errors, [])
-
-    def test_private_agent_memory_cannot_own_a_decision_receipt(self) -> None:
-        errors: list[str] = []
-        original_read = validate_docs.read
-
-        def fake_read(path: Path) -> str:
-            text = original_read(path)
-            if path == validate_docs.PO_DECISION_LOG:
-                return f"{text}\n| now | durable rule | Claude 记忆 |\n"
-            return text
-
-        validate_docs.read = fake_read
-        try:
-            validate_docs.validate_repository_fact_ownership(errors)
-        finally:
-            validate_docs.read = original_read
-
-        self.assertTrue(
-            any(
-                error.startswith("docs/decisions/po-decision-log.md:")
-                and "relies on private agent memory" in error
-                for error in errors
-            )
-        )
 
     def test_missing_product_vision_layer_fails_closed(self) -> None:
         errors: list[str] = []
@@ -876,17 +961,22 @@ class ValidateDocsTests(unittest.TestCase):
         self.assertEqual(severity, "warning")
         self.assertEqual(message, "legal/fact-gated taxonomy term requires owner review")
 
-    def test_historical_adr_and_ui_redesign_are_excluded_from_term_scan(self) -> None:
-        adr_path = validate_docs.DOCS_ROOT / "decisions" / "ADR-003-dual-region-release.md"
+    def test_frozen_decision_receipts_and_ui_redesign_are_excluded_from_term_scan(self) -> None:
+        decision_receipts = (
+            validate_docs.DOCS_ROOT
+            / "reference"
+            / "audits"
+            / "2026-07-po-decision-receipts.md"
+        )
         redesign_path = (
             validate_docs.DOCS_ROOT / "ui-redesign" / "library-flagship-polish-plan.md"
         )
         generated_path = validate_docs.DOCS_ROOT / "reference" / "feature-status.md"
 
-        self.assertTrue(validate_docs.should_skip_positioning_term_scan(adr_path))
+        self.assertTrue(validate_docs.should_skip_positioning_term_scan(decision_receipts))
         self.assertTrue(validate_docs.should_skip_positioning_term_scan(redesign_path))
         self.assertTrue(validate_docs.should_skip_positioning_term_scan(generated_path))
-        self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(adr_path))
+        self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(decision_receipts))
         self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(redesign_path))
         self.assertTrue(validate_docs.should_skip_taxonomy_canonical_scan(generated_path))
 

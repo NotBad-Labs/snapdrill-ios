@@ -33,7 +33,7 @@ release_refs:
 - 候选只考虑 Apple 私有 CloudKit，不建立开发者可访问的内容后端，也不引入 SnapDrill 账户。
 - 同步范围必须是一个资料库；冲突、删除、离线、空间不足、备份共存和退出后的数据权利均需新的 Data / Privacy Contract 明确。
 - 手动备份 / 恢复始终保留为独立出口；同步异常不得锁定、隐藏或损坏本地资料。
-- 当前无 Pro、StoreKit、价格或订阅取消规则；ADR-001 的商业分层和 iPad 闭环只作历史证据。
+- 当前无 Pro、StoreKit、价格、订阅取消规则或 iPad 闭环承诺。
 - 前置包括外部价值证据、PO 新裁决、CloudKit PoC、容器与签名配置、隐私复核、Release PRD 和完整同步测试；#485 只是技术 issue，不能自行授权实现。
 
 ## 3. 技术设计 (How)
@@ -54,7 +54,7 @@ release_refs:
 |---|---|---|
 | Vision | `../../product/vision.md`（P4 用户拥有数据·隐私 / P6 Apple 原生优先） | 同步基于系统级 CloudKit、Apple 加密、SnapDrill 不接触；不引入第三方同步层 |
 | Release 1 PRD | `../../product/release-1-prd.md` §7 (`release-1:section-7`) | CloudKit / Apple 私有同步是 Release 1 明确非目标；该引用只固定隐藏边界，不表示候选纳入 |
-| 产品政策 / ADR | `../../explanations/business-model.md`（B6-A）；`../../decisions/ADR-003-dual-region-release.md`（挂起历史） | 当前无有效 Pro 或区域同步承诺；手动备份永久免费 |
+| 产品政策 | `../../explanations/business-model.md`（B6-A） | 当前无有效 Pro 或区域同步承诺；手动备份永久免费 |
 | 待验证假设 | `../../explanations/business-model.md` H7 | 先验证多设备价值，不预设付费理由 |
 | 验收证据 | 新 contract 生效后补；当前 `cloudKitDatabase: .none` | 见本 spec Verify 节 |
 
@@ -64,6 +64,5 @@ release_refs:
 - 原则：`../../product/vision.md`（P4 数据属于用户 / P6 原生优先）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 商业假设：`../../explanations/business-model.md`
-- 历史决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`、`../../decisions/ADR-003-dual-region-release.md`（均非当前实现授权）
 - 免费迁移出口（互补）：`../active/feat-backup.md`（`.snapdrillbackup` 手动备份/恢复）
 - 产品边界：`../active/feat-profile.md`（一个可见资料库）

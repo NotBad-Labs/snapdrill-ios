@@ -86,7 +86,8 @@ Release 1 没有订阅，本节不是当前功能承诺。若未来订阅获批�
 
 ## 历史商业决策状态
 
-- `ADR-001-smart-paper-analytics-pricing.md` 的 Hybrid / Pro 定价裁决已被 B6-A 取代，不再是当前商业权威。
+- 2026-04-10 的 Hybrid / Pro 定价裁决已被 B6-A 取代，不再是当前商业权威；最小历史回执见
+  [Retired Decisions](../decisions/retired-decisions.md)。
 - 旧月费、年费、Lifetime、14 天试用、Grandfather 和“iCloud 是付费核心引擎”等内容属于历史研究，可从 Git 历史追溯，不能用于当前 UI 或对外材料。
 - 中国大陆定价和双发行版商业路线已挂起。恢复时必须重新核验账号、税务、合规、元数据和支持成本。
 
@@ -115,5 +116,5 @@ Release 1 没有订阅，本节不是当前功能承诺。若未来订阅获批�
 | [Product Vision & Principles](../product/vision.md) | 上游产品愿景、原则与商业 / 数据边界 |
 | [assumptions.md](assumptions.md) | 产品假设 H1-H3、H9-H12 |
 | [competitive-analysis.md](competitive-analysis.md) | 可更新的竞品证据，不定义当前商业政策 |
-| [../decisions/ADR-001-smart-paper-analytics-pricing.md](../decisions/ADR-001-smart-paper-analytics-pricing.md) | 已被 B6-A 取代的历史商业决策 |
+| [Retired Decisions](../decisions/retired-decisions.md) | 已被当前商业政策取代的最小历史回执 |
 | [Release 1 PRD](../product/release-1-prd.md) | Release 1 功能可见性、非目标与验收；Gate C 与截至 2026-07-20 的 follow-up decisions 已 ratified，合入 `develop` 后 effective |

@@ -1,46 +1,56 @@
 ---
-last_verified: 2026-06-13
-layer: decision
-derived_from:
-  - ../product/vision.md#p4-用户拥有数据
-  - ../explanations/positioning-and-audience.md
-freshness:
-  max_age_days: 365
-  decay_trigger: [decision_reverted, downstream_change]
+last_verified: 2026-07-25
+layer: architecture-decision
+decision_id: ADR-002
+status: accepted
+decided_at: 2026-04-10
+decay_trigger: [tracking_added, advertising_attribution_added, privacy_contract_changed]
 ---
-# ADR-002: 删除 ATT 授权弹窗
+# ADR-002: 不引入 App Tracking Transparency 授权链路
 
-> 状态：**已决策** | 日期：2026-04-10 | 决策者：PO
+## 背景（Context）
 
-## 背景
+SnapDrill 当前不跨其他公司的 App、网站或线下属性关联用户或设备数据，不访问 IDFA，也不包含
+广告归因。Privacy Manifest 声明不追踪，工程配置中不存在
+`NSUserTrackingUsageDescription`，代码和依赖中不存在 AppTrackingTransparency。
 
-代码中存在完整的 ATT 授权链路（PrivacyPrePromptView → requestTrackingAuthorization()），但 Privacy Manifest 声明 NSPrivacyTracking = false，且产品不收集 IDFA、不做 behavioral advertising。
+Apple 将 ATT 用于请求追踪许可和访问广告标识符；没有追踪行为时增加预提示或系统授权链路，
+会制造一个产品并不需要的权限状态和额外首启摩擦。
 
-Apple Review Guidelines 5.1.2(i) 规定：只有在发生 tracking 时，才通过 ATT 获取许可。Not Tracking 口径下弹 ATT 弹窗构成"声明与行为不一致"，存在拒审风险。
+## 决策（Decision）
 
-## 选项
+生产 App 不引入 ATT framework、预提示、系统授权请求或 tracking usage description。诊断偏好、
+本地 MetricKit 和普通隐私说明不得复用或模拟 ATT 状态。
 
-| 选项 | 描述 | 优势 | 风险 |
-|---|---|---|---|
-| A. 保留 ATT | 维持现有代码 | 防御性姿态，未来需要时链路已就绪 | Rule 5.1.2 拒审；Privacy Manifest/Privacy Label/运行时三处不一致 |
-| **B. 删除 ATT** | **移除 PrivacyPrePromptView + requestTrackingAuthorization** | **声明与行为一致，消除拒审风险** | 未来需要 ad attribution 时需重新实现 |
+只有当新的 effective 产品与隐私 contract 明确引入 Apple 定义的 tracking 或广告归因后，才能
+重新评估 ATT；技术实现不能以“未来可能需要”为由提前恢复。
 
-## 三方研究摘要
+## 备选方案（Alternatives）
 
-Claude / Codex / Gemini 三方一致建议删除：
-- Apple Rule 5.1.2(i)：Not Tracking = 不需要 ATT
-- NSPrivacyTracking=false + ATT 弹窗 = 矛盾信号
-- 不收集 IDFA，弹 ATT 无实际收益
-- Analytics opt-in 由设置页两个独立开关管理，已足够透明
+- **保留一条默认不触发的 ATT 链路**：拒绝。它没有当前用户价值，会增加死代码、测试面和声明
+  漂移风险。
+- **启动时防御性请求 ATT**：拒绝。当前没有需要该权限的行为，也不应让核心功能依赖追踪许可。
+- **按需重新引入**：接受为未来路径，但必须先有新的产品、隐私和发布权威。
 
-## 决策
+## 后果（Consequences）
 
-**删除 ATT 授权链路**（PO 批准）。
+- Onboarding 和 Settings 不展示追踪授权或诱导性预提示；
+- `PrivacyConsentService` 只管理当前存在的本地偏好，不包装 ATT；
+- Privacy Manifest、Info.plist、App Store Connect 隐私回答和运行时行为必须保持一致；
+- 将来引入 tracking 会成为独立的产品、隐私、实现和发布变更，不能由本 ADR 自动授权。
 
-## 后果
+## 验证与复议触发器（Validation）
 
-- 需创建 Issue 移除 PrivacyPrePromptView + PrivacyConsentService 中的 ATT 调用
-- 保持 NSPrivacyTracking = false
-- 设置页保留单一匿名遥测同意开关，但全球生产环境注入 `NoOpAnalyticsService`，不进行后端行为采集；端侧 MetricKit 不依赖该开关（见 ADR-005）
-- 提交前做隐私一致性检查：Privacy Manifest / App Privacy Details / 应用内文案三方一致
-- 若未来引入 ad attribution，再恢复 ATT
+- 配置与源码中不得出现 `NSUserTrackingUsageDescription`、`ATTrackingManager` 或
+  AppTrackingTransparency 依赖；
+- Privacy Manifest 必须继续声明 `NSPrivacyTracking=false`；
+- 若新增第三方广告/归因 SDK、跨公司数据关联或 tracking 产品需求，本 ADR 立即进入复议。
+
+## 关联权威（Related authorities）
+
+- [Product Vision & Principles](../product/vision.md)：local-first 与无开发者内容云边界；
+- [隐私与合规](../explanations/privacy-compliance.md)：当前隐私承诺与发布核验；
+- [Apple User Privacy and Data Use](https://developer.apple.com/app-store/user-privacy-and-data-use/)：
+  ATT 的平台适用范围；
+- [NSUserTrackingUsageDescription](https://developer.apple.com/documentation/bundleresources/information-property-list/nsusertrackingusagedescription)：
+  调用 ATT API 时的配置要求。

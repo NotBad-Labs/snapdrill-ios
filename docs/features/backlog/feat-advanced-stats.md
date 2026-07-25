@@ -17,10 +17,10 @@ release_refs:
 
 > 人读摘要：📋 候选 backlog，产品范围与商业分层未定；旧 #479 不再是产品重入条件。派生自上方 frontmatter；frontmatter 仅是本功能候选实现状态的单一来源，不构成产品批准或发布承诺。
 > 状态总表 `../../reference/feature-status.md` 由 `Scripts/generate_feature_status.py` 自动生成，禁手改。
-> 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / ADR-001 / architecture 聚合（docs 重组 B）。
 > `mode: lightweight`（backlog）：How / Verify 仅承载当前已确认事实，未实现/未定的不编造。
 >
-> **商业规范偏差（2026-07-12）**：Product Vision & Principles B6-A 已取代 ADR-001 的 Pro 分层，frontmatter 已改为 `tier: undecided`。本能力在新的商业裁决与 Release PRD 生效前不得实现或公开承诺。
+> **当前商业边界**：Product Vision & Principles B6-A 不包含 Pro 分层，frontmatter 保持
+> `tier: undecided`。本能力在新的商业裁决与 Release PRD 生效前不得实现或公开承诺。
 
 ## 1. 候选价值假设 (Why)
 
@@ -33,7 +33,7 @@ release_refs:
 - 候选能力包括分类趋势、薄弱排行和动态维度 × 时间窗筛选；具体指标、入口与 SmartPaper 联动等待独立 shaping。
 - Release 1 不展示模糊预览、Pro 引导、付费锁态或“稍后推出”卡片。当前 Dashboard teaser 是待隐藏实现偏差。
 - 若未来回归，只能聚合唯一资料库中可解释的数据；数据不足时不得伪造趋势。
-- B6-A 下没有免费 / Pro 分层、订阅取消或价格规则；ADR-001 的 Hybrid 方案仅作历史证据。
+- B6-A 下没有免费 / Pro 分层、订阅取消或价格规则。
 
 ## 3. 技术设计 (How)
 > backlog · lightweight：以下只记录当前代码位置；产品、入口和商业规则均未获授权。
@@ -62,6 +62,5 @@ release_refs:
 ## 关联
 - 原则：`../../product/vision.md`（P3 免费层完成核心闭环 / P5 成人生产力工具 · 不贩卖焦虑）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
-- 当前用户旅程：`../../explanations/user-journeys.md`（无高级统计旅程承接；SmartPaper 联动仅是 ADR-001 历史构想）
-- 历史决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（已被 B6-A 取代）
+- 当前用户旅程：`../../explanations/user-journeys.md`（无高级统计旅程承接）
 - 依赖 / 相关 feature：`../active/feat-review.md`（SM-2 复习数据，被依赖方）、`feat-smartpaper.md`（薄弱排行 → 智能组卷联动）

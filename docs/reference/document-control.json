@@ -37,6 +37,7 @@
         "docs/how-to/release-and-ci.md",
         "docs/how-to/repository-audit.md",
         "docs/how-to/shape-up.md",
+        "docs/decisions/README.md",
         "docs/reference/audits/2026-07-repository/README.md",
         "docs/reference/audits/2026-07-repository/agent-invocation-protocol.md",
         "docs/reference/document-control.md"
@@ -87,29 +88,12 @@
       ]
     },
     {
-      "id": "suspended-authority",
-      "role": "authority",
-      "lifecycle": "suspended",
-      "paths": [
-        "docs/decisions/ADR-003-dual-region-release.md"
-      ]
-    },
-    {
-      "id": "superseded-authority",
-      "role": "authority",
-      "lifecycle": "superseded",
-      "paths": [
-        "docs/decisions/ADR-001-smart-paper-analytics-pricing.md",
-        "docs/decisions/ADR-004-china-build-firebase-free.md"
-      ]
-    },
-    {
       "id": "current-evidence",
       "role": "evidence",
       "lifecycle": "current",
       "paths": [
         "README.md",
-        "docs/decisions/po-decision-log.md",
+        "docs/decisions/retired-decisions.md",
         "docs/explanations/assumptions.md",
         "docs/explanations/competitive-analysis.md",
         "docs/explanations/user-journeys.md",
@@ -141,6 +125,7 @@
       "paths": [
         "docs/reference/audits/2026-07-agent-control-plane-review.md",
         "docs/reference/audits/2026-07-documentation-standardization-review.md",
+        "docs/reference/audits/2026-07-po-decision-receipts.md",
         "docs/reference/audits/2026-07-repository/rebaseline-contract.md",
         "docs/reference/audits/2026-07-repository/checkpoints/2026-07-16-rebaseline.md"
       ],
