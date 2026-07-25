@@ -46,7 +46,8 @@ SnapDrillUI  -> SnapDrillCore
 - App target 只做组合、生命周期和顶层路由，不承载业务规则。
 - 不为单一实现创建透传 protocol；跨模块稳定边界或系统 API 才使用协议。
 
-`Scripts/ci_github.py dependencies` 是依赖方向的可执行门禁。
+各 `Package.swift` 的 target dependency 与 Swift 编译器负责执行模块边界；语义上的层级职责由
+架构评审和对应测试验证，不再维护第二套源码 import 解析器。
 
 ## 3. 数据流与并发
 

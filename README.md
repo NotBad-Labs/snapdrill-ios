@@ -40,16 +40,15 @@ SnapDrill 是一款 iPhone 通用效率工具，用于把纸张、照片和 PDF 
 ## 本地验证
 
 ```bash
-# 快速静态检查
-swiftlint --strict
+# 文档改动
 python3 Scripts/validate_docs.py --check
 
-# 完整源码门禁，要求 clean committed checkout
-bash Scripts/ci-local.sh
+# 代码候选：文档集合、SwiftLint、编译和全部非 UI 测试
+bash Scripts/check.sh
 ```
 
 `swift test` 不适用于本仓库。Xcode 测试统一使用 `AllTests` scheme 与 `AllTests` test plan。
-准确工具链版本见 `Configs/Toolchain.env`。
+`check.sh` 使用当前选中的 Xcode、已安装的 SwiftLint 和最新可用的 iPhone 17 模拟器。
 
 ## 目录
 
@@ -60,6 +59,6 @@ Packages/SnapDrillCore/    领域类型、服务协议、纯算法
 Packages/SnapDrillData/    SwiftData、Repository、文件与备份
 Packages/SnapDrillUI/      公共 SwiftUI 组件和路由协议
 Packages/SnapDrillFeatures/用户工作流和界面
-Scripts/                   本地与 CI 验证工具
+Scripts/                   一条源码检查命令与文档集合检查
 docs/                      五份当前文档
 ```

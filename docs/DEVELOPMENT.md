@@ -71,30 +71,29 @@ PO 的对话意图先进入对应 owner 文档的候选变更；只有合入 `de
 | 等级 | 适用范围 | 最低证据 |
 |---|---|---|
 | T0 | 只读调查 | base、cleanliness、path:line 或命令证据 |
-| T1 | 文档、模板、无行为脚本 | owner validator、脚本测试、`git diff --check` |
+| T1 | 文档、模板、无行为脚本 | 文档集合检查、`git diff --check` |
 | T2 | 代码行为、Core / Data / ViewModel | T1 + SwiftLint + build + targeted tests |
 | T3 | 用户可见 UI / 文案 | T2 + affected UI tests + AX / Dynamic Type + 截图 |
-| T4 | 数据、隐私、wire、恢复、签名、发布 | T3 适用项 + fault paths + clean canonical gate + 设备 / 发布证据 |
+| T4 | 数据、隐私、wire、恢复、签名、发布 | T3 适用项 + fault paths + clean routine check + 设备 / 发布证据 |
 
 `build-for-testing` 只证明编译，不等于测试已运行。
 
 ## 6. Canonical 命令
 
 ```bash
-swiftlint --strict
+# T1 文档改动
 python3 Scripts/validate_docs.py --check
 
-xcodebuild build-for-testing \
-  -scheme AllTests \
-  -destination 'platform=iOS Simulator,name=iPhone 17' \
-  -testPlan AllTests
-
-bash Scripts/ci-local.sh
+# T2+ 代码候选
+bash Scripts/check.sh
 ```
 
-- `bash Scripts/ci-local.sh` 要求 clean committed checkout，并运行完整源码门禁。
+- `bash Scripts/check.sh` 运行文档集合检查、SwiftLint、编译和全部非 UI 测试。
+- 迭代期间可以用 `xcodebuild test -only-testing:<target>/<suite>` 缩短反馈；候选 push 前仍运行
+  `check.sh`。
 - `swift test` 不适用；SPM 只声明 iOS 平台。
-- 精确 Xcode、SwiftLint 和 simulator runtime 只在 `Configs/Toolchain.env` 维护。
+- 仓库不安装强制 Git hook，也不维护自定义模拟器解析、证据数据库或工具版本解析器；命令失败时
+  直接处理 SwiftLint、Xcode 或测试报告的原始错误。
 - 相机、文档扫描、打印、签名和安装必须在真实设备或对应系统表面验证。
 
 ## 7. PR 与合并

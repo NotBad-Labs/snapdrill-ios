@@ -30,27 +30,26 @@
 候选提交在 clean checkout 运行：
 
 ```bash
-bash Scripts/ci-local.sh
+bash Scripts/check.sh
 ```
 
 该门禁验证：
 
-- 精确工具链；
+- 必要工具可用；
+- 当前文档集合；
 - SwiftLint；
-- 脚本和文档测试；
-- Package 依赖方向；
-- `AllTests` build-for-testing；
-- 非 UI 的 test-without-building。
+- `AllTests` 的编译和全部非 UI 测试。
 
 它不替代 UI / AX、真机相机、文档扫描、打印、archive、安装或隐私网络验证。
 
 ## 3. CI
 
-GitHub Actions 必须 checkout PR 的精确 head，并使用 `Configs/Toolchain.env` 验证 runner 工具链。
-Mac mini 是首选 self-hosted runner，MacBook Air 是按需备用；runner 不可用时可以继续本地开发
-和 Draft PR，但不能把本地结果伪装成 GitHub CI。
+GitHub Actions 必须 checkout PR 的精确 head，并调用与本地相同的 `Scripts/check.sh`。Mac mini
+是首选 self-hosted runner，MacBook Air 是按需备用；runner 不可用时可以继续本地开发和
+Draft PR，但不能把本地结果伪装成 GitHub CI。App 级 UI / AX 测试由 workflow dispatch 显式
+触发，不占用每个 PR 的常规队列。
 
-CI artifact、日志和截图由对应 run 保存，不复制进 `docs/`。
+日志和截图由对应 run 或 PR 保存，不复制进 `docs/`；仓库不维护 runner 本地证据数据库。
 
 ## 4. 候选验证顺序
 
