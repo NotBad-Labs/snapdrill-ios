@@ -5,6 +5,8 @@ set -euo pipefail
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
 
+export PATH="$HOME/.local/bin:$HOME/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
+
 for tool in git python3 swiftlint xcodebuild; do
   if ! command -v "$tool" >/dev/null; then
     echo "error: required tool not found: $tool" >&2
