@@ -58,5 +58,4 @@ release_refs:
 - 原则：`../../product/vision.md`（P3 免费层完成核心闭环 / P4 数据属于用户）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`
-- 历史决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（已被 B6-A 取代）
 - 基础 / 相关 feature：`../active/feat-export.md`（PDF 导出基础，Word 为候选格式扩展）

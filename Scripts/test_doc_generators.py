@@ -51,16 +51,22 @@ class IntentTraceabilityTests(unittest.TestCase):
             encoding="utf-8",
         )
         (self.docs / "decisions" / "ADR-001-local-first.md").write_text(
-            "# ADR-001: Local-first storage\n",
+            """---
+layer: architecture-decision
+decision_id: ADR-001
+status: accepted
+---
+# ADR-001: Local-first storage
+""",
             encoding="utf-8",
         )
-        (self.docs / "decisions" / "ADR-002-legacy-cloud.md").write_text(
+        (self.docs / "decisions" / "ADR-002-proposed-cloud.md").write_text(
             """---
-current_status: superseded
-historical_record: true
-current_authority: docs/decisions/ADR-001-local-first.md
+layer: architecture-decision
+decision_id: ADR-002
+status: proposed
 ---
-# ADR-002: Legacy cloud analytics
+# ADR-002: Proposed cloud analytics
 """,
             encoding="utf-8",
         )
@@ -184,14 +190,11 @@ release_refs:
         self.assertIn("ADR-001", content)
         self.assertIn("Capture", content)
 
-    def test_historical_adr_labels_show_current_authority(self) -> None:
+    def test_only_accepted_adrs_are_current_intent_refs(self) -> None:
         refs = self.module.collect_known_refs()
 
-        self.assertIn("ADR-002", refs)
-        self.assertEqual(
-            refs["ADR-002"]["label"],
-            "历史记录（已取代，当前权威：ADR-001）：Legacy cloud analytics",
-        )
+        self.assertIn("ADR-001", refs)
+        self.assertNotIn("ADR-002", refs)
 
     def test_renders_undecided_tier_for_unratified_candidate(self) -> None:
         self.write_feature(

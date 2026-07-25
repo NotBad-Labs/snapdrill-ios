@@ -36,7 +36,7 @@ Product Vision & Principles
 | [备份 wire 格式](reference/backup-wire-format.md) | 外部备份格式与兼容边界 |
 | [隐私与合规](explanations/privacy-compliance.md) | 隐私承诺与平台合规 |
 | [非功能需求](reference/non-functional-requirements.md) | 可靠性、性能、安全与可访问性要求 |
-| [ADR](decisions/) | 重要技术决策及其状态 |
+| [ADR](decisions/README.md) | 重要、耐久且有真实技术取舍的架构决策；含准入与退役规则 |
 | [Package 文档](../Packages/) | 各模块公开职责与 API 文档入口 |
 
 ## 工作方式

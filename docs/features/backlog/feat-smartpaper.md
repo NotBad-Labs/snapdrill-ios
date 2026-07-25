@@ -23,13 +23,15 @@ release_refs:
 > 本 spec 于 2026-05-30 从 vision / requirements / design / cases / business / journeys / architecture 聚合（docs 重组 B）。
 > `mode: lightweight`：How / Verify 同时标明 Release 1 实验边界与当前实现偏差，不把实验自动提升为公开发布规格。
 >
-> **商业规范偏差（2026-07-14）**：Product Vision & Principles B6-A 已取代 ADR-001 的 Hybrid / Pro 分层，frontmatter 保持 `tier: undecided`。07-01 的配额、导出完成才扣费与入口裁决只作 tracked 历史；Release 1 实验可见时不得保留配额或 Pro，选择器不得读取 Review、难度、时间、内容或其他衍生排序。合同生效不单独授权实现。
+> **当前商业边界**：Product Vision & Principles B6-A 不包含 Hybrid / Pro 分层，frontmatter
+> 保持 `tier: undecided`。Release 1 实验可见时不得保留配额或 Pro，选择器不得读取 Review、
+> 难度、时间、内容或其他衍生排序。PRD 生效不单独授权实现。
 
 ## 1. 候选价值假设 (Why)
 
 - 用户可能希望从资料库自动挑选若干资料并生成可打印 PDF，减少手动选择与排版成本。
 - Release 1 基础选择器不使用 SM-2 weakness / recency；任何衍生排序都需要新裁决，SmartPaper 不得占据或复杂化采集 -> 整理 / 找回 -> 导出 / 打印的核心路径。
-- 当前没有外部使用或付费证据；C5-E 只批准非公开实验，不批准公开可见性、配额或未来商业化，也不沿用 ADR-001 的 Hybrid 结论。
+- 当前没有外部使用或付费证据；C5-E 只批准非公开实验，不批准公开可见性、配额或未来商业化。
 
 ## 2. Release 1 实验范围与当前约束 (What)
 
@@ -78,6 +80,5 @@ release_refs:
 - 原则：`../../product/vision.md`（简洁裁决 / 可选附加值 / 功能算法非推荐算法）
 - 商业 / 定价：`../../explanations/business-model.md`
 - 状态总表（自动生成）：`../../reference/feature-status.md`
-- 当前用户旅程：`../../explanations/user-journeys.md`（无 SmartPaper 旅程承接；高级统计联动仅是 ADR-001 历史构想）
-- 历史决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（已被 B6-A 取代）
+- 当前用户旅程：`../../explanations/user-journeys.md`（无 SmartPaper 旅程承接）
 - 当前实现依赖：`../active/feat-review.md`（SM-2 数据，C5-S1 禁止的遗留依赖）；`feat-advanced-stats.md`（历史薄弱排行联动，未获 Release 1 授权）

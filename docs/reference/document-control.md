@@ -34,17 +34,21 @@ Markdown，避免新文件在首次 commit 时绕过分类。
 | `suspended` | 明确挂起，只有新裁决才能重新激活 |
 
 允许组合由 validator 中的 fail-closed allowlist 固定。角色与生命周期是两条轴：
-`evidence/frozen` 表示历史审计，`authority/superseded` 表示曾经有效但已取代的 ADR。
+`evidence/frozen` 表示历史审计，`evidence/current` 可以是维护中的退役索引，但其中的旧决策
+仍不能指导当前实现。
 
 ## 读取规则
 
 1. 先查 registry，确认文件角色和生命周期，再决定它是否能指导当前工作。
 2. `frozen`、`superseded`、`suspended` 内容只能提供历史与风险证据；其中带有“下一步”“应合并”
-   等句子时，也只描述当时基线。
+   等句子时，也只描述当时基线。`layer: decision-history` 即使登记为持续维护的
+   `evidence/current`，也只能提供退役 ID 与当前 owner 指针，不得指导实现或重述当前规范。
 3. `operations` 与 Agent skill 每次运行必须重新读取 live authority；它们不得复制产品范围。
 4. `generated` 文件由 owner generator 的 `--check` 证明一致，不使用 hash 推断是否手改。
 5. UI 历史证据继续保留截图与缺陷记录，但当前 UI 验收必须从 Release PRD、owning feature
    spec、设计原则与 live UI / AX 证据重新生成。
+6. `docs/decisions/ADR-*.md` 只允许保存 active 技术决策；退役 ADR 压缩到
+   `docs/decisions/retired-decisions.md`，完整旧正文由 Git 历史保存。
 
 ## 仓库事实归属
 
@@ -58,11 +62,11 @@ owning tracked source。关键事实是：其他 lane 必须依赖，且丢失�
 | 长期产品身份、原则与耐久边界 | `docs/product/vision.md` |
 | 当前发布目标、范围、非目标与结果 | `docs/product/release-1-prd.md` |
 | 单功能行为 | owning `docs/features/**/feat-*.md` |
-| 架构与 durable design decision | `docs/explanations/architecture.md` / typed ADR |
-| 数据、backup wire、安全、隐私与 NFR | owning `docs/reference/*contract.md`、NFR、隐私说明或 typed ADR |
+| 架构与 durable design decision | `docs/explanations/architecture.md` / 通过 `docs/decisions/README.md` 准入的 active ADR |
+| 数据、backup wire、安全、隐私与 NFR | owning `docs/reference/*contract.md`、NFR、隐私说明或 active ADR |
 | 工具链、签名、发布步骤与候选证据 | tracked config、Xcode project / entitlements、`release-and-ci.md` 与对应 manifest |
 | admission、并行、验证与授权 | `AGENTS.md`、`definition-of-ready.md`、`parallel-lanes.md` |
-| 裁决回执 | `po-decision-log.md` 的 thin pointer，最终仍指向上述 owning authority |
+| 裁决回执 | 直接进入上述 owning authority；历史累计台账只作 frozen evidence |
 
 对话、Agent 私有记忆、仓库外报告和未跟踪笔记只能用于发现或临时缓存，不得成为关键事实的
 唯一持有者。外部复核输出只是候选证据；当前 DRI 必须重新验证 path:line、命令或 live 行为，

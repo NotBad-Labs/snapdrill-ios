@@ -72,5 +72,4 @@ release_refs:
 - 原则：`../../product/vision.md`（P3 免费层完成核心闭环 / P4 数据属于用户·隐私）
 - 状态总表（自动生成）：`../../reference/feature-status.md`
 - 用户旅程：`../../explanations/user-journeys.md`
-- 历史决策：`../../decisions/ADR-001-smart-paper-analytics-pricing.md`（已被 B6-A 取代）
 - 相关 feature：`feat-smartpaper.md`（独立候选）、`../active/feat-export.md`（"去答案打印"为不同层面的基础导出能力）

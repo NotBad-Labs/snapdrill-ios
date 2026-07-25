@@ -108,7 +108,8 @@ PO rulings live in their authority document, not in this file. Examples:
 - current-release scope / non-goal / acceptance rulings -> the current dated
   Release PRD
 - positioning rulings -> `docs/explanations/positioning-and-audience.md`
-- architecture rulings -> typed `docs/decisions/ADR-*.md`
+- architecture rulings -> 先通过 `docs/decisions/README.md` 准入，再进入 active
+  `docs/decisions/ADR-*.md`
 - feature behavior rulings -> the owning `docs/features/*/feat-*.md`
 
 The generated `docs/reference/intent-traceability.md` is the index for existing

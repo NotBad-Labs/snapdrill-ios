@@ -1,10 +1,14 @@
-# PO 决策台账
+# 2026-06 至 2026-07 PO 决策回执
 
-> **文档角色：当前证据索引，不是规范权威。** 本文按时间记录 PO 回执并尽量用 thin-pointer
+> **文档状态：固定基线历史证据。** 本文件保留一次历史裁决路由快照，不是当前规范、排期、
+> 状态或持续维护的决策台账。当前产品要求从根 README 路由到 Product Vision & Principles、
+> Release PRD 和 feature spec；当前执行从 live GitHub 与 Current Admission 开始。
+
+> **原文档角色：历史证据索引，不是规范权威。** 本文按时间记录 PO 回执并尽量用 thin-pointer
 > 指向 owning authority。只有归属权威合入 `develop` 后，裁决才对其他 lane effective。
 > 仍只存在于对话、私有报告或“本台账”中的条目属于未路由历史证据，不能驱动新实现。
 >
-> **维护规则**：当前 orchestrator 起草 thin-pointer，PO 确认，owning lane 落盘；路由方式与根
+> **历史维护规则**：当时由 orchestrator 起草 thin-pointer，PO 确认，owning lane 落盘；路由方式与根
 > `AGENTS.md` 的裁决规则一致。更早的奠基性决策（2026-06-09 美国全球版 pivot、零后端、
 > iPhone-only 等）已在 ADR / positioning 固化，不重复收录。
 >
