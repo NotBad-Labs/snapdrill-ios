@@ -78,8 +78,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launchArguments = [
             "--uitesting",
             "-hasCompletedOnboarding", "YES",
-            "-tip.fieldConfig.v1.seen", "YES",
-            "-tip.reviewSwipe.v1.seen", "YES"
+            "-tip.fieldConfig.v1.seen", "YES"
         ]
         app.launch()
         return app
@@ -91,7 +90,7 @@ final class SnapDrillUITests: XCTestCase {
     func testManualEntryToLibrary() {
         let app = launchApp()
 
-        // 1. 切换到采集 Tab（顺序：Dashboard(0), Library(1), Capture(2), Review(3), Settings(4)）
+        // 1. 切换到采集 Tab（顺序：Dashboard(0), Library(1), Capture(2), Settings(3)）
         let captureTab = app.tabBars.buttons.element(boundBy: 2)
         XCTAssertTrue(captureTab.waitForExistence(timeout: 5), "采集 Tab 应在 5 秒内出现")
         captureTab.tap()
@@ -148,7 +147,6 @@ final class SnapDrillUITests: XCTestCase {
             "--uitesting",
             "-hasCompletedOnboarding", "YES",
             "-tip.fieldConfig.v1.seen", fieldConfigTipSeen ? "YES" : "NO",
-            "-tip.reviewSwipe.v1.seen", "YES",
             "-AppleLanguages", "(zh-Hans)",
             "-AppleLocale", "zh_CN"
         ]
@@ -162,7 +160,7 @@ final class SnapDrillUITests: XCTestCase {
 
     private func openDataAndSync(in app: XCUIApplication) {
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 4).tap()
+        app.tabBars.buttons.element(boundBy: 3).tap()
         waitForAnyElement("settings.root", in: app)
 
         let dataAndSync = app.buttons["settings.dataAndSync"]
@@ -230,7 +228,7 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "store-recovery-02-empty-library-continued")
     }
 
-    /// UI-freeze evidence: capture the five primary tabs in a clean, empty-library state.
+    /// UI-freeze evidence: capture the four primary tabs in a clean, empty-library state.
     func testUIFreezePrimaryTabSurfaceScreenshots() {
         let app = XCUIApplication()
         app.launchArguments = l3LaunchArguments()
@@ -251,15 +249,11 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-03-capture-methods")
 
         app.tabBars.buttons.element(boundBy: 3).tap()
-        waitForAnyElement("review.root", in: app)
-        addScreenshot(named: "ui-freeze-04-review-empty")
-
-        app.tabBars.buttons.element(boundBy: 4).tap()
         waitForAnyElement("settings.root", in: app)
-        addScreenshot(named: "ui-freeze-05-settings-main")
+        addScreenshot(named: "ui-freeze-04-settings-main")
     }
 
-    /// UI-freeze evidence: capture the five primary tabs at AX XXXL Dynamic Type size.
+    /// UI-freeze evidence: capture the four primary tabs at AX XXXL Dynamic Type size.
     func testUIFreezePrimaryTabAccessibilityTextScreenshots() {
         let app = XCUIApplication()
         app.launchArguments = l3AccessibilityLaunchArguments()
@@ -280,12 +274,8 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-primary-ax-03-capture-methods")
 
         app.tabBars.buttons.element(boundBy: 3).tap()
-        waitForAnyElement("review.root", in: app)
-        addScreenshot(named: "ui-freeze-primary-ax-04-review-empty")
-
-        app.tabBars.buttons.element(boundBy: 4).tap()
         waitForAnyElement("settings.root", in: app)
-        addScreenshot(named: "ui-freeze-primary-ax-05-settings-main")
+        addScreenshot(named: "ui-freeze-primary-ax-04-settings-main")
     }
 
     /// Regression: AX XXXL bottom content must scroll above the floating tab bar before interaction.
@@ -295,7 +285,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "AX 字号下主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 4).tap()
+        app.tabBars.buttons.element(boundBy: 3).tap()
         waitForAnyElement("settings.root", in: app)
 
         let generateTestData = app.buttons["settings.generateTestData"]
@@ -315,14 +305,6 @@ final class SnapDrillUITests: XCTestCase {
         }
         assertBottomContentCellClearsFloatingTabBar(in: app, message: "资料库底部区域应有完整可读的资料行")
 
-        let smartPaperButton = app.buttons["library.smartPaperButton"]
-        XCTAssertTrue(smartPaperButton.waitForExistence(timeout: 5), "资料库正常浏览态应显示智能组卷入口")
-        smartPaperButton.tap()
-        waitForAnyElement("smartPaper.root", in: app)
-
-        let generateButton = app.buttons["smartPaper.generateButton"]
-        scrollUntilHittable(generateButton, in: app, maxSwipes: 12)
-        assertElementClearsFloatingTabBar(generateButton, in: app, message: "SmartPaper 底部生成按钮不应被浮动 tab bar 遮挡")
     }
 
     /// UI-freeze evidence: capture Capture method-grid bottom reachability at normal and AX sizes.
@@ -584,158 +566,18 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-capture-camera-01-permission-denied")
     }
 
-    /// UI-freeze evidence: capture populated Review dashboard, active session, card back, summary, and done state.
-    func testUIFreezeReviewPopulatedSessionScreenshots() {
-        let app = XCUIApplication()
-        app.launchArguments = l3LaunchArguments() + ["-captureFieldAnswer", "YES"]
-        app.launch()
-
-        createManualItem(
-            content: "Review QA Alpha",
-            category: nil,
-            answer: "Reference answer for Review QA Alpha",
-            in: app
-        )
-
-        app.tabBars.buttons.element(boundBy: 3).tap()
-        XCTAssertTrue(app.buttons["review.startButton"].waitForExistence(timeout: 10), "有待回顾项目时应显示开始回顾按钮")
-        addScreenshot(named: "ui-freeze-review-01-dashboard-due")
-
-        app.buttons["review.startButton"].tap()
-        waitForAnyElement("review.rate.good", in: app)
-        addScreenshot(named: "ui-freeze-review-02-session-front")
-
-        app.buttons["review.toggleAnswer"].tap()
-        waitForUIAnimation()
-        addScreenshot(named: "ui-freeze-review-03-session-back")
-
-        app.buttons["review.rate.good"].tap()
-        waitForAnyElement("review.summary.dismiss", in: app, timeout: 10)
-        addScreenshot(named: "ui-freeze-review-04-summary")
-
-        app.buttons["review.summary.dismiss"].tap()
-        XCTAssertTrue(app.staticTexts["暂无待回顾内容"].waitForExistence(timeout: 10), "完成后应回到无待回顾状态")
-        addScreenshot(named: "ui-freeze-review-05-dashboard-done")
-    }
-
-    /// UI-freeze evidence: capture Review multi-card, pause, edit-sheet, and undo states.
-    func testUIFreezeReviewInteractionSurfaceScreenshots() {
-        let app = XCUIApplication()
-        app.launchArguments = l3LaunchArguments() + ["-captureFieldAnswer", "YES"]
-        app.launch()
-
-        createManualItem(
-            content: "Review QA First",
-            category: nil,
-            answer: "Reference answer for Review QA First",
-            in: app
-        )
-        createManualItem(
-            content: "Review QA Second",
-            category: nil,
-            answer: "Reference answer for Review QA Second",
-            in: app
-        )
-
-        app.tabBars.buttons.element(boundBy: 3).tap()
-        XCTAssertTrue(app.buttons["review.startButton"].waitForExistence(timeout: 10), "多卡回顾数据应显示开始按钮")
-        app.buttons["review.startButton"].tap()
-        waitForAnyElement("review.rate.good", in: app)
-        XCTAssertTrue(app.staticTexts["1/2"].waitForExistence(timeout: 5), "多卡会话应显示 1/2 进度")
-        addScreenshot(named: "ui-freeze-review-06-multi-card-front")
-
-        app.buttons["review.pause"].tap()
-        let pauseAlert = app.alerts["确认暂停回顾？"]
-        XCTAssertTrue(pauseAlert.waitForExistence(timeout: 5), "暂停应显示确认弹窗")
-        addScreenshot(named: "ui-freeze-review-07-pause-alert")
-        pauseAlert.buttons["继续"].tap()
-        waitForAnyElement("review.rate.good", in: app)
-
-        let frontCardMore = app.buttons.matching(identifier: "review.card.front.more").firstMatch
-        XCTAssertTrue(frontCardMore.waitForExistence(timeout: 5), "正面卡片应提供更多操作菜单")
-        frontCardMore.tap()
-        app.buttons["编辑资料"].tap()
-        waitForAnyElement("library.edit.root", in: app)
-        addScreenshot(named: "ui-freeze-review-08-front-edit-sheet")
-        app.buttons["取消"].tap()
-        waitForAnyElement("review.rate.good", in: app)
-
-        app.buttons["review.toggleAnswer"].tap()
-        waitForUIAnimation()
-        let backCardMore = app.buttons.matching(identifier: "review.card.back.more").firstMatch
-        XCTAssertTrue(backCardMore.waitForExistence(timeout: 5), "背面卡片应提供更多操作菜单")
-        backCardMore.tap()
-        app.buttons["编辑内容"].tap()
-        waitForAnyElement("library.edit.root", in: app)
-        addScreenshot(named: "ui-freeze-review-09-back-edit-sheet")
-        app.buttons["取消"].tap()
-        waitForAnyElement("review.rate.good", in: app)
-
-        app.buttons["review.rate.good"].tap()
-        waitForUIAnimation()
-        XCTAssertTrue(app.buttons["review.undo"].isEnabled, "评分一次后撤销按钮应可用")
-        addScreenshot(named: "ui-freeze-review-10-undo-enabled")
-
-        app.buttons["review.undo"].tap()
-        waitForUIAnimation()
-        XCTAssertTrue(app.staticTexts["1/2"].waitForExistence(timeout: 5), "撤销后应回到 1/2 进度")
-        addScreenshot(named: "ui-freeze-review-11-after-undo")
-    }
-
-    /// UI-freeze evidence: capture physical horizontal drag gestures on Review cards.
-    func testUIFreezeReviewSwipeGestureScreenshots() {
-        let app = XCUIApplication()
-        app.launchArguments = l3LaunchArguments() + ["-captureFieldAnswer", "YES"]
-        app.launch()
-
-        createManualItem(
-            content: "Review Swipe First",
-            category: nil,
-            answer: "Reference answer for Review Swipe First",
-            in: app
-        )
-        createManualItem(
-            content: "Review Swipe Second",
-            category: nil,
-            answer: "Reference answer for Review Swipe Second",
-            in: app
-        )
-
-        app.tabBars.buttons.element(boundBy: 3).tap()
-        XCTAssertTrue(app.buttons["review.startButton"].waitForExistence(timeout: 10), "拖拽测试应显示开始回顾按钮")
-        app.buttons["review.startButton"].tap()
-        waitForAnyElement("review.rate.good", in: app)
-        XCTAssertTrue(app.staticTexts["1/2"].waitForExistence(timeout: 5), "拖拽前应处在第一张卡")
-
-        dragReviewCard(in: app, direction: .left)
-        XCTAssertTrue(app.staticTexts["2/2"].waitForExistence(timeout: 5), "左拖后应进入第二张卡")
-        XCTAssertTrue(app.buttons["review.undo"].isEnabled, "左拖评分后撤销按钮应可用")
-        addScreenshot(named: "ui-freeze-review-12-after-left-drag")
-
-        app.buttons["review.undo"].tap()
-        waitForUIAnimation()
-        XCTAssertTrue(app.staticTexts["1/2"].waitForExistence(timeout: 5), "撤销后应回到第一张卡")
-        XCTAssertFalse(app.buttons["review.undo"].isEnabled, "撤销回第一张后撤销按钮应回到禁用态")
-        addScreenshot(named: "ui-freeze-review-13-after-drag-undo")
-
-        dragReviewCard(in: app, direction: .right)
-        XCTAssertTrue(app.staticTexts["2/2"].waitForExistence(timeout: 5), "右拖后应进入第二张卡")
-        XCTAssertTrue(app.buttons["review.undo"].isEnabled, "右拖评分后撤销按钮应可用")
-        addScreenshot(named: "ui-freeze-review-14-after-right-drag")
-    }
-
-    /// UI-freeze evidence: capture populated Dashboard hero, shortcuts, analytics gate, category sheet, and all-done state.
+    /// UI-freeze evidence: capture the populated Dashboard summary, shortcuts, and category sheet.
     func testUIFreezeDashboardPopulatedSurfaceScreenshots() {
         let app = XCUIApplication()
         app.launchArguments = l3LaunchArguments()
         app.launch()
 
-        createManualItem(content: "Dashboard QA Due", category: nil, in: app)
+        createManualItem(content: "Dashboard QA", category: nil, in: app)
 
         app.tabBars.buttons.element(boundBy: 0).tap()
         waitForAnyElement("dashboard.root", in: app)
-        XCTAssertTrue(app.buttons["dashboard.hero.startReview"].waitForExistence(timeout: 10), "首页有待回顾项目时应显示立即开始")
-        addScreenshot(named: "ui-freeze-dashboard-01-populated-due")
+        waitForAnyElement("dashboard.dailyStats", in: app)
+        addScreenshot(named: "ui-freeze-dashboard-01-populated")
 
         let categoryEntry = app.buttons["dashboard.bento.categories"]
         scrollUntilHittable(categoryEntry, in: app)
@@ -746,27 +588,6 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-dashboard-02-category-sheet")
         app.navigationBars.buttons["关闭"].tap()
         waitForAnyElement("dashboard.root", in: app)
-
-        app.swipeUp()
-        XCTAssertTrue(
-            app.descendants(matching: .any)["dashboard.analytics.proGate"].waitForExistence(timeout: 5),
-            "首页下半区应显示统计门控占位"
-        )
-        addScreenshot(named: "ui-freeze-dashboard-03-analytics-gate")
-
-        app.tabBars.buttons.element(boundBy: 3).tap()
-        XCTAssertTrue(app.buttons["review.startButton"].waitForExistence(timeout: 10), "回顾页应显示待回顾开始按钮")
-        app.buttons["review.startButton"].tap()
-        waitForAnyElement("review.rate.good", in: app)
-        app.buttons["review.rate.good"].tap()
-        waitForAnyElement("review.summary.dismiss", in: app, timeout: 10)
-        app.buttons["review.summary.dismiss"].tap()
-
-        app.tabBars.buttons.element(boundBy: 0).tap()
-        XCTAssertTrue(app.staticTexts["今日已完成"].waitForExistence(timeout: 10), "完成回顾后首页应显示 all-done Hero")
-        app.swipeDown()
-        app.swipeDown()
-        addScreenshot(named: "ui-freeze-dashboard-04-all-done")
     }
 
     /// UI-freeze evidence: capture stable Settings secondary pages without mutating user data.
@@ -776,14 +597,12 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 4).tap()
+        app.tabBars.buttons.element(boundBy: 3).tap()
         waitForAnyElement("settings.root", in: app)
 
         let routes: [(entry: String, root: String, screenshot: String)] = [
             ("settings.editProfile", "settings.editProfile.root", "ui-freeze-settings-01-edit-profile"),
             ("settings.profileList", "settings.profileList.root", "ui-freeze-settings-02-profile-list"),
-            ("settings.reviewAppearance", "settings.reviewAppearance.root", "ui-freeze-settings-03-review-appearance"),
-            ("settings.notifications", "settings.notifications.root", "ui-freeze-settings-04-notifications"),
             ("settings.dataAndSync", "settings.dataAndSync.root", "ui-freeze-settings-05-data-sync"),
             ("settings.storage", "settings.storage.root", "ui-freeze-settings-06-storage"),
             ("settings.privacyExport", "settings.privacyExport.root", "ui-freeze-settings-07-privacy-export"),
@@ -815,7 +634,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 4).tap()
+        app.tabBars.buttons.element(boundBy: 3).tap()
         waitForAnyElement("settings.root", in: app)
 
         let editProfile = app.descendants(matching: .any)["settings.editProfile"]
@@ -836,7 +655,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 4).tap()
+        app.tabBars.buttons.element(boundBy: 3).tap()
         waitForAnyElement("settings.root", in: app)
 
         let editProfile = app.descendants(matching: .any)["settings.editProfile"]
@@ -893,7 +712,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 4).tap()
+        app.tabBars.buttons.element(boundBy: 3).tap()
         waitForAnyElement("settings.root", in: app)
 
         let manageCategories = app.buttons["settings.manageCategories"]
@@ -959,7 +778,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 4).tap()
+        app.tabBars.buttons.element(boundBy: 3).tap()
         waitForAnyElement("settings.root", in: app)
 
         let profileList = app.descendants(matching: .any)["settings.profileList"]
@@ -1005,36 +824,16 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-settings-interactions-04-privacy-export-dialog")
         app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.15)).tap()
         XCTAssertTrue(app.buttons["JSON 格式"].waitForNonExistence(timeout: 5), "点空白处应关闭导出格式选择")
-
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        waitForAnyElement("settings.root", in: app)
-
-        let reviewAppearance = app.buttons["settings.reviewAppearance"]
-        scrollUntilHittable(reviewAppearance, in: app, maxSwipes: 8)
-        XCTAssertTrue(reviewAppearance.waitForExistence(timeout: 5), "设置应有回顾外观入口")
-        reviewAppearance.tap()
-        waitForAnyElement("settings.reviewAppearance.root", in: app)
-
-        let frontSlider = app.sliders["settings.reviewAppearance.frontFontSize"]
-        XCTAssertTrue(frontSlider.waitForExistence(timeout: 5), "回顾外观应有正面字号滑块")
-        frontSlider.adjust(toNormalizedSliderPosition: 1.0)
-        addScreenshot(named: "ui-freeze-settings-interactions-05-review-front-large")
-
-        let backSlider = app.sliders["settings.reviewAppearance.backFontSize"]
-        scrollUntilHittable(backSlider, in: app, maxSwipes: 4)
-        XCTAssertTrue(backSlider.waitForExistence(timeout: 5), "回顾外观应有背面字号滑块")
-        backSlider.adjust(toNormalizedSliderPosition: 1.0)
-        addScreenshot(named: "ui-freeze-settings-interactions-06-review-back-large")
     }
 
-    /// UI-freeze evidence: capture Settings destructive, dialog, reminder, and license states.
+    /// UI-freeze evidence: capture Settings destructive, dialog, and license states.
     func testUIFreezeSettingsControlStateScreenshots() {
         let app = XCUIApplication()
         app.launchArguments = l3LaunchArguments()
         app.launch()
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 4).tap()
+        app.tabBars.buttons.element(boundBy: 3).tap()
         waitForAnyElement("settings.root", in: app)
 
         let profileList = app.buttons["settings.profileList"]
@@ -1058,46 +857,6 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(app.alerts["删除"].waitForExistence(timeout: 5), "删除资料空间应显示确认弹窗")
         addScreenshot(named: "ui-freeze-settings-controls-01-profile-delete-alert")
         app.alerts["删除"].buttons["取消"].tap()
-
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        waitForAnyElement("settings.root", in: app)
-
-        let reviewAppearance = app.buttons["settings.reviewAppearance"]
-        scrollUntilHittable(reviewAppearance, in: app, maxSwipes: 4)
-        XCTAssertTrue(reviewAppearance.waitForExistence(timeout: 5), "设置应有回顾外观入口")
-        reviewAppearance.tap()
-        waitForAnyElement("settings.reviewAppearance.root", in: app)
-        let frontAlignment = app.buttons["settings.reviewAppearance.frontAlignment"]
-        XCTAssertTrue(frontAlignment.waitForExistence(timeout: 5), "回顾外观应有正面对齐选择")
-        frontAlignment.tap()
-        XCTAssertTrue(app.buttons["居中"].waitForExistence(timeout: 5), "正面对齐选择应显示居中选项")
-        addScreenshot(named: "ui-freeze-settings-controls-02-review-alignment-options")
-        app.buttons["居中"].tap()
-        waitForAnyElement("settings.reviewAppearance.root", in: app)
-        addScreenshot(named: "ui-freeze-settings-controls-03-review-centered-preview")
-
-        app.navigationBars.buttons.element(boundBy: 0).tap()
-        waitForAnyElement("settings.root", in: app)
-
-        app.terminate()
-        app.launchArguments = l3LaunchArguments() + [
-            "-notificationsEnabled", "YES",
-            "-soundEnabled", "YES"
-        ]
-        app.launch()
-
-        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 4).tap()
-        waitForAnyElement("settings.root", in: app)
-
-        let notifications = app.buttons["settings.notifications"]
-        scrollUntilHittable(notifications, in: app, maxSwipes: 4)
-        XCTAssertTrue(notifications.waitForExistence(timeout: 5), "设置应有通知入口")
-        notifications.tap()
-        waitForAnyElement("settings.notifications.root", in: app)
-        waitForAnyElement("settings.notifications.timePicker", in: app)
-        XCTAssertTrue(app.switches["settings.notifications.soundToggle"].isEnabled, "开启通知后声音开关应可用")
-        addScreenshot(named: "ui-freeze-settings-controls-04-notifications-enabled")
 
         app.navigationBars.buttons.element(boundBy: 0).tap()
         waitForAnyElement("settings.root", in: app)
@@ -1144,32 +903,6 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-settings-controls-10-license-detail")
     }
 
-    /// UI-freeze evidence: capture the app-owned notification permission-denied alert.
-    func testUIFreezeNotificationPermissionDeniedAlertScreenshot() {
-        let app = XCUIApplication()
-        app.launchArguments = l3LaunchArguments() + ["--ui-test-notification-permission-denied"]
-        app.launch()
-
-        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 4).tap()
-        waitForAnyElement("settings.root", in: app)
-
-        let notifications = app.buttons["settings.notifications"]
-        scrollUntilHittable(notifications, in: app, maxSwipes: 4)
-        XCTAssertTrue(notifications.waitForExistence(timeout: 5), "设置应有通知入口")
-        notifications.tap()
-        waitForAnyElement("settings.notifications.root", in: app)
-
-        let enableToggle = app.switches["settings.notifications.enableToggle"]
-        XCTAssertTrue(enableToggle.waitForExistence(timeout: 5), "通知设置应显示每日提醒开关")
-        enableToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
-
-        let alert = app.alerts.firstMatch
-        XCTAssertTrue(alert.waitForExistence(timeout: 5), "通知权限拒绝时应显示 app-owned alert")
-        waitForUIAnimation(seconds: 0.5)
-        addScreenshot(named: "ui-freeze-settings-notifications-01-permission-denied")
-    }
-
     /// Data safety: whole-process temporary/cache deletion must not be user reachable.
     func testDataAndSyncDoesNotExposeUnsafeCacheClear() {
         let app = XCUIApplication()
@@ -1211,7 +944,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
 
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 4).tap()
+        app.tabBars.buttons.element(boundBy: 3).tap()
         waitForAnyElement("settings.root", in: app)
 
         let clearAll = app.buttons["settings.clearAllData"]
@@ -1308,98 +1041,6 @@ final class SnapDrillUITests: XCTestCase {
         addScreenshot(named: "ui-freeze-library-10-export-preview")
     }
 
-    /// SmartPaper should remain reachable from the normal Library browsing state.
-    func testLibrarySmartPaperEntryNavigatesToSmartPaper() {
-        let app = XCUIApplication()
-        app.launchArguments = l3LaunchArguments()
-        app.launch()
-
-        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 1).tap()
-        waitForAnyElement("library.root", in: app)
-
-        let smartPaperButton = app.buttons["library.smartPaperButton"]
-        XCTAssertTrue(smartPaperButton.waitForExistence(timeout: 5), "资料库正常浏览态应显示智能组卷入口")
-        smartPaperButton.tap()
-
-        waitForAnyElement("smartPaper.root", in: app)
-        XCTAssertTrue(app.navigationBars["智能组卷"].waitForExistence(timeout: 5), "应进入智能组卷配置页")
-    }
-
-    /// Regression: SmartPaper preview back navigation should work both before and after cancelling share.
-    func testSmartPaperPreviewBackNavigationAfterShareCancel() {
-        let app = XCUIApplication()
-        app.launchArguments = l3LaunchArguments() + ["--ui-test-seed-image-library"]
-        app.launch()
-
-        openSmartPaper(in: app)
-        openSmartPaperPreview(in: app)
-        tapBackFromSmartPaperPreview(in: app, context: "未打开分享面板时")
-
-        openSmartPaperPreview(in: app)
-        let shareButton = app.buttons["library.exportPreview.share"]
-        XCTAssertTrue(shareButton.waitForExistence(timeout: 5), "PDF 预览页应显示分享按钮")
-        shareButton.tap()
-        dismissSystemShareSheet(in: app)
-        tapBackFromSmartPaperPreview(in: app, context: "取消分享面板后")
-    }
-
-    private func openSmartPaper(in app: XCUIApplication) {
-        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "主 tab bar 应出现")
-        app.tabBars.buttons.element(boundBy: 1).tap()
-        waitForAnyElement("library.root", in: app)
-
-        let smartPaperButton = app.buttons["library.smartPaperButton"]
-        XCTAssertTrue(smartPaperButton.waitForExistence(timeout: 5), "资料库正常浏览态应显示智能组卷入口")
-        smartPaperButton.tap()
-
-        waitForAnyElement("smartPaper.root", in: app)
-    }
-
-    private func openSmartPaperPreview(in app: XCUIApplication) {
-        let generateButton = app.buttons["smartPaper.generateButton"]
-        scrollUntilHittable(generateButton, in: app, maxSwipes: 12)
-        XCTAssertTrue(generateButton.waitForExistence(timeout: 5), "SmartPaper 应显示生成按钮")
-        XCTAssertTrue(generateButton.isEnabled, "已 seed 资料后 SmartPaper 生成按钮应可用")
-        generateButton.tap()
-
-        waitForAnyElement("library.exportPreview.root", in: app, timeout: 12)
-        XCTAssertTrue(app.staticTexts["正在生成..."].waitForNonExistence(timeout: 12), "PDF 预览应完成生成态")
-    }
-
-    private func tapBackFromSmartPaperPreview(in app: XCUIApplication, context: String) {
-        let labeledBackButton = app.navigationBars.buttons["智能组卷"].firstMatch
-        if labeledBackButton.waitForExistence(timeout: 2), labeledBackButton.isHittable {
-            labeledBackButton.tap()
-        } else {
-            app.navigationBars.buttons.element(boundBy: 0).tap()
-        }
-
-        XCTAssertTrue(app.descendants(matching: .any)["smartPaper.root"].waitForExistence(timeout: 5), "\(context)应返回智能组卷页")
-        XCTAssertTrue(app.descendants(matching: .any)["library.exportPreview.root"].waitForNonExistence(timeout: 5), "\(context)PDF 预览页应退出")
-    }
-
-    private func dismissSystemShareSheet(in app: XCUIApplication) {
-        let closeLabels = ["关闭", "取消", "Close", "Cancel"]
-        waitUntil("点击分享后应出现系统分享面板关闭入口", timeout: 5) {
-            closeLabels.contains { app.buttons[$0].firstMatch.exists }
-        }
-
-        for label in closeLabels {
-            let button = app.buttons[label].firstMatch
-            if button.exists && button.isHittable {
-                button.tap()
-                waitUntil("系统分享面板应关闭") {
-                    closeLabels.allSatisfy { !app.buttons[$0].firstMatch.exists }
-                }
-                return
-            }
-        }
-
-        addScreenshot(named: "smartpaper-share-sheet-no-cancel")
-        XCTFail("系统分享面板未找到可点击的关闭/取消按钮")
-    }
-
     /// UI-freeze evidence: capture image-backed Library detail, answer, edit, export, and storage states.
     func testUIFreezeLibraryImageDataScreenshots() {
         let app = XCUIApplication()
@@ -1452,7 +1093,7 @@ final class SnapDrillUITests: XCTestCase {
         XCTAssertTrue(app.buttons["完成"].waitForExistence(timeout: 5), "关闭导出页后应回到选择工具栏")
         app.buttons["完成"].tap()
 
-        app.tabBars.buttons.element(boundBy: 4).tap()
+        app.tabBars.buttons.element(boundBy: 3).tap()
         waitForAnyElement("settings.root", in: app)
         let storage = app.buttons["settings.storage"]
         scrollUntilHittable(storage, in: app, maxSwipes: 8)
@@ -1633,7 +1274,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
 
         // 进设置 Tab（顺序 Dashboard0/题库1/采集2/复习3/设置4）
-        let settingsTab = app.tabBars.buttons.element(boundBy: 4)
+        let settingsTab = app.tabBars.buttons.element(boundBy: 3)
         XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "设置 Tab 应出现")
         settingsTab.tap()
 
@@ -1673,7 +1314,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
 
         // 进维度管理
-        let settingsTab = app.tabBars.buttons.element(boundBy: 4)
+        let settingsTab = app.tabBars.buttons.element(boundBy: 3)
         XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "设置 Tab 应出现")
         settingsTab.tap()
         let manageRow = app.buttons["settings.manageCategories"]
@@ -1719,7 +1360,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launchArguments = l3LaunchArguments()
         app.launch()
 
-        let settingsTab = app.tabBars.buttons.element(boundBy: 4)
+        let settingsTab = app.tabBars.buttons.element(boundBy: 3)
         XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "设置 Tab 应出现")
         settingsTab.tap()
         let manageRow = app.buttons["settings.manageCategories"]
@@ -1775,7 +1416,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launch()
 
         // 设置 → 维度管理 → 新建单值维度「章节」+ 加值「第一章」
-        let settingsTab = app.tabBars.buttons.element(boundBy: 4)
+        let settingsTab = app.tabBars.buttons.element(boundBy: 3)
         XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "设置 Tab 应出现")
         settingsTab.tap()
         let manageRow = app.buttons["settings.manageCategories"]
@@ -1913,7 +1554,7 @@ final class SnapDrillUITests: XCTestCase {
     }
 
     private func enableBuiltInCategoryField(in app: XCUIApplication) {
-        let settingsTab = app.tabBars.buttons.element(boundBy: 4)
+        let settingsTab = app.tabBars.buttons.element(boundBy: 3)
         XCTAssertTrue(settingsTab.waitForExistence(timeout: 10), "设置 Tab 应出现")
         settingsTab.tap()
         waitForAnyElement("settings.root", in: app)
@@ -1942,23 +1583,9 @@ final class SnapDrillUITests: XCTestCase {
         }
     }
 
-    private enum HorizontalDragDirection {
-        case left
-        case right
-    }
-
-    /// Drag across the visible Review card without adding broad accessibility IDs to the card container.
-    private func dragReviewCard(in app: XCUIApplication, direction: HorizontalDragDirection) {
-        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.48))
-        let endX = direction == .left ? 0.14 : 0.86
-        let end = app.coordinate(withNormalizedOffset: CGVector(dx: endX, dy: 0.48))
-        start.press(forDuration: 0.15, thenDragTo: end)
-        waitForUIAnimation(seconds: 1.0)
-    }
-
     /// 新建一个标签值，供批量标签 UI 状态使用。
     private func createTagValue(_ name: String, in app: XCUIApplication) {
-        let settingsTab = app.tabBars.buttons.element(boundBy: 4)
+        let settingsTab = app.tabBars.buttons.element(boundBy: 3)
         XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "设置 Tab 应出现")
         settingsTab.tap()
 

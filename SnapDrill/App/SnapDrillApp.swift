@@ -14,7 +14,6 @@ import SnapDrillCore
 import SnapDrillUI
 import SnapDrillFeatureCapture
 import SnapDrillFeatureLibrary
-import SnapDrillFeatureReview
 import SnapDrillFeatureDashboard
 import SnapDrillFeatureSettings
 import TipKit

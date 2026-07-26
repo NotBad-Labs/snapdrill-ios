@@ -12,7 +12,6 @@ import SwiftUI
 import Observation
 import SnapDrillFeatureCapture
 import SnapDrillFeatureLibrary
-import SnapDrillFeatureReview
 import SnapDrillFeatureDashboard
 import SnapDrillFeatureSettings
 
@@ -24,8 +23,6 @@ enum AppTab: Hashable {
     case library
     /// 题目采集
     case capture
-    /// 复习计划
-    case review
     /// 系统设置
     case settings
 }
@@ -47,8 +44,6 @@ final class AppRouter {
     let libraryRouter = LibraryRouter()
     /// 采集模块路由
     let captureRouter = CaptureRouter()
-    /// 复习模块路由
-    let reviewRouter = ReviewRouter()
     /// 设置模块路由
     let settingsRouter = SettingsRouter()
     
@@ -56,10 +51,6 @@ final class AppRouter {
     
     /// 初始化并设立绑定
     init() {
-        dashboardRouter.onNavigateToReview = { [weak self] in
-            self?.selectedTab = .review
-        }
-        
         dashboardRouter.onNavigateToCapture = { [weak self] draft in
             withAnimation(.spring(duration: 0.4)) {
                 self?.selectedTab = .capture
@@ -67,14 +58,6 @@ final class AppRouter {
             if let draft = draft {
                 self?.captureRouter.restoreDraft(draft)
             }
-        }
-        
-        reviewRouter.onNavigateToLibrary = { [weak self] in
-            self?.selectedTab = .library
-        }
-        
-        reviewRouter.onNavigateToCapture = { [weak self] in
-            self?.selectedTab = .capture
         }
     }
 

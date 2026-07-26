@@ -6,7 +6,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  功能模块包，按功能域拆为 5 个独立 target，编译器强制约束跨域类型访问。
+//  功能模块包，按功能域拆为 4 个独立 target，编译器强制约束跨域类型访问。
 //
 
 import PackageDescription
@@ -24,7 +24,6 @@ let package = Package(
     products: [
         .library(name: "SnapDrillFeatureCapture",   targets: ["SnapDrillFeatureCapture"]),
         .library(name: "SnapDrillFeatureLibrary",   targets: ["SnapDrillFeatureLibrary"]),
-        .library(name: "SnapDrillFeatureReview",    targets: ["SnapDrillFeatureReview"]),
         .library(name: "SnapDrillFeatureDashboard", targets: ["SnapDrillFeatureDashboard"]),
         .library(name: "SnapDrillFeatureSettings",  targets: ["SnapDrillFeatureSettings"]),
     ],
@@ -43,14 +42,6 @@ let package = Package(
         .target(
             name: "SnapDrillFeatureLibrary",
             dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData"],
-            swiftSettings: sharedSwiftSettings
-        ),
-        // SnapDrillFeatureReview 依赖 SnapDrillFeatureLibrary：
-        // ReviewCardContent 内嵌 LibraryEditView（复习时编辑卡片内容）。
-        .target(
-            name: "SnapDrillFeatureReview",
-            dependencies: ["SnapDrillCore", "SnapDrillUI", "SnapDrillData",
-                           "SnapDrillFeatureLibrary"],
             swiftSettings: sharedSwiftSettings
         ),
         // SnapDrillFeatureDashboard 依赖 SnapDrillFeatureLibrary：
@@ -74,7 +65,6 @@ let package = Package(
             dependencies: [
                 "SnapDrillFeatureCapture",
                 "SnapDrillFeatureLibrary",
-                "SnapDrillFeatureReview",
                 "SnapDrillFeatureDashboard",
                 "SnapDrillFeatureSettings",
                 "SnapDrillCore",

@@ -28,7 +28,6 @@ final class AccessibilityAuditUITests: XCTestCase {
         auditPrimaryTabs()
         auditManualCaptureEditor()
         auditLibraryDetailAndExportPreview()
-        auditSmartPaperConfig()
         auditStoreRecovery()
         auditSymbolPicker()
 
@@ -54,8 +53,7 @@ final class AccessibilityAuditUITests: XCTestCase {
             PrimaryTab(index: 0, screen: "Dashboard Tab", root: "dashboard.root"),
             PrimaryTab(index: 1, screen: "Library Tab", root: "library.root"),
             PrimaryTab(index: 2, screen: "Capture Tab", root: "capture.root"),
-            PrimaryTab(index: 3, screen: "Review Tab", root: "review.root"),
-            PrimaryTab(index: 4, screen: "Settings Tab", root: "settings.root")
+            PrimaryTab(index: 3, screen: "Settings Tab", root: "settings.root")
         ]
 
         for tab in tabs {
@@ -127,31 +125,6 @@ final class AccessibilityAuditUITests: XCTestCase {
         app.terminate()
     }
 
-    private func auditSmartPaperConfig() {
-        let app = launchApp()
-        guard openPrimaryTab(index: 1, root: "library.root", in: app) else {
-            recordBlocked(screen: "SmartPaper Config", reason: "library.root did not appear.", app: app)
-            app.terminate()
-            return
-        }
-
-        let smartPaperButton = app.buttons["library.smartPaperButton"]
-        guard smartPaperButton.waitForExistence(timeout: 5) else {
-            recordBlocked(screen: "SmartPaper Config", reason: "library.smartPaperButton did not appear.", app: app)
-            app.terminate()
-            return
-        }
-        smartPaperButton.tap()
-
-        if waitForElement("smartPaper.root", in: app) {
-            recordAudit(screen: "SmartPaper Config", rootIdentifier: "smartPaper.root", app: app)
-        } else {
-            recordBlocked(screen: "SmartPaper Config", reason: "smartPaper.root did not appear.", app: app)
-        }
-
-        app.terminate()
-    }
-
     private func auditStoreRecovery() {
         let app = launchApp(extraArguments: ["--ui-test-force-store-recovery"])
         if waitForElement("app.storeRecovery.root", in: app, timeout: 10) {
@@ -164,7 +137,7 @@ final class AccessibilityAuditUITests: XCTestCase {
 
     private func auditSymbolPicker() {
         let app = launchApp()
-        guard openPrimaryTab(index: 4, root: "settings.root", in: app) else {
+        guard openPrimaryTab(index: 3, root: "settings.root", in: app) else {
             recordBlocked(screen: "Symbol Picker", reason: "settings.root did not appear.", app: app)
             app.terminate()
             return

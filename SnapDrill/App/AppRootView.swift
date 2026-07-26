@@ -16,7 +16,6 @@ import SnapDrillCore
 import SnapDrillData
 import SnapDrillFeatureCapture
 import SnapDrillFeatureLibrary
-import SnapDrillFeatureReview
 import SnapDrillFeatureDashboard
 import SnapDrillFeatureSettings
 
@@ -72,10 +71,6 @@ struct AppRootView: View {
                         draftService: services.captureDraft,
                         activityTracker: services.activityTracker
                     )
-                }
-
-                Tab(L10n.Review.title, systemImage: "clock.arrow.circlepath", value: AppTab.review) {
-                    ReviewView(router: router.reviewRouter)
                 }
 
                 Tab(L10n.Settings.title, systemImage: "gear", value: AppTab.settings) {
