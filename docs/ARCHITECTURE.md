@@ -1,7 +1,7 @@
 # SnapDrill 架构
 
 - 状态：目标架构与当前实现差异
-- 最后核实：2026-07-25
+- 最后核实：2026-07-26
 
 本文承接 [PRD.md](PRD.md)，只定义实现边界。产品需求高于架构；当前代码不能反向扩大产品范围。
 
@@ -28,7 +28,7 @@ SnapDrill.app             composition root
   -> SnapDrillFeatures    用户流程与界面状态
       -> SnapDrillUI      公共 SwiftUI 组件、路由协议
       -> SnapDrillData    SwiftData、Repository、文件、备份与恢复
-          -> SnapDrillCore领域类型、服务协议、纯算法、日志
+          -> SnapDrillCore  领域类型、服务协议、纯算法、日志
 ```
 
 允许的补充边：
@@ -85,21 +85,19 @@ View
 - **Library**：搜索、筛选、详情、编辑、删除和选择。
 - **Settings**：语言、外观、数据所有权、备份和恢复。
 
-Review、SmartPaper、Pro 和高级统计可以暂时作为不可达源码存在，但公开构建不得注册导航、
-deep link、通知、后台任务或其他副作用。
+Review、SmartPaper、Pro 和高级统计不属于当前产品。对应公开表面、Feature target、调度、通知和
+Pro service 已从生产组合删除；数据层残留字段随单资料库数据契约一起删除。未来重入必须先修改
+[PRD.md](PRD.md)，不能保留隐藏入口或后台副作用。
 
 ## 6. 当前实现差异
 
-以下是 2026-07-25 对 live code 的核实结果，不是产品授权：
+以下是 2026-07-26 对 live code 的核实结果，不是产品授权：
 
 | 差异 | 代码证据 | 收敛目标 |
 |---|---|---|
 | App 启动仍由 `ProfileManager` 和 `activeProfileId` 驱动 | `SnapDrill/App/AppRootView.swift`、`Packages/SnapDrillData/.../ProfileManager.swift` | 改为一个 local-library runtime |
-| Settings 与备份仍按 Profile 组织 | `SnapDrillFeatureSettings`、`BackupDTO.swift` | 单资料库、无 Profile wire |
-| App 仍链接 Review target | `SnapDrill/App/SnapDrillApp.swift`、`Packages/SnapDrillFeatures/Package.swift` | 首版公开 shell 不注册 Review |
-| Library 仍可进入 SmartPaper | `SnapDrillFeatureLibrary/LibraryView.swift` | 首版公开构建不可达且无副作用 |
-| Dashboard 仍含 Pro analytics 实现 | `DashboardAnalyticsViewModel.swift` | 从公开组合中移除 |
-| 当前备份仍是开发期 Profile 格式 | `BackupDTO.swift`、`BackupService.swift` | 在外部分发前实现稳定单资料库格式 |
+| Settings 仍暴露 Profile 管理 | `Packages/SnapDrillFeatures/.../SnapDrillFeatureSettings/ProfileListView.swift` | 删除 Profile UI，只保留单资料库设置 |
+| 数据模型、Repository 与备份仍包含 Profile / Review 遗留 | `ArchiveItemModel.swift`、`RepositoryContainer.swift`、`BackupDTO.swift`、`BackupService.swift` | 建立单资料库 schema、runtime 与正式无 Profile 备份格式 |
 
 这些差异应按核心链路和数据风险排序逐步删除，不为保留历史代码修改 PRD。
 
