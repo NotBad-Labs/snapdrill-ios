@@ -31,13 +31,6 @@ nonisolated public enum UDKey {
     public static let appearanceMode = "appearanceMode"
     public static let appTintColor = "appTintColor"
 
-    // MARK: - Review Card Appearance
-
-    public static let cardFrontAlignment = "cardFrontAlignment"
-    public static let cardFrontFontSize = "cardFrontFontSize"
-    public static let cardContextAlignment = "cardContextAlignment"
-    public static let cardContextFontSize = "cardContextFontSize"
-
     // MARK: - Capture Field Visibility
 
     public static let captureFieldCategory = "captureFieldCategory"
@@ -57,27 +50,9 @@ nonisolated public enum UDKey {
     public static let analyticsConfigured = "analyticsConfigured"
     public static let crashReportingEnabled = "crashReportingEnabled"
 
-    // MARK: - Review Settings
-
-    public static let dailyReviewGoal = "dailyReviewGoal"
-    public static let reviewReminderEnabled = "reviewReminderEnabled"
-    public static let reviewReminderTime = "reviewReminderTime"
-
-    // MARK: - Notification Settings
-
-    public static let notificationsEnabled = "notificationsEnabled"
-    public static let notificationHour = "notificationHour"
-    public static let notificationMinute = "notificationMinute"
-    public static let soundEnabled = "soundEnabled"
-
     // MARK: - Draft Service
 
     public static let captureDraftMetadata = "capture_draft_metadata"
-
-    // MARK: - SmartPaper Free Quota
-
-    public static let smartPaperFreeQuotaMonth = "smartPaper.freeQuota.month"
-    public static let smartPaperFreeQuotaUsed = "smartPaper.freeQuota.used"
 
     // MARK: - Profile
 
@@ -92,8 +67,6 @@ nonisolated public enum UDKey {
 
     // MARK: - Profile-level Tip State
 
-    /// 复习滑动手势提示是否已展示（per-profile 隔离）
-    public static let tipReviewSwipeSeen = "tip.reviewSwipe.v1.seen"
     /// 字段配置引导提示是否已展示（per-profile 隔离）
     public static let tipFieldConfigSeen = "tip.fieldConfig.v1.seen"
 

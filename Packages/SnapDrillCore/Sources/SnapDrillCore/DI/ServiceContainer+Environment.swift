@@ -25,15 +25,12 @@ private final class MissingServiceContainer: ServiceContainer {
     var pdfExport: PDFExportService { missing("pdfExport") }
     var appConfig: AppConfiguration { missing("appConfig") }
     var privacyConsent: PrivacyConsentService { missing("privacyConsent") }
-    var notification: NotificationServiceProtocol { missing("notification") }
     var ocr: any OCRServiceProtocol { missing("ocr") }
     var captureDraft: any CaptureDraftServiceProtocol { missing("captureDraft") }
     var contentTagging: any ContentTaggingServiceProtocol { missing("contentTagging") }
     var questionSplitting: any QuestionSplittingServiceProtocol { missing("questionSplitting") }
     var deletionScheduler: DeletionScheduler { missing("deletionScheduler") }
-    var proEntitlement: any ProEntitlementProvider { missing("proEntitlement") }
     var activityTracker: AppActivityTracker { missing("activityTracker") }
-    var reviewScheduler: ReviewScheduler { missing("reviewScheduler") }
     var metricService: any MetricServiceProtocol { missing("metricService") }
 
     private func missing<T>(_ property: StaticString) -> T {

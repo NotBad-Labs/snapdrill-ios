@@ -24,18 +24,14 @@ nonisolated extension L10n {
         public static let fieldLevel = NSLocalizedString("settings.field_level", value: "级别", comment: "级别字段")
         public static let fieldAnswer = NSLocalizedString("settings.field_answer", value: "答案", comment: "答案字段")
 
-        // 回顾设置
-        public static let reviewSettings = NSLocalizedString("settings.review_settings", value: "回顾设置", comment: "回顾设置区标题")
-        public static let cardAppearance = NSLocalizedString("settings.card_appearance", value: "卡片外观", comment: "卡片外观")
-        public static let reviewReminder = NSLocalizedString("settings.review_reminder", value: "回顾提醒", comment: "回顾提醒")
         public static let privacyAndExport = NSLocalizedString("settings.privacy_export", value: "隐私与导出", comment: "隐私与导出")
 
-        // 数据与备份（云同步未实现，阻塞 #485；文案对齐 cloudKitDatabase: .none #15）
-        public static let dataAndSync = NSLocalizedString("settings.data_and_sync", value: "数据与备份", comment: "数据与备份（当前版本仅本地 + 手动备份；iCloud 同步阻塞 #485）")
+        // 数据与备份
+        public static let dataAndSync = NSLocalizedString("settings.data_and_sync", value: "数据与备份", comment: "数据与备份")
         public static let storageManagement = NSLocalizedString("settings.storage_management", value: "存储管理", comment: "存储管理")
         public static let storageImages = NSLocalizedString("settings.storage_images", value: "资料图片", comment: "图片存储占用")
         public static let storageTotal = NSLocalizedString("settings.storage_total", value: "总占用", comment: "总存储占用")
-        public static let storageFooter = NSLocalizedString("settings.storage_footer", value: "显示当前资料空间的存储占用。图片会自动压缩以节省空间。", comment: "存储管理说明")
+        public static let storageFooter = NSLocalizedString("settings.storage_footer", value: "显示当前资料库的存储占用。图片会自动压缩以节省空间。", comment: "存储管理说明")
 
         // 通用
         public static let general = NSLocalizedString("settings.general", value: "通用", comment: "通用区标题")
@@ -67,15 +63,6 @@ nonisolated extension L10n {
         public static let termsOfService = NSLocalizedString("settings.terms_of_service", value: "服务条款", comment: "服务条款")
         public static let licenses = NSLocalizedString("settings.licenses", value: "开源许可", comment: "开源许可")
         public static let helpCenter = NSLocalizedString("settings.help_center", value: "帮助中心", comment: "帮助中心")
-
-        // 通知设置
-        public static let notificationTitle = NSLocalizedString("settings.notification_title", value: "回顾提醒", comment: "通知设置标题")
-        public static let dailyReminder = NSLocalizedString("settings.daily_reminder", value: "每日回顾提醒", comment: "每日回顾提醒")
-        public static let reminderTime = NSLocalizedString("settings.reminder_time", value: "提醒时间", comment: "提醒时间")
-        public static let reminderSound = NSLocalizedString("settings.reminder_sound", value: "提醒声音", comment: "提醒声音")
-        public static let notificationDenied = NSLocalizedString("settings.notification_denied", value: "通知权限未开启", comment: "通知权限弹窗标题")
-        public static let notificationDeniedMessage = NSLocalizedString("settings.notification_denied_message", value: "请在 iPhone 设置中开启 SnapDrill 的通知权限。", comment: "通知权限提示")
-        public static let goToSettings = NSLocalizedString("settings.go_to_settings", value: "前往设置", comment: "前往设置按钮")
 
         // 语言设置
         public static let languageTitle = NSLocalizedString("settings.language_title", value: "语言设置", comment: "语言设置页标题")
@@ -129,22 +116,10 @@ nonisolated extension L10n {
         public static let exportCSV = NSLocalizedString("settings.export_csv", value: "导出为 CSV", comment: "CSV 导出")
         public static let exportHint = NSLocalizedString("settings.export_hint", value: "导出所有资料数据，可用于数据迁移或备份。", comment: "导出说明")
 
-        // 卡片外观
-        public static let cardAppearanceTitle = NSLocalizedString("settings.card_appearance_title", value: "卡片外观", comment: "卡片外观设置标题")
-        public static let cardFront = NSLocalizedString("settings.card_front", value: "正面（资料）", comment: "正面区标签")
-        public static let cardBack = NSLocalizedString("settings.card_back", value: "背面（参考内容）", comment: "背面区标签")
-        public static let textAlignment = NSLocalizedString("settings.text_alignment", value: "文字对齐", comment: "文字对齐")
-        public static let alignLeft = NSLocalizedString("settings.align_left", value: "左对齐", comment: "左对齐")
-        public static let alignCenter = NSLocalizedString("settings.align_center", value: "居中", comment: "居中")
-        public static let alignRight = NSLocalizedString("settings.align_right", value: "右对齐", comment: "右对齐")
-        public static let fontSize = NSLocalizedString("settings.font_size", value: "字体大小", comment: "字体大小")
-        public static let previewText = NSLocalizedString("settings.preview_text", value: "预览效果文字", comment: "预览效果文字")
-
         // 个人资料
         public static let editProfile = NSLocalizedString("settings.edit_profile", value: "个人资料", comment: "个人资料")
         public static let nickname = NSLocalizedString("settings.nickname", value: "昵称", comment: "昵称")
         public static let nicknamePlaceholder = NSLocalizedString("settings.nickname_placeholder", value: "请输入昵称", comment: "昵称输入占位")
-        public static let dailyGoal = NSLocalizedString("settings.daily_goal", value: "每日回顾目标", comment: "每日回顾目标")
         public static let cardsUnit = NSLocalizedString("settings.cards_unit", value: "条", comment: "条（资料单位）")
         public static let motto = NSLocalizedString("settings.motto", value: "个人备注", comment: "个人备注")
         public static let mottoPlaceholder = NSLocalizedString("settings.motto_placeholder", value: "写一条个人备注...", comment: "个人备注输入占位")
@@ -158,10 +133,10 @@ nonisolated extension L10n {
         // Profile 管理
         public static let switchLearner = NSLocalizedString("settings.switch_learner", value: "切换资料空间", comment: "切换资料空间入口")
         public static let profileSpacesSection = NSLocalizedString("settings.profile_spaces_section", value: "资料空间", comment: "资料空间列表区标题")
-        public static let profileSpacesFooter = NSLocalizedString("settings.profile_spaces_footer", value: "每个资料空间独立保存资料、图片和回顾进度，适合按项目或场景分开管理。", comment: "资料空间列表说明")
+        public static let profileSpacesFooter = NSLocalizedString("settings.profile_spaces_footer", value: "每个资料空间独立保存资料和图片，适合按项目或场景分开管理。", comment: "资料空间列表说明")
         public static let defaultProfileName = NSLocalizedString("settings.default_profile_name", value: "默认资料空间", comment: "默认资料空间名称")
         public static let addLearner = NSLocalizedString("settings.add_learner", value: "添加资料空间", comment: "添加资料空间按钮")
-        public static let deleteLearnerConfirm = NSLocalizedString("settings.delete_learner_confirm", value: "删除后该资料空间的所有资料、回顾进度和图片将永久丢失，无法恢复。", comment: "删除资料空间确认")
+        public static let deleteLearnerConfirm = NSLocalizedString("settings.delete_learner_confirm", value: "删除后该资料空间的所有资料和图片将永久丢失，无法恢复。", comment: "删除资料空间确认")
         public static let learnerName = NSLocalizedString("settings.learner_name", value: "资料空间名称", comment: "资料空间名称输入")
         public static let currentLearner = NSLocalizedString("settings.current_learner", value: "当前", comment: "当前资料空间标记")
         public static let profileCurrentHint = NSLocalizedString("settings.profile_current_hint", value: "当前正在使用的资料空间", comment: "当前资料空间无障碍提示")
@@ -217,34 +192,6 @@ nonisolated extension L10n {
         public static let clearCacheAction = NSLocalizedString("settings.clear_cache_action", value: "清理", comment: "清理按钮")
         public static let clearCacheMessage = NSLocalizedString("settings.clear_cache_message", value: "清理缓存不会删除您的资料数据，仅删除临时图片和下载的资源。", comment: "清理缓存提示")
 
-        // 数据维护
-        public static let dataMaintenance = NSLocalizedString("settings.data_maintenance", value: "数据维护", comment: "数据维护区标题")
-        public static let autoArchiveOldItems = NSLocalizedString("settings.auto_archive_old_items", value: "自动归档旧资料", comment: "自动归档旧资料")
-        public static let archiveTime = NSLocalizedString("settings.archive_time", value: "归档时间", comment: "归档时间")
-        public static let daysAgo30 = NSLocalizedString("settings.days_ago_30", value: "30 天前", comment: "30 天前")
-        public static let daysAgo60 = NSLocalizedString("settings.days_ago_60", value: "60 天前", comment: "60 天前")
-        public static let daysAgo90 = NSLocalizedString("settings.days_ago_90", value: "90 天前", comment: "90 天前")
-        public static let daysAgo180 = NSLocalizedString("settings.days_ago_180", value: "180 天前", comment: "180 天前")
-        public static let dataMaintenanceFooter = NSLocalizedString("settings.data_maintenance_footer", value: "自动归档长期未回顾的资料，保持资料库轻量化。归档后的资料仍可搜索但不会自动安排回顾。", comment: "数据维护说明")
-
-        // 通知设置详情
-        public static let enableDailyReminder = NSLocalizedString("settings.enable_daily_reminder", value: "启用每日回顾提醒", comment: "启用每日回顾提醒")
-        public static let dailyReminderSection = NSLocalizedString("settings.daily_reminder_section", value: "每日提醒", comment: "每日提醒区标题")
-        public static let notificationStyle = NSLocalizedString("settings.notification_style", value: "通知样式", comment: "通知样式区标题")
-        public static let sound = NSLocalizedString("settings.sound", value: "声音", comment: "声音")
-        public static let notificationStyleFooter = NSLocalizedString("settings.notification_style_footer", value: "声音设置在下次触发通知时生效", comment: "通知样式说明")
-        public static let notificationAndReminder = NSLocalizedString("settings.notification_and_reminder", value: "通知与提醒", comment: "通知与提醒页标题")
-        public static let permissionDeniedTitle = NSLocalizedString("settings.permission_denied_title", value: "通知权限被拒绝", comment: "通知权限被拒绝弹窗标题")
-        public static let permissionDeniedMessage = NSLocalizedString("settings.permission_denied_message", value: "请在「设置 → 通知 → SnapDrill」中开启通知权限，才能接收每日回顾提醒。", comment: "通知权限被拒绝说明")
-        public static let rescheduleFailedTitle = NSLocalizedString("settings.reschedule_failed_title", value: "更新提醒时间失败", comment: "更新提醒时间失败")
-        public static let rescheduleFailedMessage = NSLocalizedString("settings.reschedule_failed_message", value: "无法设置提醒时间，请稍后重试", comment: "更新提醒时间失败说明")
-
-        public static func reminderEnabledFooter(_ hour: Int, _ minute: String) -> String {
-            String(format: NSLocalizedString("settings.reminder_enabled_footer", value: "将在每天 %d:%@ 提醒你回顾今日资料", comment: "提醒已开启说明"), hour, minute)
-        }
-
-        public static let reminderDisabledFooter = NSLocalizedString("settings.reminder_disabled_footer", value: "开启后系统将在固定时间推送回顾提醒", comment: "提醒未开启说明")
-
         // 隐私设置详情
         public static let dataCollection = NSLocalizedString("settings.data_collection", value: "诊断与数据", comment: "数据收集区标题")
         public static let useAnalytics = NSLocalizedString("settings.use_analytics", value: "本地诊断偏好", comment: "本地诊断偏好")
@@ -266,17 +213,6 @@ nonisolated extension L10n {
         public static let languageRestartHint = NSLocalizedString("settings.language_restart_hint", value: "切换语言后需重启应用生效", comment: "语言切换重启提示")
         public static let languageChangeTitle = NSLocalizedString("settings.language_change_title", value: "语言已切换", comment: "语言切换成功弹窗标题")
         public static let languageChangeMessage = NSLocalizedString("settings.language_change_message", value: "请重新启动应用以应用新语言", comment: "语言切换重启说明")
-
-        // 卡片外观详情
-        public static let cardFrontSection = NSLocalizedString("settings.card_front_section", value: "卡片正面 (资料)", comment: "卡片正面区标题")
-        public static let cardBackSection = NSLocalizedString("settings.card_back_section", value: "卡片背面 (参考内容)", comment: "卡片背面区标题")
-        public static let cardFrontPreview = NSLocalizedString("settings.card_front_preview", value: "已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。", comment: "卡片正面预览文本")
-        public static let cardBackPreview = NSLocalizedString("settings.card_back_preview", value: "内容：已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。", comment: "卡片背面预览文本")
-        public static let alignment = NSLocalizedString("settings.alignment", value: "对齐方式", comment: "对齐方式")
-
-        public static func fontSizeLabel(_ size: Int) -> String {
-            String(format: NSLocalizedString("settings.font_size_label", value: "字体大小: %d", comment: "字体大小标签"), size)
-        }
 
         // DEBUG
         public static let debugTitle = NSLocalizedString("settings.debug_title", value: "开发调试", comment: "开发调试区标题")

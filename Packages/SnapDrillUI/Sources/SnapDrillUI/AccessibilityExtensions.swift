@@ -106,14 +106,6 @@ public enum AccessibilityHelper {
     
     // MARK: - Public API
     
-    /// 生成复习按钮的无障碍提示
-    ///
-    /// - Parameter count: 待复习数量
-    /// - Returns: 无障碍提示文本
-    public static func reviewButtonHint(count: Int) -> String {
-        L10n.Accessibility.reviewButtonHint(count: count)
-    }
-
     /// 生成导出按钮的无障碍提示
     ///
     /// - Parameter format: 导出格式

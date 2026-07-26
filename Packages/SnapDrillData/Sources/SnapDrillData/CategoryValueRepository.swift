@@ -59,7 +59,7 @@ public final class CategoryValueRepository {
         }
         modelContext.insert(model)
         try modelContext.save()
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
     }
 
     /// 在维度内查找或创建值（纯内存，不 save）。
@@ -94,13 +94,13 @@ public final class CategoryValueRepository {
             rollbackContext()
             throw error
         }
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
     }
 
     /// 保存 ModelContext
     public func saveContext() throws {
         try modelContext.save()
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
     }
 
     /// 回滚未持久化变更

@@ -292,9 +292,9 @@ public extension OnboardingPage {
             systemImage: "camera.fill"
         ),
         OnboardingPage(
-            title: L10n.Onboarding.pageReviewTitle,
-            description: L10n.Onboarding.pageReviewDescription,
-            systemImage: "calendar.badge.clock"
+            title: L10n.Onboarding.pageOrganizeTitle,
+            description: L10n.Onboarding.pageOrganizeDescription,
+            systemImage: "magnifyingglass"
         ),
         OnboardingPage(
             title: L10n.Onboarding.pageExportTitle,

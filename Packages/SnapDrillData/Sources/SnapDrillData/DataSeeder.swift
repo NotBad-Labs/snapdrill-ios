@@ -32,7 +32,7 @@ public final class DataSeeder {
     
     // MARK: - Public API
     
-    // 真实的 Mock 数据源（约 90 条混合长短文本，seedReviewItems 循环复用补足 count 条）
+    // 真实的 Mock 数据源（约 90 条混合长短文本，seedArchiveItems 循环复用补足 count 条）
     // swiftlint:disable line_length
     private let mockData: [(q: String, a: String, sub: String)] = [
         // MARK: - 短文本 (Short Text)
@@ -287,7 +287,7 @@ public final class DataSeeder {
     /// 批量生成测试数据，不足 count 时循环复用 mockData 填满
     /// - Parameter count: 目标数量；mockData 不足时自动循环复用补足
     /// - Returns: 耗时（秒）
-    public func seedReviewItems(count: Int) throws -> TimeInterval {
+    public func seedArchiveItems(count: Int) throws -> TimeInterval {
         let startTime = Date()
         SnapDrillLogger.generic.info("开始生成 \(self.mockData.count) 条高质量混合长短文本数据")
 
@@ -304,7 +304,7 @@ public final class DataSeeder {
         let sourcePool = ["文档", "网页", "培训资料", "截图", "其他"]
         let tagPool = ["必考", "易错", "真题", "重点", "压轴", "2024", "基础", "难点"]
 
-        for (index, data) in targetData.enumerated() {
+        for data in targetData {
             var values: [CategoryValueModel] = []
             if let categoryDim { values.append(seedValue(generalCategoryName(for: data.sub), in: categoryDim)) }
             if let sourceDim, let source = sourcePool.randomElement() {
@@ -321,18 +321,12 @@ public final class DataSeeder {
             item.answerText = data.a
             item.createdAt = Date.now.addingTimeInterval(-Double.random(in: 0...(86400 * 5)))
 
-            if index < Int(Double(count) * 0.8) {
-                item.nextReviewAt = Date.now.addingTimeInterval(-Double.random(in: 100...86400))
-            } else {
-                item.nextReviewAt = Date.now.addingTimeInterval(Double.random(in: 3600...86400))
-            }
-
             modelContext.insert(item)
         }
 
         try modelContext.save()
-        // 通知所有订阅者（ReviewViewModel）数据已变更，触发复习界面刷新
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        // 通知跨模块订阅者资料库数据已变更。
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
         return Date().timeIntervalSince(startTime)
     }
 
@@ -364,6 +358,6 @@ public final class DataSeeder {
     public func clearAll() throws {
         try modelContext.delete(model: ArchiveItemModel.self)
         try modelContext.save()
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
     }
 }

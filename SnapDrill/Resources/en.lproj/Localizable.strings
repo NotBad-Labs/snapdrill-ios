@@ -137,8 +137,6 @@
 "dashboard.category_manage" = "Categories";
 "dashboard.customize" = "Manage Categories";
 "dashboard.today_added" = "Added Today";
-"dashboard.today_reviewed" = "Reviewed Today";
-"dashboard.due_review" = "To Review";
 "dashboard.draft_alert_title" = "Restore unfinished capture?";
 "dashboard.draft_start_new" = "Start New";
 "dashboard.draft_restore" = "Restore";
@@ -148,10 +146,6 @@
 "dashboard.welcome" = "Welcome";
 "dashboard.welcome_subtitle" = "Add your first item to start organizing";
 "dashboard.capture_item" = "Capture Item";
-"dashboard.today_due" = "To Review Today";
-"dashboard.start_now" = "Start Now";
-"dashboard.all_done" = "Done Today";
-"dashboard.all_done_subtitle" = "All review items are handled";
 "dashboard.default_name" = "User";
 "dashboard.greeting_night" = "It's late, get some rest";
 "dashboard.greeting_morning_generic" = "Good morning";
@@ -171,10 +165,8 @@
 "library.no_search_results_hint" = "Try adjusting your search terms or filters";
 "library.sort_by_date" = "By Date";
 "library.sort_by_category" = "By Category";
-"library.sort_by_review_status" = "By Review Status";
 "library.sort_time" = "Time";
 "library.sort_category" = "Category";
-"library.sort_review_status" = "Review Status";
 "library.all_categories" = "All";
 "library.no_content" = "No text content";
 "library.no_category" = "Uncategorized";
@@ -190,8 +182,6 @@
 "library.answer_image" = "Answer Image";
 "library.no_answer" = "No answer yet";
 "library.created_at" = "Created";
-"library.next_review" = "Next Review";
-"library.not_scheduled" = "Not Scheduled";
 "library.edit_title" = "Edit Item";
 "library.edit_question" = "Edit Material";
 "library.edit_content" = "Edit Content";
@@ -209,7 +199,7 @@
 "library.export" = "Export";
 "library.export_title" = "Export Options";
 "library.export_pdf" = "PDF / Print";
-"library.export_pdf_hint" = "Best for printing";
+"library.export_pdf_hint" = "For layout and printing";
 "library.export_csv" = "CSV";
 "library.export_csv_hint" = "Best for spreadsheets";
 "library.export_images" = "Images ZIP";
@@ -275,43 +265,6 @@
 "library.duplicate_name" = "Name Already Exists";
 "library.duplicate_name_message" = "\"%@\" is already in use. Please enter a different name.";
 
-// MARK: - Review
-
-"review.title" = "Review";
-"review.completed" = "Reviewed";
-"review.pause_alert_title" = "Pause Review?";
-"review.pause_continue" = "Continue";
-"review.pause_confirm" = "Pause";
-"review.pause_message" = "Your progress will be saved. You can continue later.";
-"review.tooltip_title" = "Card Controls";
-"review.tooltip_message" = "Tap the card to view the reference content. Swipe left if you forgot, right if you recalled.";
-"review.stamp_forgot" = "Forgot";
-"review.stamp_remember" = "Recalled";
-"review.pending" = "Due";
-"review.today_review" = "Today's Review";
-"review.cards_pending" = "items to process";
-"review.welcome_back" = "Start Review";
-"review.empty_title" = "No Review Items Yet";
-"review.empty_hint" = "Capture or import content first. Scheduled items will appear here when due.";
-"review.empty_action" = "Capture Content";
-"review.excellent" = "No items due.";
-"review.start_review" = "Start Review";
-"review.go_rest" = "No items due";
-"review.reviewed_today" = "Reviewed %d today";
-"review.summary_title" = "Session Complete";
-"review.summary_good" = "Recalled";
-"review.summary_again" = "Needs Review";
-"review.summary_dismiss" = "Done";
-"review.encourage_rest" = "No items need attention right now.";
-"review.encourage_all_good" = "All items were marked recalled.";
-"review.encourage_keep_going" = "These items will return on schedule.";
-"review.encourage_partial" = "%d items need review.";
-"review.interval_minutes" = "10 min";
-"review.interval_tomorrow" = "Tomorrow";
-"review.interval_days" = "%d days";
-"review.interval_weeks" = "%d wk";
-"review.interval_months" = "%d mo";
-
 // MARK: - Settings
 
 "settings.title" = "Settings";
@@ -323,15 +276,12 @@
 "settings.field_source" = "Source";
 "settings.field_level" = "Level";
 "settings.field_answer" = "Answer";
-"settings.review_settings" = "Review";
-"settings.card_appearance" = "Card Appearance";
-"settings.review_reminder" = "Review Reminder";
 "settings.privacy_export" = "Privacy & Export";
 "settings.data_and_sync" = "Data & Backup";
 "settings.storage_management" = "Storage";
 "settings.storage_images" = "Item Images";
 "settings.storage_total" = "Total Usage";
-"settings.storage_footer" = "Shows storage usage for the current workspace. Images are automatically compressed to save space.";
+"settings.storage_footer" = "Shows storage usage for the current library. Images are automatically compressed to save space.";
 "settings.appearance" = "Appearance";
 "settings.follow_system" = "System";
 "settings.light_mode" = "Light";
@@ -353,13 +303,6 @@
 "settings.privacy_policy" = "Privacy Policy";
 "settings.terms_of_service" = "Terms of Service";
 "settings.licenses" = "Open Source Licenses";
-"settings.notification_title" = "Review Reminder";
-"settings.daily_reminder" = "Daily Review Reminder";
-"settings.reminder_time" = "Reminder Time";
-"settings.reminder_sound" = "Sound";
-"settings.notification_denied" = "Notifications Disabled";
-"settings.notification_denied_message" = "Please enable notifications for SnapDrill in iPhone Settings.";
-"settings.go_to_settings" = "Open Settings";
 "settings.language_title" = "Language";
 "settings.language_hint" = "App language follows system settings. To change, go to iPhone Settings > General > Language & Region.";
 "settings.open_system_settings" = "Open System Settings";
@@ -384,19 +327,9 @@
 "settings.export_json" = "Export as JSON";
 "settings.export_csv" = "Export as CSV";
 "settings.export_hint" = "Export all your data for migration or backup.";
-"settings.card_appearance_title" = "Card Appearance";
-"settings.card_front" = "Front (Item)";
-"settings.card_back" = "Back (Reference)";
-"settings.text_alignment" = "Text Alignment";
-"settings.align_left" = "Left";
-"settings.align_center" = "Center";
-"settings.align_right" = "Right";
-"settings.font_size" = "Font Size";
-"settings.preview_text" = "Preview text";
 "settings.edit_profile" = "Profile";
 "settings.nickname" = "Nickname";
 "settings.nickname_placeholder" = "Enter nickname";
-"settings.daily_goal" = "Daily Review Goal";
 "settings.cards_unit" = "items";
 "settings.motto" = "Personal Note";
 "settings.motto_placeholder" = "Write a personal note...";
@@ -442,26 +375,6 @@
 "settings.clear_cache_title" = "Clear Cache";
 "settings.clear_cache_action" = "Clear";
 "settings.clear_cache_message" = "Clearing the cache will not delete your items. Only temporary images and downloaded resources will be removed.";
-"settings.data_maintenance" = "Data Maintenance";
-"settings.auto_archive_old_items" = "Auto-archive Old Items";
-"settings.archive_time" = "Archive After";
-"settings.days_ago_30" = "30 days";
-"settings.days_ago_60" = "60 days";
-"settings.days_ago_90" = "90 days";
-"settings.days_ago_180" = "180 days";
-"settings.data_maintenance_footer" = "Automatically archive items that haven't been reviewed for a long time. Archived items can still be searched but won't be scheduled for review.";
-"settings.enable_daily_reminder" = "Enable Daily Reminder";
-"settings.daily_reminder_section" = "Daily Reminder";
-"settings.notification_style" = "Notification Style";
-"settings.sound" = "Sound";
-"settings.notification_style_footer" = "Sound settings will take effect on the next notification";
-"settings.notification_and_reminder" = "Notifications & Reminders";
-"settings.permission_denied_title" = "Notifications Denied";
-"settings.permission_denied_message" = "Please enable notifications for SnapDrill in Settings > Notifications to receive daily review reminders.";
-"settings.reschedule_failed_title" = "Failed to Update Reminder";
-"settings.reschedule_failed_message" = "Unable to set reminder time. Please try again later.";
-"settings.reminder_enabled_footer" = "You'll be reminded to review at %d:%@ every day";
-"settings.reminder_disabled_footer" = "Enable to receive daily review reminders at a fixed time";
 "settings.data_collection" = "Diagnostics & Data";
 "settings.use_analytics" = "Local Diagnostics Preference";
 "settings.data_collection_footer" = "This version does not send usage analytics, crash reports, or item content. Diagnostics stay on-device or come from Apple aggregated reports.";
@@ -476,10 +389,6 @@
 "settings.language_restart_hint" = "Restart the app to apply language changes";
 "settings.language_change_title" = "Language Changed";
 "settings.language_change_message" = "Please restart the app to apply the new language";
-"settings.card_front_section" = "Card Front (Item)";
-"settings.card_back_section" = "Card Back (Reference)";
-"settings.alignment" = "Alignment";
-"settings.font_size_label" = "Font Size: %d";
 "settings.debug_title" = "Developer Debug";
 "settings.generate_mock_data" = "Generate Mock Data";
 "settings.clear_mock_data" = "Clear Mock Data";
@@ -504,7 +413,6 @@
 "edit_profile.set_avatar" = "Set Avatar";
 "edit_profile.nickname" = "Nickname";
 "edit_profile.nickname_placeholder" = "Enter nickname";
-"edit_profile.daily_goal" = "Daily Review Goal";
 "edit_profile.cards_count" = "items";
 "edit_profile.motto" = "Personal Note";
 "edit_profile.motto_placeholder" = "Write a personal note...";
@@ -540,7 +448,6 @@
 "errors.pdf_unsupported_item_density" = "%d items per page cannot produce a readable PDF. Reduce the number of items per page and try again.";
 "errors.pdf_unreadable_item" = "Item %d has no readable image or text. Check it and try again.";
 "errors.export_selection_changed" = "The selection changed. Select the items again and retry.";
-"errors.review_save_failed" = "Failed to save review progress. Please try again.";
 "errors.form_data_load_failed" = "Failed to load form data. Please go back and try again.";
 "errors.save_failed" = "Save failed. Please check storage space and try again.";
 "errors.create_taxonomy_failed" = "Failed to create \"%@\". Please try again.";
@@ -587,11 +494,11 @@
 "onboarding.get_started" = "Get Started";
 "onboarding.accessibility_group" = "SnapDrill guide";
 "onboarding.page_welcome_title" = "Welcome to SnapDrill";
-"onboarding.page_welcome_description" = "Scan, archive, and organize materials and documents for later review.";
+"onboarding.page_welcome_description" = "Scan, archive, and organize materials and documents so they are easy to find.";
 "onboarding.page_capture_title" = "Capture Quickly";
 "onboarding.page_capture_description" = "Take a photo, import an image, or enter text to save searchable records.";
-"onboarding.page_review_title" = "Review When Needed";
-"onboarding.page_review_description" = "Keep important records in a review queue so they are easier to revisit.";
+"onboarding.page_organize_title" = "Organize and Find";
+"onboarding.page_organize_description" = "Use fields, categories, and search to keep important records within reach.";
 "onboarding.page_export_title" = "Export and Print";
 "onboarding.page_export_description" = "Export records as PDF or CSV for printing, sharing, or backup.";
 "onboarding.field_config_title" = "Choose Record Fields";
@@ -604,28 +511,23 @@
 "onboarding.field_config_icon" = "Field configuration";
 "onboarding.field_config_header" = "Choose Record Fields";
 
-// MARK: - Notification
-
-"notification.daily.title" = "Review Time";
-"notification.daily.body" = "Your materials are waiting — time to review!";
-
 // MARK: - Help (removed — v1.0 uses external web FAQ)
 
 // MARK: - Terms of Service (next section below)
 // MARK: - Terms of Service
 
 "terms.title" = "Terms of Service";
-"terms.last_updated" = "Last Updated: January 2, 2026";
+"terms.last_updated" = "Last Updated: July 26, 2026";
 "terms.acceptance_title" = "Acceptance of Terms";
 "terms.acceptance_content" = "Welcome to SnapDrill! By downloading, installing, or using this app, you agree to comply with all terms and conditions of this agreement. If you do not agree to these terms, please do not use this app.";
 "terms.service_title" = "Service Description";
-"terms.service_content" = "SnapDrill is a personal material organizer designed to help users capture, organize, review, and export local content.\n\nKey features include:\n• Smart scanning & OCR text recognition\n• Material management and categorization\n• Spaced repetition review system\n• Data export (PDF/JSON/CSV)";
+"terms.service_content" = "SnapDrill is a personal material organizer designed to help users capture, organize, find, and export local content.\n\nKey features include:\n• Smart scanning & OCR text recognition\n• Material management, categorization, and search\n• PDF layout and printing\n• Data export (PDF/JSON/CSV) and local backup";
 "terms.data_storage_title" = "Data Storage";
 "terms.data_storage_content" = "SnapDrill does not require an account to use. All data is stored locally on your device by default.\n\nYou are responsible for:\n• Keeping your device secure\n• Regularly backing up important data\n• Note: Uninstalling the app will permanently delete all local data";
 "terms.license_title" = "License Grant";
 "terms.license_content" = "We grant you a limited, non-exclusive, non-transferable, revocable license to use the SnapDrill app on your personal device.\n\nYou may not:\n• Copy, modify, or reverse-engineer the app\n• Sell, rent, or transfer the app\n• Remove any copyright or proprietary notices\n• Use the app for illegal purposes";
 "terms.user_content_title" = "User Content";
-"terms.user_content_content" = "All content you create in the app (including text, images, notes, etc.) belongs to you.\n\nYou represent and warrant that:\n• You own or have the necessary rights to the content you upload\n• Your content does not infringe any third-party rights\n• Your content does not contain illegal, harmful, or inappropriate material\n\nWe do not access, use, or share your personal learning content.";
+"terms.user_content_content" = "All content you create in the app (including text, images, notes, etc.) belongs to you.\n\nYou represent and warrant that:\n• You own or have the necessary rights to the content you upload\n• Your content does not infringe any third-party rights\n• Your content does not contain illegal, harmful, or inappropriate material\n\nWe do not access, use, or share your personal material content.";
 "terms.ip_title" = "Intellectual Property";
 "terms.ip_content" = "The SnapDrill app and all its content, features, and functionality (including but not limited to software, text, graphics, logos, icons, and images) are owned by NotBad Labs L.L.C. and are protected by U.S. and international copyright, trademark, and other intellectual property laws.\n\nThe \"SnapDrill\" name and logo are trademarks of NotBad Labs L.L.C. You may not use these trademarks without our prior written permission.";
 "terms.disclaimer_title" = "Disclaimer";
@@ -652,15 +554,13 @@
 // MARK: - Privacy Policy
 
 "privacy.title" = "Privacy Policy";
-"privacy.last_updated" = "Last Updated: March 2026";
+"privacy.last_updated" = "Last Updated: July 26, 2026";
 "privacy.intro_title" = "Introduction";
 "privacy.intro_content" = "Welcome to SnapDrill! We take your privacy very seriously. This privacy policy explains how we collect, use, store, and protect your personal information. By using the SnapDrill app, you agree to the practices described in this privacy policy.";
 "privacy.collection_title" = "Information We Collect";
-"privacy.collection_content" = "SnapDrill is an offline-first app. Materials, images, notes, categories, tags, review records, and export files you create in the app are stored locally on your device by default.\n\nThis version does not require an account, does not send material content to NotBad Labs servers, and does not use third-party analytics or crash-reporting SDKs.";
-"privacy.icloud_title" = "iCloud Sync (Future Feature)";
-"privacy.icloud_content" = "iCloud sync is a planned Pro subscription feature and is not available in the current version.\n\nIf enabled in a future release, sync will use Apple's CloudKit/iCloud service under your Apple ID. NotBad Labs will not operate its own sync server for that data and cannot read your personal iCloud contents. The privacy notice will be updated before this feature ships.";
+"privacy.collection_content" = "SnapDrill is an offline-first app. Materials, images, notes, categories, tags, and export files you create in the app are stored locally on your device by default.\n\nThis version does not require an account, does not send material content to NotBad Labs servers, and does not use third-party analytics or crash-reporting SDKs.";
 "privacy.usage_title" = "Data Usage";
-"privacy.usage_content" = "SnapDrill processes your local data to provide core app functionality, including capture, organization, review, export, and printing.\n\nIf you contact us by email or through TestFlight feedback, we use only the information you choose to provide to respond to that support request.\n\nWe will not sell your personal information, use your content for advertising, or share your material content with third parties.";
+"privacy.usage_content" = "SnapDrill processes your local data to provide core app functionality, including capture, organization, search, export, and printing.\n\nIf you contact us by email or through TestFlight feedback, we use only the information you choose to provide to respond to that support request.\n\nWe will not sell your personal information, use your content for advertising, or share your material content with third parties.";
 "privacy.security_title" = "Data Security";
 "privacy.security_content" = "We take the following measures to protect your data: local storage (data is stored on your device, protected by iOS sandbox), no servers (we do not operate servers to store your data), manual backup (you can export and restore data using the in-app backup feature).";
 "privacy.rights_title" = "Your Rights";
@@ -668,11 +568,11 @@
 "privacy.third_party_title" = "Third-Party Services";
 "privacy.third_party_content" = "SnapDrill uses the following third-party services:\n\n• Apple Vision Framework: used for OCR text recognition, processed entirely on-device. Data never leaves your device.\n\nWe do not use any third-party analytics, crash-reporting, or advertising services. All your data stays local on your device and is never uploaded or used for advertising.";
 "privacy.children_title" = "Children's Privacy";
-"privacy.children_content" = "SnapDrill is suitable for users of all ages. We do not knowingly collect personal information from children under 13. If you are a parent or guardian and discover that your child has provided us with personal information without your consent, please contact us and we will take steps to delete the information.";
+"privacy.children_content" = "SnapDrill is a general-purpose productivity tool designed for adults. It does not require an account and we do not knowingly collect children's personal information. If you believe someone has provided children's personal information through a feedback channel, please contact us and we will take steps to delete it.";
 "privacy.gdpr_title" = "GDPR Compliance (EU Users)";
 "privacy.gdpr_content" = "If you are located in the European Union, you have the right to access, correct, delete, restrict processing, and data portability. Since SnapDrill does not collect or store your data on our servers, you can exercise these rights directly through the app's built-in features.";
 "privacy.ccpa_title" = "CCPA Compliance (California Users)";
-"privacy.ccpa_content" = "If you are a California resident, you have the right to know the categories of personal information we collect, know whether we sell your personal information (we do not), and delete your personal information. SnapDrill does not sell your personal information or share your learning content with third parties.";
+"privacy.ccpa_content" = "If you are a California resident, you have the right to know the categories of personal information we collect, know whether we sell your personal information (we do not), and delete your personal information. SnapDrill does not sell your personal information or share your material content with third parties.";
 "privacy.update_title" = "Privacy Policy Updates";
 "privacy.update_content" = "We may update this privacy policy from time to time. If there are significant changes, we will notify you through in-app notifications or by updating the date. We recommend that you regularly review this policy to understand how we protect your information.";
 "privacy.contact_title" = "Contact Us";
@@ -680,28 +580,12 @@
 "privacy.view_full_version" = "View full version in browser (bilingual)";
 
 // MARK: - Accessibility (VoiceOver)
-"accessibility.flip_to_answer" = "Double tap to flip and view reference content";
-"accessibility.flip_to_question" = "Double tap to flip back to content";
-"accessibility.flipped_to_answer" = "Flipped to reference side";
-"accessibility.flipped_to_question" = "Flipped to content side";
 "accessibility.show_answer" = "Show reference content";
 "accessibility.hide_answer" = "Hide reference content";
-"accessibility.undo" = "Undo";
-"accessibility.undo_hint" = "Undo last review action";
-"accessibility.pause_review" = "Pause review";
-"accessibility.more_actions" = "More actions";
 "accessibility.question_image" = "Material image";
 "accessibility.answer_image" = "Reference image";
-"accessibility.forgot_hint" = "Mark as forgot; it will return later";
-"accessibility.remember_hint" = "Mark as recalled and extend the review interval";
-"accessibility.summary_announcement" = "Review complete, recalled %d, needs review %d";
-"accessibility.pending_review" = "%d items due";
-"accessibility.reviewed_today" = "Reviewed %d items today";
-"accessibility.start_review_hint" = "Start today's review";
 "accessibility.delete_tag" = "Delete tag %@";
 "accessibility.add_tag" = "Add tag %@";
-"accessibility.stat_card" = "%@ %d items";
-"accessibility.review_button_hint" = "Tap to review %d items";
 "accessibility.export_button_hint" = "Tap to export as %@ format";
 "accessibility.progress_description" = "Processed %d of %d, progress %d%%";
 "accessibility.copy_content_hint" = "Copy recognized text to clipboard";
@@ -711,7 +595,6 @@
 "tab.dashboard" = "Home";
 "tab.library" = "Library";
 "tab.capture" = "Capture";
-"tab.review" = "Review";
 "tab.settings" = "Settings";
 
 // MARK: - Export (PDF title)
@@ -771,12 +654,6 @@
 
 "accessibility.profile" = "Profile";
 "accessibility.profile_hint" = "Open Settings";
-"accessibility.capture_first_item_hint" = "Capture your first item";
-"accessibility.start_review_now_hint" = "Start due items";
-"accessibility.all_done_label" = "Today's review is complete.";
-"accessibility.due_count_label" = "%d items due today";
-"accessibility.review_progress_label" = "Today's review progress, processed %d of %d";
-"accessibility.daily_stats_label" = "Today: %d added, %d reviewed, %d due";
 "accessibility.take_photo" = "Take Photo";
 "accessibility.cancel_camera" = "Cancel Camera";
 "accessibility.camera_hint" = "Open the camera to capture material";
@@ -809,7 +686,7 @@
 "accessibility.field_source_hint" = "When enabled, source selection appears during capture";
 "accessibility.field_level_hint" = "When enabled, level selection appears during capture";
 "accessibility.field_answer_hint" = "When enabled, answer input appears during capture";
-"accessibility.clear_all_data_hint" = "Delete all items, tags, and review records. This cannot be undone.";
+"accessibility.clear_all_data_hint" = "Delete all items and categories. This cannot be undone.";
 "accessibility.generate_test_data_hint" = "Generate mock data for debugging";
 "accessibility.set_avatar_hint" = "Choose an avatar from Photos or system icons";
 "accessibility.color_blue_purple" = "Blue Purple";
@@ -819,9 +696,6 @@
 "accessibility.color_gray_black" = "Gray Black";
 "accessibility.color_sunny_yellow" = "Sunny Yellow";
 "accessibility.avatar_color_name" = "Theme color %@";
-"accessibility.enable_reminder_hint" = "Remind you to review due items at a fixed time every day";
-"accessibility.sound_toggle_hint" = "Play a sound with reminders";
-"accessibility.font_size_value" = "%d pt";
 "accessibility.backup_data_hint" = "Export a full data backup file";
 "accessibility.restore_data_hint" = "Restore all data from a backup file. This will replace current data.";
 "accessibility.analytics_toggle_hint" = "Explains that this version does not send usage data; diagnostics stay local or come from Apple aggregated reports";
@@ -833,33 +707,11 @@
 "settings.help_center" = "Help Center";
 "settings.switch_learner" = "Switch Workspace";
 "settings.profile_spaces_section" = "Workspaces";
-"settings.profile_spaces_footer" = "Each workspace keeps its own items, images, and review progress so you can separate projects or contexts.";
+"settings.profile_spaces_footer" = "Each workspace keeps its own items and images so you can separate projects or contexts.";
 "settings.default_profile_name" = "Default Workspace";
 "settings.add_learner" = "Add Workspace";
-"settings.delete_learner_confirm" = "Deleting this workspace permanently removes all items, review progress, and images. This cannot be undone.";
+"settings.delete_learner_confirm" = "Deleting this workspace permanently removes all items and images. This cannot be undone.";
 "settings.learner_name" = "Workspace Name";
 "settings.current_learner" = "Current";
 "settings.profile_current_hint" = "This is the current workspace.";
 "settings.profile_switch_hint" = "Switch to this workspace.";
-"settings.card_front_preview" = "Given triangle ABC, AB = AC, angle A = 36 degrees. Find angle B.";
-"settings.card_back_preview" = "Reference: angle B = 72 degrees.";
-"smart_paper.title" = "Smart Paper";
-"smart_paper.subtitle" = "Automatically select the questions that need review most and generate a practice paper";
-"smart_paper.generate" = "Generate Paper";
-"smart_paper.question_count" = "Question Count";
-"smart_paper.category_filter" = "Category";
-"smart_paper.all_categories" = "All Categories";
-"smart_paper.no_items_title" = "No Questions Available";
-"smart_paper.no_items_message" = "No questions match the current filters. Adjust filters or capture some questions first.";
-"smart_paper.pdf_title" = "Smart Review Paper";
-"smart_paper.selected_count" = "%d selected";
-"statistics.title" = "Library Insights";
-"statistics.category_trend" = "Category Trend";
-"statistics.last_30_days" = "Last 30 Days";
-"statistics.categories_needing_review" = "Categories Needing Review";
-"statistics.categories_needing_review_hint" = "Categories with more items to review";
-"statistics.no_data" = "No Data";
-"statistics.no_data_hint" = "Capture some items to view library insights";
-"statistics.pro_required" = "More insights are coming later";
-"statistics.questions_count" = "items";
-"statistics.due_count" = "%d to review";

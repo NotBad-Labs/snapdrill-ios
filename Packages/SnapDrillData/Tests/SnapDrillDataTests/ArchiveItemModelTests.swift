@@ -137,8 +137,7 @@ struct ArchiveItemModelTests {
         let model = ArchiveItemModel(content: "Extreme EF", easeFactor: abnormalEaseFactor)
         context.insert(model)
         
-        // 这里仅断言 Model 层作为简单的 ORM 能够成功储存在数据库即可，
-        // 调度算法自身的边界拦截由 `ReviewSchedulerTests` 负责，此处不应崩溃。
+        // 这里仅断言旧开发字段在本检查点移除前仍可安全持久化。
         try context.save()
         
         let results = try context.fetch(FetchDescriptor<ArchiveItemModel>())

@@ -14,10 +14,7 @@ import Foundation
 public enum AnalyticsEvent: String {
     // 用户操作
     case appLaunched = "app_launched"
-    case reviewItemCreated = "review_item_created"
-    case reviewItemCompleted = "review_item_completed"
-    case reviewSessionStarted = "review_session_started"
-    case reviewSessionCompleted = "review_session_completed"
+    case archiveItemCreated = "archive_item_created"
 
     // 屏幕浏览
     case screenViewed = "screen_viewed"

@@ -121,7 +121,7 @@ final class DependencyContainer {
             item.categoryValues = try Self.fixtureCategoryValues(from: repositories)
             repositories.archive.insert(item)
             try repositories.archive.saveContext()
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
         } catch {
             repositories.archive.rollbackContext()
             if let questionPath {

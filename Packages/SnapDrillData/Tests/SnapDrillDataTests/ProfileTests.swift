@@ -200,8 +200,6 @@ struct ProfileManagerPreferenceTests {
 
         defaults.set(Data("draft".utf8), forKey: UDKey.captureDraftMetadata)
         defaults.set(true, forKey: UDKey.captureFieldCategory)
-        defaults.set("2026-06", forKey: UDKey.smartPaperFreeQuotaMonth)
-        defaults.set(2, forKey: UDKey.smartPaperFreeQuotaUsed)
         defaults.set(true, forKey: "\(CategoryDimensionModel.visibilityKeyPrefix)test")
         defaults.set("keep", forKey: "unrelated.global.key")
 
@@ -209,62 +207,16 @@ struct ProfileManagerPreferenceTests {
 
         #expect(defaults.object(forKey: UDKey.captureDraftMetadata) == nil)
         #expect(defaults.object(forKey: UDKey.captureFieldCategory) == nil)
-        #expect(defaults.object(forKey: UDKey.smartPaperFreeQuotaMonth) == nil)
-        #expect(defaults.object(forKey: UDKey.smartPaperFreeQuotaUsed) == nil)
         #expect(defaults.object(forKey: "\(CategoryDimensionModel.visibilityKeyPrefix)test") == nil)
         #expect(defaults.string(forKey: "unrelated.global.key") == "keep")
-    }
-
-    @Test("SmartPaper 配额随磁盘 Profile 切换保存并往返恢复")
-    @MainActor
-    func smartPaperQuota_roundTripsAcrossDiskProfileSwitches() async throws {
-        let defaults = UserDefaults.standard
-        let originalMonth = defaults.object(forKey: UDKey.smartPaperFreeQuotaMonth)
-        let originalUsed = defaults.object(forKey: UDKey.smartPaperFreeQuotaUsed)
-        defer {
-            restore(originalMonth, forKey: UDKey.smartPaperFreeQuotaMonth, in: defaults)
-            restore(originalUsed, forKey: UDKey.smartPaperFreeQuotaUsed, in: defaults)
-        }
-
-        let manager = await ProfileManager.create()
-        let originalProfileId = manager.activeProfileId
-        let profileA = try #require(manager.createProfile(name: "Quota A \(UUID().uuidString)"))
-        let profileB = try #require(manager.createProfile(name: "Quota B \(UUID().uuidString)"))
-
-        do {
-            try await manager.switchProfile(to: profileA.id)
-            defaults.set("2026-06", forKey: UDKey.smartPaperFreeQuotaMonth)
-            defaults.set(2, forKey: UDKey.smartPaperFreeQuotaUsed)
-
-            try await manager.switchProfile(to: profileB.id)
-            defaults.set("2026-07", forKey: UDKey.smartPaperFreeQuotaMonth)
-            defaults.set(1, forKey: UDKey.smartPaperFreeQuotaUsed)
-
-            try await manager.switchProfile(to: profileA.id)
-            #expect(defaults.string(forKey: UDKey.smartPaperFreeQuotaMonth) == "2026-06")
-            #expect(defaults.integer(forKey: UDKey.smartPaperFreeQuotaUsed) == 2)
-
-            try await manager.switchProfile(to: profileB.id)
-            #expect(defaults.string(forKey: UDKey.smartPaperFreeQuotaMonth) == "2026-07")
-            #expect(defaults.integer(forKey: UDKey.smartPaperFreeQuotaUsed) == 1)
-
-            try await manager.switchProfile(to: originalProfileId)
-            manager.discardProfile(id: profileA.id)
-            manager.discardProfile(id: profileB.id)
-        } catch {
-            try? await manager.switchProfile(to: originalProfileId)
-            manager.discardProfile(id: profileA.id)
-            manager.discardProfile(id: profileB.id)
-            throw error
-        }
     }
 
     @Test("jsonSafePreferences 剔除非 JSON 值（Data）保留合法值，结果可序列化")
     func jsonSafePreferences_dropsNonJSONValues() throws {
         let input: [String: Any] = [
             UDKey.captureDraftMetadata: Data("draft".utf8),   // 非 JSON：曾导致带草稿切 Profile 闪退
-            UDKey.smartPaperFreeQuotaMonth: "2026-07",
-            UDKey.smartPaperFreeQuotaUsed: 3,
+            UDKey.userName: "Work",
+            UDKey.captureFieldSource: false,
             UDKey.captureFieldCategory: true
         ]
 
@@ -283,10 +235,10 @@ struct ProfileManagerPreferenceTests {
     func switchProfile_withDraftMetadata_doesNotCrash() async throws {
         let defaults = UserDefaults.standard
         let originalDraft = defaults.object(forKey: UDKey.captureDraftMetadata)
-        let originalMonth = defaults.object(forKey: UDKey.smartPaperFreeQuotaMonth)
+        let originalCategoryVisibility = defaults.object(forKey: UDKey.captureFieldCategory)
         defer {
             restore(originalDraft, forKey: UDKey.captureDraftMetadata, in: defaults)
-            restore(originalMonth, forKey: UDKey.smartPaperFreeQuotaMonth, in: defaults)
+            restore(originalCategoryVisibility, forKey: UDKey.captureFieldCategory, in: defaults)
         }
 
         let manager = await ProfileManager.create()
@@ -298,14 +250,14 @@ struct ProfileManagerPreferenceTests {
             try await manager.switchProfile(to: profileA.id)
             // 模拟采集中未保存草稿：metadata 以 Data 形式落在 per-profile UserDefaults
             defaults.set(Data("draft-metadata".utf8), forKey: UDKey.captureDraftMetadata)
-            defaults.set("2026-08", forKey: UDKey.smartPaperFreeQuotaMonth)
+            defaults.set(true, forKey: UDKey.captureFieldCategory)
 
             // 修复前：savePreferences → JSONSerialization 遇 Data 抛 NSException，测试进程闪退
             try await manager.switchProfile(to: profileB.id)
 
             // 合法偏好仍随切换往返
             try await manager.switchProfile(to: profileA.id)
-            #expect(defaults.string(forKey: UDKey.smartPaperFreeQuotaMonth) == "2026-08")
+            #expect(defaults.bool(forKey: UDKey.captureFieldCategory))
 
             try await manager.switchProfile(to: originalProfileId)
             manager.discardProfile(id: profileA.id)

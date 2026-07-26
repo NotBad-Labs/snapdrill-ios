@@ -125,11 +125,11 @@ final class SnapDrillUITests: XCTestCase {
             return
         }
 
-        // 6. 切换到题库 Tab
+        // 6. 切换到资料库 Tab
         let libraryTab = app.tabBars.buttons.element(boundBy: 1)
         libraryTab.tap()
 
-        // 7. 验证题目出现在题库中
+        // 7. 验证资料出现在资料库中
         let itemText = app.staticTexts["E2E UI Test Item"]
         XCTAssertTrue(
             itemText.waitForExistence(timeout: 10),
@@ -366,7 +366,7 @@ final class SnapDrillUITests: XCTestCase {
         app.buttons["onboarding.next"].tap()
         waitForUIAnimation()
         XCTAssertTrue(app.descendants(matching: .any)["onboarding.page.2"].waitForExistence(timeout: 5), "应进入第三页")
-        addScreenshot(named: "ui-freeze-onboarding-03-review")
+        addScreenshot(named: "ui-freeze-onboarding-03-organize")
 
         app.buttons["onboarding.next"].tap()
         waitForUIAnimation()
@@ -1273,7 +1273,7 @@ final class SnapDrillUITests: XCTestCase {
         app.launchArguments = l3LaunchArguments()
         app.launch()
 
-        // 进设置 Tab（顺序 Dashboard0/题库1/采集2/复习3/设置4）
+        // 进设置 Tab（顺序 Dashboard0/资料库1/采集2/设置3）
         let settingsTab = app.tabBars.buttons.element(boundBy: 3)
         XCTAssertTrue(settingsTab.waitForExistence(timeout: 5), "设置 Tab 应出现")
         settingsTab.tap()

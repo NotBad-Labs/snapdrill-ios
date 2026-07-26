@@ -74,7 +74,6 @@ nonisolated extension L10n {
             value: "资料选择已发生变化，请重新选择后再试",
             comment: "导出解析期间选择与资料不一致"
         )
-        public static let reviewSaveFailed = NSLocalizedString("errors.review_save_failed", value: "复习记录保存失败，请重试", comment: "复习评分持久化失败")
         public static let formDataLoadFailed = NSLocalizedString("errors.form_data_load_failed", value: "表单数据加载失败，请返回重试", comment: "采集表单下拉数据加载失败")
 
         // 保存模块

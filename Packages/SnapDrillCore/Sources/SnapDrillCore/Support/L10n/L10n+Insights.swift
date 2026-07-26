@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  L10n 数据洞察分片：Dashboard / SmartPaper / Statistics。
+//  L10n 首页分片。
 //
 
 import Foundation
@@ -30,10 +30,8 @@ nonisolated extension L10n {
         public static let categoryManage = NSLocalizedString("dashboard.category_manage", value: "科目管理", comment: "科目管理卡片标题")
         public static let customize = NSLocalizedString("dashboard.customize", value: "自定义", comment: "自定义副标题")
 
-        // 每日统计
+        // 本地资料概览
         public static let todayAdded = NSLocalizedString("dashboard.today_added", value: "今日新增", comment: "今日新增")
-        public static let todayReviewed = NSLocalizedString("dashboard.today_reviewed", value: "今日回顾", comment: "今日回顾")
-        public static let dueReview = NSLocalizedString("dashboard.due_review", value: "待回顾", comment: "待回顾")
         public static let uncategorized = NSLocalizedString("dashboard.uncategorized", value: "未分类", comment: "统计中无分类维度值的资料分组")
 
         // 草稿恢复
@@ -67,11 +65,6 @@ nonisolated extension L10n {
         public static let welcome = NSLocalizedString("dashboard.welcome", value: "欢迎使用", comment: "欢迎使用")
         public static let welcomeSubtitle = NSLocalizedString("dashboard.welcome_subtitle", value: "添加第一条资料，开始整理", comment: "欢迎副标题")
         public static let captureItem = NSLocalizedString("dashboard.capture_item", value: "采集资料", comment: "采集资料按钮")
-        public static let todayDue = NSLocalizedString("dashboard.today_due", value: "今日待回顾", comment: "今日待回顾")
-        public static let startNow = NSLocalizedString("dashboard.start_now", value: "立即开始", comment: "立即开始按钮")
-        public static let allDone = NSLocalizedString("dashboard.all_done", value: "今日已完成", comment: "全部完成")
-        public static let allDoneSubtitle = NSLocalizedString("dashboard.all_done_subtitle", value: "待回顾内容已处理完", comment: "全部完成副标题")
-
         // 问候语
         public static let defaultName = NSLocalizedString("dashboard.default_name", value: "用户", comment: "默认用户名")
         public static let greetingNight = NSLocalizedString("dashboard.greeting_night", value: "夜深了，注意休息", comment: "夜间问候")
@@ -92,42 +85,4 @@ nonisolated extension L10n {
         }
     }
 
-    // MARK: - SmartPaper
-
-    public enum SmartPaper {
-        public static let title = NSLocalizedString("smart_paper.title", value: "智能组卷", comment: "智能组卷页标题")
-        public static let subtitle = NSLocalizedString("smart_paper.subtitle", value: "自动选出最需要复习的题目，生成练习卷", comment: "智能组卷副标题")
-        public static let generate = NSLocalizedString("smart_paper.generate", value: "生成试卷", comment: "生成试卷按钮")
-        public static let questionCount = NSLocalizedString("smart_paper.question_count", value: "题目数量", comment: "选题数量配置项")
-        public static let categoryFilter = NSLocalizedString("smart_paper.category_filter", value: "分类", comment: "分类筛选配置项")
-        public static let allCategories = NSLocalizedString("smart_paper.all_categories", value: "全部分类", comment: "分类筛选：不限")
-        public static let noItemsTitle = NSLocalizedString("smart_paper.no_items_title", value: "暂无可选题目", comment: "无题目时的空状态标题")
-        public static let noItemsMessage = NSLocalizedString("smart_paper.no_items_message", value: "当前筛选条件下没有题目，请调整筛选或先采集一些题目", comment: "无题目时的空状态描述")
-        public static let pdfTitle = NSLocalizedString("smart_paper.pdf_title", value: "智能复习卷", comment: "智能组卷 PDF 封面标题")
-        public static let freeQuotaUsed = NSLocalizedString(
-            "smart_paper.free_quota_used",
-            value: "本月免费组卷体验已用完。你仍可手动选择资料导出；Pro 功能稍后开放。",
-            comment: "SmartPaper 免费配额耗尽后的中性引导 Toast"
-        )
-        public static func selectedCount(_ count: Int) -> String {
-            String(format: NSLocalizedString("smart_paper.selected_count", value: "已选 %d 题", comment: "已选题目数量"), count)
-        }
-    }
-
-    // MARK: - Statistics
-
-    public enum Statistics {
-        public static let title = NSLocalizedString("statistics.title", value: "资料洞察", comment: "统计页标题")
-        public static let categoryTrend = NSLocalizedString("statistics.category_trend", value: "分类趋势", comment: "分类趋势图标题")
-        public static let last30Days = NSLocalizedString("statistics.last_30_days", value: "最近 30 天", comment: "时间范围标签")
-        public static let categoriesNeedingReview = NSLocalizedString("statistics.categories_needing_review", value: "待回顾较多的分类", comment: "待回顾较多分类标题")
-        public static let categoriesNeedingReviewHint = NSLocalizedString("statistics.categories_needing_review_hint", value: "这些分类的待回顾内容较多", comment: "待回顾较多分类副标题")
-        public static let noData = NSLocalizedString("statistics.no_data", value: "暂无数据", comment: "统计空状态标题")
-        public static let noDataHint = NSLocalizedString("statistics.no_data_hint", value: "采集一些资料后即可查看数据洞察", comment: "统计空状态描述")
-        public static let proRequired = NSLocalizedString("statistics.pro_required", value: "更多数据洞察稍后推出", comment: "Pro 功能即将上线占位（StoreKit 未接）")
-        public static let questionsCount = NSLocalizedString("statistics.questions_count", value: "条", comment: "资料数量单位")
-        public static func dueCount(_ count: Int) -> String {
-            String(format: NSLocalizedString("statistics.due_count", value: "待回顾 %d 条", comment: "分类待回顾数"), count)
-        }
-    }
 }
