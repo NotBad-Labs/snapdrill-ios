@@ -54,7 +54,6 @@ bash Scripts/check.sh
 
 ```text
 SnapDrill/                 App composition root
-SnapDrillShare/            Share Extension
 Packages/SnapDrillCore/    领域类型、服务协议、纯算法
 Packages/SnapDrillData/    SwiftData、Repository、文件与备份
 Packages/SnapDrillUI/      公共 SwiftUI 组件和路由协议

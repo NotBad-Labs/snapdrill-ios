@@ -99,7 +99,6 @@ deep link、通知、后台任务或其他副作用。
 | App 仍链接 Review target | `SnapDrill/App/SnapDrillApp.swift`、`Packages/SnapDrillFeatures/Package.swift` | 首版公开 shell 不注册 Review |
 | Library 仍可进入 SmartPaper | `SnapDrillFeatureLibrary/LibraryView.swift` | 首版公开构建不可达且无副作用 |
 | Dashboard 仍含 Pro analytics 实现 | `DashboardAnalyticsViewModel.swift` | 从公开组合中移除 |
-| App 仍嵌入 Share Extension 并共享 App Group | `SnapDrillShare/`、App 与 Extension entitlements | 首版不发布该入口；移除或经新产品决策批准 |
 | 当前备份仍是开发期 Profile 格式 | `BackupDTO.swift`、`BackupService.swift` | 在外部分发前实现稳定单资料库格式 |
 
 这些差异应按核心链路和数据风险排序逐步删除，不为保留历史代码修改 PRD。

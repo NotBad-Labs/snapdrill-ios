@@ -10,8 +10,6 @@
 
 import SwiftUI
 import Observation
-import UIKit
-import SnapDrillCore
 import SnapDrillFeatureCapture
 import SnapDrillFeatureLibrary
 import SnapDrillFeatureReview
@@ -80,76 +78,4 @@ final class AppRouter {
         }
     }
 
-    // MARK: - Public API
-
-    /// App Groups 共享容器标识符
-    private static let appGroupID = "group.com.snapdrill.global"
-
-    /// 处理 Share Extension 传入的深链接
-    ///
-    /// 从 URL 参数中解析文件名，在 App Groups 共享容器中读取对应图片，
-    /// 切换到采集 Tab 并进入 OCR 编辑流程。处理完成后自动清理临时文件。
-    ///
-    /// - Parameter url: 深链接 URL，格式为 `snapdrill://share?file=<UUID>.jpg`
-    func handleShareExtensionURL(_ url: URL) {
-        // 解析文件名参数
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
-              let fileName = components.queryItems?.first(where: { $0.name == "file" })?.value,
-              !fileName.isEmpty else {
-            SnapDrillLogger.capture.error("Share Extension URL 缺少 file 参数: \(url.absoluteString)")
-            return
-        }
-        guard Self.isValidShareFileName(fileName) else {
-            SnapDrillLogger.capture.error("Share Extension URL 包含非法 file 参数: \(fileName)")
-            return
-        }
-
-        guard let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: Self.appGroupID
-        ) else {
-            SnapDrillLogger.capture.error("无法获取 App Groups 共享容器路径")
-            return
-        }
-
-        let pendingURL = containerURL.appendingPathComponent(fileName)
-        guard FileManager.default.fileExists(atPath: pendingURL.path) else {
-            SnapDrillLogger.capture.error("Share Extension 文件不存在（可能被系统清理）: \(fileName)")
-            return
-        }
-        let data: Data
-        do {
-            data = try Data(contentsOf: pendingURL)
-        } catch {
-            SnapDrillLogger.capture.error("Share Extension 文件读取失败: \(fileName) - \(error.localizedDescription)")
-            return
-        }
-        guard let image = UIImage(data: data) else {
-            SnapDrillLogger.capture.error("Share Extension 图片解码失败: \(fileName)（data size: \(data.count) bytes）")
-            return
-        }
-
-        // best-effort: 临时文件清理，失败不影响功能
-        try? FileManager.default.removeItem(at: pendingURL)
-
-        // 先切换 Tab 并重置导航栈，延迟一个 RunLoop 周期后再 push，
-        // 避免 Tab 切换动画与导航 push 在同一帧竞争导致 push 丢失
-        selectedTab = .capture
-        captureRouter.path = NavigationPath()
-        Task {
-            // best-effort: 等待 Tab 切换动画完成，取消不影响正确性
-            try? await Task.sleep(for: .milliseconds(100))
-            captureRouter.push(.scannerResult(content: "", image: image, draftToken: nil))
-        }
-    }
-
-    private static func isValidShareFileName(_ fileName: String) -> Bool {
-        guard !fileName.isEmpty else { return false }
-        guard !fileName.contains(".."),
-              !fileName.contains("/"),
-              !fileName.contains("\\"),
-              !fileName.contains("\0") else {
-            return false
-        }
-        return true
-    }
 }

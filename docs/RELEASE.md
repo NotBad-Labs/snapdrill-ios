@@ -15,15 +15,12 @@
 | Mac / Vision compatibility | 关闭 | Xcode project build settings |
 | Team | `J58U72W335` | Xcode project |
 | App Bundle ID | `com.snapdrill.global` | `Configs/Shared.xcconfig` |
-| Share Bundle ID | `com.snapdrill.global.share` | Xcode project |
-| App Group | `group.com.snapdrill.global` | App / Share entitlements |
 | Marketing Version | `1.1.0` | `Configs/Shared.xcconfig` |
 | Build | `6` | `Configs/Shared.xcconfig` |
 | 语言 | 英文、简体中文 | localization resources |
 
-表中值是 2026-07-25 的开发配置快照，不表示已经公开发布。Share target 和 App Group 是当前
-实现事实，但 [PRD.md](PRD.md) 尚未批准 Share Extension 进入首版。配置文件是机器事实 owner；
-两者不一致时先核实 live 配置并更新本文，不能仅凭本文修改签名或发布资源。
+表中值是 2026-07-26 的开发配置快照，不表示已经公开发布。配置文件是机器事实 owner；与本文
+不一致时先核实 live 配置并更新本文，不能仅凭本文修改签名或发布资源。
 
 ## 2. 本地源码门禁
 

@@ -54,13 +54,6 @@
     },
     {
       "target" : {
-        "containerPath" : "container:SnapDrill.xcodeproj",
-        "identifier" : "32430982B0D10D41B3A4539C",
-        "name" : "SnapDrillShareTests"
-      }
-    },
-    {
-      "target" : {
         "containerPath" : "container:Packages\/SnapDrillUI",
         "identifier" : "SnapDrillUITests",
         "name" : "SnapDrillUITests"
