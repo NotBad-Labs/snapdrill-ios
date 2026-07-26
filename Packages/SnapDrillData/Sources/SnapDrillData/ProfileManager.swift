@@ -64,18 +64,11 @@ public final class ProfileManager {
     /// 需要 per-profile 隔离的 UserDefaults 键
     static let perProfileKeys: [String] = [
         UDKey.userName, UDKey.userAvatar, UDKey.userAvatarColorIndex, UDKey.userMotto,
-        UDKey.dailyReviewGoal,
         UDKey.captureFieldCategory, UDKey.captureFieldSource,
         UDKey.captureFieldLevel, UDKey.captureFieldAnswer,
         UDKey.lastSelectedCategory, UDKey.lastSelectedSource,
-        UDKey.cardFrontAlignment, UDKey.cardFrontFontSize,
-        UDKey.cardContextAlignment, UDKey.cardContextFontSize,
-        UDKey.reviewReminderEnabled, UDKey.reviewReminderTime,
-        UDKey.notificationsEnabled, UDKey.notificationHour, UDKey.notificationMinute,
-        UDKey.soundEnabled,
         UDKey.captureDraftMetadata,
-        UDKey.smartPaperFreeQuotaMonth, UDKey.smartPaperFreeQuotaUsed,
-        UDKey.tipReviewSwipeSeen, UDKey.tipFieldConfigSeen
+        UDKey.tipFieldConfigSeen
     ]
 
     // MARK: - Initialization
@@ -307,8 +300,7 @@ public final class ProfileManager {
             UDKey.captureFieldCategory: false,
             UDKey.captureFieldSource: false,
             UDKey.captureFieldLevel: false,
-            UDKey.captureFieldAnswer: false,
-            UDKey.dailyReviewGoal: 10
+            UDKey.captureFieldAnswer: false
         ]
     }
 

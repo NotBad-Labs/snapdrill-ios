@@ -69,7 +69,7 @@ final class LibraryEditMetadataReadinessTests {
 
         var notificationCount = 0
         let observer = NotificationCenter.default.addObserver(
-            forName: .reviewDataDidChange,
+            forName: .libraryDataDidChange,
             object: nil,
             queue: .main
         ) { _ in

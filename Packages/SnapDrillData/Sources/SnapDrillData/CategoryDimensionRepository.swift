@@ -66,7 +66,7 @@ public final class CategoryDimensionRepository {
         }
         modelContext.insert(model)
         try modelContext.save()
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
     }
 
     /// 删除维度（仅非内置）。显式遍历删除其所有值后再删维度——
@@ -90,13 +90,13 @@ public final class CategoryDimensionRepository {
             rollbackContext()
             throw error
         }
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
     }
 
     /// 保存 ModelContext（直接改 @Model 属性后调用）
     public func saveContext() throws {
         try modelContext.save()
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
     }
 
     /// 回滚未持久化变更
@@ -123,7 +123,7 @@ public final class CategoryDimensionRepository {
             seedLevelDimension(zh: zh)
             seedTagDimension(zh: zh)
             try modelContext.save()
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
         } catch {
             modelContext.rollback()
             SnapDrillLogger.generic.error("初始化默认分类维度失败: \(error.localizedDescription)")

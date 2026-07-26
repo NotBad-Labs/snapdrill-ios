@@ -20,12 +20,10 @@ struct ExportPreviewView: View {
     
     let items: [ArchiveExportSnapshot]
     var options: PDFExportOptions = .default
-    var onExport: (() -> Void)?
 
     @State private var pdfData: Data?
     @State private var isLoading = true
     @State private var tempPDFURL: URL?
-    @State private var showingShareSheet = false
     @State private var showGenerateError = false
     @State private var generateErrorMessage = L10n.Errors.pdfGenerateFailed
     @State private var showPrintError = false
@@ -91,19 +89,10 @@ struct ExportPreviewView: View {
         .toolbar {
             ToolbarItemGroup(placement: .confirmationAction) {
                 if let tempPDFURL {
-                    if onExport == nil {
-                        ShareLink(item: tempPDFURL) {
-                            Label(L10n.Library.share, systemImage: "square.and.arrow.up")
-                        }
-                        .accessibilityIdentifier("library.exportPreview.share")
-                    } else {
-                        Button {
-                            showingShareSheet = true
-                        } label: {
-                            Label(L10n.Library.share, systemImage: "square.and.arrow.up")
-                        }
-                        .accessibilityIdentifier("library.exportPreview.share")
+                    ShareLink(item: tempPDFURL) {
+                        Label(L10n.Library.share, systemImage: "square.and.arrow.up")
                     }
+                    .accessibilityIdentifier("library.exportPreview.share")
                 }
 
                 if pdfData != nil {
@@ -129,22 +118,6 @@ struct ExportPreviewView: View {
         .alert(L10n.Library.printFailed, isPresented: $showPrintError) {
             Button(L10n.Common.ok, role: .cancel) {}
         }
-        .sheet(
-            isPresented: $showingShareSheet,
-            onDismiss: {
-                showingShareSheet = false
-            },
-            content: {
-                if let tempPDFURL, let onExport {
-                    PDFActivityView(activityItems: [tempPDFURL]) { completed in
-                        showingShareSheet = false
-                        if completed {
-                            onExport()
-                        }
-                    }
-                }
-            }
-        )
         .task {
             generatePDF()
         }
@@ -231,12 +204,11 @@ struct ExportPreviewView: View {
                 guard let printAnchorView else {
                     throw PrintError.presentationFailed
                 }
-                let outcome = try await presenter.present(
+                _ = try await presenter.present(
                     pdfData: pdfData,
                     jobName: L10n.Library.exportPreview,
                     anchor: .view(printAnchorView)
                 )
-                Self.notifyExportIfPrintCompleted(outcome, onExport: onExport)
             } catch {
                 SnapDrillLogger.generic.error("PDF 打印失败: \(error.localizedDescription)")
                 showPrintError = true
@@ -244,31 +216,6 @@ struct ExportPreviewView: View {
         }
     }
 
-    /// Maps the system print outcome to the export-consumption callback.
-    ///
-    /// This is intentionally tiny: SmartPaper free quota consumption is owned by
-    /// `SmartPaperViewModel`; `ExportPreviewView` only reports a completed export.
-    static func notifyExportIfPrintCompleted(_ outcome: PrintOutcome, onExport: (() -> Void)?) {
-        guard outcome == .completed else { return }
-        onExport?()
-    }
-}
-
-private struct PDFActivityView: UIViewControllerRepresentable {
-    let activityItems: [Any]
-    let onComplete: (Bool) -> Void
-
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        let controller = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-        controller.completionWithItemsHandler = { _, completed, _, _ in
-            DispatchQueue.main.async {
-                onComplete(completed)
-            }
-        }
-        return controller
-    }
-
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 private struct ExportPrintAnchorView: UIViewRepresentable {

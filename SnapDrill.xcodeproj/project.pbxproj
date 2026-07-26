@@ -10,26 +10,10 @@
 		AG_BF_CAPTURE /* SnapDrillFeatureCapture in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_CAPTURE /* SnapDrillFeatureCapture */; };
 		AG_BF_DASHBOARD /* SnapDrillFeatureDashboard in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */; };
 		AG_BF_LIBRARY /* SnapDrillFeatureLibrary in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_LIBRARY /* SnapDrillFeatureLibrary */; };
-		AG_BF_REVIEW /* SnapDrillFeatureReview in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_REVIEW /* SnapDrillFeatureReview */; };
 		AG_BF_SETTINGS /* SnapDrillFeatureSettings in Frameworks */ = {isa = PBXBuildFile; productRef = AG_PROD_SETTINGS /* SnapDrillFeatureSettings */; };
-		B8989386BBFDC051AA9CE0CC /* SnapDrillShare.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		476BBD2C3C76074DFC775765 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B27BD9572E560D0600E69277 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 1461CA3057053272D0AE578A;
-			remoteInfo = SnapDrillShare;
-		};
-		982EEE0D9ABEB4564D07FA18 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B27BD9572E560D0600E69277 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = B27BD95E2E560D0600E69277;
-			remoteInfo = SnapDrill;
-		};
 		B27BD97B2E560D0800E69277 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = B27BD9572E560D0600E69277 /* Project object */;
@@ -39,20 +23,6 @@
 		};
 /* End PBXContainerItemProxy section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		D986938E14E3A8A9CD01A0AD /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				B8989386BBFDC051AA9CE0CC /* SnapDrillShare.appex in Embed App Extensions */,
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		0E66BDA302EA72542A2B2DE8 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = SnapDrill/Assets.xcassets; sourceTree = "<group>"; };
 		B27BD95F2E560D0600E69277 /* SnapDrill.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapDrill.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -61,89 +31,45 @@
 		B2B4A4B72F04F26F00209449 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		B2BE0C9C2E727CC6001369C3 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B2F0D1002F00000100AAA001 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		C7BDE9A20F545996518ADF81 /* SnapDrillShareTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapDrillShareTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SnapDrillShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		C8487D3BDBC1CE67D7B1525B /* Exceptions for "SnapDrillShare" folder in "SnapDrillShare" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 1461CA3057053272D0AE578A /* SnapDrillShare */;
-		};
-		CD7E7D3E0406B8629C60470A /* Exceptions for "SnapDrillShare" folder in "SnapDrillShareTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				SharedContainerImageWriter.swift,
-				ShareDeepLinkBuilder.swift,
-				ShareImageDownsampler.swift,
-			);
-			target = 32430982B0D10D41B3A4539C /* SnapDrillShareTests */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		4266B465D4AD0263778BB531 /* SnapDrillShareTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SnapDrillShareTests;
-			sourceTree = "<group>";
-		};
 		B27BD9612E560D0700E69277 /* SnapDrill */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = SnapDrill;
 			sourceTree = "<group>";
 		};
 		B27BD97D2E560D0800E69277 /* SnapDrillUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = SnapDrillUITests;
 			sourceTree = "<group>";
 		};
 		B2PACKAGES001 /* Packages */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Packages;
-			sourceTree = "<group>";
-		};
-		E8DDF811D934C077B6C033F6 /* SnapDrillShare */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				C8487D3BDBC1CE67D7B1525B /* Exceptions for "SnapDrillShare" folder in "SnapDrillShare" target */,
-				CD7E7D3E0406B8629C60470A /* Exceptions for "SnapDrillShare" folder in "SnapDrillShareTests" target */,
 			);
-			path = SnapDrillShare;
+			path = Packages;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		24F971F2A3D59C9E4CDF83E8 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		B27BD95C2E560D0600E69277 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				AG_BF_CAPTURE /* SnapDrillFeatureCapture in Frameworks */,
 				AG_BF_LIBRARY /* SnapDrillFeatureLibrary in Frameworks */,
-				AG_BF_REVIEW /* SnapDrillFeatureReview in Frameworks */,
 				AG_BF_DASHBOARD /* SnapDrillFeatureDashboard in Frameworks */,
 				AG_BF_SETTINGS /* SnapDrillFeatureSettings in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B27BD9772E560D0800E69277 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		E13FBFD4E785717CDBB9F54B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -189,8 +115,6 @@
 				B2B4A4B62F04F25600209449 /* Debug.xcconfig */,
 				B2B4A4B72F04F26F00209449 /* Release.xcconfig */,
 				19969A73D6FBAE29E8E5BCAE /* Resources */,
-				E8DDF811D934C077B6C033F6 /* SnapDrillShare */,
-				4266B465D4AD0263778BB531 /* SnapDrillShareTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -199,519 +123,6 @@
 			children = (
 				B27BD95F2E560D0600E69277 /* SnapDrill.app */,
 				B27BD97A2E560D0800E69277 /* SnapDrillUITests.xctest */,
-				D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */,
-				C7BDE9A20F545996518ADF81 /* SnapDrillShareTests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B55532F5883A90005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B55552F5883A90005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B889E2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88A02F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88A22F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88A42F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88A62F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88A82F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88AA2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88AC2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88AE2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88B02F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88B22F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88B42F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88B62F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88B82F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88BA2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88BC2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88BE2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88C02F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88C22F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88C42F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88C62F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88C82F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88CA2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88CC2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88CE2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88D02F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88D22F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88D42F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88D62F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88D82F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88DA2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88DC2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B88DE2F5885210005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B9C972F5885C00005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B9C992F5885C00005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17B9C9B2F5885C00005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F17BA1AE2F5885C60005C752 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F18844192F52CC66008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F18845522F52CC68008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F18847BE2F52CC69008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F18848932F52CC69008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1885FF22F52CCB3008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1885FF42F52CCB3008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1885FF62F52CCB3008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F18863292F52CCB3008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F188632B2F52CCB3008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F188632D2F52CCB3008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F188632F2F52CCB3008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F18863312F52CCB3008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F18863332F52CCB3008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886EED2F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886EEF2F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886EF12F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886EF32F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886EF52F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886EF72F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886EF92F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886EFB2F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886EFD2F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886EFF2F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886F012F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886F032F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886F052F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886F072F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886F092F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886F0B2F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886F0D2F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886F0F2F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886F112F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886F132F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		F1886F152F52CCB4008C2060 /* Products */ = {
-			isa = PBXGroup;
-			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -719,47 +130,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		1461CA3057053272D0AE578A /* SnapDrillShare */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 767557A5F06687F85BBC7251 /* Build configuration list for PBXNativeTarget "SnapDrillShare" */;
-			buildPhases = (
-				DBC297D6BC723240E1501B37 /* Sources */,
-				24F971F2A3D59C9E4CDF83E8 /* Frameworks */,
-				BD3639BF35EFBE799B6261FF /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				E8DDF811D934C077B6C033F6 /* SnapDrillShare */,
-			);
-			name = SnapDrillShare;
-			productName = SnapDrillShare;
-			productReference = D051FB2A1C07649BDD931C31 /* SnapDrillShare.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
-		32430982B0D10D41B3A4539C /* SnapDrillShareTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = AC106652729E583119210648 /* Build configuration list for PBXNativeTarget "SnapDrillShareTests" */;
-			buildPhases = (
-				0520D9BA70ABE0E61F5F982D /* Sources */,
-				E13FBFD4E785717CDBB9F54B /* Frameworks */,
-				CC69535A5D09CADB1B86438D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				33A35C3649588F24A46FD365 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				4266B465D4AD0263778BB531 /* SnapDrillShareTests */,
-			);
-			name = SnapDrillShareTests;
-			productName = SnapDrillShareTests;
-			productReference = C7BDE9A20F545996518ADF81 /* SnapDrillShareTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		B27BD95E2E560D0600E69277 /* SnapDrill */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B27BD9832E560D0800E69277 /* Build configuration list for PBXNativeTarget "SnapDrill" */;
@@ -768,12 +138,10 @@
 				B27BD95B2E560D0600E69277 /* Sources */,
 				B27BD95C2E560D0600E69277 /* Frameworks */,
 				B27BD95D2E560D0600E69277 /* Resources */,
-				D986938E14E3A8A9CD01A0AD /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				0B1EAB07FC58E6A9E95EA481 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				B27BD9612E560D0700E69277 /* SnapDrill */,
@@ -782,7 +150,6 @@
 			packageProductDependencies = (
 				AG_PROD_CAPTURE /* SnapDrillFeatureCapture */,
 				AG_PROD_LIBRARY /* SnapDrillFeatureLibrary */,
-				AG_PROD_REVIEW /* SnapDrillFeatureReview */,
 				AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */,
 				AG_PROD_SETTINGS /* SnapDrillFeatureSettings */,
 			);
@@ -844,10 +211,10 @@
 			mainGroup = B27BD9562E560D0600E69277;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */,
-				B2PKG_CORE /* XCLocalSwiftPackageReference "Packages/SnapDrillCore" */,
-				B2PKG_DATA /* XCLocalSwiftPackageReference "Packages/SnapDrillData" */,
-				B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */,
+				AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */,
+				B2PKG_CORE /* XCLocalSwiftPackageReference "SnapDrillCore" */,
+				B2PKG_DATA /* XCLocalSwiftPackageReference "SnapDrillData" */,
+				B2PKG_UI /* XCLocalSwiftPackageReference "SnapDrillUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B27BD9602E560D0600E69277 /* Products */;
@@ -856,8 +223,6 @@
 			targets = (
 				B27BD95E2E560D0600E69277 /* SnapDrill */,
 				B27BD9792E560D0800E69277 /* SnapDrillUITests */,
-				1461CA3057053272D0AE578A /* SnapDrillShare */,
-				32430982B0D10D41B3A4539C /* SnapDrillShareTests */,
 			);
 		};
 /* End PBXProject section */
@@ -871,20 +236,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		B27BD9782E560D0800E69277 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BD3639BF35EFBE799B6261FF /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CC69535A5D09CADB1B86438D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -916,13 +267,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		0520D9BA70ABE0E61F5F982D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		B27BD95B2E560D0600E69277 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -937,28 +281,9 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		DBC297D6BC723240E1501B37 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		0B1EAB07FC58E6A9E95EA481 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = SnapDrillShare;
-			target = 1461CA3057053272D0AE578A /* SnapDrillShare */;
-			targetProxy = 476BBD2C3C76074DFC775765 /* PBXContainerItemProxy */;
-		};
-		33A35C3649588F24A46FD365 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = SnapDrill;
-			target = B27BD95E2E560D0600E69277 /* SnapDrill */;
-			targetProxy = 982EEE0D9ABEB4564D07FA18 /* PBXContainerItemProxy */;
-		};
 		B27BD97C2E560D0800E69277 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B27BD95E2E560D0600E69277 /* SnapDrill */;
@@ -967,68 +292,17 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		16EF5730E20366FA6C456D28 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = J58U72W335;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global.sharetests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 6.3;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SnapDrill.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SnapDrill";
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		89A188B89E94F98F1A1943CA /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = SnapDrillShare/SnapDrillShare.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = J58U72W335;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = SnapDrillShare/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global.share;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 6.3;
-				TARGETED_DEVICE_FAMILY = 1;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
 		B27BD9842E560D0800E69277 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = SnapDrill/SnapDrill.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = J58U72W335;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.global</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to capture and recognize the materials you choose.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import the images you choose.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1058,14 +332,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = SnapDrill/SnapDrill.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = J58U72W335;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleURLTypes = "<array><dict><key>CFBundleTypeRole</key><string>Editor</string><key>CFBundleURLName</key><string>com.snapdrill.global</string><key>CFBundleURLSchemes</key><array><string>snapdrill</string></array></dict></array>";
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs camera access to capture and recognize the materials you choose.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill needs photo library access to import the images you choose.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1253,74 +525,9 @@
 			};
 			name = Release;
 		};
-		C32C510541F7E2AA7CB1DA27 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_ENTITLEMENTS = SnapDrillShare/SnapDrillShare.entitlements;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = J58U72W335;
-				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = SnapDrillShare/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global.share;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = YES;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 6.3;
-				TARGETED_DEVICE_FAMILY = 1;
-			};
-			name = Debug;
-		};
-		D1883F0C00D3FA9ACD21E6D7 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CLANG_ENABLE_OBJC_WEAK = NO;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = J58U72W335;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.snapdrill.global.sharetests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 6.3;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SnapDrill.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SnapDrill";
-			};
-			name = Debug;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		767557A5F06687F85BBC7251 /* Build configuration list for PBXNativeTarget "SnapDrillShare" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				89A188B89E94F98F1A1943CA /* Release */,
-				C32C510541F7E2AA7CB1DA27 /* Debug */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		AC106652729E583119210648 /* Build configuration list for PBXNativeTarget "SnapDrillShareTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				16EF5730E20366FA6C456D28 /* Release */,
-				D1883F0C00D3FA9ACD21E6D7 /* Debug */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		B27BD95A2E560D0600E69277 /* Build configuration list for PBXProject "SnapDrill" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1351,19 +558,19 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */ = {
+		AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillFeatures;
 		};
-		B2PKG_CORE /* XCLocalSwiftPackageReference "Packages/SnapDrillCore" */ = {
+		B2PKG_CORE /* XCLocalSwiftPackageReference "SnapDrillCore" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillCore;
 		};
-		B2PKG_DATA /* XCLocalSwiftPackageReference "Packages/SnapDrillData" */ = {
+		B2PKG_DATA /* XCLocalSwiftPackageReference "SnapDrillData" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillData;
 		};
-		B2PKG_UI /* XCLocalSwiftPackageReference "Packages/SnapDrillUI" */ = {
+		B2PKG_UI /* XCLocalSwiftPackageReference "SnapDrillUI" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/SnapDrillUI;
 		};
@@ -1372,27 +579,22 @@
 /* Begin XCSwiftPackageProductDependency section */
 		AG_PROD_CAPTURE /* SnapDrillFeatureCapture */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
 			productName = SnapDrillFeatureCapture;
 		};
 		AG_PROD_DASHBOARD /* SnapDrillFeatureDashboard */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
 			productName = SnapDrillFeatureDashboard;
 		};
 		AG_PROD_LIBRARY /* SnapDrillFeatureLibrary */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
 			productName = SnapDrillFeatureLibrary;
-		};
-		AG_PROD_REVIEW /* SnapDrillFeatureReview */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
-			productName = SnapDrillFeatureReview;
 		};
 		AG_PROD_SETTINGS /* SnapDrillFeatureSettings */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "Packages/SnapDrillFeatures" */;
+			package = AG_PKG_FEATURES /* XCLocalSwiftPackageReference "SnapDrillFeatures" */;
 			productName = SnapDrillFeatureSettings;
 		};
 /* End XCSwiftPackageProductDependency section */

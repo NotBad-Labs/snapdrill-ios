@@ -70,7 +70,7 @@ public final class SettingsViewModel {
         clearError = nil
         do {
             try await repositories.deleteAllData()
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
             SnapDrillLogger.generic.info("所有数据已清空，已通知 UI 刷新。")
         } catch {
             // deleteAllData 是单次 saveContext 原子操作，失败时其内部已 rollback DB（旧数据完整保留）；
@@ -140,7 +140,7 @@ public final class SettingsViewModel {
 
         do {
             try await coordinator.restoreFromBackup(fileURL: fileURL)
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: self)
+            NotificationCenter.default.post(name: .libraryDataDidChange, object: self)
             backupStatusMessage = L10n.Settings.restoreComplete
         } catch {
             backupError = L10n.Errors.restoreFailed
@@ -202,7 +202,7 @@ public final class SettingsViewModel {
                     dimensionsBySystemKey[systemKey] = dimension
                 }
             }
-            let fixedKeys: Set<String> = ["id", "content", "answer", "createdat", "lastreviewed", "nextreview"]
+            let fixedKeys: Set<String> = ["id", "content", "answer", "createdat"]
             let context = CSVImportContext(
                 fixedKeys: fixedKeys,
                 dimensionsBySystemKey: dimensionsBySystemKey,
@@ -228,7 +228,7 @@ public final class SettingsViewModel {
 
             try repositories.archive.saveContext()
 
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
             backupStatusMessage = L10n.Settings.importComplete(rows.count)
             SnapDrillLogger.generic.info("CSV 导入完成: \(rows.count) 道题")
         } catch {

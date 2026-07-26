@@ -43,7 +43,7 @@ public extension Date {
     /// 相对时间描述（L10n 本地化）
     ///
     /// 保留原始精确天数逻辑，仅将硬编码中文替换为 L10n 键。
-    /// 不使用 `RelativeDateTimeFormatter`：它的粒度不适合复习场景
+    /// 不使用 `RelativeDateTimeFormatter`：它的粒度不适合草稿时间提示
     /// （”今天”变”现在”、7-13天都显示”下周”丢失精度）。
     func relativeDescription(relativeTo other: Date = Date()) -> String {
         let calendar = Calendar.current

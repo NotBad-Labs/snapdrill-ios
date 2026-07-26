@@ -15,42 +15,10 @@ nonisolated extension L10n {
     // MARK: - Accessibility
 
     public enum Accessibility {
-        // 回顾卡片
-        public static let flipToAnswer = NSLocalizedString("accessibility.flip_to_answer", value: "双击翻转查看参考内容", comment: "VoiceOver 翻卡提示")
-        public static let flipToQuestion = NSLocalizedString("accessibility.flip_to_question", value: "双击翻转回到内容", comment: "VoiceOver 翻卡提示")
-        public static let flippedToAnswer = NSLocalizedString("accessibility.flipped_to_answer", value: "已翻到参考内容面", comment: "VoiceOver 翻卡公告")
-        public static let flippedToQuestion = NSLocalizedString("accessibility.flipped_to_question", value: "已翻到内容面", comment: "VoiceOver 翻卡公告")
         public static let showAnswer = NSLocalizedString("accessibility.show_answer", value: "显示参考内容", comment: "VoiceOver 翻面按钮")
         public static let hideAnswer = NSLocalizedString("accessibility.hide_answer", value: "隐藏参考内容", comment: "VoiceOver 翻面按钮")
-        public static let undo = NSLocalizedString("accessibility.undo", value: "撤销", comment: "VoiceOver 撤销按钮")
-        public static let undoHint = NSLocalizedString("accessibility.undo_hint", value: "撤销上一次回顾操作", comment: "VoiceOver 撤销按钮提示")
-        public static let pauseReview = NSLocalizedString("accessibility.pause_review", value: "暂停回顾", comment: "VoiceOver 暂停按钮")
-        public static let moreActions = NSLocalizedString("accessibility.more_actions", value: "更多操作", comment: "VoiceOver 省略号菜单")
         public static let questionImage = NSLocalizedString("accessibility.question_image", value: "资料图片", comment: "VoiceOver 资料图片")
         public static let answerImage = NSLocalizedString("accessibility.answer_image", value: "参考图片", comment: "VoiceOver 参考图片")
-        public static let forgotHint = NSLocalizedString("accessibility.forgot_hint", value: "标记为没印象，稍后会再次出现", comment: "VoiceOver 没印象按钮提示")
-        public static let rememberHint = NSLocalizedString("accessibility.remember_hint", value: "标记为有印象，延长回顾间隔", comment: "VoiceOver 有印象按钮提示")
-
-        // 回顾摘要
-        public static func summaryAnnouncement(good: Int, again: Int) -> String {
-            String(format: NSLocalizedString("accessibility.summary_announcement", value: "回顾完成，有印象 %d 条，需回看 %d 条", comment: "VoiceOver 回顾摘要公告"), good, again)
-        }
-        public static func statCard(title: String, count: Int) -> String {
-            String(format: NSLocalizedString("accessibility.stat_card", value: "%@ %d 条", comment: "VoiceOver 统计卡片"), title, count)
-        }
-
-        // 回顾 Dashboard
-        public static func pendingReview(count: Int) -> String {
-            String(format: NSLocalizedString("accessibility.pending_review", value: "待回顾 %d 条内容", comment: "VoiceOver 待回顾数"), count)
-        }
-        public static func reviewedToday(count: Int) -> String {
-            String(format: NSLocalizedString("accessibility.reviewed_today", value: "今日已回顾 %d 条内容", comment: "VoiceOver 今日回顾数"), count)
-        }
-        public static let startReviewHint = NSLocalizedString("accessibility.start_review_hint", value: "开始今日回顾", comment: "VoiceOver 开始回顾提示")
-
-        public static func reviewButtonHint(count: Int) -> String {
-            String(format: NSLocalizedString("accessibility.review_button_hint", value: "轻点开始回顾 %d 条内容", comment: "VoiceOver 回顾按钮提示"), count)
-        }
         public static func exportButtonHint(format: String) -> String {
             String(format: NSLocalizedString("accessibility.export_button_hint", value: "轻点导出为 %@ 格式", comment: "VoiceOver 导出按钮提示"), format)
         }
@@ -68,18 +36,6 @@ nonisolated extension L10n {
         // 首页仪表盘
         public static let profile = NSLocalizedString("accessibility.profile", value: "个人资料", comment: "VoiceOver 头像按钮")
         public static let profileHint = NSLocalizedString("accessibility.profile_hint", value: "打开设置页面", comment: "VoiceOver 头像按钮提示")
-        public static let captureFirstItemHint = NSLocalizedString("accessibility.capture_first_item_hint", value: "拍照录入第一条资料", comment: "VoiceOver 首次录入按钮提示")
-        public static let startReviewNowHint = NSLocalizedString("accessibility.start_review_now_hint", value: "开始回顾待处理内容", comment: "VoiceOver 立即开始按钮提示")
-        public static let allDoneLabel = NSLocalizedString("accessibility.all_done_label", value: "今日回顾已完成", comment: "VoiceOver 全部完成卡片")
-        public static func dueCountLabel(count: Int) -> String {
-            String(format: NSLocalizedString("accessibility.due_count_label", value: "今日待回顾 %d 条内容", comment: "VoiceOver 待回顾数"), count)
-        }
-        public static func reviewProgressLabel(reviewed: Int, total: Int) -> String {
-            String(format: NSLocalizedString("accessibility.review_progress_label", value: "今日回顾进度，已处理 %d 条，共 %d 条", comment: "VoiceOver 回顾进度环"), reviewed, total)
-        }
-        public static func dailyStatsLabel(added: Int, reviewed: Int, due: Int) -> String {
-            String(format: NSLocalizedString("accessibility.daily_stats_label", value: "今日统计：新增 %d 条，已回顾 %d 条，待回顾 %d 条", comment: "VoiceOver 每日统计"), added, reviewed, due)
-        }
 
         // 采集模块
         public static let takePhoto = NSLocalizedString("accessibility.take_photo", value: "拍照", comment: "VoiceOver 快门按钮")
@@ -132,7 +88,7 @@ nonisolated extension L10n {
         public static let fieldSourceHint = NSLocalizedString("accessibility.field_source_hint", value: "开启后录入时显示来源选择", comment: "VoiceOver 来源字段提示")
         public static let fieldLevelHint = NSLocalizedString("accessibility.field_level_hint", value: "开启后录入时显示级别选择", comment: "VoiceOver 级别字段提示")
         public static let fieldAnswerHint = NSLocalizedString("accessibility.field_answer_hint", value: "开启后录入时显示答案输入", comment: "VoiceOver 答案字段提示")
-        public static let clearAllDataHint = NSLocalizedString("accessibility.clear_all_data_hint", value: "删除所有资料、标签和回顾记录，不可恢复", comment: "VoiceOver 清除数据提示")
+        public static let clearAllDataHint = NSLocalizedString("accessibility.clear_all_data_hint", value: "删除所有资料和分类，不可恢复", comment: "VoiceOver 清除数据提示")
         public static let generateTestDataHint = NSLocalizedString("accessibility.generate_test_data_hint", value: "生成模拟数据用于调试", comment: "VoiceOver 生成测试数据提示")
         public static let setAvatarHint = NSLocalizedString("accessibility.set_avatar_hint", value: "从相册或系统图标中选择头像", comment: "VoiceOver 设置头像提示")
         public static func avatarColorName(_ index: Int) -> String {
@@ -146,11 +102,6 @@ nonisolated extension L10n {
             ]
             let name = index < names.count ? names[index] : ""
             return String(format: NSLocalizedString("accessibility.avatar_color_name", value: "主题色 %@", comment: "VoiceOver 头像颜色名称"), name)
-        }
-        public static let enableReminderHint = NSLocalizedString("accessibility.enable_reminder_hint", value: "每天定时提醒你回顾到期的资料", comment: "VoiceOver 开启提醒提示")
-        public static let soundToggleHint = NSLocalizedString("accessibility.sound_toggle_hint", value: "提醒时播放提示音", comment: "VoiceOver 声音开关提示")
-        public static func fontSizeValue(_ size: Int) -> String {
-            String(format: NSLocalizedString("accessibility.font_size_value", value: "%d 磅", comment: "VoiceOver 字号值"), size)
         }
         public static let backupDataHint = NSLocalizedString("accessibility.backup_data_hint", value: "导出完整数据备份文件", comment: "VoiceOver 备份数据提示")
         public static let restoreDataHint = NSLocalizedString("accessibility.restore_data_hint", value: "从备份文件恢复所有数据，会覆盖当前数据", comment: "VoiceOver 恢复数据提示")

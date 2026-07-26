@@ -67,7 +67,7 @@ struct ExportOptionsSheet: View {
 
                             // 2. CSV (.csv)
                             ShareLink(
-                                item: ReviewExport(items: items, format: .csv),
+                                item: LibraryExportTransfer(items: items, format: .csv),
                                 preview: SharePreview(L10n.Library.exportCSV, image: Image(systemName: "tablecells"))
                             ) {
                                 ExportOptionLabel(
@@ -260,7 +260,7 @@ private struct ZIPShareSheet: UIViewControllerRepresentable {
 // MARK: - Transferable Export Model
 import UniformTypeIdentifiers
 
-struct ReviewExport: Transferable {
+struct LibraryExportTransfer: Transferable {
     let items: [ArchiveExportSnapshot]
     let format: ExportFormat
     
@@ -314,8 +314,8 @@ struct ReviewExport: Transferable {
     private func generateContent() -> String {
         switch format {
         case .csv:
-            // CSV 列 schema / 转义 / 公式注入防护统一由 ReviewCSVCodec 提供（单一契约源）。
-            return ReviewCSVCodec.makeCSV(items)
+            // CSV 列 schema / 转义 / 公式注入防护统一由 ArchiveCSVCodec 提供（单一契约源）。
+            return ArchiveCSVCodec.makeCSV(items)
         }
     }
 }

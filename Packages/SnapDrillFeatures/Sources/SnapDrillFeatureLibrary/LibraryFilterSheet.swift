@@ -80,13 +80,3 @@ struct LibraryFilterSheet: View {
         }
     }
 }
-
-// #Preview {
-//     LibraryFilterSheet(
-//         viewModel: LibraryViewModel(
-//             reviewRepo: PreviewRepositoryContainer().archive,
-//             categoryRepo: PreviewRepositoryContainer().category,
-//             tagRepo: PreviewRepositoryContainer().tag
-//         )
-//     )
-// }

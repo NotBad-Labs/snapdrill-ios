@@ -137,8 +137,6 @@
 "dashboard.category_manage" = "分类管理";
 "dashboard.customize" = "管理分类";
 "dashboard.today_added" = "今日新增";
-"dashboard.today_reviewed" = "今日回顾";
-"dashboard.due_review" = "待回顾";
 "dashboard.draft_alert_title" = "恢复未完成的采集？";
 "dashboard.draft_start_new" = "开始新的";
 "dashboard.draft_restore" = "恢复";
@@ -148,10 +146,6 @@
 "dashboard.welcome" = "欢迎使用";
 "dashboard.welcome_subtitle" = "添加第一条资料，开始整理";
 "dashboard.capture_item" = "采集资料";
-"dashboard.today_due" = "今日待回顾";
-"dashboard.start_now" = "立即开始";
-"dashboard.all_done" = "今日已完成";
-"dashboard.all_done_subtitle" = "待回顾内容已处理完";
 "dashboard.default_name" = "用户";
 "dashboard.greeting_night" = "夜深了，注意休息";
 "dashboard.greeting_morning_generic" = "早安";
@@ -171,10 +165,8 @@
 "library.no_search_results_hint" = "尝试调整搜索词或过滤条件";
 "library.sort_by_date" = "按时间";
 "library.sort_by_category" = "按分类";
-"library.sort_by_review_status" = "按复习状态";
 "library.sort_time" = "时间";
 "library.sort_category" = "分类";
-"library.sort_review_status" = "复习状态";
 "library.all_categories" = "全部";
 "library.no_content" = "无文字内容";
 "library.no_category" = "未分类";
@@ -190,8 +182,6 @@
 "library.answer_image" = "答案图片";
 "library.no_answer" = "暂无答案";
 "library.created_at" = "录入时间";
-"library.next_review" = "下次复习";
-"library.not_scheduled" = "未安排";
 "library.edit_title" = "编辑资料";
 "library.edit_question" = "编辑资料";
 "library.edit_content" = "编辑内容";
@@ -209,7 +199,7 @@
 "library.export" = "导出";
 "library.export_title" = "导出选项";
 "library.export_pdf" = "PDF / 打印";
-"library.export_pdf_hint" = "适合打印复习";
+"library.export_pdf_hint" = "适合排版与打印";
 "library.export_csv" = "CSV";
 "library.export_csv_hint" = "适合表格处理";
 "library.export_preview" = "导出预览";
@@ -267,43 +257,6 @@
 "library.duplicate_name" = "名称已存在";
 "library.duplicate_name_message" = "「%@」已被使用，请输入其他名称。";
 
-// MARK: - Review
-
-"review.title" = "回顾";
-"review.completed" = "已回顾";
-"review.pause_alert_title" = "确认暂停回顾？";
-"review.pause_continue" = "继续";
-"review.pause_confirm" = "暂停";
-"review.pause_message" = "当前进度将保存，你可以稍后继续。";
-"review.tooltip_title" = "卡片操作";
-"review.tooltip_message" = "轻点卡片查看参考内容。左滑表示没印象，右滑表示有印象。";
-"review.stamp_forgot" = "没印象";
-"review.stamp_remember" = "有印象";
-"review.pending" = "待回顾";
-"review.today_review" = "今日回顾";
-"review.cards_pending" = "条内容待处理";
-"review.welcome_back" = "开始回顾";
-"review.empty_title" = "暂无回顾内容";
-"review.empty_hint" = "采集或导入资料后，可在这里按计划回顾。";
-"review.empty_action" = "去采集";
-"review.excellent" = "当前没有待处理内容。";
-"review.start_review" = "开始回顾";
-"review.go_rest" = "暂无待回顾内容";
-"review.reviewed_today" = "今日已回顾 %d 条";
-"review.summary_title" = "本轮完成";
-"review.summary_good" = "有印象";
-"review.summary_again" = "需回看";
-"review.summary_dismiss" = "完成";
-"review.encourage_rest" = "本轮没有需要处理的内容。";
-"review.encourage_all_good" = "本轮内容均标记为有印象。";
-"review.encourage_keep_going" = "这些内容会按计划再次出现。";
-"review.encourage_partial" = "%d 条内容需回看。";
-"review.interval_minutes" = "10分钟";
-"review.interval_tomorrow" = "明天";
-"review.interval_days" = "%d天";
-"review.interval_weeks" = "%d周";
-"review.interval_months" = "%d个月";
-
 // MARK: - Settings
 
 "settings.title" = "设置";
@@ -315,15 +268,12 @@
 "settings.field_source" = "来源";
 "settings.field_level" = "级别";
 "settings.field_answer" = "答案";
-"settings.review_settings" = "回顾设置";
-"settings.card_appearance" = "卡片外观";
-"settings.review_reminder" = "回顾提醒";
 "settings.privacy_export" = "隐私与导出";
 "settings.data_and_sync" = "数据与备份";
 "settings.storage_management" = "存储管理";
 "settings.storage_images" = "资料图片";
 "settings.storage_total" = "总占用";
-"settings.storage_footer" = "显示当前资料空间的存储占用。图片会自动压缩以节省空间。";
+"settings.storage_footer" = "显示当前资料库的存储占用。图片会自动压缩以节省空间。";
 "settings.appearance" = "外观";
 "settings.follow_system" = "跟随系统";
 "settings.light_mode" = "浅色";
@@ -345,13 +295,6 @@
 "settings.privacy_policy" = "隐私政策";
 "settings.terms_of_service" = "服务条款";
 "settings.licenses" = "开源许可";
-"settings.notification_title" = "回顾提醒";
-"settings.daily_reminder" = "每日回顾提醒";
-"settings.reminder_time" = "提醒时间";
-"settings.reminder_sound" = "提醒声音";
-"settings.notification_denied" = "通知权限未开启";
-"settings.notification_denied_message" = "请在 iPhone 设置中开启 SnapDrill 的通知权限。";
-"settings.go_to_settings" = "前往设置";
 "settings.language_title" = "语言设置";
 "settings.language_hint" = "应用语言跟随系统设置。如需更改，请在 iPhone 的「设置 > 通用 > 语言与地区」中调整。";
 "settings.open_system_settings" = "打开系统设置";
@@ -376,19 +319,9 @@
 "settings.export_json" = "导出为 JSON";
 "settings.export_csv" = "导出为 CSV";
 "settings.export_hint" = "导出所有资料数据，可用于数据迁移或备份。";
-"settings.card_appearance_title" = "卡片外观";
-"settings.card_front" = "正面（资料）";
-"settings.card_back" = "背面（参考内容）";
-"settings.text_alignment" = "文字对齐";
-"settings.align_left" = "左对齐";
-"settings.align_center" = "居中";
-"settings.align_right" = "右对齐";
-"settings.font_size" = "字体大小";
-"settings.preview_text" = "预览效果文字";
 "settings.edit_profile" = "个人资料";
 "settings.nickname" = "昵称";
 "settings.nickname_placeholder" = "请输入昵称";
-"settings.daily_goal" = "每日回顾目标";
 "settings.cards_unit" = "条";
 "settings.motto" = "个人备注";
 "settings.motto_placeholder" = "写一条个人备注...";
@@ -423,26 +356,6 @@
 "settings.clear_cache_title" = "清理缓存";
 "settings.clear_cache_action" = "清理";
 "settings.clear_cache_message" = "清理缓存不会删除你的资料数据，仅删除临时图片和下载的资源。";
-"settings.data_maintenance" = "数据维护";
-"settings.auto_archive_old_items" = "自动归档旧资料";
-"settings.archive_time" = "归档时间";
-"settings.days_ago_30" = "30 天前";
-"settings.days_ago_60" = "60 天前";
-"settings.days_ago_90" = "90 天前";
-"settings.days_ago_180" = "180 天前";
-"settings.data_maintenance_footer" = "自动归档长期未回顾的资料，保持资料库轻量化。归档后的资料仍可搜索但不会自动安排回顾。";
-"settings.enable_daily_reminder" = "启用每日回顾提醒";
-"settings.daily_reminder_section" = "每日提醒";
-"settings.notification_style" = "通知样式";
-"settings.sound" = "声音";
-"settings.notification_style_footer" = "声音设置在下次触发通知时生效";
-"settings.notification_and_reminder" = "通知与提醒";
-"settings.permission_denied_title" = "通知权限被拒绝";
-"settings.permission_denied_message" = "请在「设置 → 通知 → SnapDrill」中开启通知权限，才能接收每日回顾提醒。";
-"settings.reschedule_failed_title" = "更新提醒时间失败";
-"settings.reschedule_failed_message" = "无法设置提醒时间，请稍后重试";
-"settings.reminder_enabled_footer" = "将在每天 %d:%@ 提醒你回顾今日资料";
-"settings.reminder_disabled_footer" = "开启后系统将在固定时间推送回顾提醒";
 "settings.data_collection" = "诊断与数据";
 "settings.use_analytics" = "本地诊断偏好";
 "settings.data_collection_footer" = "当前版本不发送使用分析、崩溃报告或资料内容。诊断信息仅保留在设备本地，或来自 Apple 聚合报告。";
@@ -457,10 +370,6 @@
 "settings.language_restart_hint" = "切换语言后需重启应用生效";
 "settings.language_change_title" = "语言已切换";
 "settings.language_change_message" = "请重新启动应用以应用新语言";
-"settings.card_front_section" = "卡片正面 (资料)";
-"settings.card_back_section" = "卡片背面 (参考内容)";
-"settings.alignment" = "对齐方式";
-"settings.font_size_label" = "字体大小: %d";
 "settings.debug_title" = "开发调试";
 "settings.generate_mock_data" = "生成模拟数据";
 "settings.clear_mock_data" = "清空模拟数据";
@@ -485,7 +394,6 @@
 "edit_profile.set_avatar" = "设置头像";
 "edit_profile.nickname" = "昵称";
 "edit_profile.nickname_placeholder" = "请输入昵称";
-"edit_profile.daily_goal" = "每日回顾目标";
 "edit_profile.cards_count" = "条资料";
 "edit_profile.motto" = "个人备注";
 "edit_profile.motto_placeholder" = "写一条个人备注...";
@@ -521,7 +429,6 @@
 "errors.pdf_unsupported_item_density" = "每页 %d 条资料无法生成可读 PDF，请减少每页资料数后重试";
 "errors.pdf_unreadable_item" = "第 %d 条资料没有可读取的图片或文字，请检查后重试";
 "errors.export_selection_changed" = "资料选择已发生变化，请重新选择后再试";
-"errors.review_save_failed" = "复习记录保存失败，请重试";
 "errors.form_data_load_failed" = "表单数据加载失败，请返回重试";
 "errors.save_failed" = "保存失败，请检查存储空间后重试";
 "errors.create_taxonomy_failed" = "新建「%@」失败，请重试";
@@ -568,11 +475,11 @@
 "onboarding.get_started" = "开始使用";
 "onboarding.accessibility_group" = "SnapDrill 入门引导";
 "onboarding.page_welcome_title" = "欢迎使用 SnapDrill";
-"onboarding.page_welcome_description" = "扫描、归档并整理资料与文档，稍后随时查找与回顾。";
+"onboarding.page_welcome_description" = "扫描、归档并整理资料与文档，需要时轻松找到。";
 "onboarding.page_capture_title" = "快速采集";
 "onboarding.page_capture_description" = "拍照、导入图片或录入文字，把内容保存为可检索资料。";
-"onboarding.page_review_title" = "按需回顾";
-"onboarding.page_review_description" = "把重要资料安排进回顾队列，减少遗漏。";
+"onboarding.page_organize_title" = "整理与查找";
+"onboarding.page_organize_description" = "用字段、分类和搜索整理重要资料，需要时快速找到。";
 "onboarding.page_export_title" = "导出与打印";
 "onboarding.page_export_description" = "将资料导出为 PDF 或 CSV，便于打印、分享或备份。";
 "onboarding.field_config_title" = "选择资料字段";
@@ -585,27 +492,22 @@
 "onboarding.field_config_icon" = "字段配置";
 "onboarding.field_config_header" = "选择资料字段";
 
-// MARK: - Notification
-
-"notification.daily.title" = "复习时间到";
-"notification.daily.body" = "今天的资料还在等你，快来回顾吧！";
-
 // MARK: - Help
 
 // MARK: - Terms of Service
 
 "terms.title" = "用户协议";
-"terms.last_updated" = "最后更新日期：2026年1月2日";
+"terms.last_updated" = "最后更新日期：2026年7月26日";
 "terms.acceptance_title" = "接受条款";
 "terms.acceptance_content" = "欢迎使用 SnapDrill！通过下载、安装或使用本应用，您同意遵守本用户协议的所有条款和条件。如果您不同意这些条款，请不要使用本应用。";
 "terms.service_title" = "服务描述";
-"terms.service_content" = "SnapDrill 是一款个人资料整理应用，帮助用户采集、组织、回顾并导出本地内容。\n\n主要功能包括：\n• 智能扫描与 OCR 文字识别\n• 资料管理和分类\n• 间隔重复回顾系统\n• 数据导出（PDF/JSON/CSV）";
+"terms.service_content" = "SnapDrill 是一款个人资料整理应用，帮助用户采集、组织、查找并导出本地内容。\n\n主要功能包括：\n• 智能扫描与 OCR 文字识别\n• 资料管理、分类与搜索\n• PDF 排版与打印\n• 数据导出（PDF/JSON/CSV）和本地备份";
 "terms.data_storage_title" = "数据存储";
 "terms.data_storage_content" = "SnapDrill 无需创建账户即可使用，所有数据默认存储在您的设备本地。\n\n您有责任：\n• 保护您的设备安全\n• 定期备份重要数据\n• 注意：卸载应用将永久删除所有本地数据";
 "terms.license_title" = "许可授权";
 "terms.license_content" = "我们授予您有限的、非独占的、不可转让的、可撤销的许可，允许您在个人设备上使用 SnapDrill 应用。\n\n您不得：\n• 复制、修改或反编译应用\n• 出售、出租或转让应用\n• 移除任何版权或所有权声明\n• 将应用用于非法目的";
 "terms.user_content_title" = "用户内容";
-"terms.user_content_content" = "您在应用中创建的所有内容（包括文本、图片、笔记等）归您所有。\n\n您声明并保证：\n• 您拥有上传内容的所有权或必要权利\n• 您的内容不侵犯任何第三方的权利\n• 您的内容不包含非法、有害或不当的材料\n\n我们不会访问、使用或分享您的个人学习内容。";
+"terms.user_content_content" = "您在应用中创建的所有内容（包括文本、图片、笔记等）归您所有。\n\n您声明并保证：\n• 您拥有上传内容的所有权或必要权利\n• 您的内容不侵犯任何第三方的权利\n• 您的内容不包含非法、有害或不当的材料\n\n我们不会访问、使用或分享您的个人资料内容。";
 "terms.ip_title" = "知识产权";
 "terms.ip_content" = "SnapDrill 应用及其所有内容、功能和特性（包括但不限于软件、文本、图形、标识、图标、图像）均由 NotBad Labs L.L.C. 拥有，受美国及国际版权、商标和其他知识产权法律保护。\n\n\"SnapDrill\" 名称和标识是 NotBad Labs L.L.C. 的商标。未经我们事先书面许可，您不得使用这些商标。";
 "terms.disclaimer_title" = "免责声明";
@@ -632,15 +534,13 @@
 // MARK: - Privacy Policy
 
 "privacy.title" = "隐私政策";
-"privacy.last_updated" = "最后更新日期：2026年3月";
+"privacy.last_updated" = "最后更新日期：2026年7月26日";
 "privacy.intro_title" = "引言";
 "privacy.intro_content" = "欢迎使用 SnapDrill！我们非常重视您的隐私。本隐私政策说明了我们如何收集、使用、存储和保护您的个人信息。使用 SnapDrill 应用即表示您同意本隐私政策中描述的做法。";
 "privacy.collection_title" = "我们收集的信息";
-"privacy.collection_content" = "SnapDrill 是一款离线优先应用。您在应用中创建的资料、图片、笔记、分类、标签、复盘记录和导出文件默认存储在您的设备本地。\n\n当前版本不要求账户，不向 NotBad Labs 服务器发送资料内容，也不使用第三方分析或崩溃统计 SDK。";
-"privacy.icloud_title" = "iCloud 同步（未来功能）";
-"privacy.icloud_content" = "iCloud 同步是计划中的 Pro 付费功能，当前版本尚未提供。\n\n若未来启用，将使用 Apple CloudKit/iCloud，并在您的 Apple ID 下同步。NotBad Labs 不会为这些数据运行自有同步服务器，也无法读取您的个人 iCloud 内容。该功能上线前会同步更新隐私说明。";
+"privacy.collection_content" = "SnapDrill 是一款离线优先应用。您在应用中创建的资料、图片、笔记、分类、标签和导出文件默认存储在您的设备本地。\n\n当前版本不要求账户，不向 NotBad Labs 服务器发送资料内容，也不使用第三方分析或崩溃统计 SDK。";
 "privacy.usage_title" = "数据使用";
-"privacy.usage_content" = "SnapDrill 在设备本地处理您的数据，用于提供采集、整理、复盘、导出和打印等核心功能。\n\n如果您主动通过邮件或 TestFlight 反馈联系我们，我们只使用您主动提供的信息回复该支持请求。\n\n我们不会出售您的个人信息，不会将您的内容用于广告，也不会与第三方共享您的资料内容。";
+"privacy.usage_content" = "SnapDrill 在设备本地处理您的数据，用于提供采集、整理、查找、导出和打印等核心功能。\n\n如果您主动通过邮件或 TestFlight 反馈联系我们，我们只使用您主动提供的信息回复该支持请求。\n\n我们不会出售您的个人信息，不会将您的内容用于广告，也不会与第三方共享您的资料内容。";
 "privacy.security_title" = "数据安全";
 "privacy.security_content" = "我们采取以下措施保护您的数据：本地存储（数据存储在您的设备上，受 iOS 沙盒保护）、无服务器（我们不运行服务器存储您的数据）、手动备份（您可以通过应用内的备份功能导出和恢复数据）。";
 "privacy.rights_title" = "您的权利";
@@ -648,11 +548,11 @@
 "privacy.third_party_title" = "第三方服务";
 "privacy.third_party_content" = "SnapDrill 使用以下第三方服务：\n\n• Apple Vision Framework：用于 OCR 文字识别，完全在设备本地处理，数据不离开设备。\n\n我们不使用任何第三方分析、崩溃统计或广告服务。所有数据均保留在您的设备本地，不会上传，也不会用于广告目的。";
 "privacy.children_title" = "儿童隐私";
-"privacy.children_content" = "SnapDrill 适合所有年龄段的用户使用。我们不会有意收集 13 岁以下儿童的个人信息。如果您是家长或监护人，发现您的孩子在未经您同意的情况下向我们提供了个人信息，请联系我们，我们将采取措施删除相关信息。";
+"privacy.children_content" = "SnapDrill 是面向成年人设计的通用效率工具，不要求账户，也不会有意收集儿童的个人信息。如果您认为有人通过反馈渠道向我们提供了儿童的个人信息，请联系我们，我们将采取措施删除相关信息。";
 "privacy.gdpr_title" = "GDPR 合规（欧盟用户）";
 "privacy.gdpr_content" = "如果您位于欧盟，您享有访问、更正、删除、限制处理和数据可携带等权利。由于 SnapDrill 不收集或存储您的数据在我们的服务器上，您可以通过应用内功能直接行使这些权利。";
 "privacy.ccpa_title" = "CCPA 合规（加州用户）";
-"privacy.ccpa_content" = "如果您是加州居民，您享有了解我们收集的个人信息类别、了解我们是否出售您的个人信息（我们不会）、删除您的个人信息等权利。SnapDrill 不会出售您的个人信息，也不会与第三方共享您的学习内容。";
+"privacy.ccpa_content" = "如果您是加州居民，您享有了解我们收集的个人信息类别、了解我们是否出售您的个人信息（我们不会）、删除您的个人信息等权利。SnapDrill 不会出售您的个人信息，也不会与第三方共享您的资料内容。";
 "privacy.update_title" = "隐私政策更新";
 "privacy.update_content" = "我们可能会不时更新本隐私政策。如有重大变更，我们将通过应用内通知或更新日期告知您。建议您定期查看本政策以了解我们如何保护您的信息。";
 "privacy.contact_title" = "联系我们";
@@ -660,28 +560,12 @@
 "privacy.view_full_version" = "在浏览器中查看完整版（中英双语）";
 
 // MARK: - Accessibility (VoiceOver)
-"accessibility.flip_to_answer" = "双击翻转查看参考内容";
-"accessibility.flip_to_question" = "双击翻转回到内容";
-"accessibility.flipped_to_answer" = "已翻到参考内容面";
-"accessibility.flipped_to_question" = "已翻到内容面";
 "accessibility.show_answer" = "显示参考内容";
 "accessibility.hide_answer" = "隐藏参考内容";
-"accessibility.undo" = "撤销";
-"accessibility.undo_hint" = "撤销上一次回顾操作";
-"accessibility.pause_review" = "暂停回顾";
-"accessibility.more_actions" = "更多操作";
 "accessibility.question_image" = "资料图片";
 "accessibility.answer_image" = "参考图片";
-"accessibility.forgot_hint" = "标记为没印象，稍后会再次出现";
-"accessibility.remember_hint" = "标记为有印象，延长回顾间隔";
-"accessibility.summary_announcement" = "回顾完成，有印象 %d 条，需回看 %d 条";
-"accessibility.pending_review" = "待回顾 %d 条内容";
-"accessibility.reviewed_today" = "今日已回顾 %d 条内容";
-"accessibility.start_review_hint" = "开始今日回顾";
 "accessibility.delete_tag" = "删除标签%@";
 "accessibility.add_tag" = "添加标签%@";
-"accessibility.stat_card" = "%@ %d 条";
-"accessibility.review_button_hint" = "轻点开始回顾 %d 条内容";
 "accessibility.export_button_hint" = "轻点导出为 %@ 格式";
 "accessibility.progress_description" = "已处理 %d 条，共 %d 条，进度 %d%%";
 "accessibility.copy_content_hint" = "将识别文字复制到剪贴板";
@@ -691,7 +575,6 @@
 "tab.dashboard" = "首页";
 "tab.library" = "资料库";
 "tab.capture" = "采集";
-"tab.review" = "复习";
 "tab.settings" = "设置";
 
 // MARK: - Export (PDF title)
@@ -751,12 +634,6 @@
 
 "accessibility.profile" = "个人资料";
 "accessibility.profile_hint" = "打开设置页面";
-"accessibility.capture_first_item_hint" = "采集第一条资料";
-"accessibility.start_review_now_hint" = "开始回顾待处理内容";
-"accessibility.all_done_label" = "今日回顾已完成";
-"accessibility.due_count_label" = "今日待回顾 %d 条内容";
-"accessibility.review_progress_label" = "今日回顾进度，已处理 %d 条，共 %d 条";
-"accessibility.daily_stats_label" = "今日统计：新增 %d 条，已回顾 %d 条，待回顾 %d 条";
 "accessibility.take_photo" = "拍照";
 "accessibility.cancel_camera" = "取消拍照";
 "accessibility.camera_hint" = "打开相机拍摄资料";
@@ -789,7 +666,7 @@
 "accessibility.field_source_hint" = "开启后录入时显示来源选择";
 "accessibility.field_level_hint" = "开启后录入时显示级别选择";
 "accessibility.field_answer_hint" = "开启后录入时显示答案输入";
-"accessibility.clear_all_data_hint" = "删除所有资料、标签和回顾记录，不可恢复";
+"accessibility.clear_all_data_hint" = "删除所有资料和分类，不可恢复";
 "accessibility.generate_test_data_hint" = "生成模拟数据用于调试";
 "accessibility.set_avatar_hint" = "从相册或系统图标中选择头像";
 "accessibility.color_blue_purple" = "蓝紫";
@@ -799,9 +676,6 @@
 "accessibility.color_gray_black" = "灰黑";
 "accessibility.color_sunny_yellow" = "明黄";
 "accessibility.avatar_color_name" = "主题色 %@";
-"accessibility.enable_reminder_hint" = "每天定时提醒你回顾到期的资料";
-"accessibility.sound_toggle_hint" = "提醒时播放提示音";
-"accessibility.font_size_value" = "%d 磅";
 "accessibility.backup_data_hint" = "导出完整数据备份文件";
 "accessibility.restore_data_hint" = "从备份文件恢复所有数据，会覆盖当前数据";
 "accessibility.analytics_toggle_hint" = "说明当前版本不会发送使用数据，诊断信息仅保留在本地或来自 Apple 聚合报告";
@@ -821,10 +695,10 @@
 "settings.help_center" = "帮助中心";
 "settings.switch_learner" = "切换资料空间";
 "settings.profile_spaces_section" = "资料空间";
-"settings.profile_spaces_footer" = "每个资料空间独立保存资料、图片和回顾进度，适合按项目或场景分开管理。";
+"settings.profile_spaces_footer" = "每个资料空间独立保存资料和图片，适合按项目或场景分开管理。";
 "settings.default_profile_name" = "默认资料空间";
 "settings.add_learner" = "添加资料空间";
-"settings.delete_learner_confirm" = "删除后该资料空间的所有资料、回顾进度和图片将永久丢失，无法恢复。";
+"settings.delete_learner_confirm" = "删除后该资料空间的所有资料和图片将永久丢失，无法恢复。";
 "settings.learner_name" = "资料空间名称";
 "settings.current_learner" = "当前";
 "settings.profile_current_hint" = "当前正在使用的资料空间";
@@ -840,25 +714,3 @@
 "settings.import_failed" = "导入失败";
 "settings.import_no_valid_rows" = "CSV 文件中没有有效数据行";
 "settings.import_csv_format" = "CSV 首行需包含列名：Content, Category, Answer, Tags 等";
-"settings.card_front_preview" = "内容：已知 △ABC 中，AB = AC，∠A = 36°，求 ∠B 的度数。";
-"settings.card_back_preview" = "参考：∠B = 72°。";
-"smart_paper.title" = "智能组卷";
-"smart_paper.subtitle" = "自动选出最需要复习的题目，生成练习卷";
-"smart_paper.generate" = "生成试卷";
-"smart_paper.question_count" = "题目数量";
-"smart_paper.category_filter" = "分类";
-"smart_paper.all_categories" = "全部分类";
-"smart_paper.no_items_title" = "暂无可选题目";
-"smart_paper.no_items_message" = "当前筛选条件下没有题目，请调整筛选或先采集一些题目";
-"smart_paper.pdf_title" = "智能复习卷";
-"smart_paper.selected_count" = "已选 %d 题";
-"statistics.title" = "资料洞察";
-"statistics.category_trend" = "分类趋势";
-"statistics.last_30_days" = "最近 30 天";
-"statistics.categories_needing_review" = "待回顾较多的分类";
-"statistics.categories_needing_review_hint" = "这些分类的待回顾内容较多";
-"statistics.no_data" = "暂无数据";
-"statistics.no_data_hint" = "采集一些资料后即可查看数据洞察";
-"statistics.pro_required" = "更多数据洞察稍后推出";
-"statistics.questions_count" = "条";
-"statistics.due_count" = "待回顾 %d 条";

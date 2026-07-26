@@ -5,7 +5,7 @@
 //  Created by NotBad Labs.
 //  Copyright © 2026 NotBad Labs L.L.C. All rights reserved.
 //
-//  DI 容器的验证测试（S-D4-001 扩展到 14 个服务属性）。
+//  DI 容器的验证测试。
 //
 
 import Testing
@@ -41,25 +41,20 @@ struct ServiceContainerTests {
         #expect(container.analytics as AnyObject === analytics)
     }
 
-    @Test("LiveServiceContainer 14 个服务属性全部可访问")
+    @Test("LiveServiceContainer 11 个服务属性全部可访问")
     func testLiveServiceContainerAllPropertiesAccessible() {
         let container = LiveServiceContainer()
 
-        // 既有 5 项
         _ = container.analytics
         _ = container.pdfExport
         _ = container.appConfig
         _ = container.privacyConsent
-        _ = container.notification
-        // S-D4-001 新挂 8 项
         _ = container.ocr
         _ = container.captureDraft
         _ = container.contentTagging
         _ = container.questionSplitting
         _ = container.deletionScheduler
-        _ = container.proEntitlement
         _ = container.activityTracker
-        _ = container.reviewScheduler
         #expect(container.metricService is LiveMetricService)
     }
 
@@ -91,15 +86,13 @@ struct ServiceContainerTests {
         let container = MockServiceContainer()
 
         #expect(container.analytics is AnalyticsServiceMock)
-        #expect(container.notification is NotificationServiceMock)
         #expect(container.captureDraft is CaptureDraftServiceMock)
         #expect(container.contentTagging is ContentTaggingServiceMock)
         #expect(container.questionSplitting is QuestionSplittingServiceMock)
-        #expect(container.proEntitlement is MockProEntitlementProvider)
         #expect(container.metricService is MetricServiceMock)
     }
 
-    @Test("MockServiceContainer 14 个服务属性全部可访问")
+    @Test("MockServiceContainer 11 个服务属性全部可访问")
     func testMockServiceContainerAllPropertiesAccessible() {
         let container = MockServiceContainer()
 
@@ -107,15 +100,12 @@ struct ServiceContainerTests {
         _ = container.pdfExport
         _ = container.appConfig
         _ = container.privacyConsent
-        _ = container.notification
         _ = container.ocr
         _ = container.captureDraft
         _ = container.contentTagging
         _ = container.questionSplitting
         _ = container.deletionScheduler
-        _ = container.proEntitlement
         _ = container.activityTracker
-        _ = container.reviewScheduler
         _ = container.metricService
     }
 
@@ -138,16 +128,4 @@ struct ServiceContainerTests {
         #expect(environment.services as AnyObject === container)
     }
 
-    @Test("MockProEntitlementProvider 可注入 isProUser=true/false")
-    func testMockProEntitlementProviderInjection() {
-        let proContainer = MockServiceContainer(
-            proEntitlement: MockProEntitlementProvider(isProUser: true)
-        )
-        let freeContainer = MockServiceContainer(
-            proEntitlement: MockProEntitlementProvider(isProUser: false)
-        )
-
-        #expect(proContainer.proEntitlement.isProUser == true)
-        #expect(freeContainer.proEntitlement.isProUser == false)
-    }
 }

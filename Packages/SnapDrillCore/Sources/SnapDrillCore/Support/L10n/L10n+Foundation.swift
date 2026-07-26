@@ -18,7 +18,6 @@ nonisolated extension L10n {
         public static let dashboard = NSLocalizedString("tab.dashboard", value: "首页", comment: "Tab 栏：首页")
         public static let library = NSLocalizedString("tab.library", value: "资料库", comment: "Tab 栏：题库")
         public static let capture = NSLocalizedString("tab.capture", value: "采集", comment: "Tab 栏：采集")
-        public static let review = NSLocalizedString("tab.review", value: "复习", comment: "Tab 栏：复习")
         public static let settings = NSLocalizedString("tab.settings", value: "设置", comment: "Tab 栏：设置")
     }
 
@@ -114,10 +113,4 @@ nonisolated extension L10n {
         public static let backupRestore = NSLocalizedString("activity.backup_restore", value: "正在备份/恢复", comment: "备份恢复中阻塞切换提示")
     }
 
-    // MARK: - Notification
-
-    public enum Notification {
-        public static let dailyTitle = NSLocalizedString("notification.daily.title", value: "复习时间到", comment: "每日复习通知标题")
-        public static let dailyBody = NSLocalizedString("notification.daily.body", value: "今天的资料还在等你，快来回顾吧！", comment: "每日复习通知正文")
-    }
 }

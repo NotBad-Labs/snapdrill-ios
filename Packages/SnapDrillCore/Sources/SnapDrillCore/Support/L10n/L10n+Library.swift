@@ -25,12 +25,10 @@ nonisolated extension L10n {
         // 排序
         public static let sortByDate = NSLocalizedString("library.sort_by_date", value: "按时间", comment: "按时间排序")
         public static let sortByCategory = NSLocalizedString("library.sort_by_category", value: "按分类", comment: "按分类排序")
-        public static let sortByReviewStatus = NSLocalizedString("library.sort_by_review_status", value: "按复习状态", comment: "按复习状态排序")
 
         // 排序短名（LibrarySortOption.displayName 用）
         public static let sortTime = NSLocalizedString("library.sort_time", value: "时间", comment: "排序选项：时间")
         public static let sortCategory = NSLocalizedString("library.sort_category", value: "分类", comment: "排序选项：分类")
-        public static let sortReviewStatus = NSLocalizedString("library.sort_review_status", value: "复习状态", comment: "排序选项：复习状态")
 
         // 列表
         public static let allCategories = NSLocalizedString("library.all_categories", value: "全部", comment: "全部分类")
@@ -50,8 +48,6 @@ nonisolated extension L10n {
         public static let answerImage = NSLocalizedString("library.answer_image", value: "答案图片", comment: "答案图片")
         public static let noAnswer = NSLocalizedString("library.no_answer", value: "暂无答案", comment: "暂无答案")
         public static let createdAt = NSLocalizedString("library.created_at", value: "录入时间", comment: "录入时间")
-        public static let nextReview = NSLocalizedString("library.next_review", value: "下次复习", comment: "下次复习时间")
-        public static let notScheduled = NSLocalizedString("library.not_scheduled", value: "未安排", comment: "未安排复习")
 
         // 编辑
         public static let editTitle = NSLocalizedString("library.edit_title", value: "编辑资料", comment: "编辑题目页标题")
@@ -79,7 +75,7 @@ nonisolated extension L10n {
         public static let export = NSLocalizedString("library.export", value: "导出", comment: "导出按钮")
         public static let exportTitle = NSLocalizedString("library.export_title", value: "导出选项", comment: "导出选项标题")
         public static let exportPDF = NSLocalizedString("library.export_pdf", value: "PDF / 打印", comment: "PDF 导出")
-        public static let exportPDFHint = NSLocalizedString("library.export_pdf_hint", value: "适合打印复习", comment: "PDF 导出提示")
+        public static let exportPDFHint = NSLocalizedString("library.export_pdf_hint", value: "适合排版与打印", comment: "PDF 导出提示")
         public static let exportCSV = NSLocalizedString("library.export_csv", value: "CSV", comment: "CSV 导出")
         public static let exportCSVHint = NSLocalizedString("library.export_csv_hint", value: "适合表格处理", comment: "CSV 提示")
         public static let exportImages = NSLocalizedString("library.export_images", value: "原图 ZIP", comment: "原图 ZIP 导出")

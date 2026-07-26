@@ -23,7 +23,6 @@ struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage(UDKey.userName) private var userName: String = "用户"
     @AppStorage(UDKey.userMotto) private var userMotto: String = "" // Formerly bio
-    @AppStorage(UDKey.dailyReviewGoal) private var dailyReviewGoal: Int = 20
     @AppStorage(UDKey.userAvatar) private var userAvatar: String = "person.crop.circle.fill"
     @AppStorage(UDKey.userAvatarColorIndex) private var userAvatarColorIndex: Int = 0
     
@@ -125,17 +124,6 @@ struct EditProfileView: View {
                     Text(L10n.EditProfile.nickname)
                 }
                 
-                // 每日目标
-                LabeledContent {
-                    HStack(spacing: 8) {
-                        Stepper("\(dailyReviewGoal) \(L10n.EditProfile.cardsCount)", value: $dailyReviewGoal, in: 5...100, step: 5)
-                            .labelsHidden()
-                        Text("\(dailyReviewGoal) \(L10n.EditProfile.cardsCount)")
-                            .foregroundStyle(.secondary)
-                    }
-                } label: {
-                    Text(L10n.EditProfile.dailyGoal)
-                }
             } header: {
                 Text(L10n.EditProfile.title)
             }

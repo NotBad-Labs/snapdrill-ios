@@ -61,7 +61,7 @@ extension SettingsViewModelTests {
         )
         let notificationFlag = NotificationFlag()
         let observer = NotificationCenter.default.addObserver(
-            forName: .reviewDataDidChange,
+            forName: .libraryDataDidChange,
             object: viewModel,
             queue: .main
         ) { _ in

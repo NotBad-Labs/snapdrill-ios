@@ -410,13 +410,13 @@ public final class CaptureResultViewModel {
     /// 保存成功后的善后：通知、埋点、引导检查
     private func handleSaveSuccess() {
         isSaved = true
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
 
         analyticsService.track(.captureSaved, parameters: [
             "category": selectedName(forSystemKey: CategorySystemKey.category),
             "source": selectedName(forSystemKey: CategorySystemKey.source)
         ])
-        analyticsService.track(.reviewItemCreated, parameters: [
+        analyticsService.track(.archiveItemCreated, parameters: [
             "has_image": image != nil ? "true" : "false",
             "has_content": !content.isEmpty ? "true" : "false"
         ])

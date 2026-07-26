@@ -373,7 +373,7 @@ public final class LibraryEditViewModel {
         do {
             try repositories.archive.saveContext()
             isSavedNormally = true
-            NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+            NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
             deleteReplacedImages(
                 oldImagePath: oldImagePath, newImagePath: newImagePath,
                 oldAnswerPath: oldAnswerImagePath, newAnswerPath: newAnswerImagePath

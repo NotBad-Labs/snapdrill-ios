@@ -37,8 +37,6 @@ actor DataExporter {
                 "content": item.content ?? "",
                 "answerText": item.answerText ?? "",
                 "createdAt": item.createdAt.ISO8601Format(),
-                "lastReviewedAt": item.lastReviewedAt?.ISO8601Format() ?? "",
-                "nextReviewAt": item.nextReviewAt?.ISO8601Format() ?? "",
                 // A2 动态维度：维度名 → 值名数组
                 "dimensions": item.dimensionValues
             ] as [String: Any]
@@ -48,8 +46,8 @@ actor DataExporter {
     }
 
     private func exportCSV(items: [ExportableItem]) throws -> Data {
-        // CSV 列 schema / 转义 / 公式注入防护统一由 ReviewCSVCodec 提供（单一契约源）。
-        guard let data = ReviewCSVCodec.makeCSV(items).data(using: .utf8) else {
+        // CSV 列 schema / 转义 / 公式注入防护统一由 ArchiveCSVCodec 提供（单一契约源）。
+        guard let data = ArchiveCSVCodec.makeCSV(items).data(using: .utf8) else {
             throw ExportError.encodingFailed
         }
         return data

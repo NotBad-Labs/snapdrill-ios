@@ -40,5 +40,5 @@ extension ArchiveExportSnapshot: PDFExportable {
     public var exportCategory: String? { category.isEmpty ? nil : category }
 }
 
-// CSV 编码统一走 `ReviewCSVCodec`（单一契约源）；A2 动态列经 dimensionValues。
-extension ArchiveExportSnapshot: ReviewCSVRow {}
+// CSV 编码统一走 `ArchiveCSVCodec`（单一契约源）；动态列经 dimensionValues。
+extension ArchiveExportSnapshot: ArchiveCSVRow {}

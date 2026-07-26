@@ -1,113 +1,54 @@
 # AGENTS.md
 
-> 先读根 [`README.md`](README.md)。本文件只规定编码 Agent 的执行边界和完成证据，不是产品
-> 文档、架构快照或 API 手册。`CLAUDE.md` 是指向本文件的兼容软链接。
+> SnapDrill 编码 Agent 的最小入口。先读根 `README.md`，再按任务读取对应 owner。
+> `CLAUDE.md` 和 `.github/copilot-instructions.md` 是本文件的兼容软链接。
 
-## 1. 优先级与真相源
+## 当前 owner
 
-具体权威高于通用启发式。本文件中的行为原则不能覆盖产品、数据、安全、隐私、发布、平台
-指令或当前任务的精确契约。
+- 产品需求：`docs/PRD.md`
+- 架构与实现偏差：`docs/ARCHITECTURE.md`
+- 数据、图片、删除、备份与恢复：`docs/DATA.md`
+- 开工、协作、验证与合并：`docs/DEVELOPMENT.md`
+- 候选构建、签名与发布：`docs/RELEASE.md`
 
-- **产品应该是什么**：`develop` 中 effective 的 Product Vision & Principles
-  (`docs/product/vision.md`) > 当前 Release PRD (`docs/product/release-1-prd.md`) > 所属产品政策 /
-  typed decision > owning feature spec > 验收标准。
-- **产品现在是什么**：live 代码、测试、构建、设备和发布实证 > 自动生成状态与当前事实文档
-  > 历史材料与 Agent 私有记忆。
-- **实现方式**：owning 架构、数据或操作契约约束实现边界；当前 task brief / acceptance /
-  red lines 在该边界内固定本 slice；本文件的默认行为原则只在两者未规定处补充判断。
+代码、测试、配置和设备证据证明当前状态，不能反向改写产品需求。旧 issue、PR、Git 历史、
+聊天摘要和 Agent 记忆默认只作线索。
 
-代码只能证明当前实现，不能反向改写产品目标。对话中的新意图先进入
-`exploration -> shaped candidate -> ratified -> effective -> superseded`；只有归属权威合入
-`develop` 后才替换其他 lane 的 tracked baseline。PO ratify 不等于授权 merge、上传或发布。
+## 执行要求
 
-## 2. 工程行为原则
+写入前完整执行 `docs/DEVELOPMENT.md` 的开工顺序和 T0。所有 worktree、WIP、验证等级、PR 与
+merge 规则只在该文件维护，本文件不复制。
 
-以下是默认判断方式，不是可覆盖精确契约的“最高铁律”。
+默认行为：
 
-1. **先理解再修改**：读取 owning SSOT、live 实现和调用方。只有歧义会改变产品语义、数据
-   结果、公开承诺、法律 / 发布边界或验收结果时才停下询问；其余采用保守假设，说明后继续。
-   项目内行为先读 owning contract 与 live precedent；外部平台 / API 事实先读官方一手资料，
-   已验证社区实践只作补充，star 数不是证据。
-2. **最小且完整**：在已 shaping 的 outcome、scope 与 appetite 内选择最简单清晰的完整方案；
-   不增加未要求功能或投机配置。抽象只在真实多实现、重复变化成本、易变外部边界或已批准
-   契约接缝出现时提出；以可读性、边界和验证成本判断，不用行数替代设计判断。
-3. **严格控制范围**：每项改动必须追溯到 outcome、根因、验收标准，或为保持编译、测试、
-   生成物和契约一致所必需。保护用户与其他 lane 的改动；无关问题记录到独立候选，不顺手清理。
-4. **用证据完成**：开工前定义 pass / fail，按 T0-T4 选择验证。oracle 可来自产品 / Release /
-   feature spec、数据与安全契约、NFR、平台规范和已批准验收；不能只验证代码自洽。明确区分
-   已运行、未运行、失败和外部阻塞；build 成功不能写成 tests 通过。
+1. 先读 owner、live 实现和调用方；平台事实优先查官方资料。
+2. 选择满足验收的最简单完整方案，不增加未要求功能或投机抽象。
+3. 每行改动追溯到结果、根因、验收或保持一致所必需的工作。
+4. 不覆盖、不回滚、不格式化其他 lane 或用户的无关改动。
+5. 先定义 pass / fail，再按 `docs/DEVELOPMENT.md` 运行证据；build 不等于 tests。
 
-## 3. 开工与协作
+## 必须询问 PO
 
-开工入口是 [`Definition of Ready`](docs/how-to/definition-of-ready.md#current-admission)；T0、WIP、worktree、
-验证和 merge 细节只在 [`parallel-lanes.md`](docs/how-to/parallel-lanes.md) 维护。
+- 修改产品身份、目标用户、PRD、公开承诺或需求优先级；
+- 商业模式、平台、区域、账号、同步、隐私或对外数据兼容政策；
+- 生产账号、密钥、证书、签名和不可逆外部动作；
+- 上传、TestFlight 开放、go / no-go 和发布。
 
-日常 Green 流程：内部五字段 brief + 轻量 T0 -> 独立 worktree / 分支实现 -> 按风险验证 ->
-push + Draft PR -> 向 PO 报告结果或请求合并授权。Yellow / Red、T4、历史恢复、跨 lane、事故与
-发布才展开完整 admission、外部复核或发布证据。任务进入 bet、active write 或 frozen merge queue
-前必须通过 Current Admission；旧 issue、PR、报告、聊天授权和旧 CI 默认只作证据，不能仅凭
-编号、状态或时间恢复执行权。
+已确认 PRD / DATA 边界内的分析、实现、测试、客观事实修正和 Draft PR 不重复询问。
 
-工具或模型不永久拥有文件。角色、文件集、写入 / 独立复核隔离和当次 task brief 的 lane 分配
-只在 `parallel-lanes.md` §2 维护；Green 自主权限只在 `definition-of-ready.md` 的 Standing
-Delegation 维护。本文件不复制这些操作规则。
+## 工程不变量
 
-跨窗口不依赖聊天同步；只通过 commit、PR、report、测试和 tracked docs 交接。外部 Agent
-输出只是候选证据，进入仓库前必须由当前 DRI 复核其 path:line、命令和 live 行为。
+- iOS 26+、Swift 6.3 strict concurrency、SwiftUI、SwiftData。
+- App 是 composition root；依赖向 Core 收敛，Core 零第三方依赖。
+- 目标是单一资料库；不得继续扩展 legacy Profile 架构。
+- 用户图片入库前移除 EXIF 位置；图片路径在读、写、删和恢复边界校验。
+- 生产不上传用户内容，不使用第三方行为分析。
+- View 不持有 `ModelContext`；写入经 Repository 和 `DataExecutor`，失败必须 rollback。
+- 简单异步使用 `async/await` 和 `.task`；错误显式处理，禁止 silent `try?` 吞错。
+- accessibilityIdentifier、wire key、schema、Bundle ID、Team 和 App Group 不是普通文案。
 
-## 4. 必须询问 PO 的边界
+## 文档
 
-唯一清单见 `definition-of-ready.md` 的
-[Stop And Ask](docs/how-to/definition-of-ready.md#stop-and-ask)。已经有 effective 精确裁决的，
-不重复询问；纯工程实现、事实校准、测试补齐和已 effective 方案的落地由 owning lane 自主完成。
-PO-facing 更新使用自然语言，不要求 PO 学习内部风险或 WIP 代号。转 Ready、分支删除、merge、
-上传和发布仍服从 `parallel-lanes.md` 的显式 PO 授权规则。
-
-## 5. 项目不变量
-
-- SnapDrill 是 iOS 26+、Swift 6 strict concurrency 的 SwiftUI App。Release 1 的产品范围以
-  Product Vision & Principles 与 Release 1 PRD 为准，不从当前代码、旧 ADR 或 Draft PR 反推。
-- App 是 composition root。Package 依赖必须朝 Core 收敛；Core 不反向依赖 Feature / UI /
-  Data，且保持零第三方依赖。精确 DAG 与当前偏差只在 `docs/explanations/architecture.md` 维护。
-- Release 1 是 local-first、无 SnapDrill 账户的单一资料库。数据路径、恢复、备份、删除和
-  incident 生命周期服从 Local Library Data Contract 与 Backup Wire Contract。
-- 用户图片入库前必须去除 EXIF GPS / 位置信息；持久化图片路径必须在读、写、删边界验证。
-  不得通过 UI 绕过数据、恢复或隐私契约。
-- 当前生产不使用 Firebase 或后端行为分析。任何遥测、同步、IAP、账号、区域或平台范围重入
-  都需要新的产品、数据、隐私和发布 contract。
-- accessibilityIdentifier、wire key、schema、迁移、Bundle / Team / App Group 和签名资源
-  不是可顺手重命名的文案；变更前读取 owning contract 并通过相应 gate。
-
-## 6. 验证与完成
-
-Canonical local source gate（要求 clean committed checkout）：
-
-```bash
-bash Scripts/ci-local.sh
-```
-
-精确 Xcode、SwiftLint 和 simulator runtime 只在 `Configs/Toolchain.env` 维护。`swift test`
-不适用于本仓库；测试入口、targeted UI / AX、archive、真机和发布证据见
-`docs/how-to/release-and-ci.md`。
-
-验证重量与每级最低证据只在 `parallel-lanes.md` 的 T0-T4 表维护。canonical gate 不覆盖 app
-UI / AX、archive、安装、隐私网络实证或发布候选 lineage；高层验收不能被较低层绿色替代。
-
-完成报告必须列出：验证等级、实际命令、已验证路径、未运行项、失败 / 阻塞和剩余风险。
-
-## 7. 按需读取
-
-| 任务 | 权威入口 |
-|---|---|
-| 产品身份、原则、当前发布范围 | `docs/product/vision.md` + `docs/product/release-1-prd.md` |
-| 单功能行为与状态 | owning `docs/features/**/feat-*.md` + `docs/reference/feature-status.md` |
-| 开工、PO gate、worktree、授权与 T0-T4 | `docs/how-to/definition-of-ready.md` + `docs/how-to/parallel-lanes.md` |
-| 架构、数据、备份与 API | `docs/explanations/architecture.md` + owning `docs/reference/*contract.md` + `docs/reference/api-pitfalls.md` |
-| UI / UX、AX、本地化与术语 | owning feature spec + `docs/explanations/design-principles.md` + `docs/reference/glossary.md` |
-| CI、签名、TestFlight 与发布 | `docs/how-to/release-and-ci.md` + `Configs/Toolchain.env` |
-| 其他文档与生成索引 | `docs/README.md` |
-
-私有记忆只是可丢弃缓存；关键客观事实的唯一归属与禁止入仓边界见
-`docs/reference/document-control.md`。项目 Skill 只封装重复工作流，运行时必须读取 live SSOT；
-不得复制产品基线、架构快照、角色品牌或发布状态。Agent 控制面若改变权威、PO gate、
-数据安全、验证或 merge / release 边界，必须使用独立 PR 评审，不能在功能补丁中顺手修改。
+当前事实只进入五个 owner、根 README 或本文件。审计报告、截图、运行日志和临时计划留在 PR、
+CI artifact 或临时目录；Git 历史负责回滚。新增长期文档前必须先证明现有 owner 无法承载，并
+同步更新 `Scripts/validate_docs.py`。

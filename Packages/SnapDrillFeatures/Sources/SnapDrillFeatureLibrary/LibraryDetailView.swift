@@ -108,16 +108,6 @@ struct LibraryDetailView: View {
                             .foregroundStyle(.primary)
 
                         Spacer()
-
-                        if item.isScheduled {
-                            Text("\(L10n.Library.nextReview): \(item.nextReviewAt.formatted(date: .abbreviated, time: .omitted))")
-                                .font(.caption)
-                                .foregroundStyle(.blue)
-                        } else {
-                            Text(L10n.Library.notScheduled)
-                                .font(.caption)
-                                .foregroundStyle(.primary)
-                        }
                     }
                 }
                 .padding(.horizontal)

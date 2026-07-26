@@ -16,7 +16,7 @@ nonisolated extension L10n {
 
     public enum TermsOfService {
         public static let title = NSLocalizedString("terms.title", value: "用户协议", comment: "用户协议标题")
-        public static let lastUpdated = NSLocalizedString("terms.last_updated", value: "最后更新日期：2026年1月2日", comment: "最后更新日期")
+        public static let lastUpdated = NSLocalizedString("terms.last_updated", value: "最后更新日期：2026年7月26日", comment: "最后更新日期")
         public static let acceptanceTitle = NSLocalizedString("terms.acceptance_title", value: "接受条款", comment: "章节标题：接受条款")
         public static let acceptanceContent = NSLocalizedString(
             "terms.acceptance_content",
@@ -27,13 +27,13 @@ nonisolated extension L10n {
         public static let serviceContent = NSLocalizedString(
             "terms.service_content",
             value: """
-            SnapDrill 是一款个人资料整理应用，帮助用户采集、组织、回顾并导出本地内容。
+            SnapDrill 是一款个人资料整理应用，帮助用户采集、组织、查找并导出本地内容。
 
             主要功能包括：
             • 智能扫描与 OCR 文字识别
-            • 资料管理和分类
-            • 间隔重复回顾系统
-            • 数据导出（PDF/JSON/CSV）
+            • 资料管理、分类与搜索
+            • PDF 排版与打印
+            • 数据导出（PDF/JSON/CSV）和本地备份
             """,
             comment: "服务描述内容"
         )
@@ -75,7 +75,7 @@ nonisolated extension L10n {
             • 您的内容不侵犯任何第三方的权利
             • 您的内容不包含非法、有害或不当的材料
 
-            我们不会访问、使用或分享您的个人学习内容。
+            我们不会访问、使用或分享您的个人资料内容。
             """,
             comment: "用户内容"
         )
@@ -201,7 +201,7 @@ nonisolated extension L10n {
 
     public enum PrivacyPolicy {
         public static let title = NSLocalizedString("privacy.title", value: "隐私政策", comment: "隐私政策标题")
-        public static let lastUpdated = NSLocalizedString("privacy.last_updated", value: "最后更新日期：2026年3月", comment: "最后更新日期")
+        public static let lastUpdated = NSLocalizedString("privacy.last_updated", value: "最后更新日期：2026年7月26日", comment: "最后更新日期")
         public static let introTitle = NSLocalizedString("privacy.intro_title", value: "引言", comment: "章节标题：引言")
         public static let introContent = NSLocalizedString(
             "privacy.intro_content",
@@ -212,27 +212,17 @@ nonisolated extension L10n {
         public static let collectionContent = NSLocalizedString(
             "privacy.collection_content",
             value: """
-            SnapDrill 是一款离线优先应用。您在应用中创建的资料、图片、笔记、分类、标签、复盘记录和导出文件默认存储在您的设备本地。
+            SnapDrill 是一款离线优先应用。您在应用中创建的资料、图片、笔记、分类、标签和导出文件默认存储在您的设备本地。
 
             当前版本不要求账户，不向 NotBad Labs 服务器发送资料内容，也不使用第三方分析或崩溃统计 SDK。
             """,
             comment: "信息收集内容"
         )
-        public static let icloudTitle = NSLocalizedString("privacy.icloud_title", value: "iCloud 同步（未来功能）", comment: "章节标题：iCloud 同步")
-        public static let icloudContent = NSLocalizedString(
-            "privacy.icloud_content",
-            value: """
-            iCloud 同步是计划中的 Pro 付费功能，当前版本尚未提供。
-
-            若未来启用，将使用 Apple CloudKit/iCloud，并在您的 Apple ID 下同步。NotBad Labs 不会为这些数据运行自有同步服务器，也无法读取您的个人 iCloud 内容。该功能上线前会同步更新隐私说明。
-            """,
-            comment: "iCloud 同步内容"
-        )
         public static let usageTitle = NSLocalizedString("privacy.usage_title", value: "数据使用", comment: "章节标题：数据使用")
         public static let usageContent = NSLocalizedString(
             "privacy.usage_content",
             value: """
-            SnapDrill 在设备本地处理您的数据，用于提供采集、整理、复盘、导出和打印等核心功能。
+            SnapDrill 在设备本地处理您的数据，用于提供采集、整理、查找、导出和打印等核心功能。
 
             如果您主动通过邮件或 TestFlight 反馈联系我们，我们只使用您主动提供的信息回复该支持请求。
 
@@ -271,7 +261,7 @@ nonisolated extension L10n {
         public static let childrenTitle = NSLocalizedString("privacy.children_title", value: "儿童隐私", comment: "章节标题：儿童隐私")
         public static let childrenContent = NSLocalizedString(
             "privacy.children_content",
-            value: "SnapDrill 适合所有年龄段的用户使用。我们不会有意收集 13 岁以下儿童的个人信息。如果您是家长或监护人，发现您的孩子在未经您同意的情况下向我们提供了个人信息，请联系我们，我们将采取措施删除相关信息。",
+            value: "SnapDrill 是面向成年人设计的通用效率工具，不要求账户，也不会有意收集儿童的个人信息。如果您认为有人通过反馈渠道向我们提供了儿童的个人信息，请联系我们，我们将采取措施删除相关信息。",
             comment: "儿童隐私内容"
         )
         public static let gdprTitle = NSLocalizedString("privacy.gdpr_title", value: "GDPR 合规（欧盟用户）", comment: "章节标题：GDPR 合规")
@@ -283,7 +273,7 @@ nonisolated extension L10n {
         public static let ccpaTitle = NSLocalizedString("privacy.ccpa_title", value: "CCPA 合规（加州用户）", comment: "章节标题：CCPA 合规")
         public static let ccpaContent = NSLocalizedString(
             "privacy.ccpa_content",
-            value: "如果您是加州居民，您享有了解我们收集的个人信息类别、了解我们是否出售您的个人信息（我们不会）、删除您的个人信息等权利。SnapDrill 不会出售您的个人信息，也不会与第三方共享您的学习内容。",
+            value: "如果您是加州居民，您享有了解我们收集的个人信息类别、了解我们是否出售您的个人信息（我们不会）、删除您的个人信息等权利。SnapDrill 不会出售您的个人信息，也不会与第三方共享您的资料内容。",
             comment: "CCPA 合规内容"
         )
         public static let updateTitle = NSLocalizedString("privacy.update_title", value: "隐私政策更新", comment: "章节标题：隐私政策更新")

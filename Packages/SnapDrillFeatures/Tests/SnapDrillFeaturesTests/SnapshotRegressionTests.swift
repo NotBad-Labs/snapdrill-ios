@@ -106,8 +106,8 @@ struct SnapshotRegressionTests {
     func testTipPopoverContent_default() {
         let view = TipPopoverContent(
             icon: "lightbulb.fill",
-            title: "复习小技巧",
-            message: "点击卡片翻面查看答案，左滑表示忘了，右滑表示记得",
+            title: "整理小技巧",
+            message: "为资料添加分类和标签，需要时更容易找到",
             onDismiss: { }
         )
         assertSnapshot(of: view, as: .image(layout: .sizeThatFits))

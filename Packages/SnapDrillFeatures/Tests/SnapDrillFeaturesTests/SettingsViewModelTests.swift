@@ -46,7 +46,7 @@ final class SettingsViewModelTests {
         #expect(remaining.isEmpty)
     }
 
-    @Test("clearAllData 发送 reviewDataDidChange 通知")
+    @Test("clearAllData 发送 libraryDataDidChange 通知")
     func clearAllData_postsNotification() async throws {
         let item = ArchiveItemModel(content: "题目")
         repos.archive.insert(item)
@@ -56,7 +56,7 @@ final class SettingsViewModelTests {
 
         var notificationReceived = false
         let observer = NotificationCenter.default.addObserver(
-            forName: .reviewDataDidChange,
+            forName: .libraryDataDidChange,
             object: nil,
             queue: .main
         ) { _ in
@@ -257,7 +257,7 @@ final class SettingsViewModelTests {
         #expect(restored?.repetitions == 3)
     }
 
-    @Test("restoreFromBackup 成功后发送 reviewDataDidChange 通知")
+    @Test("restoreFromBackup 成功后发送 libraryDataDidChange 通知")
     func restoreFromBackup_postsNotification() async throws {
         // 准备备份文件
         let item = ArchiveItemModel(content: "通知测试")
@@ -277,7 +277,7 @@ final class SettingsViewModelTests {
 
         var notificationReceived = false
         let observer = NotificationCenter.default.addObserver(
-            forName: .reviewDataDidChange,
+            forName: .libraryDataDidChange,
             object: nil,
             queue: .main
         ) { _ in

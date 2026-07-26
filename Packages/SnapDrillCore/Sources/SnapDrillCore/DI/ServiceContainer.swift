@@ -48,9 +48,6 @@ public protocol ServiceContainer: Sendable {
     /// 隐私授权服务（ATT 已移除，ADR-002）
     var privacyConsent: PrivacyConsentService { get }
 
-    /// 通知服务（协议类型，生产环境为 UNUserNotificationCenter 实现，测试为 Mock）
-    var notification: NotificationServiceProtocol { get }
-
     // MARK: - Capture / AI（S-D4-001 新挂）
 
     /// OCR 识别服务（actor，端上 Vision 实现，测试可替换为 Mock）
@@ -70,14 +67,8 @@ public protocol ServiceContainer: Sendable {
     /// 软删除 5 秒撤销窗口调度器（App 生命周期状态）
     var deletionScheduler: DeletionScheduler { get }
 
-    /// Pro 订阅 entitlement 判定（阻塞 #479 StoreKit）
-    var proEntitlement: any ProEntitlementProvider { get }
-
     /// Profile 切换保护 + 全局操作活动追踪（导出/备份/恢复期间禁止切 Profile）
     var activityTracker: AppActivityTracker { get }
-
-    /// SM-2 复习调度策略（可替换以支持复习策略实验）
-    var reviewScheduler: ReviewScheduler { get }
 
     // MARK: - 遥测诊断（S-D4-001，ADR-005 D6=A）
 

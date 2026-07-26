@@ -24,15 +24,12 @@ public final class LiveServiceContainer: ServiceContainer {
     public let pdfExport: PDFExportService
     public let appConfig: AppConfiguration
     public let privacyConsent: PrivacyConsentService
-    public let notification: NotificationServiceProtocol
     public let ocr: any OCRServiceProtocol
     public let captureDraft: any CaptureDraftServiceProtocol
     public let contentTagging: any ContentTaggingServiceProtocol
     public let questionSplitting: any QuestionSplittingServiceProtocol
     public let deletionScheduler: DeletionScheduler
-    public let proEntitlement: any ProEntitlementProvider
     public let activityTracker: AppActivityTracker
-    public let reviewScheduler: ReviewScheduler
     public let metricService: any MetricServiceProtocol
 
     // MARK: - Initialization
@@ -40,35 +37,29 @@ public final class LiveServiceContainer: ServiceContainer {
     /// 创建生产服务容器
     public init(
         analytics: AnalyticsServiceProtocol? = nil,
-        notification: NotificationServiceProtocol? = nil,
         ocr: (any OCRServiceProtocol)? = nil,
         captureDraft: (any CaptureDraftServiceProtocol)? = nil,
         contentTagging: (any ContentTaggingServiceProtocol)? = nil,
         questionSplitting: (any QuestionSplittingServiceProtocol)? = nil,
         deletionScheduler: DeletionScheduler? = nil,
-        proEntitlement: (any ProEntitlementProvider)? = nil,
         activityTracker: AppActivityTracker? = nil,
-        reviewScheduler: ReviewScheduler? = nil,
         metricService: (any MetricServiceProtocol)? = nil
     ) {
         self.appConfig = AppConfiguration()
         self.pdfExport = PDFExportService()
         self.privacyConsent = PrivacyConsentService()
         self.analytics = analytics ?? NoOpAnalyticsService()
-        self.notification = notification ?? LiveNotificationService()
         self.ocr = ocr ?? OCRService()
         self.captureDraft = captureDraft ?? CaptureDraftService()
         self.contentTagging = contentTagging ?? ContentTaggingService()
         self.questionSplitting = questionSplitting ?? QuestionSplittingService()
         self.deletionScheduler = deletionScheduler ?? DeletionScheduler()
-        self.proEntitlement = proEntitlement ?? DefaultProEntitlementProvider()
         // KI-01：默认用 .shared 作为全局唯一实例。ProfileManager.switchProfile 查
         // AppActivityTracker.shared，故生产容器默认必须与之同实例，否则导出流
         // （services.activityTracker）的 begin/end 写在不同实例上、ProfileManager
         // 看不到 → Profile 切换保护失效。完整去 .shared（S-D4-001）是独立 refactor，
         // 此处 composition 层引用 .shared 可接受（包内无 treat-warnings-as-errors）。
         self.activityTracker = activityTracker ?? AppActivityTracker.shared
-        self.reviewScheduler = reviewScheduler ?? ReviewScheduler()
         self.metricService = metricService ?? LiveMetricService(
             store: MetricDiagnosticsStore.production()
         )
