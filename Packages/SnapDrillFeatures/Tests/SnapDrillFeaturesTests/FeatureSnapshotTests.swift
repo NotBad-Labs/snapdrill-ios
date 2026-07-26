@@ -10,7 +10,7 @@
 //  通过 @testable import 访问 Features 模块 internal 类型。
 //
 //  覆盖：
-//  - Dashboard：ReviewHeroCard / BentoCard
+//  - Dashboard：BentoCard
 //  - Capture：CaptureMethodCard / CornerBracketShape
 //  - Settings：SettingsRow
 //
@@ -29,53 +29,6 @@ import Testing
 
 @Suite("Features 层 internal View 视觉回归", .snapshots)
 struct FeatureSnapshotTests {
-
-    // MARK: - Dashboard.ReviewHeroCard
-
-    @MainActor
-    @Test("ReviewHeroCard 新用户无题目")
-    func testReviewHeroCard_newUser_noItems() {
-        let view = ReviewHeroCard(
-            totalCount: 0,
-            dueCount: 0,
-            reviewedTodayCount: 0,
-            onStartReview: {},
-            onStartCapture: {}
-        )
-        .frame(width: 390, height: 260)
-        .padding()
-        assertSnapshot(of: view, as: .image(layout: .sizeThatFits))
-    }
-
-    @MainActor
-    @Test("ReviewHeroCard 有待复习题目")
-    func testReviewHeroCard_withDueItems() {
-        let view = ReviewHeroCard(
-            totalCount: 100,
-            dueCount: 12,
-            reviewedTodayCount: 5,
-            onStartReview: {},
-            onStartCapture: {}
-        )
-        .frame(width: 390, height: 260)
-        .padding()
-        assertSnapshot(of: view, as: .image(layout: .sizeThatFits))
-    }
-
-    @MainActor
-    @Test("ReviewHeroCard 全部完成")
-    func testReviewHeroCard_allCompleted() {
-        let view = ReviewHeroCard(
-            totalCount: 100,
-            dueCount: 0,
-            reviewedTodayCount: 18,
-            onStartReview: {},
-            onStartCapture: {}
-        )
-        .frame(width: 390, height: 260)
-        .padding()
-        assertSnapshot(of: view, as: .image(layout: .sizeThatFits))
-    }
 
     // MARK: - Dashboard.BentoCard
 

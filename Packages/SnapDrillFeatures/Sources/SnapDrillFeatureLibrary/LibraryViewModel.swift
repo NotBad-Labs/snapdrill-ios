@@ -25,8 +25,6 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
     case createdAt
     /// 按主分类升序（A→Z）
     case category
-    /// 按复习状态升序（最紧急在前）
-    case reviewStatus
 
     public var id: String { rawValue }
 
@@ -34,7 +32,6 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
         switch self {
         case .createdAt: L10n.Library.sortTime
         case .category: L10n.Library.sortCategory
-        case .reviewStatus: L10n.Library.sortReviewStatus
         }
     }
 
@@ -46,9 +43,6 @@ public enum LibrarySortOption: String, CaseIterable, Identifiable {
             // 主分类是动态维度值（关系），无法走 SortDescriptor → 实际排序由 sortsByCategoryName 内存完成；
             // 此处仅给内存路径前的稳定预排序（createdAt 倒序作 tiebreaker）。
             [SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)]
-        case .reviewStatus:
-            [SortDescriptor(\ArchiveItemModel.nextReviewAt, order: .forward),
-             SortDescriptor(\ArchiveItemModel.createdAt, order: .reverse)]
         }
     }
 
@@ -304,15 +298,15 @@ public final class LibraryViewModel {
                     SnapDrillLogger.generic.error("删除题目失败（id=\(id)）: \(error.localizedDescription)")
                 }
             }
-            // 硬删提交后广播：让复习/仪表盘等观察者据最终 DB 状态刷新
+            // 硬删提交后广播：让资料库与仪表盘观察者据最终 DB 状态刷新
             if anyDeleted {
                 await MainActor.run {
-                    NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+                    NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
                 }
             }
         }
-        // 软删即时广播：让复习队列/仪表盘据 pendingDeletionIDs 立即把待删题排除（不必等 5 秒硬删）
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        // 软删即时广播：让资料库与仪表盘立即反映待删资料（不必等 5 秒硬删）
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
     }
 
     /// 撤销删除（恢复暂存的题目到列表）
@@ -349,8 +343,8 @@ public final class LibraryViewModel {
                 }
             }
         }
-        // 撤销后广播：让复习队列/仪表盘把恢复的题重新纳入（它不再处于 pendingDeletionIDs）
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        // 撤销后广播：让资料库与仪表盘重新纳入已恢复资料
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
     }
 
     // 删除逻辑已委托给 DeletionScheduler（App 级生命周期）

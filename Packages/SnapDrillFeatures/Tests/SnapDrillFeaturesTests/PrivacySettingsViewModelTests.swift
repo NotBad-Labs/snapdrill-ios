@@ -74,6 +74,8 @@ final class PrivacySettingsViewModelTests {
         let json = try JSONSerialization.jsonObject(with: data) as? [[String: Any]]
         #expect(json?.count == 1)
         #expect(json?[0]["content"] as? String == "JSON 测试题目")
+        #expect(json?[0]["lastReviewedAt"] == nil)
+        #expect(json?[0]["nextReviewAt"] == nil)
     }
 
     // MARK: - CSV 导出
@@ -96,6 +98,8 @@ final class PrivacySettingsViewModelTests {
         let csvString = try String(contentsOf: url, encoding: .utf8)
         let lines = csvString.components(separatedBy: "\n").filter { !$0.isEmpty }
         #expect(lines.count >= 2)
+        #expect(!lines[0].contains("LastReviewed"))
+        #expect(!lines[0].contains("NextReview"))
     }
 
     // MARK: - 空数据库

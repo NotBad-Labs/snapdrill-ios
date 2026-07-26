@@ -408,7 +408,7 @@ final class LibraryEditViewModelTests {
         #expect(ctx.vm.isSavedNormally == false)
     }
 
-    @Test("save 发送 reviewDataDidChange 通知")
+    @Test("save 发送 libraryDataDidChange 通知")
     func save_postsNotification() async throws {
         let ctx = try createVM()
         await ctx.vm.loadData()
@@ -416,7 +416,7 @@ final class LibraryEditViewModelTests {
 
         var notificationReceived = false
         let observer = NotificationCenter.default.addObserver(
-            forName: .reviewDataDidChange,
+            forName: .libraryDataDidChange,
             object: nil,
             queue: .main
         ) { _ in

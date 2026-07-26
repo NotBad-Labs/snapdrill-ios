@@ -38,11 +38,6 @@ public final class DashboardRouter: @MainActor FeatureRouter {
     /// 目标类型别名
     public typealias Destination = DashboardDestination
     
-    /// 跳转到回顾模块的回调
-    ///
-    /// 由父级协调器（AppRouter）注入具体实现。
-    public var onNavigateToReview: (() -> Void)?
-    
     /// 跳转到采集模块的回调 (Optional draft to restore)
     public var onNavigateToCapture: ((CaptureDraft?) -> Void)?
     
@@ -50,11 +45,6 @@ public final class DashboardRouter: @MainActor FeatureRouter {
     public init() {}
     
     // MARK: - Public API
-    
-    /// 请求导航到回顾页面
-    public func navigateToReview() {
-        onNavigateToReview?()
-    }
     
     /// 请求导航到采集页面
     public func navigateToCapture(withDraft draft: CaptureDraft? = nil) {

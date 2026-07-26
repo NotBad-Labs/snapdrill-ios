@@ -273,7 +273,7 @@ struct SettingsBackupCoordinator {
         for id in ingestedProfileIds {
             profileManager.discardProfile(id: id)
         }
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
     }
 
     /// 从全 Profile 自动备份逐个还原所有 Profile（best-effort：单个失败记日志继续、不 throw）。

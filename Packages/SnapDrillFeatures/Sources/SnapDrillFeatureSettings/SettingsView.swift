@@ -58,13 +58,6 @@ public struct SettingsView: View {
 
     // 外观设置
     @AppStorage(UDKey.appearanceMode) private var appearanceMode: Int = 0
-    @AppStorage(UDKey.cardContextAlignment) private var alignmentRaw: String = "leading"
-    @AppStorage(UDKey.cardContextFontSize) private var fontSizeRaw: Double = 16.0
-
-    // 正面卡片外观
-    @AppStorage(UDKey.cardFrontAlignment) private var frontAlignmentRaw: String = "leading"
-    @AppStorage(UDKey.cardFrontFontSize) private var frontFontSizeRaw: Double = 32.0
-
     // MARK: - Initialization
 
     /// 创建设置视图
@@ -131,36 +124,7 @@ public struct SettingsView: View {
                     bottomBreathingRoom
                 }
 
-                // 3. 回顾设置
-                Section {
-                    Text(L10n.Settings.reviewSettings)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
-                        .accessibilityAddTraits(.isHeader)
-
-                    NavigationLink {
-                        ReviewAppearanceSettingsView(
-                            alignmentRaw: $alignmentRaw,
-                            fontSizeRaw: $fontSizeRaw,
-                            frontAlignmentRaw: $frontAlignmentRaw,
-                            frontFontSizeRaw: $frontFontSizeRaw
-                        )
-                    } label: {
-                        SettingsRow(icon: "eye.fill", gradientStart: .indigo, gradientEnd: .blue, title: L10n.Settings.cardAppearance)
-                    }
-                    .accessibilityIdentifier("settings.reviewAppearance")
-
-
-                    NavigationLink {
-                        NotificationSettingsView()
-                    } label: {
-                        SettingsRow(icon: "bell.fill", gradientStart: .red, gradientEnd: .orange, title: L10n.Settings.reviewReminder)
-                    }
-                    .accessibilityIdentifier("settings.notifications")
-
-                }
-
-                // 4. 数据与备份
+                // 3. 数据与备份
                 Section {
                     NavigationLink {
                         if let viewModel {
@@ -192,7 +156,7 @@ public struct SettingsView: View {
                     Text(L10n.Settings.dataAndSync)
                 }
 
-                // 5. 通用
+                // 4. 通用
                 Section(L10n.Settings.general) {
                     Picker(selection: $appearanceMode) {
                         Text(L10n.Settings.followSystem).tag(0)
@@ -212,7 +176,7 @@ public struct SettingsView: View {
 
                 }
 
-                // 6. 分类管理（L3：分类/来源/级别 + 用户自定义维度统一入口）
+                // 5. 分类管理（L3：分类/来源/级别 + 用户自定义维度统一入口）
                 Section(L10n.Settings.categoryManagement) {
                     NavigationLink {
                         CategoryManagerView()
@@ -222,7 +186,7 @@ public struct SettingsView: View {
                     .accessibilityIdentifier("settings.manageCategories")
                 }
 
-                // 7. 危险操作（独立分区，与日常操作物理隔离）
+                // 6. 危险操作（独立分区，与日常操作物理隔离）
                 Section {
                     Button { showingClearAlert = true } label: {
                         SettingsRow(icon: "trash.fill", gradientStart: .red, gradientEnd: .pink, title: L10n.Settings.clearAllData)
@@ -444,7 +408,7 @@ public struct SettingsView: View {
             defer { isGenerating = false }
             do {
                 let seeder = DataSeeder(modelContext: modelContext)
-                let time = try seeder.seedReviewItems(count: 100)
+                let time = try seeder.seedArchiveItems(count: 100)
                 SnapDrillLogger.generic.info("生成测试数据成功: \(time)s")
             } catch {
                 SnapDrillLogger.generic.error("生成测试数据失败: \(error.localizedDescription)")

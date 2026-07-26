@@ -42,11 +42,6 @@ public struct PrivacyPolicyView: View {
                 )
 
                 sectionView(
-                    title: L10n.PrivacyPolicy.icloudTitle,
-                    content: L10n.PrivacyPolicy.icloudContent
-                )
-
-                sectionView(
                     title: L10n.PrivacyPolicy.usageTitle,
                     content: L10n.PrivacyPolicy.usageContent
                 )

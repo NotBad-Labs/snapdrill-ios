@@ -33,13 +33,11 @@ final class DashboardViewModelTests {
     }
 
     private func makeViewModel(
-        draftService: CaptureDraftServiceProtocol = CaptureDraftServiceMock(),
-        deletionScheduler: DeletionScheduler = DeletionScheduler()
+        draftService: CaptureDraftServiceProtocol = CaptureDraftServiceMock()
     ) -> DashboardViewModel {
         DashboardViewModel(
             repositories: repos,
-            draftService: draftService,
-            deletionScheduler: deletionScheduler
+            draftService: draftService
         )
     }
 
@@ -52,8 +50,6 @@ final class DashboardViewModelTests {
 
         #expect(vm.todayItemsCount == 0)
         #expect(vm.totalCount == 0)
-        #expect(vm.dueCount == 0)
-        #expect(vm.reviewedTodayCount == 0)
         vm.cancelTasks()
     }
 
@@ -70,28 +66,6 @@ final class DashboardViewModelTests {
 
         #expect(vm.totalCount == 2)
         #expect(vm.todayItemsCount == 2)
-        vm.cancelTasks()
-    }
-
-    @Test("loadData 区分到期和未到期题目的 dueCount")
-    func loadData_dueCount() throws {
-        // 一道已到期的题目（1 小时前到期）
-        let dueItem = ArchiveItemModel(content: "待复习题目")
-        dueItem.nextReviewAt = Date(timeIntervalSinceNow: -3600)
-        repos.archive.insert(dueItem)
-
-        // 一道未到期的题目（远未来）
-        let futureItem = ArchiveItemModel(content: "未到期题目")
-        futureItem.nextReviewAt = Date.distantFuture
-        repos.archive.insert(futureItem)
-
-        try repos.archive.saveContext()
-
-        let vm = makeViewModel()
-        vm.loadData()
-
-        #expect(vm.totalCount == 2)
-        #expect(vm.dueCount == 1)
         vm.cancelTasks()
     }
 
@@ -215,7 +189,7 @@ final class DashboardViewModelTests {
 
     // MARK: - 通知刷新
 
-    @Test("reviewDataDidChange 通知触发数据刷新")
+    @Test("libraryDataDidChange 通知触发数据刷新")
     func notification_refreshesData() async throws {
         let item = ArchiveItemModel(content: "通知测试")
         repos.archive.insert(item)
@@ -227,31 +201,9 @@ final class DashboardViewModelTests {
         // 让 for-await 循环启动（短暂让出 MainActor）
         await Task.yield()
         // 发送通知，轮询等待防抖 + loadData 完成
-        NotificationCenter.default.post(name: .reviewDataDidChange, object: nil)
+        NotificationCenter.default.post(name: .libraryDataDidChange, object: nil)
         try await waitUntil { vm.totalCount == 1 }
         vm.cancelTasks()
-    }
-
-    // MARK: - 软删 pending 排除（Fix 4 / GAP-R1）
-
-    @Test("loadData 的 dueCount 排除软删 pending 的到期题，totalCount 不受影响")
-    func loadData_dueCountExcludesPendingDeletion() throws {
-        let keep = ArchiveItemModel(content: "保留题")
-        keep.nextReviewAt = Date(timeIntervalSinceNow: -3600)
-        let pending = ArchiveItemModel(content: "待删题")
-        pending.nextReviewAt = Date(timeIntervalSinceNow: -3600)
-        repos.archive.insert(keep)
-        repos.archive.insert(pending)
-
-        let scheduler = DeletionScheduler()
-        scheduler.scheduleDeletion(ids: [pending.id]) { _ in }  // 模拟 5 秒撤销窗口
-        let vm = makeViewModel(deletionScheduler: scheduler)
-        vm.loadData()
-
-        #expect(vm.dueCount == 1)    // 排除 pending 后只剩 1
-        #expect(vm.totalCount == 2)  // 总数不受影响（软删窗口内 DB 仍在）
-
-        vm.cancelTasks()  // 取消 reviewDataDidChange 观察者，避免跨测试 leak（与既有测试一致）
     }
 }
 

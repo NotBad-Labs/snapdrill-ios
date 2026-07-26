@@ -35,14 +35,10 @@ public final class DashboardViewModel {
     public var todayItemsCount: Int = 0
     /// 资料库总数
     public var totalCount: Int = 0
-    /// 今日待回顾资料数
-    public var dueCount: Int = 0
-    /// 今日已回顾资料数（用于进度环）
-    public var reviewedTodayCount: Int = 0
 
     // MARK: - Dependencies
 
-    /// 监听 reviewDataDidChange 通知的长驻任务句柄
+    /// 监听 libraryDataDidChange 通知的长驻任务句柄
     /// @ObservationIgnored：Task 不是 UI 状态，不应触发 Observation 追踪
     @ObservationIgnored
     private var dataChangeTask: Task<Void, Never>?
@@ -51,22 +47,17 @@ public final class DashboardViewModel {
     private var pendingRefreshTask: Task<Void, Never>?
     private let draftService: CaptureDraftServiceProtocol
     private let repositories: RepositoryContainer
-    /// 软删调度器（注入 App 级共享实例）：用 pendingDeletionIDs 把 5 秒撤销窗口内的软删资料从待回顾数中排除
-    private let deletionScheduler: DeletionScheduler
 
     /// 创建仪表盘 ViewModel
     /// - Parameters:
     ///   - repositories: 应用的数据仓库容器
     ///   - draftService: App 生命周期共享的草稿服务
-    ///   - deletionScheduler: 软删调度器，默认空实例（测试无 pending 时不过滤）
     public init(
         repositories: RepositoryContainer,
-        draftService: CaptureDraftServiceProtocol,
-        deletionScheduler: DeletionScheduler = DeletionScheduler()
+        draftService: CaptureDraftServiceProtocol
     ) {
         self.repositories = repositories
         self.draftService = draftService
-        self.deletionScheduler = deletionScheduler
 
         setupDataChangeObserver()
     }
@@ -81,12 +72,8 @@ public final class DashboardViewModel {
         do {
             let today = try repositories.archive.fetchTodayCount()
             let total = try repositories.archive.totalItemCount()
-            let due = try repositories.archive.fetchDueCount(excluding: deletionScheduler.pendingDeletionIDs)
-            let reviewed = try repositories.archive.fetchTodayReviewedCount()
             todayItemsCount = today
             totalCount = total
-            dueCount = due
-            reviewedTodayCount = reviewed
         } catch {
             // Dashboard 统计失败是 S3 级别：数据不影响任何操作流程，用户下次进入自动重试；
             // 不在 UI 展示错误状态，避免在首页增加不必要的视觉干扰
@@ -194,7 +181,7 @@ public final class DashboardViewModel {
     /// 用 async notification stream 监听数据变更，无需 NotificationCenter token + deinit 清理
     private func setupDataChangeObserver() {
         dataChangeTask = Task {
-            for await _ in NotificationCenter.default.notifications(named: .reviewDataDidChange) {
+            for await _ in NotificationCenter.default.notifications(named: .libraryDataDidChange) {
                 guard !Task.isCancelled else { break }
                 // 防抖：cancel 上一次待执行的刷新，避免批量写库触发冗余查询
                 pendingRefreshTask?.cancel()

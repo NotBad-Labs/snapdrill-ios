@@ -16,14 +16,13 @@ import SnapDrillFeatureLibrary
 
 /// 首页仪表盘视图。
 ///
-/// 展示今日回顾概览、资料库总量和快捷入口。
+/// 展示资料库概览和快捷入口。
 public struct DashboardView: View {
     @Bindable private var router: DashboardRouter
     @Environment(\.repositories) private var repositories
     @Environment(\.services) private var services
 
     @State private var viewModel: DashboardViewModel?
-    @State private var analyticsViewModel: DashboardAnalyticsViewModel?
     
     // MARK: - Layout Constants
 
@@ -66,16 +65,6 @@ public struct DashboardView: View {
                                 .accessibilityIdentifier("dashboard.empty.capture")
                                 .padding(.top, 40)
                             } else {
-                                ReviewHeroCard(
-                                    totalCount: viewModel.totalCount,
-                                    dueCount: viewModel.dueCount,
-                                    reviewedTodayCount: viewModel.reviewedTodayCount,
-                                    onStartReview: { router.navigateToReview() },
-                                    onStartCapture: {
-                                        Task { await viewModel.checkDraftAndCapture(router: router) }
-                                    }
-                                )
-
                                 LazyVGrid(columns: columns, spacing: 12) {
                                     BentoCard(
                                         title: L10n.Dashboard.smartScan,
@@ -98,9 +87,8 @@ public struct DashboardView: View {
                                     .accessibilityIdentifier("dashboard.bento.library")
 
                                     DailyStatsView(
-                                        todayItemsCount: viewModel.todayItemsCount,
-                                        reviewedTodayCount: viewModel.reviewedTodayCount,
-                                        dueCount: viewModel.dueCount
+                                        totalCount: viewModel.totalCount,
+                                        todayItemsCount: viewModel.todayItemsCount
                                     )
                                     .accessibilityIdentifier("dashboard.dailyStats")
 
@@ -116,10 +104,6 @@ public struct DashboardView: View {
                                     .accessibilityIdentifier("dashboard.bento.categories")
                                 }
                                 .padding(.horizontal)
-
-                                if let analyticsVM = analyticsViewModel {
-                                    DashboardAnalyticsView(viewModel: analyticsVM)
-                                }
                             }
                         }
                         .padding(.bottom, 40)
@@ -136,22 +120,12 @@ public struct DashboardView: View {
                 if viewModel == nil {
                     viewModel = DashboardViewModel(
                         repositories: repositories,
-                        draftService: services.captureDraft,
-                        deletionScheduler: services.deletionScheduler
+                        draftService: services.captureDraft
                     )
-                }
-                if analyticsViewModel == nil {
-                    let vm = DashboardAnalyticsViewModel(
-                        repositories: repositories,
-                        proEntitlementProvider: services.proEntitlement
-                    )
-                    analyticsViewModel = vm
-                    vm.loadAnalytics()
                 }
             }
             .onDisappear {
                 viewModel?.cancelTasks()
-                analyticsViewModel?.cancelTasks()
             }
             .overlay(alignment: .top) {
                 Color(UIColor.systemGroupedBackground)
@@ -283,11 +257,10 @@ private struct DashboardLoadingView: View {
     }
 }
 
-/// 多维今日统计卡片：今日新增 / 今日回顾 / 待回顾（纯展示，无跳转）。
+/// 资料库概览卡片：总量与今日新增（纯展示，无跳转）。
 struct DailyStatsView: View {
+    let totalCount: Int
     let todayItemsCount: Int
-    let reviewedTodayCount: Int
-    let dueCount: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -302,15 +275,14 @@ struct DailyStatsView: View {
             Spacer(minLength: 0)
 
             VStack(alignment: .leading, spacing: 6) {
+                StatRow(label: L10n.Library.title, value: totalCount)
                 StatRow(label: L10n.Dashboard.todayAdded, value: todayItemsCount)
-                StatRow(label: L10n.Dashboard.todayReviewed, value: reviewedTodayCount)
-                StatRow(label: L10n.Dashboard.dueReview, value: dueCount)
             }
         }
         .padding()
         .frame(maxWidth: .infinity, minHeight: 120)
         .glassEffect(.regular, in: .rect(cornerRadius: 24))
-        .accessibleGroup(label: L10n.Accessibility.dailyStatsLabel(added: todayItemsCount, reviewed: reviewedTodayCount, due: dueCount))
+        .accessibilityElement(children: .combine)
     }
 }
 

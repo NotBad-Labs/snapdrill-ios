@@ -92,8 +92,6 @@ final class PrivacySettingsViewModel {
                     content: item.content,
                     answerText: item.answerText,
                     createdAt: item.createdAt,
-                    lastReviewedAt: item.lastReviewedAt,
-                    nextReviewAt: item.nextReviewAt,
                     dimensionValues: dimensionValues
                 )
             }
@@ -130,16 +128,14 @@ nonisolated struct ExportableItem: Sendable {
     let content: String?
     let answerText: String?
     let createdAt: Date
-    let lastReviewedAt: Date?
-    let nextReviewAt: Date?
     /// 动态维度值：维度名 → 值名（A2 动态列导出）
     let dimensionValues: [String: [String]]
 }
 
-// CSV 编码统一走 `ReviewCSVCodec`（单一契约源）；A2 动态列经 dimensionValues。
-extension ExportableItem: ReviewCSVRow {}
+// CSV 编码统一走 `ArchiveCSVCodec`（单一契约源）；A2 动态列经 dimensionValues。
+extension ExportableItem: ArchiveCSVRow {}
 
-/// 隐私数据导出格式（区别于题库导出的 ReviewExport.ExportFormat）
+/// 隐私数据导出格式（区别于资料库导出的 LibraryExportTransfer.ExportFormat）
 nonisolated enum PrivacyDataExportFormat {
     case json
     case csv

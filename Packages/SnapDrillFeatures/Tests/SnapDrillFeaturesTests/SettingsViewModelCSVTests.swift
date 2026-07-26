@@ -347,7 +347,7 @@ final class SettingsViewModelCSVTests {
 
     // MARK: - 通知
 
-    @Test("导入成功后发送 reviewDataDidChange 通知")
+    @Test("导入成功后发送 libraryDataDidChange 通知")
     func importCSV_successful_postsNotification() async throws {
         let csv = "Content,Category\n题目,数学"
         let url = try writeCSV(csv)
@@ -355,7 +355,7 @@ final class SettingsViewModelCSVTests {
 
         var notificationReceived = false
         let observer = NotificationCenter.default.addObserver(
-            forName: .reviewDataDidChange,
+            forName: .libraryDataDidChange,
             object: nil,
             queue: .main
         ) { _ in

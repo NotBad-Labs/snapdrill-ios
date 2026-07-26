@@ -124,12 +124,6 @@ public struct LibraryView: View {
                         .fontWeight(.bold)
                     } else {
                         HStack(spacing: 12) {
-                            NavigationLink(value: LibraryDestination.smartPaper) {
-                                Image(systemName: "doc.richtext")
-                            }
-                            .accessibilityLabel(L10n.SmartPaper.title)
-                            .accessibilityIdentifier("library.smartPaperButton")
-
                             // 排序（Apple Reminders 风格 Menu）
                             if let vm = viewModel {
                                 Menu {
@@ -227,8 +221,6 @@ public struct LibraryView: View {
                     switch destination {
                     case .placeholder:
                         Text(L10n.Common.comingSoon)
-                    case .smartPaper:
-                        SmartPaperView()
                     case .detail(let item):
                         LibraryDetailView(router: router, item: item)
                     }
