@@ -10,7 +10,7 @@
 
 import Foundation
 
-public extension Collection {
+nonisolated public extension Collection {
     /// 安全下标访问
     ///
     /// 防止数组越界崩溃。如果索引无效，返回 nil。
