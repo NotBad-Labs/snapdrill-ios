@@ -56,7 +56,7 @@ actual_swiftlint_version="$(swiftlint version)"
   exit 1
 }
 
-destination="platform=iOS Simulator,name=iPhone 17"
+destination="platform=iOS Simulator,name=iPhone 18 Pro"
 test_plan="SnapDrill.xcodeproj/xcshareddata/xctestplans/AllTests.xctestplan"
 
 printf 'Source identity: %s (clean)\n' "$checkout_sha"

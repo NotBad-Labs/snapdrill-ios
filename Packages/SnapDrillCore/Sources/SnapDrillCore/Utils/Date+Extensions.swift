@@ -10,7 +10,7 @@
 
 import Foundation
 
-public extension Date {
+nonisolated public extension Date {
     
     // MARK: - Properties
     
@@ -23,7 +23,7 @@ public extension Date {
         Self.iso8601Formatter.string(from: self)
     }
 
-    private static let iso8601Formatter: DateFormatter = {
+    nonisolated(unsafe) private static let iso8601Formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         // Apple QA1480：固定格式 DateFormatter 必须设 POSIX locale，
