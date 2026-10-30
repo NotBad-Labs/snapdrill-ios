@@ -117,11 +117,19 @@ class ToolchainContractTests(unittest.TestCase):
             f"Xcode {expected.xcode_version}\n"
             f"Build version {expected.xcode_build_version}"
         )
-        ci_github.validate_toolchain(expected, exact_xcode, expected.swiftlint_version)
+        actual = ci_github.validate_toolchain(expected, exact_xcode, expected.swiftlint_version)
+        self.assertEqual(actual.xcode_version, expected.xcode_version)
+        self.assertEqual(actual.xcode_build_version, expected.xcode_build_version)
+
+        # Compatible minor/patch (e.g. Xcode 27.1 on MacBook Air vs 27.0 on Mac mini)
+        compatible_xcode = "Xcode 27.1\nBuild version 27A9275"
+        actual_comp = ci_github.validate_toolchain(expected, compatible_xcode, expected.swiftlint_version)
+        self.assertEqual(actual_comp.xcode_version, "27.1")
+        self.assertEqual(actual_comp.xcode_build_version, "27A9275")
 
         invalid = (
             ("Xcode 26.5\nBuild version 17F113", expected.swiftlint_version),
-            (f"Xcode {expected.xcode_version}\nBuild version WRONG", expected.swiftlint_version),
+            ("Xcode INVALID\nBuild version 123", expected.swiftlint_version),
             (exact_xcode + "\nextra", expected.swiftlint_version),
             (exact_xcode, "0.64.0"),
         )

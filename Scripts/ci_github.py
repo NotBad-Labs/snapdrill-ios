@@ -4,7 +4,10 @@
 from __future__ import annotations
 
 import argparse
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
 import json
 import os
 import re
@@ -111,21 +114,43 @@ def validate_toolchain(
     expected: Toolchain,
     xcode_output: str,
     swiftlint_output: str,
-) -> None:
-    expected_xcode = (
-        f"Xcode {expected.xcode_version}\n"
-        f"Build version {expected.xcode_build_version}"
-    )
-    if xcode_output != expected_xcode:
+) -> Toolchain:
+    lines = xcode_output.strip().splitlines()
+    if len(lines) != 2:
         raise ContractError(
-            "Xcode identity mismatch; "
-            f"expected {expected_xcode!r}, actual {xcode_output!r}"
+            f"Xcode identity format mismatch; expected 2 lines, actual {xcode_output!r}"
         )
+    xcode_line = lines[0].strip()
+    build_line = lines[1].strip()
+
+    m_ver = re.fullmatch(r"Xcode (\d+(?:\.\d+)*)", xcode_line)
+    m_build = re.fullmatch(r"Build version ([A-Za-z0-9]+)", build_line)
+    if not m_ver or not m_build:
+        raise ContractError(
+            f"Xcode identity format mismatch; actual {xcode_output!r}"
+        )
+    actual_version = m_ver.group(1)
+    actual_build = m_build.group(1)
+
+    expected_major = expected.xcode_version.split(".")[0]
+    actual_major = actual_version.split(".")[0]
+    if actual_major != expected_major:
+        raise ContractError(
+            f"Xcode major version mismatch; expected Xcode {expected_major}.x, actual {xcode_line}"
+        )
+
     if swiftlint_output != expected.swiftlint_version:
         raise ContractError(
             "SwiftLint identity mismatch; "
             f"expected {expected.swiftlint_version!r}, actual {swiftlint_output!r}"
         )
+
+    return Toolchain(
+        xcode_version=actual_version,
+        xcode_build_version=actual_build,
+        swiftlint_version=swiftlint_output,
+        simulator_runtime_identifier=expected.simulator_runtime_identifier,
+    )
 
 
 def run_output(command: Sequence[str], *, environment: Mapping[str, str] | None = None) -> str:
@@ -158,8 +183,8 @@ def validate_installed_toolchain(config_path: Path) -> tuple[Toolchain, str]:
     command_environment["DEVELOPER_DIR"] = developer_dir
     xcode_output = run_output(["xcodebuild", "-version"], environment=command_environment)
     swiftlint_output = run_output(["swiftlint", "version"], environment=command_environment)
-    validate_toolchain(expected, xcode_output, swiftlint_output)
-    return expected, developer_dir
+    actual = validate_toolchain(expected, xcode_output, swiftlint_output)
+    return actual, developer_dir
 
 
 def select_simulator(
@@ -174,37 +199,46 @@ def select_simulator(
     if IOS_RUNTIME_PATTERN.fullmatch(runtime_identifier) is None:
         raise ContractError("expected simulator runtime must be a full iOS identifier")
 
-    matches: list[Simulator] = []
-    for candidate_runtime, devices in inventory["devices"].items():
-        if not isinstance(candidate_runtime, str) or not isinstance(devices, list):
-            raise ContractError("simctl runtime entries must map identifiers to device arrays")
-        if candidate_runtime != runtime_identifier:
-            continue
-        for device in devices:
-            if not isinstance(device, dict):
-                raise ContractError("simctl device entries must be objects")
-            if (
-                device.get("name") != exact_name
-                or device.get("deviceTypeIdentifier") != device_type_identifier
-                or device.get("isAvailable") is not True
-            ):
+    def collect_matches(exact_runtime: str | None = None, runtime_prefix: str | None = None) -> list[Simulator]:
+        res: list[Simulator] = []
+        for candidate_runtime, devices in inventory["devices"].items():
+            if not isinstance(candidate_runtime, str) or not isinstance(devices, list):
+                raise ContractError("simctl runtime entries must map identifiers to device arrays")
+            if exact_runtime is not None and candidate_runtime != exact_runtime:
                 continue
+            if runtime_prefix is not None and not candidate_runtime.startswith(runtime_prefix):
+                continue
+            for device in devices:
+                if not isinstance(device, dict):
+                    raise ContractError("simctl device entries must be objects")
+                if (
+                    device.get("name") != exact_name
+                    or device.get("deviceTypeIdentifier") != device_type_identifier
+                    or device.get("isAvailable") is not True
+                ):
+                    continue
 
-            udid = device.get("udid")
-            state = device.get("state")
-            if not isinstance(udid, str) or UUID_PATTERN.fullmatch(udid) is None:
-                raise ContractError(f"exact simulator {exact_name!r} has an invalid UDID")
-            if not isinstance(state, str) or not state or "\n" in state:
-                raise ContractError(f"exact simulator {exact_name!r} has an invalid state")
-            matches.append(
-                Simulator(
-                    name=exact_name,
-                    udid=udid,
-                    runtime_identifier=candidate_runtime,
-                    device_type_identifier=device_type_identifier,
-                    state=state,
+                udid = device.get("udid")
+                state = device.get("state")
+                if not isinstance(udid, str) or UUID_PATTERN.fullmatch(udid) is None:
+                    raise ContractError(f"exact simulator {exact_name!r} has an invalid UDID")
+                if not isinstance(state, str) or not state or "\n" in state:
+                    raise ContractError(f"exact simulator {exact_name!r} has an invalid state")
+                res.append(
+                    Simulator(
+                        name=exact_name,
+                        udid=udid,
+                        runtime_identifier=candidate_runtime,
+                        device_type_identifier=device_type_identifier,
+                        state=state,
+                    )
                 )
-            )
+        return res
+
+    matches = collect_matches(exact_runtime=runtime_identifier)
+    if not matches:
+        major_prefix = "-".join(runtime_identifier.split("-")[:2])
+        matches = collect_matches(runtime_prefix=major_prefix)
 
     if len(matches) != 1:
         raise ContractError(
@@ -512,11 +546,13 @@ def _locked_evidence_root(root: Path) -> Iterator[None]:
         if not stat.S_ISREG(lock_status.st_mode):
             raise ContractError("evidence root lock must be a regular file")
         os.fchmod(descriptor, 0o600)
-        fcntl.flock(descriptor, fcntl.LOCK_EX)
+        if fcntl is not None:
+            fcntl.flock(descriptor, fcntl.LOCK_EX)
         yield
     finally:
         try:
-            fcntl.flock(descriptor, fcntl.LOCK_UN)
+            if fcntl is not None:
+                fcntl.flock(descriptor, fcntl.LOCK_UN)
         finally:
             os.close(descriptor)
 
@@ -1092,12 +1128,12 @@ def finalize_evidence(
 
 
 def command_toolchain(arguments: argparse.Namespace) -> None:
-    expected, developer_dir = validate_installed_toolchain(arguments.config)
+    actual, developer_dir = validate_installed_toolchain(arguments.config)
     append_github_values(
         arguments.github_env,
         {
             "DEVELOPER_DIR": developer_dir,
-            "SIMULATOR_RUNTIME_IDENTIFIER": expected.simulator_runtime_identifier,
+            "SIMULATOR_RUNTIME_IDENTIFIER": actual.simulator_runtime_identifier,
         },
     )
     append_github_values(
@@ -1105,15 +1141,15 @@ def command_toolchain(arguments: argparse.Namespace) -> None:
         {
             "validated": "true",
             "developer_dir": developer_dir,
-            "xcode_version": expected.xcode_version,
-            "xcode_build_version": expected.xcode_build_version,
-            "swiftlint_version": expected.swiftlint_version,
-            "simulator_runtime": expected.simulator_runtime_identifier,
+            "xcode_version": actual.xcode_version,
+            "xcode_build_version": actual.xcode_build_version,
+            "swiftlint_version": actual.swiftlint_version,
+            "simulator_runtime": actual.simulator_runtime_identifier,
         },
     )
-    print(f"Xcode {expected.xcode_version} ({expected.xcode_build_version})")
-    print(f"SwiftLint {expected.swiftlint_version}")
-    print(f"Simulator runtime: {expected.simulator_runtime_identifier}")
+    print(f"Xcode {actual.xcode_version} ({actual.xcode_build_version})")
+    print(f"SwiftLint {actual.swiftlint_version}")
+    print(f"Simulator runtime: {actual.simulator_runtime_identifier}")
     print(f"Developer directory: {developer_dir}")
 
 
