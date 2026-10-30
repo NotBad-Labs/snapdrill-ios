@@ -152,10 +152,9 @@ jobs:
           TEST_RESULT_PATH: ${{ runner.temp }}/snapdrill-ci-${{ github.run_id }}-${{ github.job }}-${{ github.run_attempt }}.xcresult
         run: |
           set +e
-          SIMCTL_CHILD_SNAPSHOT_TESTING_RECORD=all xcodebuild test-without-building \
+          xcodebuild test-without-building \
             -xctestrun "$XCTESTRUN_PATH" \
-            -only-test-configuration SnapshotRecord \
-            -only-testing:SnapDrillFeaturesTests \
+            -only-test-configuration CI \
             -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -parallel-testing-enabled NO \
             -test-timeouts-enabled YES \
@@ -171,11 +170,6 @@ jobs:
           if [ "${PIPE_STATUSES[1]}" -ne 0 ] && [ "$TEST_STATUS" -eq 0 ]; then
             TEST_STATUS="${PIPE_STATUSES[1]}"
           fi
-
-          echo "=== BASE64_SNAPSHOTS_START ==="
-          python3 -c "import glob, base64; [print('SNAPFILE:' + p + ':' + base64.b64encode(open(p, 'rb').read()).decode('ascii')) for p in glob.glob('Packages/**/__Snapshots__/**/*.png', recursive=True)]"
-          echo "=== BASE64_SNAPSHOTS_END ==="
-
           set -e
           echo "exit_code=$TEST_STATUS" >> "$GITHUB_OUTPUT"
           exit "$TEST_STATUS"
