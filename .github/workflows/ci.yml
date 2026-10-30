@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   # PR pushes cancel stale same-ref runs; develop/main push and manual dispatch preserve signal.
@@ -150,7 +150,6 @@ jobs:
           XCTESTRUN_PATH: ${{ steps.xctestrun.outputs.path }}
           TEST_LOG_PATH: ${{ runner.temp }}/snapdrill-ci-${{ github.run_id }}-${{ github.job }}-${{ github.run_attempt }}.log
           TEST_RESULT_PATH: ${{ runner.temp }}/snapdrill-ci-${{ github.run_id }}-${{ github.job }}-${{ github.run_attempt }}.xcresult
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set +e
           SIMCTL_CHILD_SNAPSHOT_TESTING_RECORD=all xcodebuild test-without-building \
@@ -173,22 +172,13 @@ jobs:
             TEST_STATUS="${PIPE_STATUSES[1]}"
           fi
 
-          echo "Checking for newly recorded snapshots..."
-          git status --short Packages/SnapDrillFeatures/Tests/SnapDrillFeaturesTests/__Snapshots__
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Packages/SnapDrillFeatures/Tests/SnapDrillFeaturesTests/__Snapshots__
-          if ! git diff --cached --quiet; then
-            echo "New snapshots recorded! Committing and pushing..."
-            git commit -m "test: update visual snapshots baseline for iOS 27"
-            git push "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" "HEAD:${{ github.ref_name }}"
-          else
-            echo "No changes in __Snapshots__."
-          fi
+          echo "=== BASE64_SNAPSHOTS_START ==="
+          python3 -c "import glob, base64; [print('SNAPFILE:' + p + ':' + base64.b64encode(open(p, 'rb').read()).decode('ascii')) for p in glob.glob('Packages/**/__Snapshots__/**/*.png', recursive=True)]"
+          echo "=== BASE64_SNAPSHOTS_END ==="
 
           set -e
-          echo "exit_code=0" >> "$GITHUB_OUTPUT"
-          exit 0
+          echo "exit_code=$TEST_STATUS" >> "$GITHUB_OUTPUT"
+          exit "$TEST_STATUS"
 
       - name: Finalize routine CI evidence
         if: always()
@@ -237,7 +227,7 @@ jobs:
             --simulator-destination "$DEVICE_DESTINATION" \
             --scheme AllTests \
             --test-plan AllTests \
-            --test-configuration SnapshotRecord \
+            --test-configuration CI \
             --default-timeout-seconds 120 \
             --maximum-timeout-seconds 300 \
             --retention-days 14 \
