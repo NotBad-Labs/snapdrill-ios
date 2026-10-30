@@ -10,7 +10,7 @@
 
 import SwiftUI
 
-struct CornerBracketShape: Shape {
+struct CornerBracketShape: @MainActor Shape {
     var cornerLength: CGFloat = 20
     
     func path(in rect: CGRect) -> Path {
