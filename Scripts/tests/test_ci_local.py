@@ -247,8 +247,8 @@ class CILocalTests(unittest.TestCase):
         self.assertIn("-scheme AllTests", build[0])
         self.assertIn("-testPlan AllTests", build[0])
         self.assertIn("-only-test-configuration CI", test[0])
-        self.assertIn("-destination platform=iOS Simulator,name=iPhone 17", build[0])
-        self.assertIn("-destination platform=iOS Simulator,name=iPhone 17", test[0])
+        self.assertIn("-destination platform=iOS Simulator,name=iPhone 18 Pro", build[0])
+        self.assertIn("-destination platform=iOS Simulator,name=iPhone 18 Pro", test[0])
         self.assertTrue(
             any(
                 line.startswith("python3|")

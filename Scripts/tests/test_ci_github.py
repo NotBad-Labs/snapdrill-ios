@@ -22,9 +22,9 @@ import ci_github  # noqa: E402
 SCRIPT = SCRIPTS_ROOT / "ci_github.py"
 WORKFLOW = REPO_ROOT / ".github/workflows/ci.yml"
 TOOLCHAIN = REPO_ROOT / "Configs/Toolchain.env"
-DEVICE_TYPE = "com.apple.CoreSimulator.SimDeviceType.iPhone-17"
-RUNTIME = "com.apple.CoreSimulator.SimRuntime.iOS-26-5"
-OTHER_RUNTIME = "com.apple.CoreSimulator.SimRuntime.iOS-26-4"
+DEVICE_TYPE = "com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro"
+RUNTIME = "com.apple.CoreSimulator.SimRuntime.iOS-27-0"
+OTHER_RUNTIME = "com.apple.CoreSimulator.SimRuntime.iOS-27-1"
 EXACT_UDID = "11111111-2222-3333-4444-555555555555"
 TOOLCHAIN_TEXT = TOOLCHAIN.read_text(encoding="utf-8")
 EXPECTED_TOOLCHAIN = ci_github.parse_toolchain(TOOLCHAIN_TEXT)
@@ -66,7 +66,7 @@ def simulator_inventory() -> dict[str, object]:
                     device_type="com.apple.CoreSimulator.SimDeviceType.iPhone-17e",
                 ),
                 simulator_device(
-                    "iPhone 17",
+                    "iPhone 18 Pro",
                     EXACT_UDID,
                     device_type=DEVICE_TYPE,
                 ),
@@ -92,8 +92,8 @@ class ToolchainContractTests(unittest.TestCase):
     def test_repository_toolchain_parses(self) -> None:
         parsed = EXPECTED_TOOLCHAIN
 
-        self.assertEqual(parsed.xcode_version, "26.6")
-        self.assertEqual(parsed.xcode_build_version, "17F113")
+        self.assertEqual(parsed.xcode_version, "27.0")
+        self.assertEqual(parsed.xcode_build_version, "27A266a")
         self.assertEqual(parsed.swiftlint_version, "0.63.2")
         self.assertEqual(parsed.simulator_runtime_identifier, RUNTIME)
 
@@ -267,7 +267,7 @@ class SimulatorContractTests(unittest.TestCase):
             "devices": {
                 OTHER_RUNTIME: [
                     simulator_device(
-                        "iPhone 17",
+                        "iPhone 18 Pro",
                         "22222222-3333-4444-5555-666666666666",
                         device_type=DEVICE_TYPE,
                     )
@@ -277,7 +277,7 @@ class SimulatorContractTests(unittest.TestCase):
         }
         selected = ci_github.select_simulator(
             inventory,
-            exact_name="iPhone 17",
+            exact_name="iPhone 18 Pro",
             device_type_identifier=DEVICE_TYPE,
             runtime_identifier=RUNTIME,
         )
@@ -296,7 +296,7 @@ class SimulatorContractTests(unittest.TestCase):
         duplicate = simulator_inventory()
         duplicate["devices"][RUNTIME].append(  # type: ignore[index]
             simulator_device(
-                "iPhone 17",
+                "iPhone 18 Pro",
                 "22222222-3333-4444-5555-666666666666",
                 device_type=DEVICE_TYPE,
             )
@@ -317,7 +317,7 @@ class SimulatorContractTests(unittest.TestCase):
             with self.subTest(case=name), self.assertRaises(ci_github.ContractError):
                 ci_github.select_simulator(
                     inventory,
-                    exact_name="iPhone 17",
+                    exact_name="iPhone 18 Pro",
                     device_type_identifier=DEVICE_TYPE,
                     runtime_identifier=RUNTIME,
                 )
@@ -336,7 +336,7 @@ class SimulatorContractTests(unittest.TestCase):
             with self.subTest(inventory=inventory), self.assertRaises(ci_github.ContractError):
                 ci_github.select_simulator(
                     inventory,
-                    exact_name="iPhone 17",
+                    exact_name="iPhone 18 Pro",
                     device_type_identifier=DEVICE_TYPE,
                     runtime_identifier=RUNTIME,
                 )
@@ -344,7 +344,7 @@ class SimulatorContractTests(unittest.TestCase):
         with self.assertRaises(ci_github.ContractError):
             ci_github.select_simulator(
                 simulator_inventory(),
-                exact_name="iPhone 17",
+                exact_name="iPhone 18 Pro",
                 device_type_identifier=DEVICE_TYPE,
                 runtime_identifier="iOS latest",
             )
@@ -364,7 +364,7 @@ class SimulatorContractTests(unittest.TestCase):
                     "--inventory",
                     str(inventory),
                     "--name",
-                    "iPhone 17",
+                    "iPhone 18 Pro",
                     "--device-type",
                     DEVICE_TYPE,
                     "--runtime",
@@ -382,7 +382,7 @@ class SimulatorContractTests(unittest.TestCase):
                 line.split("=", maxsplit=1)
                 for line in output.read_text(encoding="utf-8").splitlines()
             )
-            self.assertEqual(values["name"], "iPhone 17")
+            self.assertEqual(values["name"], "iPhone 18 Pro")
             self.assertEqual(values["udid"], EXACT_UDID)
             self.assertEqual(values["runtime"], RUNTIME)
             self.assertEqual(values["device_type"], DEVICE_TYPE)
@@ -728,7 +728,7 @@ class EvidenceContractTests(unittest.TestCase):
                     outcome="success",
                     exit_code="0",
                     developer_dir="/Applications/Xcode.app/Contents/Developer",
-                    simulator_name="iPhone 17",
+                    simulator_name="iPhone 18 Pro",
                     simulator_udid=EXACT_UDID,
                     simulator_runtime=RUNTIME,
                     simulator_device_type=DEVICE_TYPE,
@@ -809,7 +809,7 @@ class EvidenceContractTests(unittest.TestCase):
                 outcome="failure",
                 exit_code="65",
                 developer_dir="/Applications/Xcode.app/Contents/Developer",
-                simulator_name="iPhone 17",
+                simulator_name="iPhone 18 Pro",
                 simulator_udid=EXACT_UDID,
                 simulator_runtime=RUNTIME,
                 simulator_device_type=DEVICE_TYPE,
@@ -850,7 +850,7 @@ class EvidenceContractTests(unittest.TestCase):
                 "job": "build",
                 "event_name": "pull_request",
                 "developer_dir": "/Applications/Xcode.app/Contents/Developer",
-                "simulator_name": "iPhone 17",
+                "simulator_name": "iPhone 18 Pro",
                 "simulator_udid": EXACT_UDID,
                 "simulator_runtime": RUNTIME,
                 "simulator_device_type": DEVICE_TYPE,
@@ -966,7 +966,7 @@ class EvidenceContractTests(unittest.TestCase):
                     outcome="failure",
                     exit_code="65",
                     developer_dir="/Applications/Xcode.app/Contents/Developer",
-                    simulator_name="iPhone 17",
+                    simulator_name="iPhone 18 Pro",
                     simulator_udid=EXACT_UDID,
                     simulator_runtime=RUNTIME,
                     simulator_device_type=DEVICE_TYPE,
@@ -1107,7 +1107,7 @@ class EvidenceContractTests(unittest.TestCase):
                     outcome="success",
                     exit_code="0",
                     developer_dir="/Applications/Xcode.app/Contents/Developer",
-                    simulator_name="iPhone 17",
+                    simulator_name="iPhone 18 Pro",
                     simulator_udid=EXACT_UDID,
                     simulator_runtime=RUNTIME,
                     simulator_device_type=DEVICE_TYPE,
