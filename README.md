@@ -2,36 +2,36 @@
 
 > 分支：`greenfield/rebuild-from-zero`，**orphan 分支**，无父提交、从零历史
 > 状态：**已推送至远端分支**，未合入、未开 PR、未发布、未 effective、未 ratify；**不是产品决策**，不替代 `develop`
-> 用途：供对抗性审查；不构成第二套仓库内权威
+> 用途：破坏性重构的工作面。阶段 0 只写产品定义，不写代码
 
 ---
 
-## 从 0 开始，不背包袱
+## 从 0 开始
 
-本分支**不继承**：106 份旧文档、30 项裁决台账、五态决策生命周期、Gate B/C/P 编号、Current Admission 五字段 brief、frozen merge queue、WIP ≤ 2、exact-head 授权、`document-control.json` registry、生成索引与三套文档门禁、多 agent lane / cross-audit / 反哺协议、历史审计目录。
+本分支不读取、不调和、不继承旧仓库的文档、裁决编号和实现。旧内容互相冲突，不再作为这条重构的输入。
 
-产品语义沿用 effective 文档（`docs/product/vision.md` + `release-1-prd.md`）的提炼重组，**未改变**；若要改产品语义，需 PO 单独书面裁决。
+`Docs/PRODUCT.md` 是本分支的产品权威。要改产品语义，先改这份文件，并先有书面确认。
 
 ## 内容
 
 | 文件 | 用途 |
 | --- | --- |
 | `README.md` | 本文件，新基线入口 |
-| `Docs/PRODUCT.md` | 一句话定位、核心价值链、耐久边界、11 条 Must outcomes、明确非目标、验收判据、简化变更规则 |
+| `Docs/PRODUCT.md` | 阶段 0：愿景、立项结论、Release 1 结果、非目标、平台约束、验收规则 |
 | `Docs/ENGINEERING.md` | 6 阶段链路、T0–T4 验证分层、三条硬规则、被简化掉的旧包袱清单、环境事实 |
-| `Docs/ACCEPTANCE.md` | 11 条 Must 的可执行验收用例、T1–T4 映射、完成报告六项 |
+| `Docs/ACCEPTANCE.md` | 阶段 0 的 11 条结果验收。每条对应该产品定义，尚未执行 |
 | `Docs/CUTOVER.md` | 路径 A 可逆新建、路径 B 替换、红线、分层触发条件 |
 | `REVIEW.md` | **对抗性审查交接**：假设清单、未做的事、可复核命令、已知薄弱点 |
 | `.gitignore` | Xcode / SwiftPM / 签名材料忽略规则 |
 
-工作区 `../greenfield/` 保留一份**源草案**（未入仓、未推送），`Docs/` 是它的入仓副本；两者正文一致，文件落款按各自所在位置分别表述。若出现差异，**以本分支 `Docs/` 为准**。
+产品定义以本分支 `Docs/` 为准。
 
 ## 当前状态
 
-- **无代码、无构建配置、无 CI 接线、无签名与发布证据**
-- `ACCEPTANCE.md` 全部用例均**未执行**：本机 Windows 无 Xcode/swift/swiftlint/fastlane，self-hosted runner `mac-mini` 当前 offline
-- 已确认当前无外部用户、App 从未发布，因此不涉及存量数据迁移
-- `develop` 分支及其 720 个文件**原样保留**，未删除、未修改；远端未做任何写操作
+- 阶段 0 进行中：`Docs/PRODUCT.md` 是候选，还没有书面确认
+- 无代码、无构建配置、无 CI、无签名与发布证据
+- `ACCEPTANCE.md` 尚未执行
+- `develop` 原样保留，不在本次重构里修改或删除
 
 ## 恢复与切换
 

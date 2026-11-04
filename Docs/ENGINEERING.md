@@ -1,7 +1,7 @@
 # SnapDrill · 工程约定（greenfield candidate）
 
-> 状态：仓库外草案，与 `PRODUCT.md` 配套；未进任何仓库、不 effective
-> 思路：保留修订全链路的 6 个阶段，去掉多层 Gate 台账与 106 份文档分层
+> 状态：本分支上的工程约定，未 effective
+> 阶段 0 以 `Docs/PRODUCT.md` 为唯一产品输入。不从旧仓库回补需求
 
 ---
 
@@ -9,7 +9,7 @@
 
 | 阶段 | 准出条件 | 说明 |
 | --- | --- | --- |
-| **0 产品定义** | PO 确认 `PRODUCT.md` | 不写代码；不另建平行需求文档 |
+| **0 产品定义** | 书面确认 `PRODUCT.md` | 不写代码。产出是愿景、立项、Release 1 结果、设备矩阵、受众和发版顺序。确认前不进入阶段 1 |
 | **1 需求与验收** | 每条需求有可观察验收结果 | 验收标准来自产品契约，不由当前代码反推 |
 | **2 设计与契约** | 架构 / 数据 / 接口 / 隐私契约冻结 | 依赖朝 Core 收敛，Core 零第三方依赖 |
 | **3 实现与验证** | source gate + 分层验证通过 | 独立分支，改动可回滚 |
@@ -61,7 +61,7 @@ Packages/Data/
 Packages/Features/
 Packages/UI/
 Tests/
-Docs/                    # 仅 PRODUCT.md + ENGINEERING.md + CUTOVER.md
+Docs/                    # PRODUCT.md、ACCEPTANCE.md、ENGINEERING.md、CUTOVER.md
 CI/
 ```
 
@@ -73,4 +73,4 @@ CI/
 
 ---
 
-*本文件属 greenfield 草案，随 `greenfield/rebuild-from-zero` 分支推送供审查；未 effective、未 ratify，不替代 `develop` 的产品权威。*
+*本分支的工程约定。阶段 0 未书面确认，未 effective。*
