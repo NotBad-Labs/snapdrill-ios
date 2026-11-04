@@ -121,6 +121,23 @@ gh api repos/NotBad-Labs/snapdrill-ios/actions/runners \
 - 审查意见落到 GitHub review / issue，不落到聊天
 - 起草方对每条反驳给出「接受 / 拒收 + 依据」，并更新 tracked 文件
 
+## 10. 如何在 GitHub 上审查这个分支（重要限制）
+
+**这是 orphan 分支，与 `develop` 无共同祖先。** GitHub API `compare/develop...greenfield/rebuild-from-zero` 实测返回 `404 No common ancestor between develop and greenfield/rebuild-from-zero`。因此：
+
+- **无法创建与 `develop` 对比的 PR**，也没有行级 PR review 界面
+- 远端分支文件树与 commit 本身正常可读（已核验：根 4 项、Docs 4 份）
+
+| 审查方式 | 入口 / 命令 |
+| --- | --- |
+| 文件树直接审 | `https://github.com/NotBad-Labs/snapdrill-ios/tree/greenfield/rebuild-from-zero` |
+| 对 commit 留言 | `https://github.com/NotBad-Labs/snapdrill-ios/commit/1e16a322b2e2f81bb711ff9b8a8d68d915c9f5cb` |
+| 本地完整 diff | clone 后 `git diff develop..origin/greenfield/rebuild-from-zero --stat`（起草方本机已验证：`725 files changed, 401 insertions(+), 102376 deletions(-)`） |
+
+`REVIEW.md` 第 2 / 5 / 6 / 8 / 9 节是审查靶子；请按第 9 节规则把反驳落到 GitHub commit comment 或 issue，**不落到聊天**。
+
+若确需 PR 行级 review，可另建一个**以 `develop` 为父、内容相同**的镜像分支（不动 orphan），代价是继承旧历史——需 PO 决定，起草方不擅自执行。
+
 ---
 
 *本文件为新基线内的审查交接材料，随分支推送，未合入、未开 PR；旧仓库 `develop` 未受影响。*
