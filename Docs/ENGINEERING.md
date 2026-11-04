@@ -73,4 +73,4 @@ CI/
 
 ---
 
-*本文件位于工作区 `greenfield/`，不属于 `snapdrill-ios` 仓库；未提交、未推送、不 effective。*
+*本文件属 greenfield 草案，随 `greenfield/rebuild-from-zero` 分支推送供审查；未 effective、未 ratify，不替代 `develop` 的产品权威。*

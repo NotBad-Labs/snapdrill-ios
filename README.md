@@ -1,7 +1,7 @@
 # SnapDrill · greenfield baseline（本地草稿）
 
 > 分支：`greenfield/rebuild-from-zero`，**orphan 分支**，无父提交、从零历史
-> 状态：未推送、未发布、未 effective、未 ratify；**不是产品决策**，不替代 `develop`
+> 状态：**已推送至远端分支**，未合入、未开 PR、未发布、未 effective、未 ratify；**不是产品决策**，不替代 `develop`
 > 用途：供对抗性审查；不构成第二套仓库内权威
 
 ---
@@ -44,4 +44,4 @@ git diff develop..greenfield/rebuild-from-zero --stat   # 审查完整差异
 
 ---
 
-*本地草稿，未推送；本次提交作者为中性占位 `greenfield-draft`，不代表任何 GitHub 账号。*
+*本地草稿已推送至远端分支（未合入、未开 PR）；作者归属与身份误用更正记录见 `REVIEW.md` 第 7、11 节。*

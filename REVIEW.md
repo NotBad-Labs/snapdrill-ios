@@ -1,7 +1,7 @@
 # 对抗性审查交接（greenfield 草稿）
 
 > 供 `chbearxiong` 账号审查
-> 分支 `greenfield/rebuild-from-zero`，**仅在本地副本，未推送**
+> 分支 `greenfield/rebuild-from-zero`，**已推送至远端**，未合入、未开 PR；orphan 分支与 `develop` 无共同祖先
 > 审查目标：找出本草案中未经证实的前提、错误结论，以及被我悄悄丢掉的重要约束
 
 ---
@@ -10,8 +10,9 @@
 
 - 在 orphan 分支上从零建立 7 个文件的基线；`develop` 及其 720 个文件**原样未动**
 - 无代码、无构建配置、无 CI 接线、无签名/隐私/发布证据
-- **未推送、未开 PR、未合并、未转 Ready、未触发上传或发布**
+- **已推送分支（普通 push，未 force）**；未开 PR、未合并、未转 Ready、未触发上传或发布
 - 未运行旧仓库任何脚本，未在本机跑构建
+- 作者身份曾误设为 PO 个人账号，按方案 A 更正，见第 7、11 节
 
 ## 2. 我的假设（请优先攻击这些）
 
@@ -66,7 +67,11 @@ gh api repos/NotBad-Labs/snapdrill-ios/actions/runners \
 
 ## 7. 身份边界说明
 
-本机 `gh` CLI 登录 `chramboliao`，推送与只读 API 调用均以该凭证发起。按 16:50 的分工，**自第二个 commit 起本分支的 git author 使用 `chramboliao <144546498+chramboliao@users.noreply.github.com>`**（仅用 `git -c` 临时指定，未写入仓库或全局配置）；种子提交 `1894a4d` 保持中性占位 `greenfield-draft`，不改写已存在的历史。`chbearxiong` 是审查者账号，我未接触、不需要其凭证，也不在另一台机器上继承任何会话上下文。
+本机 `gh` CLI 登录 `chramboliao`，推送与只读 API 调用均以该凭证发起——这是**凭证 / 操作身份**，与 git author 不是一回事。`chbearxiong` 是审查者账号，我未接触、不需要其凭证，也不在另一台机器上继承任何会话上下文。
+
+**身份误用（18:12 复核确认）**：第 2、3 个 commit（`1e16a32`、`fd0404b`）的 author / committer 被起草方误设为 `chramboliao <144546498+chramboliao@users.noreply.github.com>`。依据不足：把 PO 的「你使用 chramboliao 在这个新分支工作」过度推断为 git author，而该表述指的是操作身份；邮箱字符串取自 `develop` 已有 merge commit 的 author 行，格式合法、id 与账号匹配，但归属不当。GitHub API 确认这两个 commit 的 `github_author` / `github_committer` 均解析为 `chramboliao`，`verification.verified = false (unsigned)`。**实际起草者是 WorkBuddy，PO 未参与起草**，这两条 commit 不构成 PO 对内容的背书。
+
+按 PO 选择的**方案 A**：不 rewrite history、不 force push，attribution 保留，以更正 commit 与第 11 节作可追溯记录。自更正 commit 起，起草方 commit 一律使用中性占位 `greenfield-draft <greenfield-draft@localhost>`（仅 `git -c` 临时指定，未写配置），不代表任何账号；种子提交 `1894a4d` 同样是中性占位，保持不改。若 PO 希望改用明确的 bot 身份或由本人提交，需另行指定。
 
 ## 8. 上游稳定性自检（第一性原理，17:35）
 
@@ -137,6 +142,33 @@ gh api repos/NotBad-Labs/snapdrill-ios/actions/runners \
 `REVIEW.md` 第 2 / 5 / 6 / 8 / 9 节是审查靶子；请按第 9 节规则把反驳落到 GitHub commit comment 或 issue，**不落到聊天**。
 
 若确需 PR 行级 review，可另建一个**以 `develop` 为父、内容相同**的镜像分支（不动 orphan），代价是继承旧历史——需 PO 决定，起草方不擅自执行。
+
+## 11. 身份误用更正记录（方案 A，18:19）
+
+| 项 | 内容 |
+| --- | --- |
+| 受影响 commit | `1e16a32`、`fd0404b`（第 2、3 个） |
+| 误设 author / committer | `chramboliao <144546498+chramboliao@users.noreply.github.com>` |
+| 依据 | 仅 PO 的「你使用 chramboliao 在这个新分支工作」，被起草方**过度推断**为 git author 身份；该表述实际指凭证 / 操作身份 |
+| 邮箱来源 | `develop` 已有 merge commit 的 author 行；格式合法、id 与账号匹配，但归属不当 |
+| GitHub 实际归属 | `github_author` / `github_committer` = `chramboliao`；`verification.verified = false (unsigned)` |
+| 事实 | **实际起草者为 WorkBuddy，PO 未参与起草**；这两条不得读作 PO 的工作或产品裁决 |
+| 处置 | PO 选择方案 A：**不 rewrite history、不 force push**；attribution 保留，以本条更正 commit 与本节作可追溯记录 |
+| 后续约定 | 自本条 commit 起，起草方 commit 一律用中性占位 `greenfield-draft <greenfield-draft@localhost>`，不代表任何账号、不写配置 |
+| 未解决 | GitHub 贡献图与 commit 页面的归属不会因本更正改变；若 PO 要干净归属，需另选方案 B（改 author + `push --force-with-lease`），且应在审查开始前进行 |
+
+**给审查者**：请把 `1e16a32` / `fd0404b` 的 author 字段视为无效元数据，以本节与 commit message 为准。
+
+### 账号关系（18:12 API 核查，供复核）
+
+| 名称 | GitHub 类型 | id | 角色 |
+| --- | --- | --- | --- |
+| `NotBad-Labs` | **Organization** | 260572809 | 仓库 owner；**组织本身不能作 git author** |
+| `chramboliao` | User | 144546498 | PO 个人账号 |
+| `notbad-admin` | User | 261622919 | 同为 User；`develop` 最近 100 提交里 65 个归它，疑似服务 / 自动化身份 |
+| `NotBad Labs L.L.C.` | 法律实体名称 | — | 见于版权声明，非 GitHub 账号 |
+
+git 里只有 `name <email>`，GitHub 按 email 关联到 User 账号；三个身份（`author` / `committer` / pusher）可以不同，不应混为一谈。本次误用的根因正是把 pusher 当成了 author。
 
 ---
 
