@@ -1,0 +1,38 @@
+# Xcode / Swift
+build/
+DerivedData/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.hmap
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.xcresult
+*.xctestrun
+
+# SwiftPM
+.build/
+.swiftpm/
+
+# Dependency dirs (not used, kept to avoid accidental commit)
+Pods/
+Carthage/Build/
+
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+
+# Signing material and secrets — never commit
+*.p12
+*.mobileprovision
+*.cer
+*.pem
+Configs/Secrets.*
+.env
+.env.*
+
+# Local scratch
+scratch/
+tmp/
