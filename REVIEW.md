@@ -1,6 +1,6 @@
 # 对抗性审查交接（greenfield 草稿）
 
-> **2026-11-04 工作约定（晚于下文）**：用户要求在本分支做破坏性重构。阶段 0 的产品权威是 `Docs/PRODUCT.md`。旧仓库文档不再回补。下文里「产品语义未改变」「把丢失边界写回旧 PRD」的说法，停在当时的自检，不再指导这次重构。
+> **2026-11-05 协作（PO 决定，晚于下文）**：Mac 上的 Cursor 用 `chbearxiong` 持续推进，Windows 上的 WorkBuddy 用 `chramboliao` 持续推进。两边都可以建议并完善当前文件。产品语义、阶段准出和不可逆动作的最终决定权在 PO；建议未经书面确认，不算生效。第 2、5、6、8 节是 2026-11-04 的历史快照，只作证据，不指导这次重构。第 7 节「此后一律用 greenfield-draft」被本条代替。第 7、11 节的身份误用记录仍然有效。
 
 > 供 `chbearxiong` 账号审查
 > 分支 `greenfield/rebuild-from-zero`，**已推送至远端**，未合入、未开 PR；orphan 分支与 `develop` 无共同祖先
@@ -17,6 +17,8 @@
 - 作者身份曾误设为 PO 个人账号，按方案 A 更正，见第 7、11 节
 
 ## 2. 我的假设（请优先攻击这些）
+
+> 历史快照，2026-11-04。不指导本次重构。其中假设 2、假设 4 已被 `Docs/PRODUCT.md` 取代。
 
 | # | 假设 | 依据 | 可能错在哪 |
 | --- | --- | --- | --- |
@@ -52,6 +54,8 @@ gh api repos/NotBad-Labs/snapdrill-ios/actions/runners \
 
 ## 5. 已知薄弱点（我主动列出）
 
+> 历史快照，2026-11-04。当时写的「边界尚未修正到 PRODUCT.md」已被 `6b7e3d1` 取代。当前阻塞见 `Docs/STAGE0-REVIEW-RESPONSE.md` 第 3 节。
+
 - `ACCEPTANCE.md` 的 11 条用例**一条都没执行**；本机无 Apple 工具链、runner offline
 - 11 条 Must 已完成逐条回链（见第 8 节），**发现大量结果级边界丢失，尚未修正到 `PRODUCT.md`**
 - `feat-backup.md` L51 的约束只在 `PRODUCT.md` 引用，未落为可执行检查
@@ -60,6 +64,8 @@ gh api repos/NotBad-Labs/snapdrill-ios/actions/runners \
 - 我未核实 `chbearxiong` 与组织的关系，也未验证第二台自托管机器
 
 ## 6. 希望审查者回答的问题
+
+> 历史快照，2026-11-04。这些问题不再是当前待答清单。
 
 1. 假设 1 是否成立？是否真的从未向非 PO 自然人分发过构建？
 2. 第 8 节列出的边界丢失，哪些必须补回、哪些可以接受？（此项已由起草方自检给出候选答案）
@@ -76,6 +82,8 @@ gh api repos/NotBad-Labs/snapdrill-ios/actions/runners \
 按 PO 选择的**方案 A**：不 rewrite history、不 force push，attribution 保留，以更正 commit 与第 11 节作可追溯记录。自更正 commit 起，起草方 commit 一律使用中性占位 `greenfield-draft <greenfield-draft@localhost>`（仅 `git -c` 临时指定，未写配置），不代表任何账号；种子提交 `1894a4d` 同样是中性占位，保持不改。若 PO 希望改用明确的 bot 身份或由本人提交，需另行指定。
 
 ## 8. 上游稳定性自检（第一性原理，17:35）
+
+> 历史快照，2026-11-04。这里列出的结果级边界已写进 `Docs/PRODUCT.md`，不再要求按旧 PRD 编号回补。
 
 按「越上游越要清晰稳定」的要求，我把 `Docs/PRODUCT.md` 的 11 条 Must 逐条回链到 `develop` 的 effective `release-1-prd.md` §3.1 M1–M10 与裁决表。**结论：主干覆盖，但边界大量丢失。**
 
@@ -104,8 +112,11 @@ gh api repos/NotBad-Labs/snapdrill-ios/actions/runners \
 
 | 方 | 身份 / 环境 | 职责 |
 | --- | --- | --- |
-| 起草 | `chramboliao` 凭证，本机 Windows，分支 `greenfield/rebuild-from-zero` | 起草、落地、自证 |
-| 审查 | `chbearxiong`，另一台 MacBook Air，独立 clone | 独立复核、反驳 |
+| Mac | Cursor，GitHub 账号 `chbearxiong` | 建议、完善、提交并推送 |
+| Windows | WorkBuddy，GitHub 账号 `chramboliao` | 建议、完善、提交并推送 |
+| PO | 最终决定权 | 书面确认产品语义、阶段准出和不可逆动作 |
+
+上表代替 11 月 4 日「Windows 只起草、Mac 只审查」的分工。
 
 两边不共享会话上下文；**唯一交叉面是 GitHub 上的分支与 tracked 文件**。其他可能出现的智能体同样只读 tracked 文件，不继承任何一方对话。
 
