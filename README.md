@@ -27,6 +27,7 @@ PO 有最终决定权。Mac 上的 Cursor 用 `chbearxiong` 提交和推送，Wi
 | `Docs/CUTOVER.md` | 路径 A 可逆新建、路径 B 替换、红线、分层触发条件 |
 | `REVIEW.md` | 审查交接。第 2、5、6、8 节是 11 月 4 日的历史快照 |
 | `Docs/STAGE0-REVIEW-RESPONSE.md` | Windows 对 `6b7e3d1` 的审查：6 项接受，5 项澄清 |
+| `Docs/DOCS-AUDIT.md` | 11-05 Docs 审计：iOS 要求对照、内部矛盾逐条定位、追溯缺口，附书面确认机制草案（草拟未落地） |
 | `.gitignore` | Xcode / SwiftPM / 签名材料忽略规则 |
 
 产品定义以本分支 `Docs/` 为准。
