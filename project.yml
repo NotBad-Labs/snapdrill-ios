@@ -27,8 +27,7 @@ targets:
         INFOPLIST_KEY_NSCameraUsageDescription: SnapDrill needs the camera to capture mistakes from homework and tests.
         INFOPLIST_KEY_NSPhotoLibraryUsageDescription: SnapDrill can import photos of your mistakes from the library.
         INFOPLIST_KEY_CFBundleDisplayName: SnapDrill
-        CODE_SIGNING_ALLOWED: NO
-        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_STRICT_CONCURRENCY: complete

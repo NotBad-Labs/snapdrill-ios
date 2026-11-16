@@ -40,7 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		05F0704BB512B18D6AD50F16 /* SnapDrillTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SnapDrillTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		05F0704BB512B18D6AD50F16 /* SnapDrillTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SnapDrillTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D80AE4431535D7A3D5B9CDF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1C42A446B98B5DF31154CB70 /* MistakeTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeTag.swift; sourceTree = "<group>"; };
 		1E42A12BBCFE0DEBC2CE4614 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -60,7 +60,7 @@
 		CED6AE2C6B59E04181E7E508 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		EA9C28830270566BFF4263BA /* SnapDrillTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapDrillTheme.swift; sourceTree = "<group>"; };
 		F621E2D87EB154CF05EF0920 /* ReviewHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewHubView.swift; sourceTree = "<group>"; };
-		F90127BCF30C39339A6B4080 /* SnapDrill.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapDrill.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F90127BCF30C39339A6B4080 /* SnapDrill.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SnapDrill.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE314CCE4B6D1B3F71308C75 /* ReviewSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewSessionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -235,7 +235,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2720;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					8C17CB82C4DD6BF536FC445F = {
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = E12EA343665FA2C3DB1C315A /* Build configuration list for PBXProject "SnapDrill" */;
 			developmentRegion = en;
@@ -350,7 +355,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -371,7 +375,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
@@ -434,7 +437,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -448,7 +450,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6.0;
@@ -459,8 +460,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = SnapDrill/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SnapDrill;
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs the camera to capture mistakes from homework and tests.";
@@ -502,8 +503,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = SnapDrill/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SnapDrill;
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs the camera to capture mistakes from homework and tests.";

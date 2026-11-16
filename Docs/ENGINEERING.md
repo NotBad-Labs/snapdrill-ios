@@ -9,7 +9,8 @@ open SnapDrill.xcodeproj
 ```
 
 - **最低系统**：iOS 26+（见 PRD §3.2）
-- **签名**：在 Xcode 为 `SnapDrill` 选择你的 **Team**（仓库内 `project.yml` 默认可本地 `CODE_SIGNING_ALLOWED: NO` 仅用于无签名 compile smoke）
+- **签名（真机必做）**：Xcode → 选中工程 **SnapDrill** → **Signing & Capabilities** → 勾选 **Automatically manage signing** → 选你的 **Team**（Apple ID 即可个人开发）。若 Bundle ID 冲突，可改成唯一值如 `com.yourname.snapdrill`。
+- **纯编译烟测（无签名）**：`xcodebuild` 可加 `CODE_SIGNING_ALLOWED=NO`（仅模拟器/CI，**不能装真机**）。
 
 ## 基线设备（PO 2026-11-16）
 
