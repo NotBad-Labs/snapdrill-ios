@@ -1,12 +1,23 @@
 import PhotosUI
+import SwiftData
 import SwiftUI
 
-/// PRD §8.2 三步收录 — 当前为 Slice 1 占位，Slice 2 接相机/Vision
+/// PRD §8.2 — UI 仅依赖 `CapturePipelineServing`（见 `CaptureContracts.swift`）。
 struct CaptureFlowView: View {
     @Environment(\.dismiss) private var dismiss
+
+    private let pipeline: any CapturePipelineServing
+
     @State private var step: Step = .pick
     @State private var pickerItems: [PhotosPickerItem] = []
-    @State private var placeholderMessage = String(localized: "Camera & multi-box crop coming in Slice 2")
+    @State private var session: CaptureSession?
+    @State private var savePreview: CaptureSavePreview?
+    @State private var statusMessage = ""
+    @State private var isBusy = false
+
+    init(pipeline: (any CapturePipelineServing)? = nil) {
+        self.pipeline = pipeline ?? CapturePipelineFactory.makeDefault()
+    }
 
     var body: some View {
         NavigationStack {
@@ -17,11 +28,18 @@ struct CaptureFlowView: View {
                 case .pick:
                     pickStep
                 case .crop:
-                    placeholderPanel(title: String(localized: "Step 1 · Crop & enhance"), detail: placeholderMessage)
+                    cropStep
                 case .box:
-                    placeholderPanel(title: String(localized: "Step 2 · Box questions"), detail: String(localized: "Up to 10 boxes per page"))
+                    boxStep
                 case .save:
-                    placeholderPanel(title: String(localized: "Step 3 · Remove ink & save"), detail: String(localized: "Subject required · Quick save"))
+                    saveStep
+                }
+
+                if !statusMessage.isEmpty {
+                    Text(statusMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
                 }
 
                 Spacer()
@@ -34,7 +52,10 @@ struct CaptureFlowView: View {
                 }
                 if step != .pick {
                     ToolbarItem(placement: .primaryAction) {
-                        Button(String(localized: "Next")) { advance() }
+                        Button(step == .save ? String(localized: "Save") : String(localized: "Next")) {
+                            Task { await advance() }
+                        }
+                        .disabled(isBusy)
                     }
                 }
             }
@@ -54,9 +75,9 @@ struct CaptureFlowView: View {
 
     private var pickStep: some View {
         VStack(spacing: 16) {
-            Text(String(localized: "Import up to 10 photos"))
+            Text(String(localized: "Import up to \(pipeline.maxPhotoCount) photos"))
                 .font(.headline)
-            PhotosPicker(selection: $pickerItems, maxSelectionCount: 10, matching: .images) {
+            PhotosPicker(selection: $pickerItems, maxSelectionCount: pipeline.maxPhotoCount, matching: .images) {
                 Label(String(localized: "Photo library"), systemImage: "photo.on.rectangle")
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -64,36 +85,166 @@ struct CaptureFlowView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             Button {
-                step = .crop
+                Task { await beginWithPlaceholderCamera() }
             } label: {
-                Label(String(localized: "Open camera (TODO)"), systemImage: "camera")
+                Label(String(localized: "Open camera (Slice 2)"), systemImage: "camera")
                     .frame(maxWidth: .infinity)
                     .padding()
             }
             .buttonStyle(.bordered)
         }
+        .onChange(of: pickerItems) { _, _ in
+            Task { await importFromPicker() }
+        }
     }
 
-    private func placeholderPanel(title: String, detail: String) -> some View {
-        VStack(spacing: 12) {
-            Text(title)
+    private var cropStep: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(String(localized: "Step 1 · Crop & enhance"))
                 .font(.title3.weight(.semibold))
-            Text(detail)
-                .multilineTextAlignment(.center)
+            if let session {
+                Text(String(localized: "\(session.pages.count) page(s)"))
+                Picker(String(localized: "Enhancement"), selection: enhancementBinding) {
+                    ForEach(ImageEnhancementMode.allCases) { mode in
+                        Text(mode.title).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
+            Text(String(localized: "Perspective UI lands in Slice 2; pipeline contract is wired."))
+                .font(.footnote)
                 .foregroundStyle(.secondary)
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 
-    private func advance() {
-        guard let next = Step(rawValue: step.rawValue + 1) else {
-            dismiss()
-            return
+    private var enhancementBinding: Binding<ImageEnhancementMode> {
+        Binding(
+            get: {
+                session?.pages.first?.enhancementMode ?? .enhanced
+            },
+            set: { newValue in
+                guard let session, let pageID = session.pages.first?.id else { return }
+                Task {
+                    await applyEnhancement(mode: newValue, pageID: pageID)
+                }
+            }
+        )
+    }
+
+    private var boxStep: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(String(localized: "Step 2 · Box questions"))
+                .font(.title3.weight(.semibold))
+            if let session {
+                Text(String(localized: "\(session.totalBoxCount) box(es) total"))
+                Button(String(localized: "+ Add box on page 1")) {
+                    Task { await addBoxOnFirstPage() }
+                }
+                .buttonStyle(.bordered)
+            }
         }
-        step = next
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private var saveStep: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text(String(localized: "Step 3 · Remove ink & save"))
+                .font(.title3.weight(.semibold))
+            if let savePreview {
+                Text(String(localized: "Ready to save \(savePreview.questionCount) question(s)"))
+            }
+            Text(String(localized: "Subject picker + LibrarySave in Slice 2"))
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    @MainActor
+    private func importFromPicker() async {
+        isBusy = true
+        defer { isBusy = false }
+        var data: [Data] = []
+        for item in pickerItems {
+            if let raw = try? await item.loadTransferable(type: Data.self) {
+                data.append(raw)
+            }
+        }
+        guard !data.isEmpty else { return }
+        do {
+            session = try await pipeline.beginSession(importedImageData: data)
+            session = try await pipeline.applyDocumentCorrection(session: session!)
+            statusMessage = String(localized: "Imported \(data.count) photo(s)")
+            step = .crop
+        } catch {
+            statusMessage = error.localizedDescription
+        }
+    }
+
+    @MainActor
+    private func beginWithPlaceholderCamera() async {
+        statusMessage = String(localized: "Camera defers to Slice 2 — import a photo to continue.")
+    }
+
+    @MainActor
+    private func applyEnhancement(mode: ImageEnhancementMode, pageID: UUID) async {
+        guard var session else { return }
+        do {
+            session = try await pipeline.setEnhancement(mode: mode, pageID: pageID, in: session)
+            self.session = session
+        } catch {
+            statusMessage = error.localizedDescription
+        }
+    }
+
+    @MainActor
+    private func addBoxOnFirstPage() async {
+        guard let pageID = session?.pages.first?.id, var session else { return }
+        do {
+            session = try await pipeline.addBox(on: pageID, in: session)
+            self.session = session
+        } catch {
+            statusMessage = error.localizedDescription
+        }
+    }
+
+    @MainActor
+    private func advance() async {
+        isBusy = true
+        defer { isBusy = false }
+        switch step {
+        case .pick:
+            break
+        case .crop:
+            step = .box
+        case .box:
+            guard let session else { return }
+            do {
+                savePreview = try await pipeline.buildSavePreview(for: session)
+                step = .save
+            } catch {
+                statusMessage = error.localizedDescription
+            }
+        case .save:
+            guard let savePreview else { return }
+            do {
+                let count = try await pipeline.commitSave(preview: savePreview, subjectID: UUID())
+                statusMessage = String(localized: "Saved \(count) (stub — Slice 2 persists)")
+                dismiss()
+            } catch {
+                statusMessage = error.localizedDescription
+            }
+        }
     }
 
     private enum Step: Int, CaseIterable {

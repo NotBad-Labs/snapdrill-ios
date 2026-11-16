@@ -3,7 +3,7 @@
 > **目的**：让多人 / 多 Agent **并行开发**时有共同地图：能改哪里、不能改哪里、模块之间怎么接。  
 > **权威顺序**：[`PRD.md`](PRD.md)（产品）> 本文（结构）> [`ENGINEERING.md`](ENGINEERING.md)（当前进度）> 代码注释。
 
-| 文档版本 | 1.0 |
+| 文档版本 | 1.1 |
 |---|---|
 | 对应 PRD | v0.8 |
 | 最后更新 | 2026-11-16 |
@@ -84,7 +84,30 @@ Services/
   Subscription/     # StoreKit 2、Pro 状态
 ```
 
-当前文件仍在 `Services/` 根下；**按领域收拢时改目录，并在本文 §6 登记**。
+Capture 合同已落于 `Services/Capture/CaptureContracts.swift`；其余领域随 Slice 补齐。
+
+### 3.1 Capture：**强制 Protocol-First**（PO 2026-11-16）
+
+适用于 **整个收录域**（`Features/Capture` + `Services/Capture`）。
+
+| 顺序 | 谁做 | 做什么 |
+|---|---|---|
+| **① 合同** | 任意 Agent | 改 `CapturePipelineServing` + 类型；更新本文 §4.3；补 `SnapDrillTests/CapturePipelineContractTests` |
+| **② 桩** | 同上 | `CapturePipelineStub` / `CapturePipelineLive` 可暂等同 Stub |
+| **③ UI** | 另一 Agent | 只改 `Features/Capture/*`，经 `CapturePipelineFactory` 注入；**禁止** `import` Vision/AVFoundation 做业务 |
+| **④ 真实现** | Slice 2+ | 填满 `CapturePipelineLive`，UI **不改**对外行为 |
+
+**CI 守门（人工 + 评审）**：`CaptureFlowView`（及后续 Capture Views）不得出现 `VNDocumentCameraViewController`、`AVCaptureSession`、`CIFilter` 等；只能调用 `CapturePipelineServing`。
+
+**实现入口文件**：
+
+```text
+Services/Capture/
+  CaptureContracts.swift   # protocol + 值类型（权威）
+  CapturePipelineStub.swift
+  CapturePipelineLive.swift
+  CapturePipelineFactory.swift
+```
 
 ---
 
@@ -116,8 +139,10 @@ Capture FAB → CaptureFlow（3 步）
 
 | 接口（类型） | 所有者轨道 | 消费者 | 行为摘要 |
 |---|---|---|---|
-| `HandwritingRemovalService` | B · 阶段 0 | Capture 步骤 3、详情 | 异步；失败 → 增强原图 + 不阻断保存 |
-| `ImageEnhancementService` | A · Slice 2 | Capture 步骤 1 | 三档；同步 |
+| **`CapturePipelineServing`** | A · Slice 2 | `CaptureFlowView` **唯一** | 见 `CaptureContracts.swift`；先合同后 UI |
+| `PhotoDataSanitizing` / `ImageEnhancing` / `InkRemoving` | A/B | `CapturePipelineLive` 内部 | UI **不得**直接引用 |
+| `HandwritingRemovalService` | B · 阶段 0 | Pipeline `InkRemoving` 适配 | 异步；失败 → 增强原图 + 不阻断保存 |
+| `ImageEnhancementService` | A · Slice 2 | Pipeline 内部 | 三档；同步 |
 | `SubjectCatalog` + `AppBootstrap` | A · Slice 1 | App 启动 | 地区科目种子 |
 | `LibrarySaveService`（待建） | A · Slice 2/3 | Capture | 批量 N 题入库 |
 | `PDFExportService`（待建） | A · Slice 6 | 列表/详情 | §8.5 版式 + 水印 |
@@ -190,6 +215,7 @@ PRD: §8.2 步骤 1, AC-02
 | 2026-11-16 | Feature 按 Home/Capture/Review/Settings 分文件夹 | 对齐 §8.1 Tab |
 | 2026-11-16 | 方案 1：`HandwritingRemovalService` 桩 + 阶段 0 后替换 | 并行 MVP 与验证 |
 | 2026-11-16 | 无自建后端 | PRD Non-Goals |
+| 2026-11-16 | Capture 强制 protocol-first | 多 Agent 并行收录 |
 
 ---
 
@@ -198,3 +224,4 @@ PRD: §8.2 步骤 1, AC-02
 | 版本 | 日期 | 说明 |
 |---|---|---|
 | 1.0 | 2026-11-16 | 首版：分层、合同、并行轨道、Agent 任务模板 |
+| 1.1 | 2026-11-16 | Capture 强制 Protocol-First + `CapturePipelineServing` |

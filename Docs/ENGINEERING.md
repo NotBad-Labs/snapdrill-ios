@@ -32,7 +32,7 @@ open SnapDrill.xcodeproj
 |---|---|---|
 | Tab + 纸与笔主题 | Slice 1 ✅ | AC-01 部分 |
 | SwiftData 科目预置 | Slice 1 ✅ | AC-01 |
-| 采集三步 | **占位 UI** | Slice 2 进行中 |
+| 采集三步 | **合同已接**（`CapturePipelineServing`）· UI 走 pipeline | Slice 2 填 Live 实现 |
 | F-10 去手写 | **占位降级**（§8.6） | AC-04 未验收 |
 | 订阅 / iCloud / PDF | 占位 | 后续 Slice |
 
