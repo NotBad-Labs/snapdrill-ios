@@ -21,12 +21,26 @@
 
 ## 当前状态
 
-- `Docs/PRD.md`（v0.8）已就绪，旧版冲突草稿与过程审计文档已全部清理
-- `develop` 分支原样保留，不在本次重构里修改或删除
+- `Docs/PRD.md`（v0.8）已就绪（PR #985 已合并）
+- **默认分支**：`greenfield/rebuild-from-zero`（新产品与代码只在此线开展）
+- **旧线归档**：`develop` 冻结只读；快照 tag `legacy/pre-greenfield-2026-11`（`develop` @ 2026-07-25）
+- 远端已清理历史 Agent 分支；仍开放 **Draft PR #984**（`gemini/upgrade-xcode-27-toolchain`，须 retarget 到本分支）
+
+## 分支策略（PO 2026-11-16）
+
+| 分支 | 用途 |
+| --- | --- |
+| `greenfield/rebuild-from-zero` | 唯一开发主线 |
+| `develop` | 旧实现考古，不新增功能 |
+| `main` | 历史壳，可忽略 |
+| `gemini/upgrade-xcode-27-toolchain` | 可选工具链 PR，合并前 retarget greenfield |
+
+新工作：`feat/*`、`fix/*`、`docs/*`、`spike/*` 从 greenfield 切出，合并后删远端分支。
 
 ## 恢复与切换
 
 ```bash
-git checkout develop                                    # 回到旧基线
-git diff develop..greenfield/rebuild-from-zero --stat   # 查看与旧基线的差异
+git checkout develop                                    # 旧基线（只读参考）
+git diff develop..greenfield/rebuild-from-zero --stat   # 与旧线差异
+git show legacy/pre-greenfield-2026-11                  # 冻结快照
 ```
