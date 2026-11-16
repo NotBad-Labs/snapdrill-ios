@@ -18,6 +18,7 @@
 		6AA429CA11D2E25C73775D1D /* ReviewSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE314CCE4B6D1B3F71308C75 /* ReviewSessionView.swift */; };
 		6EC99EDC6BF0D16E13D564D7 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED6AE2C6B59E04181E7E508 /* HomeView.swift */; };
 		71E1AD337C7B517B87292361 /* CaptureFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFA586C13BC73261A078130 /* CaptureFlowView.swift */; };
+		77EAA1B1E60859D497E3DF09 /* AppRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04BD8E1C603AD97CA3D598C3 /* AppRootView.swift */; };
 		9C0FB6AC4FB3681DC3D07D97 /* MistakeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DDE6E8AEC3440A74BBF1CC3 /* MistakeItem.swift */; };
 		9CC42FA7768BAC8ED9437049 /* HandwritingRemovalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA16B801AE7BB8718CEF8F4F /* HandwritingRemovalService.swift */; };
 		A7D3E11B4E8E8B4CF7E07CDC /* MistakeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DC878EC6C7B1380E7899A1 /* MistakeListView.swift */; };
@@ -40,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		04BD8E1C603AD97CA3D598C3 /* AppRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
 		05F0704BB512B18D6AD50F16 /* SnapDrillTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SnapDrillTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0D80AE4431535D7A3D5B9CDF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1C42A446B98B5DF31154CB70 /* MistakeTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeTag.swift; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 		6F652D7523E22A264D8EA4EA /* Navigation */ = {
 			isa = PBXGroup;
 			children = (
+				04BD8E1C603AD97CA3D598C3 /* AppRootView.swift */,
 				673345370159EE22546FBD4F /* RootTabView.swift */,
 			);
 			path = Navigation;
@@ -279,6 +282,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C5053372F4B059E87F5E1299 /* AppBootstrap.swift in Sources */,
+				77EAA1B1E60859D497E3DF09 /* AppRootView.swift in Sources */,
 				111D4E039CED1618B07FCF53 /* CaptureDraft.swift in Sources */,
 				71E1AD337C7B517B87292361 /* CaptureFlowView.swift in Sources */,
 				9CC42FA7768BAC8ED9437049 /* HandwritingRemovalService.swift in Sources */,

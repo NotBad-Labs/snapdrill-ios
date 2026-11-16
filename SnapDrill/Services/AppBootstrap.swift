@@ -5,7 +5,7 @@ import SwiftData
 final class AppBootstrap {
     private let lastSubjectKey = "snapdrill.lastSubjectID"
 
-    func seedIfNeeded(context: ModelContext) async {
+    func seedIfNeeded(context: ModelContext) {
         let descriptor = FetchDescriptor<Subject>()
         let existing = (try? context.fetch(descriptor)) ?? []
         guard existing.isEmpty else { return }

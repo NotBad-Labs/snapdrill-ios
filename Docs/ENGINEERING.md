@@ -36,6 +36,8 @@ open SnapDrill.xcodeproj
 
 路线见 [`ROADMAP.md`](ROADMAP.md)。
 
+**冷启动**：系统 Launch Screen 使用 `PaperBackground` 纸色；首装首次打开仍会创建 SwiftData 库（约 1–2s），`StartupView` 显示纸色 + 小加载圈，避免纯白屏。PRD 目标冷启动进相机 1.5s 在 Slice 2+ 再优化。
+
 ## 目录
 
 ```

@@ -34,7 +34,8 @@ targets:
     info:
       path: SnapDrill/Info.plist
       properties:
-        UILaunchScreen: {}
+        UILaunchScreen:
+          UIColorName: PaperBackground
     dependencies: []
   SnapDrillTests:
     type: bundle.unit-test

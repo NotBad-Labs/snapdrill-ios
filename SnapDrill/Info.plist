@@ -19,6 +19,9 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>UILaunchScreen</key>
-	<dict/>
+	<dict>
+		<key>UIColorName</key>
+		<string>PaperBackground</string>
+	</dict>
 </dict>
 </plist>
