@@ -22,6 +22,9 @@
 | `Docs/STAGE0_SAMPLES.md` | 阶段 0 样张编号表（不含原图） |
 | `Docs/STAGE0_COLLECTION.md` | 样张收集说明（给拍卷的人） |
 | `.gitignore` | Xcode / SwiftPM / 签名材料忽略规则 |
+| `project.yml` / `SnapDrill.xcodeproj` | iOS 工程（`xcodegen generate`） |
+| `SnapDrill/` | MVP 应用源码 |
+| `Docs/ENGINEERING.md` | 本地编译与 Slice 边界 |
 
 ## 当前状态
 
@@ -29,6 +32,7 @@
 - **默认分支**：`greenfield/rebuild-from-zero`（新产品与代码只在此线开展）
 - **旧线归档**：`develop` 冻结只读；快照 tag `legacy/pre-greenfield-2026-11`（`develop` @ 2026-07-25）
 - 远端已清理历史 Agent 分支；仍开放 **Draft PR #984**（`gemini/upgrade-xcode-27-toolchain`，须 retarget 到本分支）
+- **执行策略**：方案 1 并行（见 `Docs/ROADMAP.md`）；**MVP Slice 1** 工程壳已入仓，打开方式见 `Docs/ENGINEERING.md`
 
 ## 分支策略（PO 2026-11-16）
 

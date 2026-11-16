@@ -1,0 +1,49 @@
+name: SnapDrill
+options:
+  bundleIdPrefix: com.notbadlabs
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+targets:
+  SnapDrill:
+    type: application
+    platform: iOS
+    sources:
+      - path: SnapDrill
+        excludes:
+          - Info.plist
+    resources:
+      - path: SnapDrill/Assets.xcassets
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.notbadlabs.snapdrill
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_NSCameraUsageDescription: SnapDrill needs the camera to capture mistakes from homework and tests.
+        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: SnapDrill can import photos of your mistakes from the library.
+        INFOPLIST_KEY_CFBundleDisplayName: SnapDrill
+        CODE_SIGNING_ALLOWED: NO
+        CODE_SIGN_IDENTITY: "-"
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SWIFT_STRICT_CONCURRENCY: complete
+    info:
+      path: SnapDrill/Info.plist
+      properties:
+        UILaunchScreen: {}
+    dependencies: []
+  SnapDrillTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: SnapDrillTests
+    dependencies:
+      - target: SnapDrill
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.notbadlabs.snapdrill.tests

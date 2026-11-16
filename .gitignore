@@ -36,6 +36,8 @@ Configs/Secrets.*
 # Local scratch
 scratch/
 tmp/
+tmp-af89e293e25be2f6/
+build/
 
 # Stage 0 real exam photos — never commit
 Samples/stage0/raw/
