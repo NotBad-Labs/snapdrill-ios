@@ -471,7 +471,7 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs the camera to capture mistakes from homework and tests.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill can import photos of your mistakes from the library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -514,7 +514,7 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "SnapDrill needs the camera to capture mistakes from homework and tests.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "SnapDrill can import photos of your mistakes from the library.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

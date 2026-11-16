@@ -20,25 +20,45 @@ struct AppRootView: View {
                 StartupView()
             }
         }
-        .animation(.easeOut(duration: 0.2), value: container != nil)
+        .animation(.easeOut(duration: 0.25), value: container != nil)
         .task {
-            guard container == nil else { return }
-            let built = AppModelContainer.make()
-            bootstrap.seedIfNeeded(context: built.mainContext)
-            container = built
+            await prepareStore()
         }
+    }
+
+  @MainActor
+    private func prepareStore() async {
+        guard container == nil else { return }
+        let started = ContinuousClock.now
+        let built = AppModelContainer.make()
+        bootstrap.seedIfNeeded(context: built.mainContext)
+
+        // 避免加载过快时启动页一闪不见；也避免体感「只有白屏」
+        let minimumSplash = Duration.milliseconds(500)
+        let elapsed = started.duration(to: .now)
+        let remaining = minimumSplash - elapsed
+        if remaining > .zero {
+            try? await Task.sleep(for: remaining)
+        }
+        container = built
     }
 }
 
 private struct StartupView: View {
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 20) {
             Image(systemName: "pawprint.fill")
-                .font(.system(size: 44))
-                .foregroundStyle(SnapDrillTheme.inkBlue.opacity(0.85))
+                .font(.system(size: 52))
+                .foregroundStyle(SnapDrillTheme.inkBlue)
+            Text("SnapDrill")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(SnapDrillTheme.inkBlack)
             ProgressView()
                 .tint(SnapDrillTheme.inkBlue)
+                .padding(.top, 8)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .combine)
         .accessibilityLabel(String(localized: "Starting SnapDrill"))
     }
 }
