@@ -11,6 +11,18 @@ open SnapDrill.xcodeproj
 - **最低系统**：iOS 26+（见 PRD §3.2）
 - **签名**：在 Xcode 为 `SnapDrill` 选择你的 **Team**（仓库内 `project.yml` 默认可本地 `CODE_SIGNING_ALLOWED: NO` 仅用于无签名 compile smoke）
 
+## 基线设备（PO 2026-11-16）
+
+| 角色 | 设备 | 用途 |
+|---|---|---|
+| **日常 Dogfood / 你做主体验** | **iPhone 17 标准版**（真机） | 默认开发和手感验证 |
+| **上架合规性能（PRD 未改前）** | iPhone 11 / SE 第二代 | AC-04「≤2s」、阶段 0 Q2 的**法定基准** |
+| **CI / Agent 自动测试** | **iPhone 17 Simulator**（Xcode 27.2） | `xcodebuild test`、编译烟测 |
+
+说明：用 iPhone 17 当真机基线完全合理且更快；**不能替代**最老支持机型的性能抽检。上架前建议至少在 11/SE2（或租借/模拟降级策略）上抽测去手写耗时，除非 PO 正式改 PRD §3.2/§9。
+
+真机离线时 Xcode 会显示「Devices Offline」；插上 USB / 同一 Wi‑Fi 调试即可。
+
 ## 方案 1 · 当前实现边界
 
 | 模块 | 状态 | 对应 AC |
