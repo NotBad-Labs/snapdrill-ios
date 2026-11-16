@@ -19,6 +19,8 @@
 | `Docs/PRD.md` | 产品需求文档（v0.8）：产品定位、目标用户、核心流程、功能清单与优先级、订阅定价、品牌规范、合规与技术验证计划 |
 | `Docs/STAGE0_CHARTER.md` | 阶段 0 章程：样张、指标、A/B/C 裁决表、与 v1.0 冻结条件 |
 | `Docs/ROADMAP.md` | PO 里程碑路线图（非工程任务分解） |
+| `Docs/STAGE0_SAMPLES.md` | 阶段 0 样张编号表（不含原图） |
+| `Docs/STAGE0_COLLECTION.md` | 样张收集说明（给拍卷的人） |
 | `.gitignore` | Xcode / SwiftPM / 签名材料忽略规则 |
 
 ## 当前状态

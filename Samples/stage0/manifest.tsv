@@ -1,0 +1,5 @@
+id	language	subject	ink	include_in_q1	notes
+S001	zh-Hans	math	blue_black_red	Y	grade8 exam p7-16
+S002	zh-Hans	math	blue_red_tick	Y	p17-20 heavy shadow
+S003	zh-Hans	math	blue_red_tick	Y	proof geometry p21-23
+S004	zh-Hans	other	print_only	N	non-exam negative sample
