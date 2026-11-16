@@ -1,5 +1,7 @@
 # SnapDrill · 工程说明（greenfield）
 
+结构与并行规则见 [`ARCHITECTURE.md`](ARCHITECTURE.md)；产品以 [`PRD.md`](PRD.md) v0.8 为准。
+
 ## 打开与编译
 
 ```bash
