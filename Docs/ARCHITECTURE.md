@@ -1,7 +1,7 @@
 # SnapDrill · 架构与协作边界（greenfield）
 
 > **目的**：让多人 / 多 Agent **并行开发**时有共同地图：能改哪里、不能改哪里、模块之间怎么接。  
-> **权威顺序**：[`PRD.md`](PRD.md)（产品）> 本文（结构）> [`ENGINEERING.md`](ENGINEERING.md)（当前进度）> 代码注释。
+> **权威顺序**：[`PRD.md`](PRD.md)（产品）> 本文（结构）> [`DEVELOPMENT_PRINCIPLES.md`](DEVELOPMENT_PRINCIPLES.md)（怎么做）> [`ENGINEERING.md`](ENGINEERING.md)（进度）> 代码。
 
 | 文档版本 | 1.1 |
 |---|---|
