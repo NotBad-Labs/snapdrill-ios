@@ -1,44 +1,32 @@
 ## Summary
 
-<!-- 1–2 句：本 PR 做什么、为什么 -->
+<!-- 1–3 句 -->
 
-## 轨道 / Slice
+## 轨道 / 范围
 
-- [ ] A · MVP 产品壳
-- [ ] B · 阶段 0 / 去手写
-- [ ] C · 订阅 / CloudKit
-- [ ] D · 无障碍 / 本地化
-- [ ] docs / chore only
+| 项 | 填写 |
+|---|---|
+| 轨道 | A · MVP / B · 阶段 0 / C · 商业化 / D · 横切 |
+| Slice | |
+| **本 PR 做** | |
+| **本 PR 不做** | |
 
-**Slice 或任务名**：
+## PRD / 合同
 
-## PRD / 验收
-
-- **PRD 章节**：
-- **AC（若有）**：
-
-## 本 PR 明确不做
-
-<!-- 防止 scope creep -->
-
--
-
-## 架构与原则
-
-- [ ] 已读 [`Docs/ARCHITECTURE.md`](../Docs/ARCHITECTURE.md) 与 [`Docs/DEVELOPMENT_PRINCIPLES.md`](../Docs/DEVELOPMENT_PRINCIPLES.md)
-- [ ] Capture 相关：仅改 `CaptureContracts` / Pipeline **或** 仅改 `Features/Capture`（二者变更合同须先改 protocol）
-- [ ] 未在 UI Feature 中直接引入 Vision/AVFoundation 业务逻辑（Capture 规则）
+| PRD | AC | 合同 |
+|-----|-----|------|
+| § | AC- | 无 / CapturePipeline / … |
 
 ## 测试
 
-- [ ] `xcodebuild test`（Simulator）通过，或说明为何未跑
-- [ ] 真机手测步骤（若有 UI）：
+- [ ] `xcodebuild test` 或 N/A
+- [ ] 手测：
 
-```text
-1.
-2.
-```
+## 决策
 
-## 决策记录（若适用）
+- [ ] 无需 `ARCHITECTURE.md` §8 更新
+- [ ] 已更新 §8：
 
-是否需要更新 `ARCHITECTURE.md` §8 决策表：是 / 否
+---
+
+完整说明见 [`Docs/PR_TEMPLATE.md`](../Docs/PR_TEMPLATE.md) · [`DEVELOPMENT_PRINCIPLES.md`](../Docs/DEVELOPMENT_PRINCIPLES.md)

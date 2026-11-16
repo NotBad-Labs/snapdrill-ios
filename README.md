@@ -19,6 +19,7 @@
 | `Docs/PRD.md` | 产品需求文档（v0.8）：产品做什么（**唯一产品权威**） |
 | `Docs/ARCHITECTURE.md` | 架构与模块边界：怎么拆、多 Agent 并行规则、服务「合同」 |
 | `Docs/DEVELOPMENT_PRINCIPLES.md` | 开发原则：不造轮子、不返工、P1–P10、Agent 检查清单 |
+| `Docs/PR_TEMPLATE.md` | PR 描述模板（一 PR 一边界） |
 | `Docs/STAGE0_CHARTER.md` | 阶段 0 章程：样张、指标、A/B/C 裁决表、与 v1.0 冻结条件 |
 | `Docs/ROADMAP.md` | PO 里程碑路线图（非工程任务分解） |
 | `Docs/STAGE0_SAMPLES.md` | 阶段 0 样张编号表（不含原图） |
