@@ -5,8 +5,11 @@ import SwiftUI
 /// PRD §8.2 — UI 仅依赖 `CapturePipelineServing`（见 `CaptureContracts.swift`）。
 struct CaptureFlowView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \Subject.sortOrder) private var subjects: [Subject]
 
-    private let pipeline: any CapturePipelineServing
+    @State private var pipeline: (any CapturePipelineServing)?
+    @State private var selectedSubjectID: UUID?
 
     @State private var step: Step = .pick
     @State private var pickerItems: [PhotosPickerItem] = []
@@ -16,7 +19,11 @@ struct CaptureFlowView: View {
     @State private var isBusy = false
 
     init(pipeline: (any CapturePipelineServing)? = nil) {
-        self.pipeline = pipeline ?? CapturePipelineFactory.makeDefault()
+        _pipeline = State(initialValue: pipeline)
+    }
+
+    private var activePipeline: any CapturePipelineServing {
+        pipeline ?? CapturePipelineStub()
     }
 
     var body: some View {
@@ -61,6 +68,14 @@ struct CaptureFlowView: View {
             }
             .paperBackground()
         }
+        .task {
+            if pipeline == nil {
+                pipeline = CapturePipelineFactory.makeDefault(modelContext: modelContext)
+            }
+            if selectedSubjectID == nil {
+                selectedSubjectID = subjects.first(where: { !$0.isUncategorizedBucket })?.id
+            }
+        }
     }
 
     private var stepIndicator: some View {
@@ -75,9 +90,9 @@ struct CaptureFlowView: View {
 
     private var pickStep: some View {
         VStack(spacing: 16) {
-            Text(String(localized: "Import up to \(pipeline.maxPhotoCount) photos"))
+            Text(String(localized: "Import up to \(activePipeline.maxPhotoCount) photos"))
                 .font(.headline)
-            PhotosPicker(selection: $pickerItems, maxSelectionCount: pipeline.maxPhotoCount, matching: .images) {
+            PhotosPicker(selection: $pickerItems, maxSelectionCount: activePipeline.maxPhotoCount, matching: .images) {
                 Label(String(localized: "Photo library"), systemImage: "photo.on.rectangle")
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -160,9 +175,18 @@ struct CaptureFlowView: View {
             if let savePreview {
                 Text(String(localized: "Ready to save \(savePreview.questionCount) question(s)"))
             }
-            Text(String(localized: "Subject picker + LibrarySave in Slice 2"))
-                .font(.footnote)
-                .foregroundStyle(.secondary)
+            if selectableSubjects.isEmpty {
+                Text(String(localized: "No subject available — reopen after app seeds catalog."))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            } else {
+                Picker(String(localized: "Subject"), selection: $selectedSubjectID) {
+                    ForEach(selectableSubjects) { subject in
+                        Text(subject.name).tag(Optional(subject.id))
+                    }
+                }
+                .pickerStyle(.menu)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -182,8 +206,8 @@ struct CaptureFlowView: View {
         }
         guard !data.isEmpty else { return }
         do {
-            session = try await pipeline.beginSession(importedImageData: data)
-            session = try await pipeline.applyDocumentCorrection(session: session!)
+            session = try await activePipeline.beginSession(importedImageData: data)
+            session = try await activePipeline.applyDocumentCorrection(session: session!)
             statusMessage = String(localized: "Imported \(data.count) photo(s)")
             step = .crop
         } catch {
@@ -200,7 +224,7 @@ struct CaptureFlowView: View {
     private func applyEnhancement(mode: ImageEnhancementMode, pageID: UUID) async {
         guard var session else { return }
         do {
-            session = try await pipeline.setEnhancement(mode: mode, pageID: pageID, in: session)
+            session = try await activePipeline.setEnhancement(mode: mode, pageID: pageID, in: session)
             self.session = session
         } catch {
             statusMessage = error.localizedDescription
@@ -211,7 +235,7 @@ struct CaptureFlowView: View {
     private func addBoxOnFirstPage() async {
         guard let pageID = session?.pages.first?.id, var session else { return }
         do {
-            session = try await pipeline.addBox(on: pageID, in: session)
+            session = try await activePipeline.addBox(on: pageID, in: session)
             self.session = session
         } catch {
             statusMessage = error.localizedDescription
@@ -230,21 +254,28 @@ struct CaptureFlowView: View {
         case .box:
             guard let session else { return }
             do {
-                savePreview = try await pipeline.buildSavePreview(for: session)
+                savePreview = try await activePipeline.buildSavePreview(for: session)
                 step = .save
             } catch {
                 statusMessage = error.localizedDescription
             }
         case .save:
-            guard let savePreview else { return }
+            guard let savePreview, let subjectID = selectedSubjectID else {
+                statusMessage = String(localized: "Choose a subject before saving.")
+                return
+            }
             do {
-                let count = try await pipeline.commitSave(preview: savePreview, subjectID: UUID())
-                statusMessage = String(localized: "Saved \(count) (stub — Slice 2 persists)")
+                let count = try await activePipeline.commitSave(preview: savePreview, subjectID: subjectID)
+                statusMessage = String(localized: "Saved \(count) mistake(s)")
                 dismiss()
             } catch {
                 statusMessage = error.localizedDescription
             }
         }
+    }
+
+    private var selectableSubjects: [Subject] {
+        subjects.filter { !$0.isUncategorizedBucket }
     }
 
     private enum Step: Int, CaseIterable {

@@ -144,7 +144,7 @@ Capture FAB → CaptureFlow（3 步）
 | `HandwritingRemovalService` | B · 阶段 0 | Pipeline `InkRemoving` 适配 | 异步；失败 → 增强原图 + 不阻断保存 |
 | `ImageEnhancementService` | A · Slice 2 | Pipeline 内部 | 三档；同步 |
 | `SubjectCatalog` + `AppBootstrap` | A · Slice 1 | App 启动 | 地区科目种子 |
-| `LibrarySaveService`（待建） | A · Slice 2/3 | Capture | 批量 N 题入库 |
+| `LibrarySaveService` | A · Slice 2/3 | `CapturePipelineLive.commitSave` | 批量 N 题入库 + 图片落盘 |
 | `PDFExportService`（待建） | A · Slice 6 | 列表/详情 | §8.5 版式 + 水印 |
 | `ProEntitlementStore`（待建） | A · Slice 7 | PDF、同步、设置 | StoreKit + 降级 §8.6 |
 

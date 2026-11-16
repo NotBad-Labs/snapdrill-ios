@@ -56,7 +56,7 @@ struct CapturePipelineStub: CapturePipelineServing {
         for (pageIndex, page) in session.pages.enumerated() {
             for box in page.boxes {
                 guard let image = UIImage(data: page.imageData) else { continue }
-                let crop = image.cropped(normalized: box.normalizedRect) ?? image
+                let crop = CaptureImageUtilities.crop(image, normalized: box.normalizedRect) ?? image
                 let data = crop.jpegData(compressionQuality: 0.88) ?? page.imageData
                 let outcome = await HandwritingRemovalService.process(image: crop)
                 switch outcome {
@@ -91,15 +91,5 @@ struct CapturePipelineStub: CapturePipelineServing {
         // Slice 2: LibrarySaveService + SwiftData
         _ = subjectID
         return preview.questionCount
-    }
-}
-
-private extension UIImage {
-    func cropped(normalized rect: CGRect) -> UIImage? {
-        let w = size.width
-        let h = size.height
-        let crop = CGRect(x: rect.origin.x * w, y: rect.origin.y * h, width: rect.width * w, height: rect.height * h)
-        guard let cg = cgImage?.cropping(to: crop.integral) else { return nil }
-        return UIImage(cgImage: cg, scale: scale, orientation: imageOrientation)
     }
 }

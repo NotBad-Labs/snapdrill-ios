@@ -7,14 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		015292826EB8D7F38C093442 /* MistakeImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22969EED773057256C883AD /* MistakeImageStore.swift */; };
 		035522ACC361757DA375144C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D80AE4431535D7A3D5B9CDF /* SettingsView.swift */; };
 		076168A8CA133192273CB061 /* SubjectCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8F5BF33A86A69F12E59436 /* SubjectCatalog.swift */; };
 		0AD882824AC836D5CE707BA0 /* SnapDrillTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9C28830270566BFF4263BA /* SnapDrillTheme.swift */; };
 		0BCFF92223C3102E8155EAC6 /* Subject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 566D3A904F5A804AC22332FF /* Subject.swift */; };
 		111D4E039CED1618B07FCF53 /* CaptureDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEBA166F0F5B98784580089 /* CaptureDraft.swift */; };
+		145223995742ABC3AF58C98C /* LibrarySaveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E309D99DFF9AB66D6E17727 /* LibrarySaveService.swift */; };
 		1B0DF2F8444FEC15D4027A0D /* CapturePipelineLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53341D532A688A3151AF0073 /* CapturePipelineLive.swift */; };
 		44FDB4AF2EA600E3174750FD /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 673345370159EE22546FBD4F /* RootTabView.swift */; };
 		562A8A28C21C07F42CD5FDBE /* ImageEnhancementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 627FF22AFF53FFC2D70403AF /* ImageEnhancementService.swift */; };
+		5A8087C83595C2BA19802785 /* CaptureImageUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75952B9791862B2D3D233C3E /* CaptureImageUtilities.swift */; };
 		66AE547494FCB3912CA100BE /* CaptureContracts.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC670326205DFB88E7C6ADFB /* CaptureContracts.swift */; };
 		69647EDE7F98470834EFF52F /* SnapDrillApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB382C1D7CC7C6443206364F /* SnapDrillApp.swift */; };
 		6AA429CA11D2E25C73775D1D /* ReviewSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE314CCE4B6D1B3F71308C75 /* ReviewSessionView.swift */; };
@@ -32,6 +35,7 @@
 		F881F8808A1328A54E98BB66 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1E42A12BBCFE0DEBC2CE4614 /* Assets.xcassets */; };
 		FC356AE6C92F825724895547 /* ReviewHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F621E2D87EB154CF05EF0920 /* ReviewHubView.swift */; };
 		FD60D1B3B53CCC84262A33F1 /* SubjectCatalogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B033865B0B24D6F71A4AEE02 /* SubjectCatalogTests.swift */; };
+		FF0DBCFF5144F0C8D20ED33A /* LibrarySaveServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E35580CB5B35A2E6DBC511 /* LibrarySaveServiceTests.swift */; };
 		FF7E1332ACADD6546393D406 /* CapturePipelineStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4DA74781D155E72D64E12C85 /* CapturePipelineStub.swift */; };
 /* End PBXBuildFile section */
 
@@ -53,11 +57,14 @@
 		1E42A12BBCFE0DEBC2CE4614 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1FFA586C13BC73261A078130 /* CaptureFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureFlowView.swift; sourceTree = "<group>"; };
 		25DC878EC6C7B1380E7899A1 /* MistakeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeListView.swift; sourceTree = "<group>"; };
+		2E309D99DFF9AB66D6E17727 /* LibrarySaveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySaveService.swift; sourceTree = "<group>"; };
+		38E35580CB5B35A2E6DBC511 /* LibrarySaveServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySaveServiceTests.swift; sourceTree = "<group>"; };
 		4DA74781D155E72D64E12C85 /* CapturePipelineStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipelineStub.swift; sourceTree = "<group>"; };
 		53341D532A688A3151AF0073 /* CapturePipelineLive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipelineLive.swift; sourceTree = "<group>"; };
 		566D3A904F5A804AC22332FF /* Subject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subject.swift; sourceTree = "<group>"; };
 		627FF22AFF53FFC2D70403AF /* ImageEnhancementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageEnhancementService.swift; sourceTree = "<group>"; };
 		673345370159EE22546FBD4F /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		75952B9791862B2D3D233C3E /* CaptureImageUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureImageUtilities.swift; sourceTree = "<group>"; };
 		8B8F5BF33A86A69F12E59436 /* SubjectCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectCatalog.swift; sourceTree = "<group>"; };
 		9DDE6E8AEC3440A74BBF1CC3 /* MistakeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeItem.swift; sourceTree = "<group>"; };
 		A453F7E6E4ABC3C9E86CE0CD /* AppBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBootstrap.swift; sourceTree = "<group>"; };
@@ -70,6 +77,7 @@
 		CED6AE2C6B59E04181E7E508 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		DB741D1BB03EF4902A3C901D /* CapturePipelineContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipelineContractTests.swift; sourceTree = "<group>"; };
 		DC670326205DFB88E7C6ADFB /* CaptureContracts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureContracts.swift; sourceTree = "<group>"; };
+		E22969EED773057256C883AD /* MistakeImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeImageStore.swift; sourceTree = "<group>"; };
 		EA9C28830270566BFF4263BA /* SnapDrillTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapDrillTheme.swift; sourceTree = "<group>"; };
 		F621E2D87EB154CF05EF0920 /* ReviewHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewHubView.swift; sourceTree = "<group>"; };
 		F90127BCF30C39339A6B4080 /* SnapDrill.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SnapDrill.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -81,6 +89,7 @@
 			isa = PBXGroup;
 			children = (
 				DC670326205DFB88E7C6ADFB /* CaptureContracts.swift */,
+				75952B9791862B2D3D233C3E /* CaptureImageUtilities.swift */,
 				BB467079B0C9EDDE7CFFCCF1 /* CapturePipelineFactory.swift */,
 				53341D532A688A3151AF0073 /* CapturePipelineLive.swift */,
 				4DA74781D155E72D64E12C85 /* CapturePipelineStub.swift */,
@@ -152,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				2E40FA46B8C245AFB41149CD /* Capture */,
+				7F372241067994AEEBAD4050 /* Library */,
 				A453F7E6E4ABC3C9E86CE0CD /* AppBootstrap.swift */,
 				AA16B801AE7BB8718CEF8F4F /* HandwritingRemovalService.swift */,
 				627FF22AFF53FFC2D70403AF /* ImageEnhancementService.swift */,
@@ -168,6 +178,15 @@
 				25DC878EC6C7B1380E7899A1 /* MistakeListView.swift */,
 			);
 			path = Home;
+			sourceTree = "<group>";
+		};
+		7F372241067994AEEBAD4050 /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				2E309D99DFF9AB66D6E17727 /* LibrarySaveService.swift */,
+				E22969EED773057256C883AD /* MistakeImageStore.swift */,
+			);
+			path = Library;
 			sourceTree = "<group>";
 		};
 		8F04594649677CFDCE45BECB /* Capture */ = {
@@ -190,6 +209,7 @@
 			isa = PBXGroup;
 			children = (
 				DB741D1BB03EF4902A3C901D /* CapturePipelineContractTests.swift */,
+				38E35580CB5B35A2E6DBC511 /* LibrarySaveServiceTests.swift */,
 				B033865B0B24D6F71A4AEE02 /* SubjectCatalogTests.swift */,
 			);
 			path = SnapDrillTests;
@@ -309,13 +329,16 @@
 				66AE547494FCB3912CA100BE /* CaptureContracts.swift in Sources */,
 				111D4E039CED1618B07FCF53 /* CaptureDraft.swift in Sources */,
 				71E1AD337C7B517B87292361 /* CaptureFlowView.swift in Sources */,
+				5A8087C83595C2BA19802785 /* CaptureImageUtilities.swift in Sources */,
 				CA4CAF758F9B2D38F1E0ED68 /* CapturePipelineFactory.swift in Sources */,
 				1B0DF2F8444FEC15D4027A0D /* CapturePipelineLive.swift in Sources */,
 				FF7E1332ACADD6546393D406 /* CapturePipelineStub.swift in Sources */,
 				9CC42FA7768BAC8ED9437049 /* HandwritingRemovalService.swift in Sources */,
 				6EC99EDC6BF0D16E13D564D7 /* HomeView.swift in Sources */,
 				562A8A28C21C07F42CD5FDBE /* ImageEnhancementService.swift in Sources */,
+				145223995742ABC3AF58C98C /* LibrarySaveService.swift in Sources */,
 				B1E4A9761839CDD59B4C1F81 /* MistakeDetailView.swift in Sources */,
+				015292826EB8D7F38C093442 /* MistakeImageStore.swift in Sources */,
 				9C0FB6AC4FB3681DC3D07D97 /* MistakeItem.swift in Sources */,
 				A7D3E11B4E8E8B4CF7E07CDC /* MistakeListView.swift in Sources */,
 				CC160C759AED27A05605FCB1 /* MistakeTag.swift in Sources */,
@@ -335,6 +358,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				836FE50EDF407360EE45C53E /* CapturePipelineContractTests.swift in Sources */,
+				FF0DBCFF5144F0C8D20ED33A /* LibrarySaveServiceTests.swift in Sources */,
 				FD60D1B3B53CCC84262A33F1 /* SubjectCatalogTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
