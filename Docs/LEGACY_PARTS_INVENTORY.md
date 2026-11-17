@@ -13,7 +13,7 @@
 | **高内聚、低耦合** | 一次 PR 只迁入 **一个** 可命名「零件」（模块、Service、算法文件集、CI 工作流等），不夹带无关重构。 |
 | **合同接入** | 零件必须挂到 greenfield 已有或新建的 **protocol / Service 合同**（例：`CapturePipelineServing`、`HandwritingRemovalService`），Feature **不得** 直接 `import` legacy 包名或复刻旧 DI 容器。 |
 | **溯源** | PR 描述与本文盘点表须写明：**legacy 路径**、**快照 commit**（默认 `f945b725` 或标签）、**greenfield 落点目录**、**合同类型**。 |
-| **禁止整支 merge** | 不得 `git merge develop`、不得 cherry-pick 合并提交、不得把旧 `Packages/*` 整包拷入而不拆边界。 |
+| **禁止整支 merge** | 不得 `git merge develop`、不得 cherry-pick **合并提交**（merge commit）；单文件按新合同改写迁入允许。不得把旧 `Packages/*` 整包拷入而不拆边界。 |
 | **考古只读** | 参考实现用 `git show legacy/pre-greenfield-2026-11:<路径>`；本地可 `git checkout develop` 浏览，**不在 develop 上开发**。 |
 | **PO 勾选** | 下表「PO 决策」列由 PO 标 **要 / 不要 / 以后**；未勾选前 Agent **默认不拣**该零件。 |
 
@@ -88,3 +88,4 @@ git show legacy/pre-greenfield-2026-11:Packages/.../ReviewScheduler.swift | diff
 | 日期 | 说明 |
 |---|---|
 | 2026-11-17 | 首版：政策 + L01–L12 盘点表 + PR 清单 + `git show` 示例 |
+| 2026-11-17 | 澄清 cherry-pick 合并提交 vs 单文件迁入；§8 审阅小修 |

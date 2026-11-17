@@ -203,6 +203,7 @@ PRD: §8.2 步骤 1, AC-02
 | `ROADMAP.md` | PO | 何时、里程碑 |
 | `STAGE0_*.md` | PO + 轨道 B | 去手写验证 |
 | `ENGINEERING.md` | 实现者 | 怎么编译、**当前做到哪** |
+| `LEGACY_PARTS_INVENTORY.md` | PO + 实现者 | develop 拣零件 L01–L12、PO 勾选闸门 |
 
 **没有 ADR 时**：架构级决策（换存储、改模块边界）在本文 **§8 决策记录** 追加一行，不必另起 20 页 ADR。
 

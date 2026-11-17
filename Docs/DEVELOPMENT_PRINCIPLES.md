@@ -48,6 +48,8 @@
 | **定点**阅读某 PR / 文件，cherry-pick 算法思路 | 整分支 merge |
 | PO 书面列出「移植清单」后小范围抄写 | 带回旧架构、裁决编号、ADRepo |
 
+移植清单与拣入流程见 [`LEGACY_PARTS_INVENTORY.md`](LEGACY_PARTS_INVENTORY.md)（L01–L12；未勾选「要」前默认不拣）。
+
 ---
 
 ## 3. 不重复返工
