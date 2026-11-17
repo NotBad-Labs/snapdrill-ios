@@ -32,7 +32,7 @@ open SnapDrill.xcodeproj
 |---|---|---|
 | Tab + 纸与笔主题 | Slice 1 ✅ | AC-01 部分 |
 | SwiftData 科目预置 | Slice 1 ✅ | AC-01 |
-| 采集三步 | **Live**：相册导入 GPS 剥离 + 保存入库；相机/Vision 未做 | Slice 2 进行中 |
+| 采集三步 | **Live**：相册 + **系统相机连拍页**（≤10）经 pipeline；Vision 校正 UI 未做 | Slice 2 进行中 |
 | 错题列表/详情缩略图 | **MistakeImageStore** 读盘 + 双图切换预览（详情） | AC-05 / AC-04 部分 |
 | F-10 去手写 | **占位降级**（§8.6） | AC-04 未验收 |
 | 订阅 / iCloud / PDF | 占位 | 后续 Slice |
