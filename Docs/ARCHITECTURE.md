@@ -203,6 +203,7 @@ PRD: §8.2 步骤 1, AC-02
 | `ROADMAP.md` | PO | 何时、里程碑 |
 | `STAGE0_*.md` | PO + 轨道 B | 去手写验证 |
 | `ENGINEERING.md` | 实现者 | 怎么编译、**当前做到哪** |
+| `LEGACY_PARTS_INVENTORY.md` | PO + 实现者 | develop 拣零件 L01–L12、PO 勾选闸门 |
 
 **没有 ADR 时**：架构级决策（换存储、改模块边界）在本文 **§8 决策记录** 追加一行，不必另起 20 页 ADR。
 
@@ -219,6 +220,7 @@ PRD: §8.2 步骤 1, AC-02
 | 2026-11-16 | Capture 强制 protocol-first | 多 Agent 并行收录 |
 | 2026-11-17 | AC-04 性能基准：**iPhone 17 标准版**（PRD v0.9） | PO 决议 B |
 | 2026-11-17 | **feat 必须 PR 合并**；PO **Approve** 后方可合入 `greenfield/rebuild-from-zero` | 可追溯、可 Dogfood |
+| 2026-11-17 | Legacy **拣零件** 流程与 L01–L12 盘点见 [`LEGACY_PARTS_INVENTORY.md`](LEGACY_PARTS_INVENTORY.md) | 禁止 merge `develop`；一 PR 一零件 |
 
 ---
 
