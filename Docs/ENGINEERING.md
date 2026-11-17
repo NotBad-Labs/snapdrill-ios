@@ -2,6 +2,10 @@
 
 结构与并行规则见 [`ARCHITECTURE.md`](ARCHITECTURE.md)；产品以 [`PRD.md`](PRD.md) v0.8 为准。
 
+## Info.plist 与隐私文案
+
+使用 **自定义** `SnapDrill/Info.plist` 时，相机/相册用途说明必须写在 plist **文件内**（不要只依赖 `INFOPLIST_KEY_*`），否则真机访问相机会因缺 `NSCameraUsageDescription` 崩溃。
+
 ## 打开与编译
 
 ```bash

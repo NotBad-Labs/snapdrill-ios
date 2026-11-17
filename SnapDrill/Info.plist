@@ -18,6 +18,10 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>NSCameraUsageDescription</key>
+	<string>SnapDrill needs the camera to capture mistakes from homework and tests.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>SnapDrill can import photos of your mistakes from the library.</string>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>
