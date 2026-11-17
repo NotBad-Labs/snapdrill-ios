@@ -178,6 +178,7 @@ Capture FAB → CaptureFlow（3 步）
 | 分支 | `feat/<领域>-<简述>`、`spike/<主题>`、`docs/<简述>`，从 `greenfield/rebuild-from-zero` 切 |
 | PR 范围 | **一个 PR 一个边界**（例：仅 Capture 步骤 1，或仅 PDF 分页） |
 | 合并后 | 删远端分支；更新 `ENGINEERING.md` 的 Slice 表 |
+| 合并门禁 | **禁止**未经 PR 直接 push feat 到主线；**PO Approve** 为合并条件之一 |
 | 产品变更 | 先 PRD 或 PO 书面确认，再代码 |
 
 **任务描述模板**（给 Agent）：
@@ -216,6 +217,8 @@ PRD: §8.2 步骤 1, AC-02
 | 2026-11-16 | 方案 1：`HandwritingRemovalService` 桩 + 阶段 0 后替换 | 并行 MVP 与验证 |
 | 2026-11-16 | 无自建后端 | PRD Non-Goals |
 | 2026-11-16 | Capture 强制 protocol-first | 多 Agent 并行收录 |
+| 2026-11-17 | AC-04 性能基准：**iPhone 17 标准版**（PRD v0.9） | PO 决议 B |
+| 2026-11-17 | **feat 必须 PR 合并**；PO **Approve** 后方可合入 `greenfield/rebuild-from-zero` | 可追溯、可 Dogfood |
 
 ---
 
