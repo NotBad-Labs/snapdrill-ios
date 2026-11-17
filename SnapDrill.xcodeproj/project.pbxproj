@@ -12,6 +12,7 @@
 		076168A8CA133192273CB061 /* SubjectCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B8F5BF33A86A69F12E59436 /* SubjectCatalog.swift */; };
 		0AD882824AC836D5CE707BA0 /* SnapDrillTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9C28830270566BFF4263BA /* SnapDrillTheme.swift */; };
 		0BCFF92223C3102E8155EAC6 /* Subject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 566D3A904F5A804AC22332FF /* Subject.swift */; };
+		0E24ECD6CBF7EC7233AF1AA0 /* MistakeImageStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38FFE4F355B54BE43BEB33C9 /* MistakeImageStoreTests.swift */; };
 		111D4E039CED1618B07FCF53 /* CaptureDraft.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEBA166F0F5B98784580089 /* CaptureDraft.swift */; };
 		145223995742ABC3AF58C98C /* LibrarySaveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E309D99DFF9AB66D6E17727 /* LibrarySaveService.swift */; };
 		1B0DF2F8444FEC15D4027A0D /* CapturePipelineLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53341D532A688A3151AF0073 /* CapturePipelineLive.swift */; };
@@ -28,6 +29,7 @@
 		9C0FB6AC4FB3681DC3D07D97 /* MistakeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DDE6E8AEC3440A74BBF1CC3 /* MistakeItem.swift */; };
 		9CC42FA7768BAC8ED9437049 /* HandwritingRemovalService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA16B801AE7BB8718CEF8F4F /* HandwritingRemovalService.swift */; };
 		A7D3E11B4E8E8B4CF7E07CDC /* MistakeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DC878EC6C7B1380E7899A1 /* MistakeListView.swift */; };
+		ABFC34F269B6FBBBF75304EB /* MistakeImageViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A01604037730EB7D7534568 /* MistakeImageViews.swift */; };
 		B1E4A9761839CDD59B4C1F81 /* MistakeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DFE0A8045FFEBE8310251B /* MistakeDetailView.swift */; };
 		C5053372F4B059E87F5E1299 /* AppBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A453F7E6E4ABC3C9E86CE0CD /* AppBootstrap.swift */; };
 		CA4CAF758F9B2D38F1E0ED68 /* CapturePipelineFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB467079B0C9EDDE7CFFCCF1 /* CapturePipelineFactory.swift */; };
@@ -52,6 +54,7 @@
 /* Begin PBXFileReference section */
 		04BD8E1C603AD97CA3D598C3 /* AppRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
 		05F0704BB512B18D6AD50F16 /* SnapDrillTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SnapDrillTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0A01604037730EB7D7534568 /* MistakeImageViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeImageViews.swift; sourceTree = "<group>"; };
 		0D80AE4431535D7A3D5B9CDF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1C42A446B98B5DF31154CB70 /* MistakeTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeTag.swift; sourceTree = "<group>"; };
 		1E42A12BBCFE0DEBC2CE4614 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -59,6 +62,7 @@
 		25DC878EC6C7B1380E7899A1 /* MistakeListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeListView.swift; sourceTree = "<group>"; };
 		2E309D99DFF9AB66D6E17727 /* LibrarySaveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySaveService.swift; sourceTree = "<group>"; };
 		38E35580CB5B35A2E6DBC511 /* LibrarySaveServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibrarySaveServiceTests.swift; sourceTree = "<group>"; };
+		38FFE4F355B54BE43BEB33C9 /* MistakeImageStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeImageStoreTests.swift; sourceTree = "<group>"; };
 		4DA74781D155E72D64E12C85 /* CapturePipelineStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipelineStub.swift; sourceTree = "<group>"; };
 		53341D532A688A3151AF0073 /* CapturePipelineLive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipelineLive.swift; sourceTree = "<group>"; };
 		566D3A904F5A804AC22332FF /* Subject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Subject.swift; sourceTree = "<group>"; };
@@ -175,6 +179,7 @@
 			children = (
 				CED6AE2C6B59E04181E7E508 /* HomeView.swift */,
 				B4DFE0A8045FFEBE8310251B /* MistakeDetailView.swift */,
+				0A01604037730EB7D7534568 /* MistakeImageViews.swift */,
 				25DC878EC6C7B1380E7899A1 /* MistakeListView.swift */,
 			);
 			path = Home;
@@ -210,6 +215,7 @@
 			children = (
 				DB741D1BB03EF4902A3C901D /* CapturePipelineContractTests.swift */,
 				38E35580CB5B35A2E6DBC511 /* LibrarySaveServiceTests.swift */,
+				38FFE4F355B54BE43BEB33C9 /* MistakeImageStoreTests.swift */,
 				B033865B0B24D6F71A4AEE02 /* SubjectCatalogTests.swift */,
 			);
 			path = SnapDrillTests;
@@ -339,6 +345,7 @@
 				145223995742ABC3AF58C98C /* LibrarySaveService.swift in Sources */,
 				B1E4A9761839CDD59B4C1F81 /* MistakeDetailView.swift in Sources */,
 				015292826EB8D7F38C093442 /* MistakeImageStore.swift in Sources */,
+				ABFC34F269B6FBBBF75304EB /* MistakeImageViews.swift in Sources */,
 				9C0FB6AC4FB3681DC3D07D97 /* MistakeItem.swift in Sources */,
 				A7D3E11B4E8E8B4CF7E07CDC /* MistakeListView.swift in Sources */,
 				CC160C759AED27A05605FCB1 /* MistakeTag.swift in Sources */,
@@ -359,6 +366,7 @@
 			files = (
 				836FE50EDF407360EE45C53E /* CapturePipelineContractTests.swift in Sources */,
 				FF0DBCFF5144F0C8D20ED33A /* LibrarySaveServiceTests.swift in Sources */,
+				0E24ECD6CBF7EC7233AF1AA0 /* MistakeImageStoreTests.swift in Sources */,
 				FD60D1B3B53CCC84262A33F1 /* SubjectCatalogTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

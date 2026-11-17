@@ -9,17 +9,14 @@ struct MistakeDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.secondary.opacity(0.12))
-                    .frame(height: 280)
-                    .overlay {
-                        VStack {
-                            Image(systemName: showOriginal ? "photo" : "wand.and.stars")
-                            Text(showOriginal ? String(localized: "Original") : String(localized: "Cleaned"))
-                                .font(.caption)
-                        }
-                        .foregroundStyle(.secondary)
-                    }
+                MistakeThumbnail(
+                    item: item,
+                    presentation: showOriginal ? .original : .cleaned
+                )
+                .frame(maxWidth: .infinity)
+                .frame(height: 280)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .background(Color.secondary.opacity(0.08))
 
                 Button(showOriginal ? String(localized: "Show cleaned") : String(localized: "Show original")) {
                     showOriginal.toggle()

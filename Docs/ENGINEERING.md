@@ -19,7 +19,7 @@ open SnapDrill.xcodeproj
 | 角色 | 设备 | 用途 |
 |---|---|---|
 | **日常 Dogfood / 你做主体验** | **iPhone 17 标准版**（真机） | 默认开发和手感验证 |
-| **上架合规性能（PRD 未改前）** | iPhone 11 / SE 第二代 | AC-04「≤2s」、阶段 0 Q2 的**法定基准** |
+| **AC-04 性能验收（PRD v0.9）** | **iPhone 17 标准版** | 与日常 Dogfood 同机；PO 2026-11-17 决议 B |
 | **CI / Agent 自动测试** | **iPhone 17 Simulator**（Xcode 27.2） | `xcodebuild test`、编译烟测 |
 
 说明：用 iPhone 17 当真机基线完全合理且更快；**不能替代**最老支持机型的性能抽检。上架前建议至少在 11/SE2（或租借/模拟降级策略）上抽测去手写耗时，除非 PO 正式改 PRD §3.2/§9。
@@ -32,7 +32,8 @@ open SnapDrill.xcodeproj
 |---|---|---|
 | Tab + 纸与笔主题 | Slice 1 ✅ | AC-01 部分 |
 | SwiftData 科目预置 | Slice 1 ✅ | AC-01 |
-| 采集三步 | **Live**：相册导入 GPS 剥离 + 保存入库（`LibrarySaveService`）；相机/Vision 未做 | Slice 2 进行中 |
+| 采集三步 | **Live**：相册导入 GPS 剥离 + 保存入库；相机/Vision 未做 | Slice 2 进行中 |
+| 错题列表/详情缩略图 | **MistakeImageStore** 读盘 + 双图切换预览（详情） | AC-05 / AC-04 部分 |
 | F-10 去手写 | **占位降级**（§8.6） | AC-04 未验收 |
 | 订阅 / iCloud / PDF | 占位 | 后续 Slice |
 

@@ -98,12 +98,17 @@ private struct MistakeRow: View {
     let item: MistakeItem
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(item.subject?.name ?? SubjectCatalog.uncategorizedName)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text(item.createdAt.formatted(date: .abbreviated, time: .shortened))
-                .font(.subheadline)
+        HStack(spacing: 12) {
+            MistakeThumbnail(item: item)
+                .frame(width: 52, height: 68)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            VStack(alignment: .leading, spacing: 4) {
+                Text(item.subject?.name ?? SubjectCatalog.uncategorizedName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(item.createdAt.formatted(date: .abbreviated, time: .shortened))
+                    .font(.subheadline)
+            }
         }
     }
 }
@@ -113,14 +118,9 @@ private struct MistakeGridCell: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color.secondary.opacity(0.15))
+            MistakeThumbnail(item: item)
                 .aspectRatio(3 / 4, contentMode: .fit)
-                .overlay {
-                    Image(systemName: "doc.text.image")
-                        .font(.largeTitle)
-                        .foregroundStyle(.secondary)
-                }
+                .clipShape(RoundedRectangle(cornerRadius: 12))
             Text(item.subject?.name ?? "—")
                 .font(.caption)
                 .lineLimit(1)
