@@ -28,6 +28,7 @@
 | `project.yml` / `SnapDrill.xcodeproj` | iOS 工程（`xcodegen generate`） |
 | `SnapDrill/` | MVP 应用源码 |
 | `Docs/ENGINEERING.md` | 本地编译与 Slice 边界 |
+| `Docs/LEGACY_PARTS_INVENTORY.md` | Legacy 拣零件政策与 L01–L12 盘点（PO 勾选要/不要/以后） |
 
 ## 当前状态
 
