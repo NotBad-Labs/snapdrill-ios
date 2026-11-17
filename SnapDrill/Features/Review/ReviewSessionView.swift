@@ -37,13 +37,9 @@ struct ReviewSessionView: View {
     private func reviewCard(for item: MistakeItem) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.secondary.opacity(0.12))
+                MistakeThumbnail(item: item)
                     .frame(height: 240)
-                    .overlay {
-                        Image(systemName: "doc.text.image")
-                            .foregroundStyle(.secondary)
-                    }
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 if revealAnswer {
                     VStack(alignment: .leading, spacing: 8) {

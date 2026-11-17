@@ -12,13 +12,28 @@ struct MistakeListView: View {
     @Environment(\.modelContext) private var context
     @Query(sort: \MistakeItem.createdAt, order: .reverse) private var mistakes: [MistakeItem]
     @State private var viewMode: ViewMode = .grid
+    @State private var filterState = MistakeListFilterState()
+    @State private var showFilters = false
 
-    private var filtered: [MistakeItem] {
+    private var scoped: [MistakeItem] {
         switch filter {
         case .all:
             return mistakes
         case .subject(let subject):
             return mistakes.filter { $0.subject?.id == subject.id }
+        }
+    }
+
+    private var filtered: [MistakeItem] {
+        scoped.filter { item in
+            if filterState.onlyDemo, !item.isDemoSample { return false }
+            if !filterState.causeFilter.isEmpty {
+                guard item.causes.contains(where: { filterState.causeFilter.contains($0) }) else { return false }
+            }
+            if !filterState.masteryFilter.isEmpty, !filterState.masteryFilter.contains(item.mastery) {
+                return false
+            }
+            return true
         }
     }
 
@@ -59,6 +74,13 @@ struct MistakeListView: View {
         }
         .navigationTitle(title)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    showFilters = true
+                } label: {
+                    Image(systemName: filterState.isActive ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     viewMode.toggle()
@@ -67,12 +89,25 @@ struct MistakeListView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                NavigationLink {
-                    ReviewSessionView(items: filtered)
+                Menu {
+                    NavigationLink {
+                        ReviewSessionView(items: filtered)
+                    } label: {
+                        Label(String(localized: "Review list"), systemImage: "rectangle.stack")
+                    }
+                    NavigationLink {
+                        PDFExportShellView(mistakeCount: filtered.count)
+                    } label: {
+                        Label(String(localized: "Export PDF"), systemImage: "doc.richtext")
+                    }
                 } label: {
-                    Text(String(localized: "Review list"))
+                    Image(systemName: "ellipsis.circle")
                 }
+                .disabled(filtered.isEmpty)
             }
+        }
+        .sheet(isPresented: $showFilters) {
+            MistakeListFilterSheet(state: $filterState)
         }
         .paperBackground()
     }
