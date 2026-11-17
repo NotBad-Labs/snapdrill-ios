@@ -27,7 +27,7 @@ struct RootTabView: View {
             .padding(.bottom, 56)
         }
         .fullScreenCover(isPresented: $showCapture) {
-            CaptureFlowView()
+            CaptureFlowView(preferCameraOnAppear: true)
         }
     }
 }

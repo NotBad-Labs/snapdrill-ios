@@ -1,10 +1,12 @@
 import PhotosUI
 import SwiftData
 import SwiftUI
+import UIKit
 
 /// PRD §8.2 — UI 仅依赖 `CapturePipelineServing`（见 `CaptureContracts.swift`）。
 struct CaptureFlowView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Subject.sortOrder) private var subjects: [Subject]
 
@@ -18,8 +20,19 @@ struct CaptureFlowView: View {
     @State private var statusMessage = ""
     @State private var isBusy = false
 
-    init(pipeline: (any CapturePipelineServing)? = nil) {
+    @State private var showCameraPicker = false
+    @State private var pendingCameraShots: [Data] = []
+    @State private var showCameraBatchDialog = false
+    @State private var didTryLaunchCamera = false
+
+    private let preferCameraOnAppear: Bool
+
+    init(
+        pipeline: (any CapturePipelineServing)? = nil,
+        preferCameraOnAppear: Bool = false
+    ) {
         _pipeline = State(initialValue: pipeline)
+        self.preferCameraOnAppear = preferCameraOnAppear
     }
 
     private var activePipeline: any CapturePipelineServing {
@@ -68,12 +81,43 @@ struct CaptureFlowView: View {
             }
             .paperBackground()
         }
+        .fullScreenCover(isPresented: $showCameraPicker) {
+            CaptureCameraPicker(
+                onCapture: { data in
+                    pendingCameraShots.append(data)
+                    showCameraBatchDialog = true
+                },
+                onCancel: {}
+            )
+            .ignoresSafeArea()
+        }
+        .confirmationDialog(
+            String(localized: "Camera"),
+            isPresented: $showCameraBatchDialog,
+            titleVisibility: .visible
+        ) {
+            if pendingCameraShots.count < activePipeline.maxPhotoCount {
+                Button(String(localized: "Take another page")) {
+                    showCameraPicker = true
+                }
+            }
+            Button(String(localized: "Continue with \(pendingCameraShots.count) photo(s)")) {
+                Task { await beginSessionFromCamera() }
+            }
+            Button(String(localized: "Discard shots"), role: .destructive) {
+                pendingCameraShots = []
+            }
+        }
         .task {
             if pipeline == nil {
                 pipeline = CapturePipelineFactory.makeDefault(modelContext: modelContext)
             }
             if selectedSubjectID == nil {
                 selectedSubjectID = subjects.first(where: { !$0.isUncategorizedBucket })?.id
+            }
+            if preferCameraOnAppear, !didTryLaunchCamera {
+                didTryLaunchCamera = true
+                await openCameraEntry()
             }
         }
     }
@@ -100,13 +144,32 @@ struct CaptureFlowView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             Button {
-                Task { await beginWithPlaceholderCamera() }
+                Task { await openCameraEntry() }
             } label: {
-                Label(String(localized: "Open camera (Slice 2)"), systemImage: "camera")
+                Label(String(localized: "Take photo"), systemImage: "camera")
                     .frame(maxWidth: .infinity)
                     .padding()
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.borderedProminent)
+            .tint(SnapDrillTheme.inkBlue)
+
+            if !pendingCameraShots.isEmpty {
+                Text(String(localized: "\(pendingCameraShots.count) shot(s) ready — open camera again or import to continue."))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+
+            if CameraCaptureAccess.isDeniedOrRestricted {
+                Text(String(localized: "Camera access is off. Use Photo library or enable camera in Settings."))
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                Button(String(localized: "Open Settings")) {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        openURL(url)
+                    }
+                }
+                .font(.footnote)
+            }
         }
         .onChange(of: pickerItems) { _, _ in
             Task { await importFromPicker() }
@@ -216,8 +279,33 @@ struct CaptureFlowView: View {
     }
 
     @MainActor
-    private func beginWithPlaceholderCamera() async {
-        statusMessage = String(localized: "Camera defers to Slice 2 — import a photo to continue.")
+    private func openCameraEntry() async {
+        guard CameraCaptureAccess.isHardwareAvailable else {
+            statusMessage = String(localized: "Camera isn’t available here. Use Photo library.")
+            return
+        }
+        guard await CameraCaptureAccess.requestAccessIfNeeded() else {
+            statusMessage = String(localized: "Camera access denied. Use Photo library or Settings.")
+            return
+        }
+        showCameraPicker = true
+    }
+
+    @MainActor
+    private func beginSessionFromCamera() async {
+        guard !pendingCameraShots.isEmpty else { return }
+        isBusy = true
+        defer { isBusy = false }
+        let data = pendingCameraShots
+        pendingCameraShots = []
+        do {
+            session = try await activePipeline.beginSession(importedImageData: data)
+            session = try await activePipeline.applyDocumentCorrection(session: session!)
+            statusMessage = String(localized: "Captured \(data.count) photo(s)")
+            step = .crop
+        } catch {
+            statusMessage = error.localizedDescription
+        }
     }
 
     @MainActor
