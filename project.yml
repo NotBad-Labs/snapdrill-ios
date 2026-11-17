@@ -34,6 +34,8 @@ targets:
     info:
       path: SnapDrill/Info.plist
       properties:
+        NSCameraUsageDescription: SnapDrill needs the camera to capture mistakes from homework and tests.
+        NSPhotoLibraryUsageDescription: SnapDrill can import photos of your mistakes from the library.
         UILaunchScreen:
           UIColorName: PaperBackground
     dependencies: []
