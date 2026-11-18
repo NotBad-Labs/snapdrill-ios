@@ -16,7 +16,8 @@
 | 文件 | 用途 |
 | --- | --- |
 | `README.md` | 本文件，仓库入口说明 |
-| `Docs/PRD.md` | 产品需求文档（v0.8）：产品做什么（**唯一产品权威**） |
+| `Docs/PRD.md` | 产品需求文档（**v0.9 草案**，文内版本表为准）：**唯一产品权威** |
+| `Docs/GOVERNANCE.md` | 文档地图、PO UX 收权、禁止 Agent 乱增 Docs（**开工先读**） |
 | `Docs/ARCHITECTURE.md` | 架构与模块边界：怎么拆、多 Agent 并行规则、服务「合同」 |
 | `Docs/DEVELOPMENT_PRINCIPLES.md` | 开发原则：不造轮子、不返工、P1–P10、Agent 检查清单 |
 | `Docs/PR_TEMPLATE.md` | PR 描述模板（一 PR 一边界） |
@@ -29,10 +30,11 @@
 | `SnapDrill/` | MVP 应用源码 |
 | `Docs/ENGINEERING.md` | 本地编译与 Slice 边界 |
 | `Docs/LEGACY_PARTS_INVENTORY.md` | Legacy 拣零件政策与 L01–L12 盘点（PO 勾选要/不要/以后） |
+| `Docs/PR_SCOPE_ESTIMATE.md` | PR 数量粗估（**非权威**，参考用） |
 
 ## 当前状态
 
-- `Docs/PRD.md`（v0.8）已就绪（PR #985 已合并）
+- 产品与进度：见 [`Docs/PRD.md`](Docs/PRD.md) + [`Docs/ENGINEERING.md`](Docs/ENGINEERING.md)（勿以本 README 当进度表）
 - **默认分支**：`greenfield/rebuild-from-zero`（新产品与代码只在此线开展）
 - **旧线归档**：`develop` 冻结只读；快照 tag `legacy/pre-greenfield-2026-11`（`develop` @ 2026-07-25）
 - 远端已清理历史 Agent 分支；仍开放 **Draft PR #984**（`gemini/upgrade-xcode-27-toolchain`，须 retarget 到本分支）

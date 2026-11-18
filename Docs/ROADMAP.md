@@ -1,7 +1,7 @@
 # SnapDrill · 产品路线图（PO 视图）
 
 > 给 **产品负责人** 用的里程碑表：每月看 **状态灯** 和 **要你拍板的事**，不必跟每个技术分支。  
-> 细节以 [`PRD.md`](PRD.md) v0.8 为准；阶段 0 流程见 [`STAGE0_CHARTER.md`](STAGE0_CHARTER.md)。
+> 细节以 [`PRD.md`](PRD.md) **当前版**为准；阶段 0 见 [`STAGE0_CHARTER.md`](STAGE0_CHARTER.md)。**实时进度**见 [`ENGINEERING.md`](ENGINEERING.md)，勿重复维护本文件下的旧日快照表。
 
 ---
 
@@ -36,15 +36,16 @@ flowchart TB
 
 ---
 
-## 当前状态（2026-11-16）
+## 当前状态
 
-| 项目 | 状态 |
+> 更新 **Slice / 已合并 PR** 时只改 [`ENGINEERING.md`](ENGINEERING.md)。下表为路线图语境，非每日维护。
+
+| 项目 | 指向 |
 |---|---|
-| PRD | **v0.8**（#985 已合并） |
+| PRD 版本 | `PRD.md` 文内表（v0.9 草案） |
 | 执行策略 | **方案 1 并行**（见上） |
-| 仓库分支 | **greenfield** 为主线 |
-| 阶段 0 | **已启动**（S001–S003）；样张 **后置加码**，不阻塞 MVP |
-| App 代码 | **下一步：轨道 A Slice 1→2**；F-10 不假装已达标 |
+| 分支 | `greenfield/rebuild-from-zero` |
+| App / Slice | [`ENGINEERING.md`](ENGINEERING.md) |
 
 ---
 

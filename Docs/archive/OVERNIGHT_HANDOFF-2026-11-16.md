@@ -1,5 +1,7 @@
 # 过夜授权 · 交接说明（PO 睡醒后读）
 
+> **已归档**（2026-11-18）：仅作历史记录。现行任务见 [`ENGINEERING.md`](../ENGINEERING.md) 与 [`GOVERNANCE.md`](../GOVERNANCE.md)。
+
 ## 你能期待什么 / 不能期待什么
 
 | 能 | 不能 |
