@@ -42,6 +42,8 @@ final class MistakeItem {
     /// 去手写图；失败时与增强原图相同（PRD §8.6）
     var cleanedImagePath: String?
     var handwritingRemovalSucceeded: Bool
+    /// `UIDemoDataService` 注入的样例，可一键清除。
+    var isDemoSample: Bool
 
     var subject: Subject?
 
@@ -56,6 +58,7 @@ final class MistakeItem {
         self.causesRaw = []
         self.masteryRaw = MasteryLevel.unknown.rawValue
         self.handwritingRemovalSucceeded = false
+        self.isDemoSample = false
         self.subject = subject
         self.tags = []
     }

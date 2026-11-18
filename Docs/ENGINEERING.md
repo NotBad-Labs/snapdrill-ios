@@ -1,6 +1,7 @@
 # SnapDrill · 工程说明（greenfield）
 
-结构与并行规则见 [`ARCHITECTURE.md`](ARCHITECTURE.md)；产品以 [`PRD.md`](PRD.md) v0.8 为准。
+结构与并行规则见 [`ARCHITECTURE.md`](ARCHITECTURE.md)；产品以 [`PRD.md`](PRD.md) v0.9 为准。  
+**方案 A UI 壳**：见 [`UX_SHELL.md`](UX_SHELL.md)。
 
 ## Info.plist 与隐私文案
 

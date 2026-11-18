@@ -3,6 +3,8 @@ import SwiftUI
 
 struct MistakeDetailView: View {
     @Bindable var item: MistakeItem
+    @Environment(\.modelContext) private var context
+
     @State private var showOriginal = false
     @State private var showDeleteUndo = false
 
@@ -23,17 +25,36 @@ struct MistakeDetailView: View {
                 }
                 .buttonStyle(.bordered)
 
-                if !item.notes.isEmpty {
-                    GroupBox(String(localized: "Notes")) {
-                        Text(item.notes)
-                    }
+                GroupBox(String(localized: "Answer")) {
+                    TextField(String(localized: "Correct answer"), text: $item.answerText, axis: .vertical)
+                        .lineLimit(3...6)
                 }
 
-                if !item.answerText.isEmpty {
-                    GroupBox(String(localized: "Answer")) {
-                        Text(item.answerText)
+                GroupBox(String(localized: "Notes")) {
+                    TextField(String(localized: "Your notes"), text: $item.notes, axis: .vertical)
+                        .lineLimit(2...5)
+                }
+
+                GroupBox(String(localized: "Causes")) {
+                    FlowLayoutMistakeCauses(selection: causesBinding)
+                }
+
+                Picker(String(localized: "Mastery"), selection: masteryBinding) {
+                    ForEach(MasteryLevel.allCases, id: \.rawValue) { level in
+                        Text(level.localizedTitle).tag(level)
                     }
                 }
+                .pickerStyle(.segmented)
+
+                if item.isDemoSample {
+                    Label(String(localized: "UI demo sample"), systemImage: "sparkles")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
+                Button(String(localized: "Recrop question (Slice 4)")) {}
+                    .buttonStyle(.bordered)
+                    .disabled(true)
             }
             .padding()
         }
@@ -41,7 +62,6 @@ struct MistakeDetailView: View {
         .toolbar {
             ToolbarItem(placement: .destructiveAction) {
                 Button(role: .destructive) {
-                    // PRD §8.3 — 5 秒撤销条在 Slice 4 接持久化
                     showDeleteUndo = true
                 } label: {
                     Label(String(localized: "Delete"), systemImage: "trash")
@@ -49,22 +69,70 @@ struct MistakeDetailView: View {
             }
         }
         .paperBackground()
+        .onChange(of: item.answerText) { _, _ in try? context.save() }
+        .onChange(of: item.notes) { _, _ in try? context.save() }
         .overlay(alignment: .bottom) {
             if showDeleteUndo {
-                UndoDeleteBar()
-                    .transition(.move(edge: .bottom))
+                UndoDeleteBar {
+                    showDeleteUndo = false
+                }
+                .transition(.move(edge: .bottom))
             }
         }
         .animation(.easeInOut, value: showDeleteUndo)
     }
+
+    private var causesBinding: Binding<Set<MistakeCause>> {
+        Binding(
+            get: { Set(item.causes) },
+            set: { newValue in
+                item.causes = Array(newValue)
+                try? context.save()
+            }
+        )
+    }
+
+    private var masteryBinding: Binding<MasteryLevel> {
+        Binding(
+            get: { item.mastery },
+            set: { newValue in
+                item.mastery = newValue
+                try? context.save()
+            }
+        )
+    }
+}
+
+private struct FlowLayoutMistakeCauses: View {
+    @Binding var selection: Set<MistakeCause>
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(MistakeCause.allCases) { cause in
+                Toggle(cause.localizedTitle, isOn: binding(for: cause))
+            }
+        }
+    }
+
+    private func binding(for cause: MistakeCause) -> Binding<Bool> {
+        Binding(
+            get: { selection.contains(cause) },
+            set: { on in
+                if on { selection.insert(cause) }
+                else { selection.remove(cause) }
+            }
+        )
+    }
 }
 
 private struct UndoDeleteBar: View {
+    let onUndo: () -> Void
+
     var body: some View {
         HStack {
             Text(String(localized: "Deleted · Undo"))
             Spacer()
-            Button(String(localized: "Undo")) {}
+            Button(String(localized: "Undo"), action: onUndo)
         }
         .padding()
         .background(.ultraThinMaterial)
