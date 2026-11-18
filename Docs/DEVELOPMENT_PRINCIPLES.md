@@ -2,7 +2,7 @@
 
 > **给谁看**：PO、所有 Agent、未来协作者。  
 > **目的**：少造轮子、少返工、少「文档和代码各说各话」。  
-> **权威顺序**：[`PRD.md`](PRD.md)（做什么）> [`ARCHITECTURE.md`](ARCHITECTURE.md)（怎么拆）> 本文（怎么做事）> [`ENGINEERING.md`](ENGINEERING.md)（做到哪了）。
+> **权威顺序**：[`PRD.md`](PRD.md)（做什么）> [`ARCHITECTURE.md`](ARCHITECTURE.md)（怎么拆）> 本文（怎么做事）> [`ENGINEERING.md`](ENGINEERING.md)（做到哪了）。文档地图与 **PO UX 收权**见 [`GOVERNANCE.md`](GOVERNANCE.md)。
 
 ---
 
