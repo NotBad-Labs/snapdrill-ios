@@ -1,122 +1,371 @@
+import SwiftData
 import SwiftUI
 
+/// Card-based hidden-answer review flow supporting cleaned/original toggle and mastery grading (PRD §8.4, AC-06).
 struct ReviewSessionView: View {
-    let items: [MistakeItem]
-    @State private var index = 0
-    @State private var revealAnswer = false
-    @Environment(\.dismiss) private var dismiss
+    let mistakes: [MistakeItem]
+    let onDismiss: () -> Void
 
-    var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Button(String(localized: "Exit")) { dismiss() }
-                Spacer()
-                Text("\(min(index + 1, max(items.count, 1))) / \(items.count)")
-                    .font(.subheadline.monospacedDigit())
-            }
-            .padding()
+    @Environment(\.modelContext) private var modelContext
+    @Environment(AppEnvironment.self) private var environment
 
-            if items.isEmpty {
-                ContentUnavailableView(String(localized: "Nothing to review"), systemImage: "checkmark.circle")
-            } else if index >= items.count {
-                ReviewCompleteView(count: items.count) {
-                    index = 0
-                    revealAnswer = false
-                } onDone: {
-                    dismiss()
-                }
-            } else {
-                reviewCard(for: items[index])
-            }
-        }
-        .paperBackground()
-        .navigationBarBackButtonHidden(index > 0 && index < items.count)
+    @State private var sessionQueue: [MistakeItem]
+    @State private var currentIndex: Int = 0
+    @State private var isAnswerRevealed: Bool = false
+    @State private var showOriginal: Bool = false
+    @State private var isCompleted: Bool = false
+
+    init(mistakes: [MistakeItem], onDismiss: @escaping () -> Void) {
+        self.mistakes = mistakes
+        self.onDismiss = onDismiss
+        _sessionQueue = State(initialValue: mistakes)
     }
 
-    @ViewBuilder
-    private func reviewCard(for item: MistakeItem) -> some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.secondary.opacity(0.12))
-                    .frame(height: 240)
-                    .overlay {
-                        Image(systemName: "doc.text.image")
-                            .foregroundStyle(.secondary)
-                    }
+    private var currentItem: MistakeItem? {
+        guard sessionQueue.indices.contains(currentIndex) else { return nil }
+        return sessionQueue[currentIndex]
+    }
 
-                if revealAnswer {
-                    VStack(alignment: .leading, spacing: 8) {
-                        if !item.answerText.isEmpty {
-                            Text(item.answerText)
-                        } else {
-                            Text(String(localized: "No answer yet"))
-                                .foregroundStyle(.secondary)
-                        }
-                        if !item.notes.isEmpty {
-                            Text(item.notes)
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                } else {
-                    Button(String(localized: "Tap to reveal answer")) {
-                        revealAnswer = true
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(SnapDrillTheme.inkBlue.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+    var body: some View {
+        NavigationStack {
+            Group {
+                if isCompleted || sessionQueue.isEmpty {
+                    completionView
+                } else if let item = currentItem {
+                    activeCardView(item: item)
                 }
             }
-            .padding()
-        }
+            .paperBackground()
+            .navigationTitle(isCompleted ? String(localized: "Session Complete") : "\(currentIndex + 1) / \(sessionQueue.count)")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        onDismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel(String(localized: "Exit Review"))
+                }
 
-        HStack {
-            Button(String(localized: "Previous")) {
-                guard index > 0 else { return }
-                index -= 1
-                revealAnswer = false
+                if !isCompleted && currentItem != nil {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showOriginal.toggle()
+                        } label: {
+                            Label(
+                                showOriginal ? String(localized: "Original") : String(localized: "Cleaned"),
+                                systemImage: showOriginal ? "photo" : "wand.and.stars"
+                            )
+                            .font(.caption.weight(.semibold))
+                        }
+                        .accessibilityLabel(String(localized: "Toggle Original or Cleaned Image"))
+                    }
+                }
             }
-            .disabled(index == 0)
+        }
+    }
+
+    // MARK: - Active Review Card
+
+    private func activeCardView(item: MistakeItem) -> some View {
+        VStack(spacing: 14) {
+            // Subtle progress bar
+            ProgressView(value: Double(currentIndex + 1), total: Double(max(1, sessionQueue.count)))
+                .tint(SnapDrillTheme.inkBlue)
+                .padding(.horizontal, SnapDrillTheme.screenPadding)
+
+            ScrollView {
+                VStack(spacing: 14) {
+                    // Upper half: Problem stem image (hidden answer mode)
+                    PaperCard(padding: 10) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                if let subj = item.subject {
+                                    HStack(spacing: 5) {
+                                        Circle()
+                                            .fill(Color(hexString: subj.colorHex))
+                                            .frame(width: 8, height: 8)
+                                        Text(subj.name)
+                                            .font(.caption.weight(.semibold))
+                                            .foregroundStyle(SnapDrillTheme.inkBlue)
+                                    }
+                                }
+                                if !item.sourceTitle.isEmpty {
+                                    Text("· \(item.sourceTitle)")
+                                        .font(.caption)
+                                        .foregroundStyle(SnapDrillTheme.inkSecondary)
+                                }
+                                Spacer()
+                            }
+
+                            let relPath = showOriginal ? item.originalImagePath : (item.cleanedImagePath ?? item.originalImagePath)
+                            if let img = environment.imageStore.loadImage(relativePath: relPath) {
+                                ZoomableImageView(image: img)
+                                    .frame(height: 270)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            }
+                        }
+                    }
+
+                    // Lower half: Answer concealed until tapped (PRD §8.4, AC-06)
+                    if !isAnswerRevealed {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.22)) {
+                                isAnswerRevealed = true
+                            }
+                        } label: {
+                            PaperCard(padding: 28, background: SnapDrillTheme.elevatedSurface) {
+                                VStack(spacing: 10) {
+                                    Image(systemName: "eye.fill")
+                                        .font(.title2)
+                                        .foregroundStyle(SnapDrillTheme.inkBlue)
+                                    Text("Tap to Reveal Answer & Notes")
+                                        .font(.headline)
+                                        .foregroundStyle(SnapDrillTheme.inkBlack)
+                                    Text("Try solving it on scratch paper before checking.")
+                                        .font(.caption)
+                                        .foregroundStyle(SnapDrillTheme.inkSecondary)
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(String(localized: "Tap to Reveal Answer"))
+                    } else {
+                        revealedAnswerCard(item: item)
+                    }
+                }
+                .padding(.horizontal, SnapDrillTheme.screenPadding)
+                .padding(.bottom, 16)
+            }
+
+            // Bottom navigation / mastery buttons
+            bottomControls(item: item)
+                .padding(.horizontal, SnapDrillTheme.screenPadding)
+                .padding(.bottom, 16)
+        }
+    }
+
+    private func revealedAnswerCard(item: MistakeItem) -> some View {
+        PaperCard(padding: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("Answer & Reflection")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(SnapDrillTheme.inkBlue)
+                    Spacer()
+                    Button("Hide") {
+                        withAnimation { isAnswerRevealed = false }
+                    }
+                    .font(.caption.weight(.medium))
+                }
+
+                RuledDivider()
+
+                if !item.answerText.isEmpty {
+                    Text(item.answerText)
+                        .font(.subheadline)
+                        .foregroundStyle(SnapDrillTheme.inkBlack)
+                }
+
+                if !item.answerImagePaths.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(item.answerImagePaths, id: \.self) { path in
+                                if let img = environment.imageStore.loadImage(relativePath: path) {
+                                    Image(uiImage: img)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 140, height: 100)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if !item.causes.isEmpty {
+                    HStack(spacing: 6) {
+                        ForEach(item.causes) { cause in
+                            Text(cause.localizedTitle)
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(SnapDrillTheme.gradingRed)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(SnapDrillTheme.gradingRedSoft, in: Capsule())
+                        }
+                    }
+                }
+
+                if !item.notes.isEmpty {
+                    Text(item.notes)
+                        .font(.caption)
+                        .foregroundStyle(SnapDrillTheme.inkSecondary)
+                }
+
+                if item.answerText.isEmpty && item.answerImagePaths.isEmpty && item.notes.isEmpty && item.causes.isEmpty {
+                    Text("No answer or notes saved for this problem yet.")
+                        .font(.subheadline)
+                        .foregroundStyle(SnapDrillTheme.inkSecondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func bottomControls(item: MistakeItem) -> some View {
+        VStack(spacing: 10) {
+            if isAnswerRevealed {
+                HStack(spacing: 10) {
+                    masteryActionButton(title: MasteryLevel.unknown.localizedTitle, color: SnapDrillTheme.gradingRed) {
+                        recordMastery(.unknown, for: item)
+                    }
+                    masteryActionButton(title: MasteryLevel.fuzzy.localizedTitle, color: SnapDrillTheme.pencilYellow, foreground: Color(hexString: "1F1F22")) {
+                        recordMastery(.fuzzy, for: item)
+                    }
+                    masteryActionButton(title: MasteryLevel.mastered.localizedTitle, color: SnapDrillTheme.masteryGreen) {
+                        recordMastery(.mastered, for: item)
+                    }
+                }
+            }
+
+            HStack(spacing: 12) {
+                Button {
+                    goPrevious()
+                } label: {
+                    Label("Previous", systemImage: "chevron.left")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(SnapDrillTheme.cardSurface, in: RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1))
+                }
+                .disabled(currentIndex == 0)
+
+                Button {
+                    goNext()
+                } label: {
+                    Label(currentIndex == sessionQueue.count - 1 ? String(localized: "Finish") : String(localized: "Next"), systemImage: "chevron.right")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 12))
+                }
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private func masteryActionButton(
+        title: String,
+        color: Color,
+        foreground: Color = .white,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.caption.weight(.bold))
+                .foregroundStyle(foreground)
+                .frame(maxWidth: .infinity)
+                .frame(height: 40)
+                .background(color, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Completion Screen (PRD §8.4)
+
+    private var completionView: some View {
+        VStack(spacing: 20) {
+            Spacer()
+            PandaMascotView(mood: .celebrating, size: 130)
+
+            Text("Finished this round (\(sessionQueue.count) problems)")
+                .font(.title2.weight(.bold))
+                .foregroundStyle(SnapDrillTheme.inkBlack)
+                .multilineTextAlignment(.center)
+
+            Text("Take a breather—steady review builds lasting memory.")
+                .font(.subheadline)
+                .foregroundStyle(SnapDrillTheme.inkSecondary)
+                .multilineTextAlignment(.center)
+
+            VStack(spacing: 10) {
+                Button {
+                    currentIndex = 0
+                    isAnswerRevealed = false
+                    showOriginal = false
+                    isCompleted = false
+                } label: {
+                    Text("Practice Again")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14))
+                }
+
+                let unmastered = mistakes.filter { $0.mastery != .mastered }
+                if !unmastered.isEmpty && unmastered.count < sessionQueue.count {
+                    Button {
+                        sessionQueue = unmastered
+                        currentIndex = 0
+                        isAnswerRevealed = false
+                        showOriginal = false
+                        isCompleted = false
+                    } label: {
+                        Text("Drill Unmastered Only (\(unmastered.count))")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(SnapDrillTheme.inkBlue)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 46)
+                            .background(SnapDrillTheme.inkBlueSoft, in: RoundedRectangle(cornerRadius: 14))
+                    }
+                }
+
+                Button("Return") {
+                    onDismiss()
+                }
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(SnapDrillTheme.inkSecondary)
+                .padding(.top, 4)
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 28)
 
             Spacer()
-
-            Button(index + 1 >= items.count ? String(localized: "Finish") : String(localized: "Next")) {
-                if index + 1 >= items.count {
-                    index = items.count
-                } else {
-                    index += 1
-                    revealAnswer = false
-                }
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(SnapDrillTheme.inkBlue)
         }
-        .padding()
+        .padding(20)
     }
-}
 
-private struct ReviewCompleteView: View {
-    let count: Int
-    let onAgain: () -> Void
-    let onDone: () -> Void
+    // MARK: - Actions
 
-    var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "pawprint.fill")
-                .font(.system(size: 44))
-                .foregroundStyle(SnapDrillTheme.inkBlue)
-            Text(String(localized: "Finished \(count) mistakes this round"))
-                .font(.title3.weight(.medium))
-            HStack {
-                Button(String(localized: "Again"), action: onAgain)
-                    .buttonStyle(.bordered)
-                Button(String(localized: "Done"), action: onDone)
-                    .buttonStyle(.borderedProminent)
-                    .tint(SnapDrillTheme.inkBlue)
+    private func recordMastery(_ level: MasteryLevel, for item: MistakeItem) {
+        item.mastery = level
+        item.reviewCount += 1
+        item.lastReviewedAt = .now
+        try? modelContext.save()
+        goNext()
+    }
+
+    private func goPrevious() {
+        guard currentIndex > 0 else { return }
+        currentIndex -= 1
+        isAnswerRevealed = false
+        showOriginal = false
+    }
+
+    private func goNext() {
+        if currentIndex < sessionQueue.count - 1 {
+            currentIndex += 1
+            isAnswerRevealed = false
+            showOriginal = false
+        } else {
+            withAnimation {
+                isCompleted = true
             }
         }
-        .padding()
     }
 }

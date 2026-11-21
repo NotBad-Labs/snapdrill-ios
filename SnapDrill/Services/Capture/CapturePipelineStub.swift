@@ -1,95 +1,88 @@
 import Foundation
-import UIKit
 
-/// 默认桩：让 Capture UI 在 Slice 2 实现完成前可跑通流转与验收接线。
+/// Lightweight deterministic stub useful in unit tests and SwiftUI previews.
 struct CapturePipelineStub: CapturePipelineServing {
-    let maxPhotoCount = 10
-    let maxBoxesPerPage = 10
+    let maxPhotoCount: Int = MistakeLimits.maxPhotosPerSession
+    let maxBoxesPerPage: Int = MistakeLimits.maxBoxesPerPage
 
     func beginSession(importedImageData: [Data]) async throws -> CaptureSession {
         guard !importedImageData.isEmpty else { throw CapturePipelineError.emptySession }
         guard importedImageData.count <= maxPhotoCount else {
             throw CapturePipelineError.tooManyPhotos(limit: maxPhotoCount)
         }
-        let pages = importedImageData.map { CapturePage(imageData: $0) }
-        return CaptureSession(pages: pages)
+        let pages = importedImageData.map { CapturePage(rawImageData: $0) }
+        return CaptureSession(pages: pages, activeStep: 1)
     }
 
-    func applyDocumentCorrection(session: CaptureSession) async throws -> CaptureSession {
-        session
+    func updateCorners(_ corners: QuadCorners, pageID: UUID, in session: CaptureSession) async throws -> CaptureSession {
+        var updated = session
+        if let idx = updated.pages.firstIndex(where: { $0.id == pageID }) {
+            updated.pages[idx].corners = corners
+        }
+        return updated
     }
 
     func setEnhancement(mode: ImageEnhancementMode, pageID: UUID, in session: CaptureSession) async throws -> CaptureSession {
-        var next = session
-        guard let index = next.pages.firstIndex(where: { $0.id == pageID }) else { return session }
-        var page = next.pages[index]
-        page.enhancementMode = mode
-        if let enhanced = UIImage(data: page.imageData).flatMap({ ImageEnhancementService.apply(mode, to: $0) }) {
-            page.imageData = enhanced.jpegData(compressionQuality: 0.88) ?? page.imageData
+        var updated = session
+        if let idx = updated.pages.firstIndex(where: { $0.id == pageID }) {
+            updated.pages[idx].enhancementMode = mode
         }
-        next.pages[index] = page
-        return next
+        return updated
     }
 
-    func addBox(on pageID: UUID, in session: CaptureSession) async throws -> CaptureSession {
-        var next = session
-        guard let index = next.pages.firstIndex(where: { $0.id == pageID }) else { return session }
-        guard next.pages[index].boxes.count < maxBoxesPerPage else {
+    func addBox(on pageID: UUID, rect: CGRect?, in session: CaptureSession) async throws -> CaptureSession {
+        var updated = session
+        guard let idx = updated.pages.firstIndex(where: { $0.id == pageID }) else { return session }
+        guard updated.pages[idx].boxes.count < maxBoxesPerPage else {
             throw CapturePipelineError.tooManyBoxesPerPage(limit: maxBoxesPerPage)
         }
-        next.pages[index].boxes.append(CaptureCropBox())
-        return next
+        updated.pages[idx].boxes.append(CaptureCropBox(normalizedRect: rect ?? CGRect(x: 0.1, y: 0.5, width: 0.8, height: 0.3)))
+        return updated
     }
 
     func updateBox(_ box: CaptureCropBox, on pageID: UUID, in session: CaptureSession) async throws -> CaptureSession {
-        var next = session
-        guard let pageIndex = next.pages.firstIndex(where: { $0.id == pageID }),
-              let boxIndex = next.pages[pageIndex].boxes.firstIndex(where: { $0.id == box.id })
-        else { return session }
-        next.pages[pageIndex].boxes[boxIndex] = box
-        return next
+        var updated = session
+        if let p = updated.pages.firstIndex(where: { $0.id == pageID }),
+           let b = updated.pages[p].boxes.firstIndex(where: { $0.id == box.id }) {
+            updated.pages[p].boxes[b] = box
+        }
+        return updated
     }
 
-    func buildSavePreview(for session: CaptureSession) async throws -> CaptureSavePreview {
-        guard session.totalBoxCount > 0 else { throw CapturePipelineError.emptySession }
+    func removeBox(boxID: UUID, on pageID: UUID, in session: CaptureSession) async throws -> CaptureSession {
+        var updated = session
+        if let p = updated.pages.firstIndex(where: { $0.id == pageID }), updated.pages[p].boxes.count > 1 {
+            updated.pages[p].boxes.removeAll { $0.id == boxID }
+        }
+        return updated
+    }
+
+    func suggestQuestionBoxes(on pageID: UUID, in session: CaptureSession) async throws -> CaptureSession {
+        session
+    }
+
+    func buildSavePreview(for session: CaptureSession, mode: InkRemovalMode) async throws -> CaptureSavePreview {
+        guard !session.pages.isEmpty else { throw CapturePipelineError.emptySession }
         var items: [CaptureSaveItem] = []
-        for (pageIndex, page) in session.pages.enumerated() {
-            for box in page.boxes {
-                guard let image = UIImage(data: page.imageData) else { continue }
-                let crop = CaptureImageUtilities.crop(image, normalized: box.normalizedRect) ?? image
-                let data = crop.jpegData(compressionQuality: 0.88) ?? page.imageData
-                let outcome = await HandwritingRemovalService.process(image: crop)
-                switch outcome {
-                case .cleaned(let cleaned):
-                    items.append(
-                        CaptureSaveItem(
-                            pageIndex: pageIndex,
-                            boxID: box.id,
-                            originalImageData: data,
-                            cleanedImageData: cleaned.jpegData(compressionQuality: 0.88) ?? data,
-                            handwritingRemovalSucceeded: true
-                        )
+        for (pIdx, page) in session.pages.enumerated() {
+            for (bIdx, box) in page.boxes.enumerated() {
+                items.append(
+                    CaptureSaveItem(
+                        id: box.id,
+                        pageIndex: pIdx,
+                        boxIndex: bIdx,
+                        originalImageData: page.enhancedImageData,
+                        cleanedImageData: page.enhancedImageData,
+                        handwritingRemovalSucceeded: mode != .off,
+                        ocrText: ""
                     )
-                case .fallbackEnhancedOriginal(let enhanced, _):
-                    items.append(
-                        CaptureSaveItem(
-                            pageIndex: pageIndex,
-                            boxID: box.id,
-                            originalImageData: data,
-                            cleanedImageData: enhanced.jpegData(compressionQuality: 0.88) ?? data,
-                            handwritingRemovalSucceeded: false
-                        )
-                    )
-                }
+                )
             }
         }
-        return CaptureSavePreview(items: items)
+        return CaptureSavePreview(items: items, inkRemovalMode: mode)
     }
 
-    func commitSave(preview: CaptureSavePreview, subjectID: UUID) async throws -> Int {
-        guard preview.questionCount > 0 else { throw CapturePipelineError.emptySession }
-        // Slice 2: LibrarySaveService + SwiftData
-        _ = subjectID
-        return preview.questionCount
+    func reprocessItem(_ item: CaptureSaveItem, mode: InkRemovalMode) async -> CaptureSaveItem {
+        item
     }
 }

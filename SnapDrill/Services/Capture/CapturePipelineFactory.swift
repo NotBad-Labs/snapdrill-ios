@@ -1,10 +1,20 @@
 import Foundation
-import SwiftData
 
+/// Central factory assembling live or stub capture pipelines cleanly.
 enum CapturePipelineFactory {
-    /// App 注入点；测试可换 `CapturePipelineStub`。
-    @MainActor
-    static func makeDefault(modelContext: ModelContext) -> any CapturePipelineServing {
-        CapturePipelineLive.make(modelContext: modelContext)
+    static func makeLivePipeline() -> CapturePipelineServing {
+        CapturePipelineLive()
+    }
+
+    static func makeStubPipeline() -> CapturePipelineServing {
+        CapturePipelineStub()
+    }
+
+    static func makeCameraAccessChecker() -> CameraAccessChecking {
+        CameraAccessService()
+    }
+
+    static func makeDraftStore() -> CaptureDraftPersisting {
+        CaptureDraftStore()
     }
 }

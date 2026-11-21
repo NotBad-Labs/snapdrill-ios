@@ -5,9 +5,18 @@ options:
     iOS: "26.0"
   createIntermediateGroups: true
   groupSortPosition: top
+  knownRegions:
+    - en
+    - zh-Hans
+    - zh-Hant
+    - ja
+    - ko
+  developmentLanguage: en
 settings:
   base:
     SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
 targets:
   SnapDrill:
     type: application
@@ -15,30 +24,30 @@ targets:
     sources:
       - path: SnapDrill
         excludes:
-          - Info.plist
-    resources:
-      - path: SnapDrill/Assets.xcassets
+          - Resources/Info.plist
+    info:
+      path: SnapDrill/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: SnapDrill
+        CFBundleShortVersionString: "1.0.0"
+        CFBundleVersion: "1"
+        NSCameraUsageDescription: "SnapDrill uses the camera to photograph homework and exam mistakes entirely on your device."
+        NSPhotoLibraryUsageDescription: "SnapDrill lets you import mistake photos from your library and strips GPS metadata locally."
+        UILaunchScreen:
+          UIColorName: PaperBackground
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        ITSAppUsesNonExemptEncryption: false
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.notbadlabs.snapdrill
-        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_UILaunchScreen_Generation: NO
-        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
-        INFOPLIST_KEY_NSCameraUsageDescription: SnapDrill needs the camera to capture mistakes from homework and tests.
-        INFOPLIST_KEY_NSPhotoLibraryUsageDescription: SnapDrill can import photos of your mistakes from the library.
-        INFOPLIST_KEY_CFBundleDisplayName: SnapDrill
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1"
-        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        SWIFT_STRICT_CONCURRENCY: complete
-    info:
-      path: SnapDrill/Info.plist
-      properties:
-        NSCameraUsageDescription: SnapDrill needs the camera to capture mistakes from homework and tests.
-        NSPhotoLibraryUsageDescription: SnapDrill can import photos of your mistakes from the library.
-        UILaunchScreen:
-          UIColorName: PaperBackground
-    dependencies: []
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
   SnapDrillTests:
     type: bundle.unit-test
     platform: iOS
@@ -50,5 +59,17 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.notbadlabs.snapdrill.tests
         GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/SnapDrill.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SnapDrill"
+        BUNDLE_LOADER: "$(TEST_HOST)"
         CODE_SIGNING_ALLOWED: NO
         CODE_SIGN_IDENTITY: "-"
+schemes:
+  SnapDrill:
+    build:
+      targets:
+        SnapDrill: all
+    run:
+      storeKitConfiguration: SnapDrill/Resources/SnapDrill.storekit
+    test:
+      targets:
+        - SnapDrillTests
