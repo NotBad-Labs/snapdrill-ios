@@ -53,6 +53,7 @@ struct MultiBoxCropOverlay: View {
     let onSelectBox: (UUID) -> Void
     let onUpdateBox: (CaptureCropBox) -> Void
     let onDeleteBox: (UUID) -> Void
+    var onDragEnded: (() -> Void)? = nil
 
     static let canvasSpaceName = "cropCanvas"
 
@@ -67,7 +68,8 @@ struct MultiBoxCropOverlay: View {
                     imageFrame: imageFrame,
                     onSelect: { onSelectBox(box.id) },
                     onUpdate: onUpdateBox,
-                    onDelete: boxes.count > 1 ? { onDeleteBox(box.id) } : nil
+                    onDelete: boxes.count > 1 ? { onDeleteBox(box.id) } : nil,
+                    onDragEnded: onDragEnded
                 )
             }
         }
@@ -84,6 +86,7 @@ struct CropBoxOverlayItem: View {
     let onSelect: () -> Void
     let onUpdate: (CaptureCropBox) -> Void
     var onDelete: (() -> Void)? = nil
+    var onDragEnded: (() -> Void)? = nil
 
     @State private var dragStartRect: CGRect?
 
@@ -131,6 +134,7 @@ struct CropBoxOverlayItem: View {
                         }
                         .onEnded { _ in
                             dragStartRect = nil
+                            onDragEnded?()
                         }
                 )
                 .accessibilityLabel(String(localized: "Question Frame \(indexNumber)"))
@@ -188,6 +192,9 @@ struct CropBoxOverlayItem: View {
                             toNormalizedPoint: target
                         )
                         onUpdate(updated)
+                    }
+                    .onEnded { _ in
+                        onDragEnded?()
                     }
             )
             .accessibilityLabel(label)

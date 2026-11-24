@@ -15,6 +15,22 @@ struct ContainerLoadResult: @unchecked Sendable {
     let errorDescription: String?
 }
 
+/// Pure, unit-testable policy governing CloudKit ModelContainer boot & safe runtime transitions.
+enum CloudKitContainerPolicy: Sendable {
+    static func launchCloudKitRequested(iCloudSyncEnabled: Bool, lastKnownProActive: Bool) -> Bool {
+        iCloudSyncEnabled && lastKnownProActive
+    }
+
+    static func shouldTransitionContainer(
+        activeMode: Bool,
+        desiredMode: Bool,
+        hasCompletedInitialRefresh: Bool,
+        isCaptureFlowActive: Bool
+    ) -> Bool {
+        hasCompletedInitialRefresh && !isCaptureFlowActive && activeMode != desiredMode
+    }
+}
+
 /// Centralizes CloudKit-aware ModelContainer creation, non-destructive corrupted-store archival,
 /// and full DB + images recovery ZIP export (PRD §8.6, AC-08, AC-09).
 enum ModelContainerFactory {
@@ -178,7 +194,7 @@ enum ModelContainerFactory {
         let targetPrefix = storeURL.lastPathComponent
         return contents.filter { url in
             let name = url.lastPathComponent
-            return name.hasPrefix(targetPrefix) || name.hasPrefix("default.store")
+            return name == targetPrefix || name.hasPrefix(targetPrefix + "-")
         }
     }
 }

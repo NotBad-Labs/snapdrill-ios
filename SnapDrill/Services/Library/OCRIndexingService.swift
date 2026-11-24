@@ -25,23 +25,28 @@ enum OCRIndexingService {
             }
         }
 
-        return await withTaskGroup(of: String?.self) { group in
+        return await withTaskGroup(of: (timedOut: Bool, text: String)?.self) { group in
             group.addTask {
-                await task.value
+                (false, await task.value)
             }
             group.addTask {
-                try? await Task.sleep(for: .seconds(timeoutSeconds))
-                return nil
+                do {
+                    try await Task.sleep(for: .seconds(timeoutSeconds))
+                    return (true, "")
+                } catch {
+                    return nil
+                }
             }
 
-            for await candidate in group {
-                if let text = candidate {
-                    group.cancelAll()
-                    return text
-                } else {
+            while let candidate = await group.next() {
+                guard let candidate else { continue }
+                if candidate.timedOut {
                     task.cancel()
                     group.cancelAll()
                     return ""
+                } else {
+                    group.cancelAll()
+                    return candidate.text
                 }
             }
             return ""

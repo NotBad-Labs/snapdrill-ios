@@ -5,6 +5,7 @@ import UIKit
 struct ZoomableImageView: UIViewRepresentable {
     let image: UIImage
     var maxZoomScale: CGFloat = 4.0
+    var accessibilityDescription: String = String(localized: "Question Image")
 
     func makeCoordinator() -> Coordinator {
         Coordinator()
@@ -23,6 +24,9 @@ struct ZoomableImageView: UIViewRepresentable {
         let imageView = UIImageView(image: image)
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.isAccessibilityElement = true
+        imageView.accessibilityLabel = accessibilityDescription
+        imageView.accessibilityTraits = .image
         scrollView.addSubview(imageView)
 
         NSLayoutConstraint.activate([
@@ -48,6 +52,7 @@ struct ZoomableImageView: UIViewRepresentable {
             context.coordinator.imageView?.image = image
             scrollView.setZoomScale(1.0, animated: false)
         }
+        context.coordinator.imageView?.accessibilityLabel = accessibilityDescription
     }
 
     final class Coordinator: NSObject, UIScrollViewDelegate {

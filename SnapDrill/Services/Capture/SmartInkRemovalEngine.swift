@@ -49,16 +49,21 @@ struct HeuristicInkRemover: InkRemoving {
         }
 
         let limit = timeoutSeconds
-        return await withTaskGroup(of: TimeoutRaceOutcome<InkRemovalAnalysis>.self) { group in
+        return await withTaskGroup(of: TimeoutRaceOutcome<InkRemovalAnalysis>?.self) { group in
             group.addTask {
                 .finished(await workTask.value)
             }
             group.addTask {
-                try? await Task.sleep(for: .seconds(limit))
-                return .timedOut
+                do {
+                    try await Task.sleep(for: .seconds(limit))
+                    return .timedOut
+                } catch {
+                    return nil
+                }
             }
 
-            for await outcome in group {
+            while let outcome = await group.next() {
+                guard let outcome else { continue }
                 switch outcome {
                 case .finished(let result):
                     group.cancelAll()
@@ -411,13 +416,18 @@ struct CoreMLCapableInkRemover: InkRemoving {
         }
 
         let limit = timeoutSeconds
-        return await withTaskGroup(of: TimeoutRaceOutcome<Data?>.self) { group in
+        return await withTaskGroup(of: TimeoutRaceOutcome<Data?>?.self) { group in
             group.addTask { .finished(await workTask.value) }
             group.addTask {
-                try? await Task.sleep(for: .seconds(limit))
-                return .timedOut
+                do {
+                    try await Task.sleep(for: .seconds(limit))
+                    return .timedOut
+                } catch {
+                    return nil
+                }
             }
-            for await outcome in group {
+            while let outcome = await group.next() {
+                guard let outcome else { continue }
                 switch outcome {
                 case .finished(let data):
                     group.cancelAll()

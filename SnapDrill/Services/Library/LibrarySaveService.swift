@@ -101,12 +101,26 @@ final class LibrarySaveService {
                     newlyInsertedTags: &newlyInsertedTags
                 )
 
+                var savedAnswerPaths: [String] = []
+                var savedAnswerSlots: [Data?] = []
+                for (ansIndex, rawAnswerData) in item.answerImageDatas.prefix(MistakeLimits.maxAnswerImages).enumerated() {
+                    let ansResult = try imageStore.saveJPEGWithData(
+                        rawAnswerData,
+                        relativePath: "ans/\(itemID.uuidString)-\(ansIndex)-\(UUID().uuidString.prefix(6)).jpg",
+                        maxBytes: 450 * 1024
+                    )
+                    writtenRelativePaths.append(ansResult.relativePath)
+                    savedAnswerPaths.append(ansResult.relativePath)
+                    savedAnswerSlots.append(ansResult.compressedData)
+                }
+
                 let mistake = MistakeItem(
                     id: itemID,
                     createdAt: .now,
                     sourceTitle: item.sourceTitle,
                     notes: item.notes,
                     answerText: item.answerText,
+                    answerImagePaths: savedAnswerPaths,
                     causes: item.causes,
                     customCauseNames: item.customCauseNames,
                     mastery: .unknown,
@@ -121,6 +135,7 @@ final class LibrarySaveService {
                     pageImageData: pageSaved?.data,
                     subject: subject
                 )
+                mistake.setAnswerImageSlots(savedAnswerSlots)
                 mistake.tagList = Array(resolvedTags.prefix(MistakeLimits.maxTagsPerMistake))
                 context.insert(mistake)
                 insertedItems.append(mistake)
@@ -144,14 +159,14 @@ final class LibrarySaveService {
         }
     }
 
-    /// Re-crops from the full preserved page image (when present) and regenerates both original and cleaned assets (PRD §8.3, AC-05, M-04, M-07).
+    /// Re-crops strictly from the full preserved page image (never falls back to already-cropped question image) (PRD §8.3, AC-05, M2).
     func recropMistake(
         _ mistake: MistakeItem,
         normalizedRect: CGRect,
         mode: InkRemovalMode,
         in context: ModelContext
     ) async throws {
-        guard let sourceData = mistake.resolvedPageImageData(imageStore: imageStore) else {
+        guard let sourceData = mistake.strictPageImageData(imageStore: imageStore) else {
             throw RecropError.missingSourceImage
         }
         guard let croppedData = CapturePipelineLive.cropImageData(sourceData, normalizedRect: normalizedRect) else {
@@ -238,7 +253,7 @@ final class LibrarySaveService {
         }
     }
 
-    /// Saves an answer attachment image (up to maxAnswerImages) and syncs CloudKit binary slots.
+    /// Saves an answer attachment image (up to maxAnswerImages) and syncs CloudKit binary slots without compacting away unhydrated slots.
     func appendAnswerImage(_ image: UIImage, to mistake: MistakeItem, in context: ModelContext) throws {
         guard mistake.answerImagePaths.count < MistakeLimits.maxAnswerImages else { return }
         guard let jpeg = image.jpegData(compressionQuality: 0.85) else {
@@ -250,10 +265,12 @@ final class LibrarySaveService {
             maxBytes: 450 * 1024
         )
 
-        var syncedDatas = mistake.syncedAnswerImageDatas
-        syncedDatas.append(saved.compressedData)
+        var preservedSlots: [Data?] = (0..<mistake.answerImagePaths.count).map { idx in
+            mistake.resolvedAnswerImageData(at: idx, imageStore: imageStore)
+        }
+        preservedSlots.append(saved.compressedData)
         mistake.answerImagePaths.append(saved.relativePath)
-        mistake.setSyncedAnswerImageDatas(syncedDatas)
+        mistake.setAnswerImageSlots(preservedSlots)
 
         do {
             try context.save()
@@ -264,12 +281,58 @@ final class LibrarySaveService {
         }
     }
 
-    /// Re-synchronizes answerImageData0..2 slots when answer images are removed during editing.
+    /// Re-synchronizes answerImageData0..2 slots strictly by path index, preserving CloudKit externalStorage
+    /// bytes when local ans/ files have not been hydrated yet on a secondary device (Blocker B2).
     func syncAnswerImageSlots(for mistake: MistakeItem) {
-        let datas = mistake.answerImagePaths.prefix(MistakeLimits.maxAnswerImages).compactMap { path in
-            imageStore.loadData(relativePath: path)
+        let slots: [Data?] = mistake.answerImagePaths
+            .prefix(MistakeLimits.maxAnswerImages)
+            .enumerated()
+            .map { idx, path in
+                imageStore.loadData(relativePath: path) ?? mistake.answerImageSlotData(at: idx)
+            }
+        mistake.setAnswerImageSlots(slots)
+    }
+
+    /// Commits staged answer photo additions/removals atomically to disk and CloudKit slots (Blocker B2).
+    func applyAnswerImageEdits(
+        slots: [(path: String?, data: Data?)],
+        to mistake: MistakeItem
+    ) throws -> [String] {
+        var finalPaths: [String] = []
+        var finalSlotDatas: [Data?] = []
+        var newlyWrittenPaths: [String] = []
+
+        do {
+            for slot in slots.prefix(MistakeLimits.maxAnswerImages) {
+                if let existingPath = slot.path {
+                    let originalIdx = mistake.answerImagePaths.firstIndex(of: existingPath)
+                    let resolvedData = slot.data
+                        ?? imageStore.loadData(relativePath: existingPath)
+                        ?? originalIdx.flatMap { mistake.answerImageSlotData(at: $0) }
+                    finalPaths.append(existingPath)
+                    finalSlotDatas.append(resolvedData)
+                } else if let rawData = slot.data, let uiImg = UIImage(data: rawData),
+                          let jpeg = uiImg.jpegData(compressionQuality: 0.85) {
+                    let saved = try imageStore.saveJPEGWithData(
+                        jpeg,
+                        relativePath: "ans/\(mistake.id.uuidString)-\(UUID().uuidString.prefix(8)).jpg",
+                        maxBytes: 450 * 1024
+                    )
+                    newlyWrittenPaths.append(saved.relativePath)
+                    finalPaths.append(saved.relativePath)
+                    finalSlotDatas.append(saved.compressedData)
+                }
+            }
+        } catch {
+            for relPath in newlyWrittenPaths {
+                imageStore.deleteFile(relativePath: relPath)
+            }
+            throw error
         }
-        mistake.setSyncedAnswerImageDatas(datas)
+
+        mistake.answerImagePaths = finalPaths
+        mistake.setAnswerImageSlots(finalSlotDatas)
+        return newlyWrittenPaths
     }
 
     /// Deletes a Subject according to PRD §8.6 safety rules; refuses to delete the fallback uncategorized bucket.

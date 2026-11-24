@@ -235,9 +235,11 @@ struct ReviewHubView: View {
         } label: {
             Label("Start Review (\(matchingMistakes.count))", systemImage: "play.fill")
                 .font(.headline)
+                .multilineTextAlignment(.center)
                 .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 48)
+                .padding(.vertical, 14)
+                .padding(.horizontal, 16)
+                .frame(maxWidth: .infinity, minHeight: 48)
                 .background(
                     matchingMistakes.isEmpty ? SnapDrillTheme.inkSecondary.opacity(0.4) : SnapDrillTheme.inkBlue,
                     in: RoundedRectangle(cornerRadius: 14, style: .continuous)

@@ -20,6 +20,10 @@ final class AppEnvironment {
 
     /// Current SwiftData/CloudKit storage mode reported by ModelContainerFactory.
     var storeSyncStatus: StoreSyncStatus = .localOnly
+    /// Actual CloudKit container state currently backing the active ModelContainer.
+    var activeCloudKitEnabled: Bool = false
+    /// Prevents background StoreKit updates from rebuilding ModelContainer mid-capture.
+    var isCaptureFlowActive: Bool = false
 
     /// Soft-deleted mistake IDs hidden immediately from UI while awaiting permanent purge after 5s (AC-05).
     private(set) var pendingDeletionIDs: Set<UUID> = []

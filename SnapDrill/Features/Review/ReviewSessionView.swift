@@ -103,9 +103,14 @@ struct ReviewSessionView: View {
                                 ? item.resolvedOriginalImageData(imageStore: environment.imageStore)
                                 : item.resolvedCleanedImageData(imageStore: environment.imageStore),
                                let img = UIImage(data: imgData) {
-                                ZoomableImageView(image: img)
-                                    .frame(height: 270)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                ZoomableImageView(
+                                    image: img,
+                                    accessibilityDescription: showOriginal
+                                        ? String(localized: "Original Question Image")
+                                        : String(localized: "Cleaned Question Image")
+                                )
+                                .frame(height: 270)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                         }
                     }

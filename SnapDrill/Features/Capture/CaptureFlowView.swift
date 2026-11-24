@@ -33,11 +33,13 @@ struct CaptureFlowView: View {
     @State private var selectedSubjectID: UUID?
     @State private var showOptionalFields: Bool = false
     @State private var newTagInput: String = ""
+    @State private var selectedAnswerPhotoItems: [PhotosPickerItem] = []
 
     @State private var eraserTargetIndex: Int?
     @State private var showingPaywall: Bool = false
     @State private var isBusy: Bool = false
     @State private var errorMessage: String?
+    @State private var draftSaveDebounceTask: Task<Void, Never>?
 
     private var regularSubjects: [Subject] {
         subjects.filter { !$0.isUncategorizedBucket }
@@ -114,6 +116,29 @@ struct CaptureFlowView: View {
                     await appendImportedImageDatas(loaded)
                 }
             }
+            .onChange(of: selectedAnswerPhotoItems) { _, items in
+                guard !items.isEmpty,
+                      savePreview?.items.indices.contains(currentPreviewIndex) == true else {
+                    return
+                }
+                let targetIdx = currentPreviewIndex
+                Task {
+                    var appendedAny = false
+                    for item in items {
+                        let existingCount = savePreview?.items[targetIdx].answerImageDatas.count ?? 0
+                        guard existingCount < MistakeLimits.maxAnswerImages else { break }
+                        if let data = try? await item.loadTransferable(type: Data.self),
+                           UIImage(data: data) != nil {
+                            savePreview?.items[targetIdx].answerImageDatas.append(data)
+                            appendedAny = true
+                        }
+                    }
+                    selectedAnswerPhotoItems = []
+                    if appendedAny {
+                        persistDraftAsync()
+                    }
+                }
+            }
             .fullScreenCover(isPresented: Binding(
                 get: { eraserTargetIndex != nil },
                 set: { if !$0 { eraserTargetIndex = nil } }
@@ -127,6 +152,7 @@ struct CaptureFlowView: View {
                         if let jpeg = edited.jpegData(compressionQuality: 0.90) {
                             savePreview?.items[idx].cleanedImageData = jpeg
                             savePreview?.items[idx].handwritingRemovalSucceeded = true
+                            persistDraftAsync()
                         }
                     }
                 }
@@ -339,9 +365,11 @@ struct CaptureFlowView: View {
             } label: {
                 Text("Next: Frame Questions")
                     .font(.headline)
+                    .multilineTextAlignment(.center)
                     .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
+                    .padding(.vertical, 14)
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, minHeight: 50)
                     .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
             .buttonStyle(.plain)
@@ -383,6 +411,9 @@ struct CaptureFlowView: View {
                                     activeBoxID = currentPage?.boxes.first?.id
                                     persistDraftAsync()
                                 }
+                            },
+                            onDragEnded: {
+                                persistDraftAsync()
                             }
                         )
                     }
@@ -447,9 +478,11 @@ struct CaptureFlowView: View {
             } label: {
                 Text("Next: Clean & Save (\(session?.totalBoxCount ?? 1))")
                     .font(.headline)
+                    .multilineTextAlignment(.center)
                     .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
+                    .padding(.vertical, 14)
+                    .padding(.horizontal, 16)
+                    .frame(maxWidth: .infinity, minHeight: 50)
                     .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
             .buttonStyle(.plain)
@@ -484,6 +517,7 @@ struct CaptureFlowView: View {
                                     let selected = selectedSubjectID == subj.id
                                     Button {
                                         selectedSubjectID = subj.id
+                                        persistDraftAsync()
                                     } label: {
                                         HStack(spacing: 6) {
                                             Circle()
@@ -550,20 +584,22 @@ struct CaptureFlowView: View {
 
                                 Spacer()
 
-                                Button {} label: {
-                                    Label("Hold for Original", systemImage: "eye")
-                                        .font(.caption.weight(.medium))
-                                        .foregroundStyle(SnapDrillTheme.inkBlack)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 5)
-                                        .background(SnapDrillTheme.elevatedSurface, in: Capsule())
+                                Button {
+                                    isPeekingOriginal.toggle()
+                                } label: {
+                                    Label(
+                                        isPeekingOriginal ? String(localized: "Show Cleaned") : String(localized: "Compare Original"),
+                                        systemImage: isPeekingOriginal ? "wand.and.stars" : "eye"
+                                    )
+                                    .font(.caption.weight(.medium))
+                                    .foregroundStyle(isPeekingOriginal ? .white : SnapDrillTheme.inkBlack)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(isPeekingOriginal ? SnapDrillTheme.inkBlue : SnapDrillTheme.elevatedSurface, in: Capsule())
                                 }
-                                .simultaneousGesture(
-                                    DragGesture(minimumDistance: 0)
-                                        .onChanged { _ in isPeekingOriginal = true }
-                                        .onEnded { _ in isPeekingOriginal = false }
-                                )
-                                .accessibilityLabel(String(localized: "Hold to Compare Original"))
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(String(localized: "Compare Original"))
+                                .accessibilityValue(isPeekingOriginal ? String(localized: "Showing Original") : String(localized: "Showing Cleaned"))
 
                                 Button {
                                     eraserTargetIndex = currentPreviewIndex
@@ -686,14 +722,69 @@ struct CaptureFlowView: View {
 
                                 TextField("Correct answer / solution (optional)", text: Binding(
                                     get: { savePreview?.items[currentPreviewIndex].answerText ?? "" },
-                                    set: { savePreview?.items[currentPreviewIndex].answerText = String($0.prefix(MistakeLimits.maxAnswerCharacters)) }
+                                    set: {
+                                        savePreview?.items[currentPreviewIndex].answerText = String($0.prefix(MistakeLimits.maxAnswerCharacters))
+                                        scheduleDebouncedDraftSave()
+                                    }
                                 ), axis: .vertical)
                                 .lineLimit(2...4)
                                 .textFieldStyle(.roundedBorder)
 
+                                let currentAnswerDatas = item.answerImageDatas
+                                if currentAnswerDatas.count < MistakeLimits.maxAnswerImages {
+                                    PhotosPicker(
+                                        selection: $selectedAnswerPhotoItems,
+                                        maxSelectionCount: MistakeLimits.maxAnswerImages - currentAnswerDatas.count,
+                                        matching: .images
+                                    ) {
+                                        Label(
+                                            "Attach Answer Photos (\(currentAnswerDatas.count)/\(MistakeLimits.maxAnswerImages))",
+                                            systemImage: "photo.badge.plus"
+                                        )
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(SnapDrillTheme.inkBlue)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 8)
+                                        .background(SnapDrillTheme.inkBlueSoft, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                    }
+                                }
+
+                                if !currentAnswerDatas.isEmpty {
+                                    ScrollView(.horizontal, showsIndicators: false) {
+                                        HStack(spacing: 8) {
+                                            ForEach(Array(currentAnswerDatas.enumerated()), id: \.offset) { ansIdx, ansData in
+                                                ZStack(alignment: .topTrailing) {
+                                                    if let ansImg = UIImage(data: ansData) {
+                                                        Image(uiImage: ansImg)
+                                                            .resizable()
+                                                            .scaledToFill()
+                                                            .frame(width: 84, height: 64)
+                                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                                    }
+                                                    Button {
+                                                        guard savePreview?.items.indices.contains(currentPreviewIndex) == true,
+                                                              savePreview?.items[currentPreviewIndex].answerImageDatas.indices.contains(ansIdx) == true else {
+                                                            return
+                                                        }
+                                                        savePreview?.items[currentPreviewIndex].answerImageDatas.remove(at: ansIdx)
+                                                        persistDraftAsync()
+                                                    } label: {
+                                                        Image(systemName: "xmark.circle.fill")
+                                                            .foregroundStyle(.white, SnapDrillTheme.gradingRed)
+                                                    }
+                                                    .accessibilityLabel(String(localized: "Remove Answer Photo"))
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
                                 TextField("Personal note (optional)", text: Binding(
                                     get: { savePreview?.items[currentPreviewIndex].notes ?? "" },
-                                    set: { savePreview?.items[currentPreviewIndex].notes = String($0.prefix(MistakeLimits.maxNotesCharacters)) }
+                                    set: {
+                                        savePreview?.items[currentPreviewIndex].notes = String($0.prefix(MistakeLimits.maxNotesCharacters))
+                                        scheduleDebouncedDraftSave()
+                                    }
                                 ), axis: .vertical)
                                 .lineLimit(2...4)
                                 .textFieldStyle(.roundedBorder)
@@ -708,9 +799,11 @@ struct CaptureFlowView: View {
                     } label: {
                         Text("Save (\(preview.questionCount))")
                             .font(.headline)
+                            .multilineTextAlignment(.center)
                             .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 52)
+                            .padding(.vertical, 14)
+                            .padding(.horizontal, 16)
+                            .frame(maxWidth: .infinity, minHeight: 52)
                             .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
                     .buttonStyle(.plain)
@@ -814,8 +907,18 @@ struct CaptureFlowView: View {
             session = initialSession
             currentPageIndex = 0
             activeBoxID = initialSession.pages.first?.boxes.first?.id
+            if let restoredSubject = initialSession.selectedSubjectID {
+                selectedSubjectID = restoredSubject
+            }
             if initialSession.activeStep >= 3 {
-                await buildPreviewForStep3()
+                if let restoredPreview = initialSession.savedPreview, !restoredPreview.items.isEmpty {
+                    savePreview = restoredPreview
+                    inkMode = restoredPreview.inkRemovalMode
+                    currentPreviewIndex = 0
+                    step = 3
+                } else {
+                    await buildPreviewForStep3()
+                }
             } else {
                 step = max(1, min(2, initialSession.activeStep))
             }
@@ -892,6 +995,7 @@ struct CaptureFlowView: View {
         }
         preview.inkRemovalMode = mode
         savePreview = preview
+        persistDraftAsync()
     }
 
     private func togglePreviewCause(_ cause: MistakeCause, at index: Int) {
@@ -901,15 +1005,17 @@ struct CaptureFlowView: View {
         } else {
             savePreview?.items[index].causes.append(cause)
         }
+        persistDraftAsync()
     }
 
     private func toggleCustomCause(_ name: String, at index: Int) {
         guard savePreview?.items.indices.contains(index) == true else { return }
         if savePreview?.items[index].customCauseNames.contains(name) == true {
             savePreview?.items[index].customCauseNames.removeAll { $0 == name }
-        } else {
+        } else if (savePreview?.items[index].customCauseNames.count ?? 0) < MistakeLimits.maxTagsPerMistake {
             savePreview?.items[index].customCauseNames.append(name)
         }
+        persistDraftAsync()
     }
 
     private func addTagToCurrentItem() {
@@ -923,9 +1029,11 @@ struct CaptureFlowView: View {
             savePreview?.items[currentPreviewIndex].tagNames.append(clean)
         }
         newTagInput = ""
+        persistDraftAsync()
     }
 
     private func commitAndDismiss() {
+        draftSaveDebounceTask?.cancel()
         guard let preview = savePreview else { return }
         guard let subject = regularSubjects.first(where: { $0.id == selectedSubjectID }) ?? regularSubjects.first else {
             errorMessage = CapturePipelineError.subjectRequired.localizedDescription
@@ -943,9 +1051,21 @@ struct CaptureFlowView: View {
         }
     }
 
+    private func scheduleDebouncedDraftSave() {
+        draftSaveDebounceTask?.cancel()
+        draftSaveDebounceTask = Task {
+            try? await Task.sleep(for: .milliseconds(350))
+            guard !Task.isCancelled else { return }
+            persistDraftAsync()
+        }
+    }
+
     private func persistDraftAsync() {
+        draftSaveDebounceTask?.cancel()
         guard var current = session else { return }
         current.activeStep = step
+        current.selectedSubjectID = selectedSubjectID
+        current.savedPreview = step >= 3 ? savePreview : nil
         Task {
             do {
                 try await environment.draftStore.saveDraft(current)

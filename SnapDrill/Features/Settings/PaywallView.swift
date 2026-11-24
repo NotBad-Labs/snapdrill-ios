@@ -117,8 +117,10 @@ struct PaywallView: View {
                             }
                         }
                         .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 52)
+                        .multilineTextAlignment(.center)
+                        .padding(.vertical, 14)
+                        .padding(.horizontal, 16)
+                        .frame(maxWidth: .infinity, minHeight: 52)
                         .background(
                             (selectedProduct == nil && !environment.proStore.isLoadingProducts)
                                 ? SnapDrillTheme.inkSecondary

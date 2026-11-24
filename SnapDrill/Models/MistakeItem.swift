@@ -165,11 +165,24 @@ final class MistakeItem {
         [answerImageData0, answerImageData1, answerImageData2].compactMap { $0 }
     }
 
-    func setSyncedAnswerImageDatas(_ datas: [Data]) {
-        let capped = Array(datas.prefix(MistakeLimits.maxAnswerImages))
+    func answerImageSlotData(at index: Int) -> Data? {
+        switch index {
+        case 0: return answerImageData0
+        case 1: return answerImageData1
+        case 2: return answerImageData2
+        default: return nil
+        }
+    }
+
+    func setAnswerImageSlots(_ slots: [Data?]) {
+        let capped = Array(slots.prefix(MistakeLimits.maxAnswerImages))
         answerImageData0 = capped.indices.contains(0) ? capped[0] : nil
         answerImageData1 = capped.indices.contains(1) ? capped[1] : nil
         answerImageData2 = capped.indices.contains(2) ? capped[2] : nil
+    }
+
+    func setSyncedAnswerImageDatas(_ datas: [Data]) {
+        setAnswerImageSlots(datas.map { Optional($0) })
     }
 
     func resolvedOriginalImageData(imageStore: MistakeImageStore) -> Data? {
@@ -183,11 +196,20 @@ final class MistakeItem {
         return resolvedOriginalImageData(imageStore: imageStore)
     }
 
+    /// Strict full-page source resolver; NEVER falls back to cropped problem image (prevents double-cropping, M2).
+    func strictPageImageData(imageStore: MistakeImageStore) -> Data? {
+        Self.resolveData(relativePath: pageImagePath, externalData: pageImageData, imageStore: imageStore)
+    }
+
     func resolvedPageImageData(imageStore: MistakeImageStore) -> Data? {
-        if let page = Self.resolveData(relativePath: pageImagePath, externalData: pageImageData, imageStore: imageStore) {
-            return page
-        }
-        return resolvedOriginalImageData(imageStore: imageStore)
+        strictPageImageData(imageStore: imageStore)
+    }
+
+    func resolvedAnswerImageData(at index: Int, imageStore: MistakeImageStore) -> Data? {
+        guard index >= 0, index < MistakeLimits.maxAnswerImages else { return nil }
+        let relPath = answerImagePaths.indices.contains(index) ? answerImagePaths[index] : nil
+        let ext = answerImageSlotData(at: index)
+        return Self.resolveData(relativePath: relPath, externalData: ext, imageStore: imageStore)
     }
 
     func resolvedAnswerImageDatas(imageStore: MistakeImageStore) -> [Data] {
@@ -197,9 +219,7 @@ final class MistakeItem {
 
         var result: [Data] = []
         for idx in 0..<min(MistakeLimits.maxAnswerImages, count) {
-            let relPath = answerImagePaths.indices.contains(idx) ? answerImagePaths[idx] : nil
-            let ext = externalSlots.indices.contains(idx) ? externalSlots[idx] : nil
-            if let data = Self.resolveData(relativePath: relPath, externalData: ext, imageStore: imageStore) {
+            if let data = resolvedAnswerImageData(at: idx, imageStore: imageStore) {
                 result.append(data)
             }
         }

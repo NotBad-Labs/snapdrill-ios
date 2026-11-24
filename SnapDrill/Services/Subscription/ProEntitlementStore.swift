@@ -16,6 +16,7 @@ struct EntitlementSnapshot: Equatable, Sendable {
 final class ProEntitlementStore: ProEntitlementServing {
     private(set) var products: [Product] = []
     private(set) var statusState: SubscriptionStatusState = .free
+    private(set) var hasCompletedInitialRefresh: Bool = false
     private(set) var isLoadingProducts: Bool = false
     private(set) var productsLoadFailed: Bool = false
     private(set) var purchaseInFlight: Bool = false
@@ -154,6 +155,7 @@ final class ProEntitlementStore: ProEntitlementServing {
     }
 
     func refreshEntitlements() async {
+        defer { hasCompletedInitialRefresh = true }
         var activeSnapshots: [EntitlementSnapshot] = []
 
         for await result in Transaction.currentEntitlements {

@@ -264,6 +264,10 @@ struct HandwritingEraserView: View {
     @State private var activePoints: [CGPoint] = []
     @State private var previewPaperColor: UIColor = UIColor(red: 0.96, green: 0.95, blue: 0.93, alpha: 1.0)
     @State private var isFinalizing = false
+    @State private var previewGeneration: Int = 0
+    @State private var previewTask: Task<Void, Never>?
+
+    private static let canvasSpaceName = "eraserCanvas"
 
     init(initialImage: UIImage, originalReferenceImage: UIImage, onSave: @escaping (UIImage) -> Void) {
         self.initialImage = initialImage
@@ -308,9 +312,10 @@ struct HandwritingEraserView: View {
                             )
                         }
                     }
+                    .coordinateSpace(name: Self.canvasSpaceName)
                     .contentShape(Rectangle())
                     .gesture(
-                        DragGesture(minimumDistance: 0)
+                        DragGesture(minimumDistance: 0, coordinateSpace: .named(Self.canvasSpaceName))
                             .onChanged { value in
                                 guard !isPeekingOriginal, !isFinalizing else { return }
                                 if imageFrame.contains(value.location) {
@@ -395,16 +400,16 @@ struct HandwritingEraserView: View {
                             .disabled(redoStrokes.isEmpty || isFinalizing)
                             .accessibilityLabel(String(localized: "Redo Stroke"))
 
-                            Button {} label: {
-                                Image(systemName: "eye")
+                            Button {
+                                isPeekingOriginal.toggle()
+                            } label: {
+                                Image(systemName: isPeekingOriginal ? "eye.fill" : "eye")
+                                    .foregroundStyle(isPeekingOriginal ? SnapDrillTheme.inkBlue : SnapDrillTheme.inkBlack)
                                     .frame(width: 34, height: 34)
                             }
-                            .simultaneousGesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged { _ in isPeekingOriginal = true }
-                                    .onEnded { _ in isPeekingOriginal = false }
-                            )
-                            .accessibilityLabel(String(localized: "Hold to Compare Original"))
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(String(localized: "Compare Original"))
+                            .accessibilityValue(isPeekingOriginal ? String(localized: "Showing Original") : String(localized: "Showing Cleaned"))
                         }
                     }
                 }
@@ -482,23 +487,34 @@ struct HandwritingEraserView: View {
     }
 
     private func recompositeWorkingPreviewAsync() {
+        previewTask?.cancel()
+        previewGeneration &+= 1
+        let targetGeneration = previewGeneration
         let strokesSnapshot = undoStrokes
         let base = workingInitialImage
         let orig = workingOriginalImage
 
-        Task.detached(priority: .userInitiated) {
-            let rendered = EraserStrokeEngine.composite(
-                baseImage: base,
-                originalReference: orig,
-                strokes: strokesSnapshot
-            )
-            await MainActor.run {
-                currentDisplayImage = rendered
+        previewTask = Task {
+            let rendered = await Task.detached(priority: .userInitiated) {
+                guard !Task.isCancelled else { return nil as UIImage? }
+                return EraserStrokeEngine.composite(
+                    baseImage: base,
+                    originalReference: orig,
+                    strokes: strokesSnapshot
+                )
+            }.value
+            guard !Task.isCancelled,
+                  previewGeneration == targetGeneration,
+                  let rendered else {
+                return
             }
+            currentDisplayImage = rendered
         }
     }
 
     private func finalizeAndDismiss() {
+        previewTask?.cancel()
+        previewGeneration &+= 1
         let strokesSnapshot = undoStrokes
         if strokesSnapshot.isEmpty {
             onSave(initialImage)

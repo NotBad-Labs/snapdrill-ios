@@ -79,7 +79,7 @@ final class PDFExportServiceTests: XCTestCase {
         let ansImg2 = makeQuestionImageData(height: 360, color: .systemBlue)
         let ansImg3 = makeQuestionImageData(height: 360, color: .systemGreen)
 
-        let longPrefix = String(repeating: "Step-by-step derivation across quadratic interval boundaries. ", count: 32)
+        let longPrefix = String(repeating: "数学解析步骤推导练习 · Step-by-step derivation across quadratic intervals. ", count: 36)
         let firstLongAnswer = String(longPrefix.prefix(1975)) + "\nTAILMARKER2000"
         let secondLongAnswer = String(longPrefix.prefix(1760)) + "\nTAILMARKERSECOND"
 
@@ -132,5 +132,43 @@ final class PDFExportServiceTests: XCTestCase {
         XCTAssertTrue(compactExtracted.contains("TAILMARKERSECOND"))
         XCTAssertTrue(fullExtracted.contains("Review full working"))
         XCTAssertTrue(fullExtracted.contains("Verify units at end"))
+
+        // Verify ALL 2 question images + 3 answer images (Q1) + 2 answer images (Q2) = 7 Image XObjects rendered in PDF
+        XCTAssertGreaterThanOrEqual(countImageXObjects(in: data), 7)
+    }
+
+    private func countImageXObjects(in pdfData: Data) -> Int {
+        guard let provider = CGDataProvider(data: pdfData as CFData),
+              let cgDoc = CGPDFDocument(provider),
+              cgDoc.numberOfPages > 0 else {
+            return 0
+        }
+        var count = 0
+        for pageNumber in 1...cgDoc.numberOfPages {
+            guard let page = cgDoc.page(at: pageNumber),
+                  let pageDict = page.dictionary else { continue }
+            var resources: CGPDFDictionaryRef?
+            guard CGPDFDictionaryGetDictionary(pageDict, "Resources", &resources),
+                  let resources else { continue }
+            var xObjects: CGPDFDictionaryRef?
+            guard CGPDFDictionaryGetDictionary(resources, "XObject", &xObjects),
+                  let xObjects else { continue }
+            CGPDFDictionaryApplyBlock(xObjects, { _, object, _ in
+                var stream: CGPDFStreamRef?
+                guard CGPDFObjectGetValue(object, .stream, &stream),
+                      let stream,
+                      let streamDict = CGPDFStreamGetDictionary(stream) else {
+                    return true
+                }
+                var subtype: UnsafePointer<CChar>?
+                if CGPDFDictionaryGetName(streamDict, "Subtype", &subtype),
+                   let subtype,
+                   String(cString: subtype) == "Image" {
+                    count += 1
+                }
+                return true
+            }, nil)
+        }
+        return count
     }
 }

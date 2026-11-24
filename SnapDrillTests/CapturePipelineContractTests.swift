@@ -190,4 +190,26 @@ final class CapturePipelineContractTests: XCTestCase {
         XCTAssertGreaterThan(corners.topLeft.x, 0.04)
         XCTAssertLessThan(corners.topRight.x, 0.96)
     }
+
+    func testSmartQuestionDetectorRunsOffMainActorAndRespectsTimeout() async {
+        let size = CGSize(width: 600, height: 800)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        format.opaque = true
+        let sheetData = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
+            UIColor.white.setFill()
+            ctx.fill(CGRect(origin: .zero, size: size))
+        }.jpegData(compressionQuality: 0.9)!
+
+        // Immediate timeout gracefully falls back to a valid default crop box without blocking MainActor
+        let tightTimeoutDetector = SmartQuestionDetector(timeoutSeconds: 0.0001)
+        let timedOutBoxes = await tightTimeoutDetector.suggestBoxes(in: sheetData, maxBoxes: 10)
+        XCTAssertEqual(timedOutBoxes.count, 1)
+
+        // Normal timeout returns bounded valid crop boxes
+        let normalDetector = SmartQuestionDetector(timeoutSeconds: 2.5)
+        let boxes = await normalDetector.suggestBoxes(in: sheetData, maxBoxes: 10)
+        XCTAssertFalse(boxes.isEmpty)
+        XCTAssertLessThanOrEqual(boxes.count, 10)
+    }
 }

@@ -95,7 +95,11 @@ struct RootTabView: View {
             CaptureFlowView(initialSession: resumeSessionForCapture) {
                 showingCaptureFlow = false
                 resumeSessionForCapture = nil
+                environment.isCaptureFlowActive = false
             }
+        }
+        .onChange(of: showingCaptureFlow) { _, isShowing in
+            environment.isCaptureFlowActive = isShowing
         }
         .sheet(item: $debugInspectMistake) { mistake in
             NavigationStack {

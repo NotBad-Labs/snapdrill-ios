@@ -112,6 +112,7 @@ struct PDFExportService: PDFExportServing {
                             width: contentWidth,
                             marginTop: marginTop,
                             maxContentY: maxContentY,
+                            cgContext: pdfContext.cgContext,
                             onPageBreak: { startNewPage() }
                         )
                         cursorY += 6
@@ -176,6 +177,7 @@ struct PDFExportService: PDFExportServing {
                             width: contentWidth - 12,
                             marginTop: marginTop,
                             maxContentY: maxContentY,
+                            cgContext: pdfContext.cgContext,
                             onPageBreak: { startNewPage() }
                         )
                         cursorY += 6
@@ -223,7 +225,7 @@ struct PDFExportService: PDFExportServing {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    // MARK: - Paginated CoreText-Sliced UIKit Text Drawing
+    // MARK: - Pure CoreText Paginated Drawing (M6)
 
     private func drawPaginatedText(
         _ text: String,
@@ -233,9 +235,14 @@ struct PDFExportService: PDFExportServing {
         width: CGFloat,
         marginTop: CGFloat,
         maxContentY: CGFloat,
+        cgContext: CGContext,
         onPageBreak: () -> Void
     ) -> CGFloat {
-        let attrString = NSAttributedString(string: text, attributes: attrs)
+        var ctAttrs = attrs
+        if let uiColor = attrs[.foregroundColor] as? UIColor {
+            ctAttrs[NSAttributedString.Key(kCTForegroundColorAttributeName as String)] = uiColor.cgColor
+        }
+        let attrString = NSAttributedString(string: text, attributes: ctAttrs)
         guard attrString.length > 0 else { return startY }
 
         let framesetter = CTFramesetterCreateWithAttributedString(attrString)
@@ -250,7 +257,8 @@ struct PDFExportService: PDFExportServing {
                 availableHeight = maxContentY - currentY
             }
 
-            let boxPath = CGPath(rect: CGRect(x: 0, y: 0, width: width, height: max(20, availableHeight - 6)), transform: nil)
+            let boxHeight = max(20, availableHeight - 6)
+            let boxPath = CGPath(rect: CGRect(x: 0, y: 0, width: width, height: boxHeight), transform: nil)
             let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(location, 0), boxPath, nil)
             let visible = CTFrameGetVisibleStringRange(frame)
 
@@ -264,16 +272,26 @@ struct PDFExportService: PDFExportServing {
                 }
             }
 
-            let slice = attrString.attributedSubstring(from: NSRange(location: visible.location, length: visible.length))
-            let measured = slice.boundingRect(
-                with: CGSize(width: width, height: .greatestFiniteMagnitude),
-                options: [.usesLineFragmentOrigin, .usesFontLeading],
-                context: nil
-            )
-            let drawHeight = ceil(measured.height) + 2
-            slice.draw(with: CGRect(x: x, y: currentY, width: width, height: drawHeight), options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+            cgContext.saveGState()
+            cgContext.textMatrix = .identity
+            cgContext.translateBy(x: x, y: currentY + boxHeight)
+            cgContext.scaleBy(x: 1.0, y: -1.0)
+            CTFrameDraw(frame, cgContext)
+            cgContext.restoreGState()
 
-            currentY += ceil(measured.height) + 6
+            let ctLines = CTFrameGetLines(frame) as? [CTLine] ?? []
+            var drawnHeight: CGFloat = 0
+            if let lastLine = ctLines.last {
+                var origins = [CGPoint](repeating: .zero, count: ctLines.count)
+                CTFrameGetLineOrigins(frame, CFRangeMake(0, 0), &origins)
+                var ascent: CGFloat = 0
+                var descent: CGFloat = 0
+                var leading: CGFloat = 0
+                CTLineGetTypographicBounds(lastLine, &ascent, &descent, &leading)
+                drawnHeight = min(boxHeight, max(0, (boxHeight - origins[ctLines.count - 1].y) + descent + leading))
+            }
+
+            currentY += ceil(drawnHeight) + 6
             location = visible.location + visible.length
 
             if location < attrString.length {

@@ -146,17 +146,23 @@ struct CaptureSession: Sendable, Codable, Equatable {
     let createdAt: Date
     var pages: [CapturePage]
     var activeStep: Int
+    var selectedSubjectID: UUID? = nil
+    var savedPreview: CaptureSavePreview? = nil
 
     init(
         id: UUID = UUID(),
         createdAt: Date = .now,
         pages: [CapturePage] = [],
-        activeStep: Int = 1
+        activeStep: Int = 1,
+        selectedSubjectID: UUID? = nil,
+        savedPreview: CaptureSavePreview? = nil
     ) {
         self.id = id
         self.createdAt = createdAt
         self.pages = pages
         self.activeStep = activeStep
+        self.selectedSubjectID = selectedSubjectID
+        self.savedPreview = savedPreview
     }
 
     var totalBoxCount: Int {
@@ -165,7 +171,7 @@ struct CaptureSession: Sendable, Codable, Equatable {
 }
 
 /// Per-question preview item produced in Step 3 before saving to SwiftData.
-struct CaptureSaveItem: Identifiable, Sendable, Equatable {
+struct CaptureSaveItem: Identifiable, Sendable, Codable, Equatable {
     let id: UUID
     let pageIndex: Int
     let boxIndex: Int
@@ -181,11 +187,12 @@ struct CaptureSaveItem: Identifiable, Sendable, Equatable {
     var customCauseNames: [String] = []
     var tagNames: [String] = []
     var answerText: String = ""
+    var answerImageDatas: [Data] = []
     var notes: String = ""
     var sourceTitle: String = ""
 }
 
-struct CaptureSavePreview: Sendable, Equatable {
+struct CaptureSavePreview: Sendable, Codable, Equatable {
     var items: [CaptureSaveItem]
     var inkRemovalMode: InkRemovalMode
 

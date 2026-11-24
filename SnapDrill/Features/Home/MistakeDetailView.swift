@@ -95,7 +95,7 @@ struct MistakeDetailView: View {
             }
         }
         .sheet(isPresented: $showingRecrop) {
-            if let pageData = mistake.resolvedPageImageData(imageStore: environment.imageStore),
+            if let pageData = mistake.strictPageImageData(imageStore: environment.imageStore),
                let pageImg = UIImage(data: pageData) {
                 SingleMistakeRecropSheet(
                     sourceImage: pageImg,
@@ -186,9 +186,14 @@ struct MistakeDetailView: View {
                 }
 
                 if let displayedImage {
-                    ZoomableImageView(image: displayedImage)
-                        .frame(height: 280)
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    ZoomableImageView(
+                        image: displayedImage,
+                        accessibilityDescription: showOriginalImage
+                            ? String(localized: "Original Question Image")
+                            : String(localized: "Cleaned Question Image")
+                    )
+                    .frame(height: 280)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 } else {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(SnapDrillTheme.elevatedSurface)
@@ -219,7 +224,11 @@ struct MistakeDetailView: View {
             .accessibilityLabel(String(localized: "Open Manual Eraser"))
 
             Button {
-                showingRecrop = true
+                if mistake.strictPageImageData(imageStore: environment.imageStore) != nil {
+                    showingRecrop = true
+                } else {
+                    errorMessage = RecropError.missingSourceImage.localizedDescription
+                }
             } label: {
                 Label("Re-crop", systemImage: "crop")
                     .font(.caption.weight(.semibold))
@@ -450,6 +459,12 @@ struct MistakeEditSheet: View {
     @Query(sort: \MistakeTag.name) private var allTags: [MistakeTag]
     @Query(sort: \CustomCause.sortOrder) private var customCauses: [CustomCause]
 
+    private struct EditableAnswerSlot: Identifiable {
+        let id: UUID
+        var path: String?
+        var data: Data?
+    }
+
     @State private var selectedSubjectID: UUID?
     @State private var sourceTitle = ""
     @State private var selectedCauses: Set<MistakeCause> = []
@@ -459,6 +474,7 @@ struct MistakeEditSheet: View {
     @State private var answerText = ""
     @State private var notes = ""
     @State private var pickedAnswerItems: [PhotosPickerItem] = []
+    @State private var editableAnswerSlots: [EditableAnswerSlot] = []
     @State private var stagedDeletedAnswerPaths: Set<String> = []
     @State private var editErrorMessage: String?
 
@@ -542,7 +558,7 @@ struct MistakeEditSheet: View {
                             }
                         }
 
-                    let attachedAnswerCount = mistake.answerImagePaths.count
+                    let attachedAnswerCount = editableAnswerSlots.count
                     if attachedAnswerCount < MistakeLimits.maxAnswerImages {
                         PhotosPicker(
                             selection: $pickedAnswerItems,
@@ -553,21 +569,31 @@ struct MistakeEditSheet: View {
                         }
                     }
 
-                    if !mistake.answerImagePaths.isEmpty {
+                    if !editableAnswerSlots.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
-                                ForEach(mistake.answerImagePaths, id: \.self) { path in
+                                ForEach(editableAnswerSlots) { slot in
                                     ZStack(alignment: .topTrailing) {
-                                        if let img = environment.imageStore.loadImage(relativePath: path) {
+                                        if let data = slot.data, let img = UIImage(data: data) {
                                             Image(uiImage: img)
                                                 .resizable()
                                                 .scaledToFill()
                                                 .frame(width: 96, height: 72)
                                                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        } else {
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .fill(SnapDrillTheme.elevatedSurface)
+                                                .frame(width: 96, height: 72)
+                                                .overlay {
+                                                    Image(systemName: "photo")
+                                                        .foregroundStyle(SnapDrillTheme.inkSecondary)
+                                                }
                                         }
                                         Button {
-                                            mistake.answerImagePaths.removeAll { $0 == path }
-                                            stagedDeletedAnswerPaths.insert(path)
+                                            editableAnswerSlots.removeAll { $0.id == slot.id }
+                                            if let path = slot.path {
+                                                stagedDeletedAnswerPaths.insert(path)
+                                            }
                                         } label: {
                                             Image(systemName: "xmark.circle.fill")
                                                 .foregroundStyle(.white, SnapDrillTheme.gradingRed)
@@ -609,17 +635,26 @@ struct MistakeEditSheet: View {
                 selectedTagNames = Set(mistake.tagList.map(\.name))
                 answerText = mistake.answerText
                 notes = mistake.notes
+                let slotCount = max(
+                    mistake.answerImagePaths.count,
+                    [mistake.answerImageData0, mistake.answerImageData1, mistake.answerImageData2].compactMap { $0 }.count
+                )
+                editableAnswerSlots = (0..<min(MistakeLimits.maxAnswerImages, slotCount)).compactMap { idx in
+                    let path = mistake.answerImagePaths.indices.contains(idx) ? mistake.answerImagePaths[idx] : nil
+                    let data = mistake.resolvedAnswerImageData(at: idx, imageStore: environment.imageStore)
+                    guard path != nil || data != nil else { return nil }
+                    return EditableAnswerSlot(id: UUID(), path: path, data: data)
+                }
+                stagedDeletedAnswerPaths.removeAll()
             }
             .onChange(of: pickedAnswerItems) { _, newItems in
+                guard !newItems.isEmpty else { return }
                 Task {
                     for pickerItem in newItems {
+                        guard editableAnswerSlots.count < MistakeLimits.maxAnswerImages else { break }
                         if let data = try? await pickerItem.loadTransferable(type: Data.self),
-                           let uiImg = UIImage(data: data) {
-                            do {
-                                try environment.saveService.appendAnswerImage(uiImg, to: mistake, in: modelContext)
-                            } catch {
-                                editErrorMessage = error.localizedDescription
-                            }
+                           UIImage(data: data) != nil {
+                            editableAnswerSlots.append(EditableAnswerSlot(id: UUID(), path: nil, data: data))
                         }
                     }
                     pickedAnswerItems = []
@@ -657,15 +692,23 @@ struct MistakeEditSheet: View {
             }
         }
         mistake.tagList = resolved
-        environment.saveService.syncAnswerImageSlots(for: mistake)
 
+        var newlyWrittenPaths: [String] = []
         do {
+            newlyWrittenPaths = try environment.saveService.applyAnswerImageEdits(
+                slots: editableAnswerSlots.map { ($0.path, $0.data) },
+                to: mistake
+            )
             try modelContext.save()
             for path in stagedDeletedAnswerPaths {
                 environment.imageStore.deleteFile(relativePath: path)
             }
             dismiss()
         } catch {
+            modelContext.rollback()
+            for relPath in newlyWrittenPaths {
+                environment.imageStore.deleteFile(relativePath: relPath)
+            }
             editErrorMessage = error.localizedDescription
         }
     }
