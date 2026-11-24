@@ -4,7 +4,7 @@ import SwiftData
 import UIKit
 
 /// Global application coordinator holding shared services, 5-second undo deletion queue,
-/// draft recovery state, and subtle save feedback banners.
+/// draft recovery state, CloudKit status, and subtle save feedback banners.
 @Observable
 @MainActor
 final class AppEnvironment {
@@ -16,6 +16,10 @@ final class AppEnvironment {
     let draftStore: CaptureDraftPersisting
     let saveService: LibrarySaveService
     let pdfService: PDFExportServing
+    let undoDelay: Duration
+
+    /// Current SwiftData/CloudKit storage mode reported by ModelContainerFactory.
+    var storeSyncStatus: StoreSyncStatus = .localOnly
 
     /// Soft-deleted mistake IDs hidden immediately from UI while awaiting permanent purge after 5s (AC-05).
     private(set) var pendingDeletionIDs: Set<UUID> = []
@@ -23,7 +27,7 @@ final class AppEnvironment {
     private var stagedUndoItems: [(id: UUID, context: ModelContext)] = []
     private var undoPurgeTask: Task<Void, Never>?
 
-    /// Gentle post-save toast banner ("Saved! Practice again soon").
+    /// Gentle post-save toast banner.
     private(set) var savedToastQuestionCount: Int?
     private var toastClearTask: Task<Void, Never>?
 
@@ -37,7 +41,8 @@ final class AppEnvironment {
         capturePipeline: CapturePipelineServing = CapturePipelineFactory.makeLivePipeline(),
         cameraAccess: CameraAccessChecking = CapturePipelineFactory.makeCameraAccessChecker(),
         draftStore: CaptureDraftPersisting = CapturePipelineFactory.makeDraftStore(),
-        pdfService: PDFExportServing = PDFExportService()
+        pdfService: PDFExportServing = PDFExportService(),
+        undoDelay: Duration = .seconds(5)
     ) {
         self.preferences = preferences ?? AppPreferencesStore()
         self.proStore = proStore ?? ProEntitlementStore()
@@ -47,6 +52,7 @@ final class AppEnvironment {
         self.draftStore = draftStore
         self.saveService = LibrarySaveService(imageStore: imageStore)
         self.pdfService = pdfService
+        self.undoDelay = undoDelay
     }
 
     // MARK: - 5-Second Undo Delete (PRD §8.3, AC-05)
@@ -63,9 +69,10 @@ final class AppEnvironment {
         }
         undoBannerCount = stagedUndoItems.count
 
+        let delay = undoDelay
         undoPurgeTask?.cancel()
         undoPurgeTask = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(5))
+            try? await Task.sleep(for: delay)
             guard !Task.isCancelled, let self else { return }
             self.commitPendingDeletions()
         }

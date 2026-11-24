@@ -1,7 +1,8 @@
 import Foundation
 import UIKit
 
-/// Production capture pipeline orchestrating GPS stripping, edge detection, enhancement, cropping, OCR, and ink removal.
+/// Production capture pipeline orchestrating off-MainActor GPS stripping, edge detection, enhancement,
+/// multi-box cropping, OCR, and ink removal (PRD §8.2, AC-01~AC-04).
 struct CapturePipelineLive: CapturePipelineServing {
     let maxPhotoCount: Int = MistakeLimits.maxPhotosPerSession
     let maxBoxesPerPage: Int = MistakeLimits.maxBoxesPerPage
@@ -39,16 +40,28 @@ struct CapturePipelineLive: CapturePipelineServing {
             throw CapturePipelineError.tooManyPhotos(limit: maxPhotoCount)
         }
 
+        let sanitizer = self.sanitizer
+        let edgeDetector = self.edgeDetector
+        let enhancer = self.enhancer
+
         var pages: [CapturePage] = []
         pages.reserveCapacity(importedImageData.count)
 
         for rawData in importedImageData {
-            guard let cleanRaw = sanitizer.sanitize(rawData, maxDimension: 2200) else {
-                throw CapturePipelineError.invalidImageData
-            }
+            let cleanRaw = try await Task.detached(priority: .userInitiated) { () -> Data in
+                guard let sanitized = sanitizer.sanitize(rawData, maxDimension: 2200) else {
+                    throw CapturePipelineError.invalidImageData
+                }
+                return sanitized
+            }.value
+
             let corners = await edgeDetector.detectCorners(in: cleanRaw)
-            let corrected = edgeDetector.applyPerspectiveCorrection(to: cleanRaw, corners: corners)
-            let enhanced = enhancer.apply(.enhanced, to: corrected)
+            let (corrected, enhanced) = await Task.detached(priority: .userInitiated) {
+                let corr = edgeDetector.applyPerspectiveCorrection(to: cleanRaw, corners: corners)
+                let enh = enhancer.apply(.enhanced, to: corr)
+                return (corr, enh)
+            }.value
+
             pages.append(
                 CapturePage(
                     rawImageData: cleanRaw,
@@ -67,10 +80,23 @@ struct CapturePipelineLive: CapturePipelineServing {
     func updateCorners(_ corners: QuadCorners, pageID: UUID, in session: CaptureSession) async throws -> CaptureSession {
         var updated = session
         guard let idx = updated.pages.firstIndex(where: { $0.id == pageID }) else { return session }
+        guard corners.isConvexAndValid else { return session }
+
         var page = updated.pages[idx]
         page.corners = corners
-        page.correctedImageData = edgeDetector.applyPerspectiveCorrection(to: page.rawImageData, corners: corners)
-        page.enhancedImageData = enhancer.apply(page.enhancementMode, to: page.correctedImageData)
+        let rawData = page.rawImageData
+        let mode = page.enhancementMode
+        let edgeDetector = self.edgeDetector
+        let enhancer = self.enhancer
+
+        let (corrected, enhanced) = await Task.detached(priority: .userInitiated) {
+            let corr = edgeDetector.applyPerspectiveCorrection(to: rawData, corners: corners)
+            let enh = enhancer.apply(mode, to: corr)
+            return (corr, enh)
+        }.value
+
+        page.correctedImageData = corrected
+        page.enhancedImageData = enhanced
         updated.pages[idx] = page
         return updated
     }
@@ -80,7 +106,14 @@ struct CapturePipelineLive: CapturePipelineServing {
         guard let idx = updated.pages.firstIndex(where: { $0.id == pageID }) else { return session }
         var page = updated.pages[idx]
         page.enhancementMode = mode
-        page.enhancedImageData = enhancer.apply(mode, to: page.correctedImageData)
+        let correctedData = page.correctedImageData
+        let enhancer = self.enhancer
+
+        let enhanced = await Task.detached(priority: .userInitiated) {
+            enhancer.apply(mode, to: correctedData)
+        }.value
+
+        page.enhancedImageData = enhanced
         updated.pages[idx] = page
         return updated
     }
@@ -138,7 +171,12 @@ struct CapturePipelineLive: CapturePipelineServing {
 
         for (pageIndex, page) in session.pages.enumerated() {
             for (boxIndex, box) in page.boxes.enumerated() {
-                let croppedData = cropImageData(page.enhancedImageData, normalizedRect: box.normalizedRect) ?? page.enhancedImageData
+                let pageData = page.enhancedImageData
+                let rect = box.normalizedRect
+                let croppedData = await Task.detached(priority: .userInitiated) {
+                    Self.cropImageData(pageData, normalizedRect: rect) ?? pageData
+                }.value
+
                 let (cleanedData, succeeded) = await inkRemover.removeInk(from: croppedData, mode: mode)
                 let ocrText = await textRecognizer(cleanedData)
 
@@ -150,7 +188,9 @@ struct CapturePipelineLive: CapturePipelineServing {
                         originalImageData: croppedData,
                         cleanedImageData: cleanedData,
                         handwritingRemovalSucceeded: succeeded,
-                        ocrText: ocrText
+                        ocrText: ocrText,
+                        pageImageData: pageData,
+                        cropRectNormalized: rect
                     )
                 )
             }
@@ -169,7 +209,7 @@ struct CapturePipelineLive: CapturePipelineServing {
 
     // MARK: - Cropping Helper
 
-    private func cropImageData(_ data: Data, normalizedRect: CGRect) -> Data? {
+    static func cropImageData(_ data: Data, normalizedRect: CGRect) -> Data? {
         guard let uiImage = UIImage(data: data),
               let cgImage = uiImage.cgImage else {
             return nil

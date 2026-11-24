@@ -34,13 +34,33 @@ final class ProEntitlementAndBackupTests: XCTestCase {
         XCTAssertEqual(freeResolved.paperSize, .b5)
     }
 
+    func testSelectBestEntitlementPicksLatestNonRevokedTransaction() {
+        let now = Date()
+        let older = EntitlementSnapshot(
+            productID: SnapDrillProductID.monthly.rawValue,
+            expirationDate: now.addingTimeInterval(3600),
+            isTrial: true,
+            isRevoked: false
+        )
+        let newer = EntitlementSnapshot(
+            productID: SnapDrillProductID.yearly.rawValue,
+            expirationDate: now.addingTimeInterval(86_400 * 300),
+            isTrial: false,
+            isRevoked: false
+        )
+        let revokedFuture = EntitlementSnapshot(
+            productID: SnapDrillProductID.yearly.rawValue,
+            expirationDate: now.addingTimeInterval(86_400 * 999),
+            isTrial: false,
+            isRevoked: true
+        )
+
+        let chosen = ProEntitlementStore.selectBestEntitlement(from: [older, revokedFuture, newer])
+        XCTAssertEqual(chosen, newer)
+    }
+
     func testImageBudgetAndFullBackupZipCreation() async throws {
-        let schema = Schema([
-            Subject.self,
-            MistakeItem.self,
-            MistakeTag.self,
-            CustomCause.self
-        ])
+        let schema = ModelContainerFactory.schema
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: [config])
         let context = container.mainContext
@@ -58,10 +78,11 @@ final class ProEntitlementAndBackupTests: XCTestCase {
         let mistakes = try context.fetch(FetchDescriptor<MistakeItem>())
         XCTAssertGreaterThanOrEqual(mistakes.count, 3)
 
-        // Verify stored image stays well below 1MB per file (PRD §9)
-        let firstCleaned = try XCTUnwrap(mistakes.first?.cleanedImagePath)
-        let data = try XCTUnwrap(imageStore.loadData(relativePath: firstCleaned))
-        XCTAssertLessThan(data.count, 950 * 1024)
+        // Verify combined original + cleaned stays below 1MB per problem (PRD §9)
+        let first = try XCTUnwrap(mistakes.first)
+        let origData = try XCTUnwrap(first.resolvedOriginalImageData(imageStore: imageStore))
+        let cleanData = try XCTUnwrap(first.resolvedCleanedImageData(imageStore: imageStore))
+        XCTAssertLessThan(origData.count + cleanData.count, 1024 * 1024)
 
         // Verify free full backup ZIP archive creation (PRD F-54)
         let zipURL = try BackupExportService.createBackupArchive(

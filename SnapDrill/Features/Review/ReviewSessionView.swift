@@ -99,8 +99,10 @@ struct ReviewSessionView: View {
                                 Spacer()
                             }
 
-                            let relPath = showOriginal ? item.originalImagePath : (item.cleanedImagePath ?? item.originalImagePath)
-                            if let img = environment.imageStore.loadImage(relativePath: relPath) {
+                            if let imgData = showOriginal
+                                ? item.resolvedOriginalImageData(imageStore: environment.imageStore)
+                                : item.resolvedCleanedImageData(imageStore: environment.imageStore),
+                               let img = UIImage(data: imgData) {
                                 ZoomableImageView(image: img)
                                     .frame(height: 270)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -169,11 +171,12 @@ struct ReviewSessionView: View {
                         .foregroundStyle(SnapDrillTheme.inkBlack)
                 }
 
-                if !item.answerImagePaths.isEmpty {
+                let resolvedAnswerDatas = item.resolvedAnswerImageDatas(imageStore: environment.imageStore)
+                if !resolvedAnswerDatas.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(item.answerImagePaths, id: \.self) { path in
-                                if let img = environment.imageStore.loadImage(relativePath: path) {
+                            ForEach(Array(resolvedAnswerDatas.enumerated()), id: \.offset) { _, data in
+                                if let img = UIImage(data: data) {
                                     Image(uiImage: img)
                                         .resizable()
                                         .scaledToFill()
@@ -185,15 +188,25 @@ struct ReviewSessionView: View {
                     }
                 }
 
-                if !item.causes.isEmpty {
-                    HStack(spacing: 6) {
-                        ForEach(item.causes) { cause in
-                            Text(cause.localizedTitle)
-                                .font(.caption2.weight(.semibold))
-                                .foregroundStyle(SnapDrillTheme.gradingRed)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(SnapDrillTheme.gradingRedSoft, in: Capsule())
+                if !item.causes.isEmpty || !item.customCauseNames.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            ForEach(item.causes) { cause in
+                                Text(cause.localizedTitle)
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(SnapDrillTheme.gradingRed)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(SnapDrillTheme.gradingRedSoft, in: Capsule())
+                            }
+                            ForEach(item.customCauseNames, id: \.self) { custom in
+                                Text(custom)
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(SnapDrillTheme.gradingRed)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(SnapDrillTheme.gradingRedSoft, in: Capsule())
+                            }
                         }
                     }
                 }
@@ -204,7 +217,7 @@ struct ReviewSessionView: View {
                         .foregroundStyle(SnapDrillTheme.inkSecondary)
                 }
 
-                if item.answerText.isEmpty && item.answerImagePaths.isEmpty && item.notes.isEmpty && item.causes.isEmpty {
+                if item.answerText.isEmpty && resolvedAnswerDatas.isEmpty && item.notes.isEmpty && item.causes.isEmpty && item.customCauseNames.isEmpty {
                     Text("No answer or notes saved for this problem yet.")
                         .font(.subheadline)
                         .foregroundStyle(SnapDrillTheme.inkSecondary)

@@ -3,43 +3,50 @@ import CoreImage.CIFilterBuiltins
 import UIKit
 import Vision
 
-/// Detects paper borders with Vision and performs perspective straightening with Core Image (PRD F-02).
+/// Detects paper borders with Vision (off MainActor) and performs validated perspective straightening (PRD F-02).
 struct DocumentEdgeDetector: DocumentDetecting {
     private static let ciContext = CIContext(options: [.useSoftwareRenderer: false])
 
     func detectCorners(in imageData: Data) async -> QuadCorners {
-        guard let uiImage = UIImage(data: imageData),
-              let cgImage = uiImage.cgImage else {
-            return .fullFrame
-        }
-
-        let request = VNDetectRectanglesRequest()
-        request.maximumObservations = 1
-        request.minimumConfidence = 0.65
-        request.minimumAspectRatio = 0.35
-        request.maximumAspectRatio = 1.0
-        request.minimumSize = 0.25
-
-        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-        do {
-            try handler.perform([request])
-            guard let observation = request.results?.first else {
+        await Task.detached(priority: .userInitiated) {
+            guard let uiImage = UIImage(data: imageData),
+                  let cgImage = uiImage.cgImage else {
                 return .fullFrame
             }
-            // Convert Vision bottom-left normalized coordinates to SwiftUI top-left normalized coordinates
-            return QuadCorners(
-                topLeft: CGPoint(x: observation.topLeft.x, y: 1.0 - observation.topLeft.y),
-                topRight: CGPoint(x: observation.topRight.x, y: 1.0 - observation.topRight.y),
-                bottomRight: CGPoint(x: observation.bottomRight.x, y: 1.0 - observation.bottomRight.y),
-                bottomLeft: CGPoint(x: observation.bottomLeft.x, y: 1.0 - observation.bottomLeft.y)
-            )
-        } catch {
-            return .fullFrame
-        }
+
+            let request = VNDetectRectanglesRequest()
+            request.maximumObservations = 1
+            request.minimumConfidence = 0.50
+            request.minimumAspectRatio = 0.25
+            request.maximumAspectRatio = 1.0
+            request.minimumSize = 0.15
+            request.quadratureTolerance = 35
+
+            let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+            do {
+                try handler.perform([request])
+                guard let observation = request.results?.first else {
+                    return .fullFrame
+                }
+                // Convert Vision bottom-left normalized coordinates to SwiftUI top-left normalized coordinates
+                let detected = QuadCorners(
+                    topLeft: CGPoint(x: observation.topLeft.x, y: 1.0 - observation.topLeft.y),
+                    topRight: CGPoint(x: observation.topRight.x, y: 1.0 - observation.topRight.y),
+                    bottomRight: CGPoint(x: observation.bottomRight.x, y: 1.0 - observation.bottomRight.y),
+                    bottomLeft: CGPoint(x: observation.bottomLeft.x, y: 1.0 - observation.bottomLeft.y)
+                )
+                return detected.isConvexAndValid ? detected : .fullFrame
+            } catch {
+                return .fullFrame
+            }
+        }.value
     }
 
     func applyPerspectiveCorrection(to imageData: Data, corners: QuadCorners) -> Data {
-        // Fast path: if corners match default fullFrame within tolerance, avoid redundant re-encode
+        guard corners.isConvexAndValid else {
+            return imageData
+        }
+        // Fast path: if corners match exact fullFrame within tolerance, avoid redundant re-encode
         if isNearlyFullFrame(corners) {
             return imageData
         }
@@ -67,11 +74,15 @@ struct DocumentEdgeDetector: DocumentDetecting {
         filter.bottomRight = ciPoint(corners.bottomRight)
         filter.bottomLeft = ciPoint(corners.bottomLeft)
 
-        guard let output = filter.outputImage,
-              let cgResult = Self.ciContext.createCGImage(output, from: output.extent) else {
+        guard let output = filter.outputImage else {
             return imageData
         }
-        return UIImage(cgImage: cgResult).jpegData(compressionQuality: 0.88) ?? imageData
+        let renderRect = output.extent
+        guard !renderRect.isEmpty, !renderRect.isNull, !renderRect.isInfinite,
+              let cgResult = Self.ciContext.createCGImage(output, from: renderRect) else {
+            return imageData
+        }
+        return UIImage(cgImage: cgResult).jpegData(compressionQuality: 0.90) ?? imageData
     }
 
     private func isNearlyFullFrame(_ corners: QuadCorners) -> Bool {

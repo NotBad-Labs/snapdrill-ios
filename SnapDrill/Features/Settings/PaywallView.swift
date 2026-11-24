@@ -1,7 +1,8 @@
 import StoreKit
 import SwiftUI
 
-/// Bear-inspired calm, transparent Pro subscription screen ($1.99/mo, $14.99/yr, 7-day trial, Family Sharing) (PRD §6, AC-08, AC-10).
+/// Bear-inspired calm, transparent Pro subscription screen ($1.99/mo, $14.99/yr, 7-day trial, Family Sharing,
+/// App Store Guideline 3.1.2 legal links, and honest product availability handling) (PRD §6, AC-08, AC-10).
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AppEnvironment.self) private var environment
@@ -69,7 +70,7 @@ struct PaywallView: View {
                             plan: .yearly,
                             title: String(localized: "Annual"),
                             badge: String(localized: "Best Value · Save 37%"),
-                            priceText: environment.proStore.yearlyProduct?.displayPrice ?? "$14.99",
+                            priceText: environment.proStore.yearlyProduct?.displayPrice ?? String(localized: "Price unavailable"),
                             periodText: String(localized: "/ year · 7-day free trial")
                         )
 
@@ -77,7 +78,7 @@ struct PaywallView: View {
                             plan: .monthly,
                             title: String(localized: "Monthly"),
                             badge: nil,
-                            priceText: environment.proStore.monthlyProduct?.displayPrice ?? "$1.99",
+                            priceText: environment.proStore.monthlyProduct?.displayPrice ?? String(localized: "Price unavailable"),
                             periodText: String(localized: "/ month · 7-day free trial")
                         )
                     }
@@ -86,6 +87,11 @@ struct PaywallView: View {
                         Text(statusMessage)
                             .font(.caption.weight(.medium))
                             .foregroundStyle(SnapDrillTheme.inkBlue)
+                            .multilineTextAlignment(.center)
+                    } else if environment.proStore.products.isEmpty && !environment.proStore.isLoadingProducts {
+                        Text("App Store products are currently unavailable. Check your connection and retry.")
+                            .font(.caption)
+                            .foregroundStyle(SnapDrillTheme.inkSecondary)
                             .multilineTextAlignment(.center)
                     }
 
@@ -100,23 +106,31 @@ struct PaywallView: View {
                         }
                     } label: {
                         HStack {
-                            if environment.proStore.purchaseInFlight {
+                            if environment.proStore.purchaseInFlight || environment.proStore.isLoadingProducts {
                                 ProgressView().tint(.white)
-                            } else {
+                            } else if selectedProduct != nil {
                                 Text("Start 7-Day Free Trial")
+                                    .font(.headline)
+                            } else {
+                                Text("Retry Loading Plans")
                                     .font(.headline)
                             }
                         }
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .frame(height: 52)
-                        .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .background(
+                            (selectedProduct == nil && !environment.proStore.isLoadingProducts)
+                                ? SnapDrillTheme.inkSecondary
+                                : SnapDrillTheme.inkBlue,
+                            in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        )
                     }
-                    .disabled(environment.proStore.purchaseInFlight)
+                    .disabled(environment.proStore.purchaseInFlight || environment.proStore.isLoadingProducts)
                     .buttonStyle(.plain)
-                    .accessibilityLabel(String(localized: "Start 7-Day Free Trial"))
+                    .accessibilityLabel(selectedProduct != nil ? String(localized: "Start 7-Day Free Trial") : String(localized: "Retry Loading Plans"))
 
-                    // Restore + Family Sharing disclosure
+                    // Restore + Family Sharing + Legal Links (Guideline 3.1.2)
                     VStack(spacing: 8) {
                         Button("Restore Purchases") {
                             Task { await environment.proStore.restorePurchases() }
@@ -134,6 +148,15 @@ struct PaywallView: View {
                             .foregroundStyle(SnapDrillTheme.inkSecondary)
                             .multilineTextAlignment(.center)
                             .padding(.top, 2)
+
+                        HStack(spacing: 16) {
+                            Link("Privacy Policy", destination: AppConfig.privacyPolicyURL())
+                            Text("·").foregroundStyle(SnapDrillTheme.inkSecondary)
+                            Link("Terms of Use (EULA)", destination: AppConfig.termsOfUseURL())
+                        }
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(SnapDrillTheme.inkBlue)
+                        .padding(.top, 4)
                     }
                 }
                 .padding(SnapDrillTheme.screenPadding)

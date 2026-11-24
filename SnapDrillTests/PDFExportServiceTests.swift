@@ -4,11 +4,11 @@ import XCTest
 @testable import SnapDrill
 
 final class PDFExportServiceTests: XCTestCase {
-    private func makeQuestionImageData(height: CGFloat = 340) -> Data {
+    private func makeQuestionImageData(height: CGFloat = 340, color: UIColor = .white) -> Data {
         let size = CGSize(width: 800, height: height)
         let renderer = UIGraphicsImageRenderer(size: size)
         return renderer.image { ctx in
-            UIColor.white.setFill()
+            color.setFill()
             ctx.fill(CGRect(origin: .zero, size: size))
             UIColor.black.setStroke()
             ctx.stroke(CGRect(x: 20, y: 20, width: size.width - 40, height: size.height - 40))
@@ -70,5 +70,67 @@ final class PDFExportServiceTests: XCTestCase {
 
         let proFirstPageText = proDoc.page(at: 0)?.string ?? ""
         XCTAssertFalse(proFirstPageText.contains("SnapDrill"))
+    }
+
+    func testLong2000CharAnswerAndThreeAnswerImagesPaginateWithoutTruncation() throws {
+        let service = PDFExportService()
+        let qImg = makeQuestionImageData(height: 300)
+        let ansImg1 = makeQuestionImageData(height: 360, color: .systemRed)
+        let ansImg2 = makeQuestionImageData(height: 360, color: .systemBlue)
+        let ansImg3 = makeQuestionImageData(height: 360, color: .systemGreen)
+
+        let longPrefix = String(repeating: "Step-by-step derivation across quadratic interval boundaries. ", count: 32)
+        let firstLongAnswer = String(longPrefix.prefix(1975)) + "\nTAILMARKER2000"
+        let secondLongAnswer = String(longPrefix.prefix(1760)) + "\nTAILMARKERSECOND"
+
+        let payloads = [
+            PDFQuestionPayload(
+                id: UUID(),
+                index: 1,
+                subjectName: "Physics",
+                imageData: qImg,
+                answerText: firstLongAnswer,
+                answerImageDatas: [ansImg1, ansImg2, ansImg3],
+                causeLabels: ["Concept Unclear"],
+                notes: "Review full working",
+                createdAt: .now
+            ),
+            PDFQuestionPayload(
+                id: UUID(),
+                index: 2,
+                subjectName: "Physics",
+                imageData: qImg,
+                answerText: secondLongAnswer,
+                answerImageDatas: [ansImg1, ansImg2],
+                causeLabels: ["Calculation Error"],
+                notes: "Verify units at end",
+                createdAt: .now
+            )
+        ]
+
+        let options = PDFExportOptions.p0Default(
+            title: PDFExportOptions.defaultTitle(subjectName: "Physics"),
+            paperSize: .b5,
+            includeWatermark: true
+        )
+        XCTAssertTrue(options.title.contains("Physics"))
+        XCTAssertEqual(PDFExportService.sanitizedFilename("Math/Quiz:1*?"), "Math-Quiz-1--")
+
+        let data = try service.renderPDFData(questions: payloads, options: options)
+        let doc = try XCTUnwrap(PDFDocument(data: data))
+        XCTAssertGreaterThanOrEqual(doc.pageCount, 4)
+
+        var fullExtracted = ""
+        for idx in 0..<doc.pageCount {
+            fullExtracted += "\n" + (doc.page(at: idx)?.string ?? "")
+        }
+        let compactExtracted = fullExtracted
+            .components(separatedBy: .whitespacesAndNewlines)
+            .joined()
+
+        XCTAssertTrue(compactExtracted.contains("TAILMARKER2000"))
+        XCTAssertTrue(compactExtracted.contains("TAILMARKERSECOND"))
+        XCTAssertTrue(fullExtracted.contains("Review full working"))
+        XCTAssertTrue(fullExtracted.contains("Verify units at end"))
     }
 }

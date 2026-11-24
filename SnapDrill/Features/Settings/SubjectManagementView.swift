@@ -31,7 +31,7 @@ struct SubjectManagementView: View {
                             Text(subject.name)
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundStyle(SnapDrillTheme.inkBlack)
-                            Text("\(subject.mistakes.count) problems")
+                            Text("\(subject.mistakeList.count) problems")
                                 .font(.caption)
                                 .foregroundStyle(SnapDrillTheme.inkSecondary)
                         }
@@ -67,7 +67,7 @@ struct SubjectManagementView: View {
                             .frame(width: 14, height: 14)
                         Text(uncategorized.name)
                         Spacer()
-                        Text("\(uncategorized.mistakes.count) · Protected")
+                        Text("\(uncategorized.mistakeList.count) · Protected")
                             .font(.caption)
                             .foregroundStyle(SnapDrillTheme.inkSecondary)
                     }
@@ -104,12 +104,12 @@ struct SubjectManagementView: View {
             titleVisibility: .visible
         ) {
             if let target = subjectPendingDeletion {
-                Button(String(localized: "Move \(target.mistakes.count) Mistakes to Uncategorized")) {
+                Button(String(localized: "Move \(target.mistakeList.count) Mistakes to Uncategorized")) {
                     try? environment.saveService.deleteSubject(target, strategy: .moveToUncategorized, in: modelContext)
                     subjectPendingDeletion = nil
                 }
 
-                Button(String(localized: "Delete Subject & \(target.mistakes.count) Mistakes"), role: .destructive) {
+                Button(String(localized: "Delete Subject & \(target.mistakeList.count) Mistakes"), role: .destructive) {
                     showingDeleteWithMistakesConfirm = true
                 }
             }
@@ -118,7 +118,7 @@ struct SubjectManagementView: View {
             }
         } message: {
             if let target = subjectPendingDeletion {
-                Text("\"\(target.name)\" contains \(target.mistakes.count) mistakes. Choose how to handle them.")
+                Text("\"\(target.name)\" contains \(target.mistakeList.count) mistakes. Choose how to handle them.")
             }
         }
         .alert("Permanently Delete Mistakes?", isPresented: $showingDeleteWithMistakesConfirm) {
@@ -137,7 +137,7 @@ struct SubjectManagementView: View {
     }
 
     private func requestDelete(_ subject: Subject) {
-        if subject.mistakes.isEmpty {
+        if subject.mistakeList.isEmpty {
             try? environment.saveService.deleteSubject(subject, strategy: .moveToUncategorized, in: modelContext)
         } else {
             subjectPendingDeletion = subject

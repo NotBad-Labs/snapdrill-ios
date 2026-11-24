@@ -1,12 +1,226 @@
 import SwiftUI
 import UIKit
 
-/// Manual touch-up eraser and restore brush allowing pixel-accurate cleanup of residual ink
-/// or recovery of erased diagram details (PRD F-12).
+/// Memory-efficient lightweight stroke command for Undo/Redo instead of storing full bitmaps (M1 / M-05).
+struct EraserStroke: Identifiable, Sendable, Equatable {
+    enum Mode: String, Sendable {
+        case erase
+        case restore
+    }
+
+    struct PaperRGB: Sendable, Equatable {
+        let r: CGFloat
+        let g: CGFloat
+        let b: CGFloat
+    }
+
+    let id: UUID
+    let mode: Mode
+    let normalizedPoints: [CGPoint]
+    let normalizedRadiusX: CGFloat
+    let paperColor: PaperRGB
+
+    init(
+        id: UUID = UUID(),
+        mode: Mode,
+        normalizedPoints: [CGPoint],
+        normalizedRadiusX: CGFloat,
+        paperColor: PaperRGB
+    ) {
+        self.id = id
+        self.mode = mode
+        self.normalizedPoints = normalizedPoints
+        self.normalizedRadiusX = normalizedRadiusX
+        self.paperColor = paperColor
+    }
+}
+
+/// Off-MainActor rasterizer & local paper-tone sampler for manual touch-up strokes.
+enum EraserStrokeEngine {
+    static let maxUndoDepth = 30
+
+    static func pushStroke(_ stroke: EraserStroke, into undoStack: inout [EraserStroke], redoStack: inout [EraserStroke]) {
+        undoStack.append(stroke)
+        if undoStack.count > maxUndoDepth {
+            undoStack.removeFirst(undoStack.count - maxUndoDepth)
+        }
+        redoStack.removeAll()
+    }
+
+    static func downscaleForEditing(_ image: UIImage, maxDimension: CGFloat = 1600) -> UIImage {
+        let longest = max(image.size.width, image.size.height)
+        guard longest > maxDimension, longest > 0 else { return image }
+        let ratio = maxDimension / longest
+        let targetSize = CGSize(
+            width: (image.size.width * ratio).rounded(.down),
+            height: (image.size.height * ratio).rounded(.down)
+        )
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        format.opaque = true
+        return UIGraphicsImageRenderer(size: targetSize, format: format).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
+    }
+
+    static func sampleLocalPaperColor(in image: UIImage, aroundNormalizedPoints points: [CGPoint]) -> EraserStroke.PaperRGB {
+        guard let cg = image.cgImage, cg.width > 0, cg.height > 0 else {
+            return EraserStroke.PaperRGB(r: 0.96, g: 0.95, b: 0.93)
+        }
+
+        let xs = points.map(\.x)
+        let ys = points.map(\.y)
+        let minNX = max(0.0, (xs.min() ?? 0.0) - 0.08)
+        let maxNX = min(1.0, (xs.max() ?? 1.0) + 0.08)
+        let minNY = max(0.0, (ys.min() ?? 0.0) - 0.08)
+        let maxNY = min(1.0, (ys.max() ?? 1.0) + 0.08)
+
+        let cropRect = CGRect(
+            x: floor(minNX * CGFloat(cg.width)),
+            y: floor(minNY * CGFloat(cg.height)),
+            width: max(8, ceil((maxNX - minNX) * CGFloat(cg.width))),
+            height: max(8, ceil((maxNY - minNY) * CGFloat(cg.height)))
+        ).intersection(CGRect(x: 0, y: 0, width: cg.width, height: cg.height))
+
+        let regionCG = cg.cropping(to: cropRect) ?? cg
+        let w = min(48, max(4, regionCG.width))
+        let h = min(48, max(4, regionCG.height))
+        var buf = [UInt8](repeating: 245, count: w * h * 4)
+        let cs = CGColorSpaceCreateDeviceRGB()
+
+        guard let ctx = CGContext(
+            data: &buf,
+            width: w,
+            height: h,
+            bitsPerComponent: 8,
+            bytesPerRow: w * 4,
+            space: cs,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+        ) else {
+            return EraserStroke.PaperRGB(r: 0.96, g: 0.95, b: 0.93)
+        }
+        ctx.draw(regionCG, in: CGRect(x: 0, y: 0, width: w, height: h))
+
+        var samples: [(luma: Int, r: UInt8, g: UInt8, b: UInt8)] = []
+        samples.reserveCapacity(w * h)
+        for idx in stride(from: 0, to: buf.count, by: 4) {
+            let r = buf[idx], g = buf[idx + 1], b = buf[idx + 2]
+            let luma = (299 * Int(r) + 587 * Int(g) + 114 * Int(b)) / 1000
+            samples.append((luma, r, g, b))
+        }
+        guard !samples.isEmpty else {
+            return EraserStroke.PaperRGB(r: 0.96, g: 0.95, b: 0.93)
+        }
+        samples.sort { $0.luma < $1.luma }
+        let pick = samples[min(samples.count - 1, Int(Double(samples.count - 1) * 0.86))]
+        return EraserStroke.PaperRGB(
+            r: CGFloat(pick.r) / 255.0,
+            g: CGFloat(pick.g) / 255.0,
+            b: CGFloat(pick.b) / 255.0
+        )
+    }
+
+    static func composite(
+        baseImage: UIImage,
+        originalReference: UIImage,
+        strokes: [EraserStroke]
+    ) -> UIImage {
+        guard !strokes.isEmpty,
+              baseImage.size.width > 0,
+              baseImage.size.height > 0 else {
+            return baseImage
+        }
+
+        let size = baseImage.size
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        format.opaque = true
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+
+        return renderer.image { ctx in
+            let cg = ctx.cgContext
+            baseImage.draw(in: CGRect(origin: .zero, size: size))
+
+            for stroke in strokes {
+                guard !stroke.normalizedPoints.isEmpty else { continue }
+                let strokeWidth = max(2, stroke.normalizedRadiusX * 2 * size.width)
+                let path = CGMutablePath()
+                let pts = stroke.normalizedPoints.map { pt in
+                    CGPoint(x: pt.x * size.width, y: pt.y * size.height)
+                }
+                if let first = pts.first {
+                    path.move(to: first)
+                    if pts.count == 1 {
+                        path.addLine(to: CGPoint(x: first.x + 0.5, y: first.y + 0.5))
+                    } else {
+                        for pt in pts.dropFirst() {
+                            path.addLine(to: pt)
+                        }
+                    }
+                }
+
+                switch stroke.mode {
+                case .erase:
+                    let color = UIColor(
+                        red: stroke.paperColor.r,
+                        green: stroke.paperColor.g,
+                        blue: stroke.paperColor.b,
+                        alpha: 1.0
+                    )
+                    cg.addPath(path)
+                    cg.setStrokeColor(color.cgColor)
+                    cg.setLineWidth(strokeWidth)
+                    cg.setLineCap(.round)
+                    cg.setLineJoin(.round)
+                    cg.strokePath()
+                case .restore:
+                    cg.saveGState()
+                    let stroked = path.copy(
+                        strokingWithWidth: strokeWidth,
+                        lineCap: .round,
+                        lineJoin: .round,
+                        miterLimit: 4
+                    )
+                    cg.addPath(stroked)
+                    cg.clip()
+                    originalReference.draw(in: CGRect(origin: .zero, size: size))
+                    cg.restoreGState()
+                }
+            }
+        }
+    }
+}
+
+/// Manual touch-up eraser and restore brush using command-based undo stack, local paper sampling,
+/// and off-MainActor rendering (PRD F-12, M1, M-05).
 struct HandwritingEraserView: View {
     let initialImage: UIImage
     let originalReferenceImage: UIImage
     let onSave: (UIImage) -> Void
+
+    private enum BrushPreset: CaseIterable, Identifiable {
+        case small
+        case medium
+        case large
+
+        var id: CGFloat { radiusPoints }
+
+        var radiusPoints: CGFloat {
+            switch self {
+            case .small: return 10
+            case .medium: return 16
+            case .large: return 26
+            }
+        }
+
+        var accessibilityLabel: String {
+            switch self {
+            case .small: return String(localized: "Small Brush")
+            case .medium: return String(localized: "Medium Brush")
+            case .large: return String(localized: "Large Brush")
+            }
+        }
+    }
 
     private enum ToolMode: String, CaseIterable, Identifiable {
         case erase
@@ -27,43 +241,57 @@ struct HandwritingEraserView: View {
             case .restore: return "arrow.uturn.left.circle.fill"
             }
         }
+
+        var strokeMode: EraserStroke.Mode {
+            switch self {
+            case .erase: return .erase
+            case .restore: return .restore
+            }
+        }
     }
 
     @Environment(\.dismiss) private var dismiss
 
-    @State private var currentImage: UIImage
-    @State private var undoStack: [UIImage] = []
-    @State private var redoStack: [UIImage] = []
+    private let workingInitialImage: UIImage
+    private let workingOriginalImage: UIImage
+
+    @State private var currentDisplayImage: UIImage
+    @State private var undoStrokes: [EraserStroke] = []
+    @State private var redoStrokes: [EraserStroke] = []
     @State private var toolMode: ToolMode = .erase
     @State private var brushRadiusPoints: CGFloat = 16
     @State private var isPeekingOriginal: Bool = false
     @State private var activePoints: [CGPoint] = []
-    @State private var paperToneColor: UIColor = UIColor(red: 0.97, green: 0.96, blue: 0.94, alpha: 1.0)
+    @State private var previewPaperColor: UIColor = UIColor(red: 0.96, green: 0.95, blue: 0.93, alpha: 1.0)
+    @State private var isFinalizing = false
 
     init(initialImage: UIImage, originalReferenceImage: UIImage, onSave: @escaping (UIImage) -> Void) {
         self.initialImage = initialImage
         self.originalReferenceImage = originalReferenceImage
         self.onSave = onSave
-        _currentImage = State(initialValue: initialImage)
+        let downInitial = EraserStrokeEngine.downscaleForEditing(initialImage)
+        let downOrig = EraserStrokeEngine.downscaleForEditing(originalReferenceImage)
+        self.workingInitialImage = downInitial
+        self.workingOriginalImage = downOrig
+        _currentDisplayImage = State(initialValue: downInitial)
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 12) {
-                // Canvas workspace
                 GeometryReader { geo in
                     let imageFrame = AspectFitCalculator.fittedRect(
-                        imageSize: currentImage.size,
+                        imageSize: currentDisplayImage.size,
                         in: geo.size
                     )
 
                     ZStack {
-                        Image(uiImage: isPeekingOriginal ? originalReferenceImage : currentImage)
+                        Image(uiImage: isPeekingOriginal ? workingOriginalImage : currentDisplayImage)
                             .resizable()
                             .scaledToFit()
                             .frame(width: geo.size.width, height: geo.size.height)
 
-                        // Live stroke preview while dragging
+                        // Live vector stroke preview while dragging
                         if !activePoints.isEmpty && !isPeekingOriginal {
                             Path { path in
                                 guard let first = activePoints.first else { return }
@@ -74,7 +302,7 @@ struct HandwritingEraserView: View {
                             }
                             .stroke(
                                 toolMode == .erase
-                                    ? Color(uiColor: paperToneColor).opacity(0.82)
+                                    ? Color(uiColor: previewPaperColor).opacity(0.82)
                                     : SnapDrillTheme.inkBlue.opacity(0.45),
                                 style: StrokeStyle(lineWidth: brushRadiusPoints * 2, lineCap: .round, lineJoin: .round)
                             )
@@ -84,15 +312,16 @@ struct HandwritingEraserView: View {
                     .gesture(
                         DragGesture(minimumDistance: 0)
                             .onChanged { value in
-                                guard !isPeekingOriginal else { return }
+                                guard !isPeekingOriginal, !isFinalizing else { return }
                                 if imageFrame.contains(value.location) {
                                     activePoints.append(value.location)
                                 }
                             }
                             .onEnded { _ in
                                 guard !activePoints.isEmpty else { return }
-                                applyStroke(viewPoints: activePoints, imageFrame: imageFrame)
+                                let captured = activePoints
                                 activePoints = []
+                                commitStroke(viewPoints: captured, imageFrame: imageFrame)
                             }
                     )
                 }
@@ -118,6 +347,7 @@ struct HandwritingEraserView: View {
                                         )
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityLabel(mode.title)
                             }
                         }
 
@@ -126,7 +356,8 @@ struct HandwritingEraserView: View {
                                 .font(.caption.weight(.medium))
                                 .foregroundStyle(SnapDrillTheme.inkSecondary)
 
-                            ForEach([CGFloat(10), CGFloat(16), CGFloat(26)], id: \.self) { size in
+                            ForEach(BrushPreset.allCases) { preset in
+                                let size = preset.radiusPoints
                                 let active = abs(brushRadiusPoints - size) < 1
                                 Button {
                                     brushRadiusPoints = size
@@ -141,25 +372,28 @@ struct HandwritingEraserView: View {
                                         )
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityLabel(preset.accessibilityLabel)
                             }
 
                             Spacer()
 
                             Button {
-                                undo()
+                                performUndo()
                             } label: {
                                 Image(systemName: "arrow.uturn.backward")
                                     .frame(width: 34, height: 34)
                             }
-                            .disabled(undoStack.isEmpty)
+                            .disabled(undoStrokes.isEmpty || isFinalizing)
+                            .accessibilityLabel(String(localized: "Undo Stroke"))
 
                             Button {
-                                redo()
+                                performRedo()
                             } label: {
                                 Image(systemName: "arrow.uturn.forward")
                                     .frame(width: 34, height: 34)
                             }
-                            .disabled(redoStack.isEmpty)
+                            .disabled(redoStrokes.isEmpty || isFinalizing)
+                            .accessibilityLabel(String(localized: "Redo Stroke"))
 
                             Button {} label: {
                                 Image(systemName: "eye")
@@ -183,134 +417,110 @@ struct HandwritingEraserView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .disabled(isFinalizing)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
-                        onSave(currentImage)
-                        dismiss()
+                        finalizeAndDismiss()
                     }
                     .fontWeight(.semibold)
+                    .disabled(isFinalizing)
                 }
             }
             .onAppear {
-                paperToneColor = samplePaperTone(from: initialImage)
+                let sample = EraserStrokeEngine.sampleLocalPaperColor(
+                    in: workingInitialImage,
+                    aroundNormalizedPoints: [CGPoint(x: 0.5, y: 0.5)]
+                )
+                previewPaperColor = UIColor(red: sample.r, green: sample.g, blue: sample.b, alpha: 1.0)
             }
         }
     }
 
-    // MARK: - Stroke Application
+    // MARK: - Async Off-MainActor Stroke Compositing
 
-    private func applyStroke(viewPoints: [CGPoint], imageFrame: CGRect) {
-        guard imageFrame.width > 0, imageFrame.height > 0,
-              currentImage.size.width > 0, currentImage.size.height > 0 else { return }
+    private func commitStroke(viewPoints: [CGPoint], imageFrame: CGRect) {
+        guard imageFrame.width > 0, imageFrame.height > 0 else { return }
 
-        undoStack.append(currentImage)
-        redoStack.removeAll()
-
-        let scaleX = currentImage.size.width / imageFrame.width
-        let scaleY = currentImage.size.height / imageFrame.height
-        let strokeWidth = brushRadiusPoints * 2 * scaleX
-
-        let imagePoints = viewPoints.map { pt in
+        let normalizedPts = viewPoints.map { pt in
             CGPoint(
-                x: (pt.x - imageFrame.minX) * scaleX,
-                y: (pt.y - imageFrame.minY) * scaleY
+                x: min(1.0, max(0.0, (pt.x - imageFrame.minX) / imageFrame.width)),
+                y: min(1.0, max(0.0, (pt.y - imageFrame.minY) / imageFrame.height))
             )
         }
+        let normRadius = brushRadiusPoints / imageFrame.width
+        let baseImg = workingInitialImage
+        let mode = toolMode.strokeMode
 
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = currentImage.scale
-        format.opaque = true
-        let renderer = UIGraphicsImageRenderer(size: currentImage.size, format: format)
-
-        let updated = renderer.image { ctx in
-            let cg = ctx.cgContext
-            currentImage.draw(in: CGRect(origin: .zero, size: currentImage.size))
-
-            let path = CGMutablePath()
-            if let first = imagePoints.first {
-                path.move(to: first)
-                if imagePoints.count == 1 {
-                    path.addLine(to: CGPoint(x: first.x + 0.5, y: first.y + 0.5))
-                } else {
-                    for pt in imagePoints.dropFirst() {
-                        path.addLine(to: pt)
-                    }
-                }
-            }
-
-            switch toolMode {
-            case .erase:
-                cg.addPath(path)
-                cg.setStrokeColor(paperToneColor.cgColor)
-                cg.setLineWidth(strokeWidth)
-                cg.setLineCap(.round)
-                cg.setLineJoin(.round)
-                cg.strokePath()
-            case .restore:
-                cg.saveGState()
-                let stroked = path.copy(
-                    strokingWithWidth: strokeWidth,
-                    lineCap: .round,
-                    lineJoin: .round,
-                    miterLimit: 4
-                )
-                cg.addPath(stroked)
-                cg.clip()
-                originalReferenceImage.draw(in: CGRect(origin: .zero, size: currentImage.size))
-                cg.restoreGState()
-            }
-        }
-
-        currentImage = updated
-    }
-
-    private func undo() {
-        guard let previous = undoStack.popLast() else { return }
-        redoStack.append(currentImage)
-        currentImage = previous
-    }
-
-    private func redo() {
-        guard let next = redoStack.popLast() else { return }
-        undoStack.append(currentImage)
-        currentImage = next
-    }
-
-    private func samplePaperTone(from image: UIImage) -> UIColor {
-        guard let cg = image.cgImage else {
-            return UIColor(red: 0.97, green: 0.96, blue: 0.94, alpha: 1.0)
-        }
-        let w = min(64, max(1, cg.width))
-        let h = min(64, max(1, cg.height))
-        var buf = [UInt8](repeating: 248, count: w * h * 4)
-        let cs = CGColorSpaceCreateDeviceRGB()
-        guard let ctx = CGContext(
-            data: &buf,
-            width: w,
-            height: h,
-            bitsPerComponent: 8,
-            bytesPerRow: w * 4,
-            space: cs,
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
-        ) else {
-            return UIColor(red: 0.97, green: 0.96, blue: 0.94, alpha: 1.0)
-        }
-        ctx.draw(cg, in: CGRect(x: 0, y: 0, width: w, height: h))
-
-        var samples: [(luma: Int, r: UInt8, g: UInt8, b: UInt8)] = []
-        for idx in stride(from: 0, to: buf.count, by: 4) {
-            let r = buf[idx], g = buf[idx + 1], b = buf[idx + 2]
-            let luma = (299 * Int(r) + 587 * Int(g) + 114 * Int(b)) / 1000
-            samples.append((luma, r, g, b))
-        }
-        samples.sort { $0.luma < $1.luma }
-        let pick = samples[min(samples.count - 1, Int(Double(samples.count - 1) * 0.88))]
-        return UIColor(
-            red: CGFloat(max(pick.r, 232)) / 255.0,
-            green: CGFloat(max(pick.g, 230)) / 255.0,
-            blue: CGFloat(max(pick.b, 224)) / 255.0,
-            alpha: 1.0
+        let localSample = EraserStrokeEngine.sampleLocalPaperColor(
+            in: baseImg,
+            aroundNormalizedPoints: normalizedPts
         )
+        previewPaperColor = UIColor(red: localSample.r, green: localSample.g, blue: localSample.b, alpha: 1.0)
+
+        let stroke = EraserStroke(
+            mode: mode,
+            normalizedPoints: normalizedPts,
+            normalizedRadiusX: normRadius,
+            paperColor: localSample
+        )
+
+        EraserStrokeEngine.pushStroke(stroke, into: &undoStrokes, redoStack: &redoStrokes)
+        recompositeWorkingPreviewAsync()
+    }
+
+    private func performUndo() {
+        guard let last = undoStrokes.popLast() else { return }
+        redoStrokes.append(last)
+        recompositeWorkingPreviewAsync()
+    }
+
+    private func performRedo() {
+        guard let next = redoStrokes.popLast() else { return }
+        undoStrokes.append(next)
+        recompositeWorkingPreviewAsync()
+    }
+
+    private func recompositeWorkingPreviewAsync() {
+        let strokesSnapshot = undoStrokes
+        let base = workingInitialImage
+        let orig = workingOriginalImage
+
+        Task.detached(priority: .userInitiated) {
+            let rendered = EraserStrokeEngine.composite(
+                baseImage: base,
+                originalReference: orig,
+                strokes: strokesSnapshot
+            )
+            await MainActor.run {
+                currentDisplayImage = rendered
+            }
+        }
+    }
+
+    private func finalizeAndDismiss() {
+        let strokesSnapshot = undoStrokes
+        if strokesSnapshot.isEmpty {
+            onSave(initialImage)
+            dismiss()
+            return
+        }
+
+        isFinalizing = true
+        let fullBase = initialImage
+        let fullOrig = originalReferenceImage
+
+        Task.detached(priority: .userInitiated) {
+            let fullResolution = EraserStrokeEngine.composite(
+                baseImage: fullBase,
+                originalReference: fullOrig,
+                strokes: strokesSnapshot
+            )
+            await MainActor.run {
+                isFinalizing = false
+                onSave(fullResolution)
+                dismiss()
+            }
+        }
     }
 }

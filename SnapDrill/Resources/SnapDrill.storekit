@@ -74,6 +74,21 @@
           "description" : "解锁 iCloud 多端同步、无水印高级 PDF 排版、智能分题与端侧题干文字搜索。",
           "displayName" : "SnapDrill Pro",
           "locale" : "zh_CN"
+        },
+        {
+          "description" : "解鎖 iCloud 跨裝置同步、無浮水印進階 PDF 排版、智慧分題與裝置端文字搜尋。",
+          "displayName" : "SnapDrill Pro",
+          "locale" : "zh_TW"
+        },
+        {
+          "description" : "iCloud同期、透かしなしPDF出力、スマート問題枠検出、端末内OCR検索をアンロックします。",
+          "displayName" : "SnapDrill Pro",
+          "locale" : "ja"
+        },
+        {
+          "description" : "iCloud 동기화, 워터마크 없는 PDF, 스마트 문제 영역 지정, 기기 내 OCR 검색을 잠금 해제합니다.",
+          "displayName" : "SnapDrill Pro",
+          "locale" : "ko"
         }
       ],
       "name" : "SnapDrill Pro",
@@ -105,6 +120,21 @@
               "description" : "按月订阅 SnapDrill Pro，含 7 天免费试用与家人共享。",
               "displayName" : "SnapDrill Pro 月度会员",
               "locale" : "zh_CN"
+            },
+            {
+              "description" : "按月訂閱 SnapDrill Pro，含 7 天免費試用與家人共享。",
+              "displayName" : "SnapDrill Pro 月度方案",
+              "locale" : "zh_TW"
+            },
+            {
+              "description" : "SnapDrill Pro 月額プラン（7日間無料トライアル・ファミリー共有対応）。",
+              "displayName" : "SnapDrill Pro 月額",
+              "locale" : "ja"
+            },
+            {
+              "description" : "SnapDrill Pro 월간 구독(7일 무료 체험 및 가족 공유 지원).",
+              "displayName" : "SnapDrill Pro 월간",
+              "locale" : "ko"
             }
           ],
           "productID" : "com.notbadlabs.snapdrill.pro.monthly",
@@ -143,6 +173,21 @@
               "description" : "按年订阅 SnapDrill Pro，含 7 天免费试用与家人共享，约省 37%。",
               "displayName" : "SnapDrill Pro 年度会员",
               "locale" : "zh_CN"
+            },
+            {
+              "description" : "按年訂閱 SnapDrill Pro，含 7 天免費試用與家人共享，約省 37%。",
+              "displayName" : "SnapDrill Pro 年度方案",
+              "locale" : "zh_TW"
+            },
+            {
+              "description" : "SnapDrill Pro 年額プラン（7日間無料トライアル・ファミリー共有対応・約37%お得）。",
+              "displayName" : "SnapDrill Pro 年額",
+              "locale" : "ja"
+            },
+            {
+              "description" : "SnapDrill Pro 연간 구독(7일 무료 체험, 가족 공유 지원, 약 37% 절약).",
+              "displayName" : "SnapDrill Pro 연간",
+              "locale" : "ko"
             }
           ],
           "productID" : "com.notbadlabs.snapdrill.pro.yearly",

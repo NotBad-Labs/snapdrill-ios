@@ -2,7 +2,7 @@ import SwiftData
 import SwiftUI
 
 /// Root shell implementing PRD §8.1 navigation: Home | Center Capture FAB | Review | Settings,
-/// plus 5-second undo delete bar, post-save toast, and interrupted draft recovery prompt.
+/// plus 5-second undo delete bar, calm post-save toast, and interrupted draft recovery prompt.
 struct RootTabView: View {
     let launchArgs: AppLaunchArguments
 
@@ -47,7 +47,7 @@ struct RootTabView: View {
             }
             .tint(SnapDrillTheme.inkBlue)
 
-            // Center floating "Snap" camera button anchored cleanly over the bottom bar (PRD §8.1)
+            // Center floating "Snap" camera button anchored over the bottom bar on Home & Review (PRD §8.1)
             VStack(spacing: 8) {
                 if environment.undoBannerCount > 0 {
                     undoDeleteBanner
@@ -73,16 +73,16 @@ struct RootTabView: View {
                                     .font(.subheadline.weight(.bold))
                             }
                             .foregroundStyle(.white)
-                            .padding(.horizontal, 18)
+                            .padding(.horizontal, 20)
                             .padding(.vertical, 12)
                             .background(SnapDrillTheme.inkBlue, in: Capsule(style: .continuous))
                             .shadow(color: SnapDrillTheme.inkBlue.opacity(0.32), radius: 10, x: 0, y: 4)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(String(localized: "Capture Mistakes"))
-                        .padding(.trailing, 18)
-                        .padding(.bottom, 58)
+                        Spacer()
                     }
+                    .padding(.bottom, 58)
                 }
             }
             .animation(.spring(response: 0.3, dampingFraction: 0.85), value: environment.undoBannerCount)
@@ -103,8 +103,10 @@ struct RootTabView: View {
             }
         }
         .fullScreenCover(item: $debugInspectEraserItem) { mistake in
-            if let image = environment.imageStore.loadImage(relativePath: mistake.cleanedImagePath ?? mistake.originalImagePath),
-               let orig = environment.imageStore.loadImage(relativePath: mistake.originalImagePath) {
+            if let imgData = mistake.resolvedCleanedImageData(imageStore: environment.imageStore),
+               let image = UIImage(data: imgData),
+               let origData = mistake.resolvedOriginalImageData(imageStore: environment.imageStore),
+               let orig = UIImage(data: origData) {
                 HandwritingEraserView(initialImage: image, originalReferenceImage: orig) { edited in
                     try? environment.saveService.saveManualCleanedImage(edited, for: mistake, in: modelContext)
                 }
@@ -115,7 +117,10 @@ struct RootTabView: View {
             set: { if !$0 { debugPDFItems = nil } }
         )) {
             if let items = debugPDFItems {
-                PDFExportPreviewView(mistakes: items, defaultTitle: items.first?.subject?.name ?? "SnapDrill")
+                PDFExportPreviewView(
+                    mistakes: items,
+                    defaultTitle: PDFExportOptions.defaultTitle(subjectName: items.first?.subject?.name)
+                )
             }
         }
         .sheet(isPresented: $debugShowPaywall) {
@@ -148,6 +153,7 @@ struct RootTabView: View {
             }
             .font(.subheadline.weight(.bold))
             .foregroundStyle(SnapDrillTheme.pencilYellow)
+            .accessibilityLabel(String(localized: "Undo Delete"))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -158,7 +164,7 @@ struct RootTabView: View {
     private func savedToastBanner(count: Int) -> some View {
         HStack(spacing: 10) {
             PandaMascotView(mood: .savedBadge, size: 30)
-            Text("Saved \(count) — ready for your next drill!")
+            Text("Saved \(count) — ready when you want to practice")
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(SnapDrillTheme.inkBlack)
             Spacer()

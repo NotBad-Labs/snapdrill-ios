@@ -2,7 +2,7 @@ import StoreKit
 import SwiftData
 import SwiftUI
 
-/// Tab 3: Pro status, iCloud sync toggle, organization managers, preferences, storage, backup ZIP, and privacy promise.
+/// Tab 3: Pro status, iCloud sync toggle + live status, organization managers, preferences, storage, backup ZIP, and privacy policy links.
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(AppEnvironment.self) private var environment
@@ -98,26 +98,34 @@ struct SettingsView: View {
                 }
             }
 
-            Toggle(isOn: Binding(
-                get: { environment.proStore.isPro && prefs.iCloudSyncEnabled },
-                set: { newValue in
-                    if environment.proStore.isPro {
-                        prefs.iCloudSyncEnabled = newValue
-                    } else {
-                        showingPaywall = true
+            VStack(alignment: .leading, spacing: 4) {
+                Toggle(isOn: Binding(
+                    get: { environment.proStore.isPro && prefs.iCloudSyncEnabled },
+                    set: { newValue in
+                        if environment.proStore.isPro {
+                            prefs.iCloudSyncEnabled = newValue
+                        } else {
+                            showingPaywall = true
+                        }
+                    }
+                )) {
+                    HStack {
+                        Label("iCloud Sync", systemImage: "icloud")
+                        if !environment.proStore.isPro {
+                            Image(systemName: "lock.fill")
+                                .font(.caption2)
+                                .foregroundStyle(SnapDrillTheme.inkSecondary)
+                        }
                     }
                 }
-            )) {
-                HStack {
-                    Label("iCloud Sync", systemImage: "icloud")
-                    if !environment.proStore.isPro {
-                        Image(systemName: "lock.fill")
-                            .font(.caption2)
-                            .foregroundStyle(SnapDrillTheme.inkSecondary)
-                    }
+                .tint(SnapDrillTheme.inkBlue)
+
+                if environment.proStore.isPro && prefs.iCloudSyncEnabled {
+                    Text(syncStatusDescription)
+                        .font(.caption2)
+                        .foregroundStyle(SnapDrillTheme.inkSecondary)
                 }
             }
-            .tint(SnapDrillTheme.inkBlue)
         }
     }
 
@@ -181,19 +189,6 @@ struct SettingsView: View {
             } label: {
                 Label("Export Full Backup (.zip)", systemImage: "archivebox")
             }
-
-            Button {
-                loadDemoMistakes()
-            } label: {
-                HStack {
-                    Label("Load Sample Mistakes", systemImage: "wand.and.stars")
-                    if isPopulatingDemo {
-                        Spacer()
-                        ProgressView()
-                    }
-                }
-            }
-            .disabled(isPopulatingDemo)
         } header: {
             Text("Data & Backup (Always Free)")
         } footer: {
@@ -212,6 +207,14 @@ struct SettingsView: View {
                     .foregroundStyle(SnapDrillTheme.inkSecondary)
             }
             .padding(.vertical, 4)
+
+            Link(destination: AppConfig.privacyPolicyURL()) {
+                Label("Privacy Policy", systemImage: "hand.raised.square")
+            }
+
+            Link(destination: AppConfig.termsOfUseURL()) {
+                Label("Terms of Use (EULA)", systemImage: "doc.text")
+            }
         }
     }
 
@@ -229,11 +232,35 @@ struct SettingsView: View {
                     Text(mode.label).tag(mode)
                 }
             }
+
+            Button {
+                loadDemoMistakes()
+            } label: {
+                HStack {
+                    Label("Load Sample Mistakes", systemImage: "wand.and.stars")
+                    if isPopulatingDemo {
+                        Spacer()
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(isPopulatingDemo)
         }
     }
     #endif
 
     // MARK: - Helpers
+
+    private var syncStatusDescription: String {
+        switch environment.storeSyncStatus {
+        case .cloudKitPrivate:
+            return String(localized: "Private iCloud CloudKit sync active")
+        case .cloudKitFallbackToLocal:
+            return String(localized: "CloudKit unavailable on this build; using local storage safely")
+        case .localOnly:
+            return String(localized: "Local storage only")
+        }
+    }
 
     private var proStatusTitle: String {
         switch environment.proStore.statusState {
@@ -266,6 +293,7 @@ struct SettingsView: View {
         for m in mistakes {
             if let orig = m.originalImagePath { validPaths.insert(orig) }
             if let clean = m.cleanedImagePath { validPaths.insert(clean) }
+            if let page = m.pageImagePath { validPaths.insert(page) }
             for ans in m.answerImagePaths { validPaths.insert(ans) }
         }
         let removed = environment.imageStore.pruneOrphanedFiles(keepingRelativePaths: validPaths)
@@ -285,6 +313,7 @@ struct SettingsView: View {
         }
     }
 
+    #if DEBUG
     private func loadDemoMistakes() {
         isPopulatingDemo = true
         Task {
@@ -301,6 +330,7 @@ struct SettingsView: View {
             }
         }
     }
+    #endif
 
     private func cleanUpBackupURL() {
         if let url = backupArchiveURL {

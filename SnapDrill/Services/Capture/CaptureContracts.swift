@@ -11,11 +11,56 @@ struct QuadCorners: Sendable, Codable, Equatable {
     var bottomLeft: CGPoint
 
     static let fullFrame = QuadCorners(
-        topLeft: CGPoint(x: 0.04, y: 0.04),
-        topRight: CGPoint(x: 0.96, y: 0.04),
-        bottomRight: CGPoint(x: 0.96, y: 0.96),
-        bottomLeft: CGPoint(x: 0.04, y: 0.96)
+        topLeft: CGPoint(x: 0.0, y: 0.0),
+        topRight: CGPoint(x: 1.0, y: 0.0),
+        bottomRight: CGPoint(x: 1.0, y: 1.0),
+        bottomLeft: CGPoint(x: 0.0, y: 1.0)
     )
+
+    /// Verifies that corners stay within 0...1, form a strictly convex non-self-intersecting quad,
+    /// and span meaningful edges and area before passing to CIFilter.perspectiveCorrection.
+    var isConvexAndValid: Bool {
+        let pts = [topLeft, topRight, bottomRight, bottomLeft]
+        for pt in pts {
+            guard pt.x.isFinite, pt.y.isFinite,
+                  pt.x >= 0.0, pt.x <= 1.0,
+                  pt.y >= 0.0, pt.y <= 1.0 else {
+                return false
+            }
+        }
+
+        var crossSign: Int = 0
+        for i in 0..<4 {
+            let a = pts[i]
+            let b = pts[(i + 1) % 4]
+            let c = pts[(i + 2) % 4]
+            let edgeLen = hypot(b.x - a.x, b.y - a.y)
+            guard edgeLen >= 0.05 else { return false }
+
+            let dx1 = b.x - a.x
+            let dy1 = b.y - a.y
+            let dx2 = c.x - b.x
+            let dy2 = c.y - b.y
+            let cross = dx1 * dy2 - dy1 * dx2
+            guard abs(cross) > 1e-4 else { return false }
+
+            let sign = cross > 0 ? 1 : -1
+            if crossSign == 0 {
+                crossSign = sign
+            } else if crossSign != sign {
+                return false
+            }
+        }
+
+        // Shoelace area
+        var doubleArea: CGFloat = 0
+        for i in 0..<4 {
+            let p1 = pts[i]
+            let p2 = pts[(i + 1) % 4]
+            doubleArea += (p1.x * p2.y - p2.x * p1.y)
+        }
+        return abs(doubleArea) * 0.5 >= 0.02
+    }
 }
 
 /// Three image enhancement presets required by PRD F-04.
@@ -128,6 +173,8 @@ struct CaptureSaveItem: Identifiable, Sendable, Equatable {
     var cleanedImageData: Data
     var handwritingRemovalSucceeded: Bool
     var ocrText: String
+    var pageImageData: Data? = nil
+    var cropRectNormalized: CGRect? = nil
 
     // Optional metadata editable before saving
     var causes: [MistakeCause] = []
@@ -222,7 +269,7 @@ protocol SmartQuestionDetecting: Sendable {
 }
 
 protocol CaptureDraftPersisting: Sendable {
-    func saveDraft(_ session: CaptureSession) async
+    func saveDraft(_ session: CaptureSession) async throws
     func loadDraft() async -> CaptureSession?
     func clearDraft() async
 }

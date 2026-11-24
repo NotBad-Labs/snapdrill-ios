@@ -74,7 +74,9 @@ struct CapturePipelineStub: CapturePipelineServing {
                         originalImageData: page.enhancedImageData,
                         cleanedImageData: page.enhancedImageData,
                         handwritingRemovalSucceeded: mode != .off,
-                        ocrText: ""
+                        ocrText: "",
+                        pageImageData: page.enhancedImageData,
+                        cropRectNormalized: box.normalizedRect
                     )
                 )
             }

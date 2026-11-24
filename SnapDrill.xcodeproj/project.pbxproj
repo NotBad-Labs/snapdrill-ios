@@ -7,10 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0006F142258E29972EACEE6A /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 1D4EB08738F1B75731A602F5 /* InfoPlist.xcstrings */; };
 		015292826EB8D7F38C093442 /* MistakeImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = E22969EED773057256C883AD /* MistakeImageStore.swift */; };
 		035522ACC361757DA375144C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D80AE4431535D7A3D5B9CDF /* SettingsView.swift */; };
+		06B89F293C0064C1F39548F7 /* CloudKitAndRecoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8C08EB307E797DB6ED6380 /* CloudKitAndRecoveryTests.swift */; };
 		0AD882824AC836D5CE707BA0 /* SnapDrillTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA9C28830270566BFF4263BA /* SnapDrillTheme.swift */; };
 		0BCFF92223C3102E8155EAC6 /* Subject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 566D3A904F5A804AC22332FF /* Subject.swift */; };
+		10068E09DA17B4358CC15C76 /* ModelContainerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9586A90C9BD59740FBAEADC /* ModelContainerFactory.swift */; };
 		145223995742ABC3AF58C98C /* LibrarySaveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E309D99DFF9AB66D6E17727 /* LibrarySaveService.swift */; };
 		17208ECB06F4FEA775F2A1A6 /* ProEntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C672F2C6613F09B2FC4462 /* ProEntitlementStore.swift */; };
 		1A042F61A1EF5FFF64651CB8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A286F14FEDF696DFEB643E0 /* Assets.xcassets */; };
@@ -48,10 +51,12 @@
 		9E06359550BF0524F03B7F7A /* PerspectiveCornerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84A3AB21279E53691C45789 /* PerspectiveCornerOverlay.swift */; };
 		A13E3774636AEA97DE7A27B8 /* ReviewAndFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A97C5B6B4DF7BAB570F83D1 /* ReviewAndFilterTests.swift */; };
 		A7D3E11B4E8E8B4CF7E07CDC /* MistakeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DC878EC6C7B1380E7899A1 /* MistakeListView.swift */; };
+		AD20F19CD9C0BA4A53EABE28 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81ABC214444AB8053E27EDA3 /* AppConfig.swift */; };
 		B1E4A9761839CDD59B4C1F81 /* MistakeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DFE0A8045FFEBE8310251B /* MistakeDetailView.swift */; };
 		BFE853D26A9AF0B6FE7ECDAB /* PhotoDataSanitizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10BD0E062A7C4417434186EE /* PhotoDataSanitizer.swift */; };
 		C57BD14F1547E8C0F7931366 /* SmartInkRemovalEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13FC051E971486235CB039C8 /* SmartInkRemovalEngine.swift */; };
 		C6C4BDD29E0E83B19C17F879 /* PDFExportPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DAE97468F563DBA5EC2D1E1 /* PDFExportPreviewView.swift */; };
+		C6DD1E8233DBC66659B1E278 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 4070477F5157499E21CF92F1 /* PrivacyInfo.xcprivacy */; };
 		C916E5E40AE79896816ED993 /* AppPreferencesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E6EB614BDC1706355FD9940 /* AppPreferencesStore.swift */; };
 		CA4CAF758F9B2D38F1E0ED68 /* CapturePipelineFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB467079B0C9EDDE7CFFCCF1 /* CapturePipelineFactory.swift */; };
 		CC160C759AED27A05605FCB1 /* MistakeTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C42A446B98B5DF31154CB70 /* MistakeTag.swift */; };
@@ -90,6 +95,7 @@
 		13FC051E971486235CB039C8 /* SmartInkRemovalEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartInkRemovalEngine.swift; sourceTree = "<group>"; };
 		17849A56AF5841C55CC7833C /* ExportModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportModels.swift; sourceTree = "<group>"; };
 		1C42A446B98B5DF31154CB70 /* MistakeTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeTag.swift; sourceTree = "<group>"; };
+		1D4EB08738F1B75731A602F5 /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = InfoPlist.xcstrings; sourceTree = "<group>"; };
 		1FFA586C13BC73261A078130 /* CaptureFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureFlowView.swift; sourceTree = "<group>"; };
 		2118EB35CB9FD3F544DDD74F /* CameraPickerBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPickerBridge.swift; sourceTree = "<group>"; };
 		24097DC4D0F77D978B99D522 /* ProEntitlementContracts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProEntitlementContracts.swift; sourceTree = "<group>"; };
@@ -101,6 +107,8 @@
 		30A4B1A0A44CE87EBB850AEE /* CauseAndTagManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CauseAndTagManagementView.swift; sourceTree = "<group>"; };
 		323A0AC9937BDEB2FA97F598 /* SmartQuestionDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartQuestionDetector.swift; sourceTree = "<group>"; };
 		3307353869ACB04F94E1744A /* BackupExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupExportService.swift; sourceTree = "<group>"; };
+		3D8C08EB307E797DB6ED6380 /* CloudKitAndRecoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitAndRecoveryTests.swift; sourceTree = "<group>"; };
+		4070477F5157499E21CF92F1 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		40BA8364187FD098824C7319 /* SubjectCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectCatalog.swift; sourceTree = "<group>"; };
 		4AC146D459B34734427B14E9 /* OCRIndexingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRIndexingService.swift; sourceTree = "<group>"; };
 		4DA74781D155E72D64E12C85 /* CapturePipelineStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipelineStub.swift; sourceTree = "<group>"; };
@@ -118,6 +126,7 @@
 		7116572034FBDEE93402464C /* SubjectManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectManagementView.swift; sourceTree = "<group>"; };
 		7A286F14FEDF696DFEB643E0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7E81A6F22C79F3493E03D1AD /* HandwritingEraserView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandwritingEraserView.swift; sourceTree = "<group>"; };
+		81ABC214444AB8053E27EDA3 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
 		871A24E72FE6C2CC90307E2D /* CaptureDraftStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureDraftStore.swift; sourceTree = "<group>"; };
 		89A76F4E9239DE531178894D /* ImageEnhancementService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageEnhancementService.swift; sourceTree = "<group>"; };
 		9935165AE62C729DCC8BFF37 /* PDFExportServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExportServiceTests.swift; sourceTree = "<group>"; };
@@ -126,6 +135,7 @@
 		AADAB6F35046409ED2922354 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		B44761C06DCC4F9E0BBB7881 /* PDFExportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExportService.swift; sourceTree = "<group>"; };
 		B4DFE0A8045FFEBE8310251B /* MistakeDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MistakeDetailView.swift; sourceTree = "<group>"; };
+		B9586A90C9BD59740FBAEADC /* ModelContainerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelContainerFactory.swift; sourceTree = "<group>"; };
 		BB467079B0C9EDDE7CFFCCF1 /* CapturePipelineFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturePipelineFactory.swift; sourceTree = "<group>"; };
 		BC7DCE5D8CE885AF273693BF /* PDFExportContracts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExportContracts.swift; sourceTree = "<group>"; };
 		C0B7A02AA3AD6EE0CAC7687D /* ProEntitlementAndBackupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProEntitlementAndBackupTests.swift; sourceTree = "<group>"; };
@@ -315,7 +325,9 @@
 			isa = PBXGroup;
 			children = (
 				7A286F14FEDF696DFEB643E0 /* Assets.xcassets */,
+				1D4EB08738F1B75731A602F5 /* InfoPlist.xcstrings */,
 				0501EA658EE23693742CC587 /* Localizable.xcstrings */,
+				4070477F5157499E21CF92F1 /* PrivacyInfo.xcprivacy */,
 				00FB615E97D3808C24E9365C /* SnapDrill.storekit */,
 			);
 			path = Resources;
@@ -324,8 +336,10 @@
 		B10599DBD6DEDC94ED3E60FC /* App */ = {
 			isa = PBXGroup;
 			children = (
+				81ABC214444AB8053E27EDA3 /* AppConfig.swift */,
 				555B33F6AB639F427BEAB753 /* AppEnvironment.swift */,
 				02578D6D1BECDE568154B7B5 /* DatabaseRecoveryView.swift */,
+				B9586A90C9BD59740FBAEADC /* ModelContainerFactory.swift */,
 				6745B8B3BAA7839BBB6D046D /* SnapDrillApp.swift */,
 			);
 			path = App;
@@ -335,6 +349,7 @@
 			isa = PBXGroup;
 			children = (
 				DB741D1BB03EF4902A3C901D /* CapturePipelineContractTests.swift */,
+				3D8C08EB307E797DB6ED6380 /* CloudKitAndRecoveryTests.swift */,
 				D925FC2313040AA9A0D33F12 /* HandwritingRemovalTests.swift */,
 				9935165AE62C729DCC8BFF37 /* PDFExportServiceTests.swift */,
 				C0B7A02AA3AD6EE0CAC7687D /* ProEntitlementAndBackupTests.swift */,
@@ -456,7 +471,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A042F61A1EF5FFF64651CB8 /* Assets.xcassets in Resources */,
+				0006F142258E29972EACEE6A /* InfoPlist.xcstrings in Resources */,
 				E9C73BEC054BC483F40DDDE4 /* Localizable.xcstrings in Resources */,
+				C6DD1E8233DBC66659B1E278 /* PrivacyInfo.xcprivacy in Resources */,
 				1AA0355230E7178DD36471E4 /* SnapDrill.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -468,6 +485,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AD20F19CD9C0BA4A53EABE28 /* AppConfig.swift in Sources */,
 				F43EBDB8296096335E75E162 /* AppEnvironment.swift in Sources */,
 				C916E5E40AE79896816ED993 /* AppPreferencesStore.swift in Sources */,
 				2A442A997A6A52B02DA48B14 /* BackupExportService.swift in Sources */,
@@ -496,6 +514,7 @@
 				252F65D33D164B507E31A69F /* MistakeListFilterSheet.swift in Sources */,
 				A7D3E11B4E8E8B4CF7E07CDC /* MistakeListView.swift in Sources */,
 				CC160C759AED27A05605FCB1 /* MistakeTag.swift in Sources */,
+				10068E09DA17B4358CC15C76 /* ModelContainerFactory.swift in Sources */,
 				37B4EAF80A6FFD81CF979680 /* MultiBoxCropOverlay.swift in Sources */,
 				44F723CB5C31E16273F5B431 /* OCRIndexingService.swift in Sources */,
 				F730FDD7B74382C4E9709A60 /* PDFExportContracts.swift in Sources */,
@@ -527,6 +546,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				836FE50EDF407360EE45C53E /* CapturePipelineContractTests.swift in Sources */,
+				06B89F293C0064C1F39548F7 /* CloudKitAndRecoveryTests.swift in Sources */,
 				4DD6EABC114FCB3D99ED6370 /* HandwritingRemovalTests.swift in Sources */,
 				FCAE73DBCB62C89C61357418 /* PDFExportServiceTests.swift in Sources */,
 				50E8325E3DB04A06ACA47E08 /* ProEntitlementAndBackupTests.swift in Sources */,
@@ -693,6 +713,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SnapDrill/Resources/SnapDrill.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = SnapDrill/Resources/Info.plist;
@@ -731,6 +752,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SnapDrill/Resources/SnapDrill.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				INFOPLIST_FILE = SnapDrill/Resources/Info.plist;

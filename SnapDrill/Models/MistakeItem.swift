@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 import SwiftData
 
@@ -59,31 +60,40 @@ enum MasteryLevel: String, Codable, CaseIterable, Identifiable, Sendable {
     }
 }
 
-/// Persisted mistake record storing dual-version relative paths and metadata.
+/// CloudKit-compatible persisted mistake record storing both local file paths and @Attribute(.externalStorage) assets.
 @Model
 final class MistakeItem {
-    var id: UUID
-    var createdAt: Date
-    var sourceTitle: String
-    var notes: String
-    var answerText: String
-    var answerImagePaths: [String]
-    var causesRaw: [String]
-    var customCauseNames: [String]
-    var masteryRaw: String
-    var ocrText: String
+    var id: UUID = UUID()
+    var createdAt: Date = Date.now
+    var sourceTitle: String = ""
+    var notes: String = ""
+    var answerText: String = ""
+    var answerImagePaths: [String] = []
+    var causesRaw: [String] = []
+    var customCauseNames: [String] = []
+    var masteryRaw: String = MasteryLevel.unknown.rawValue
+    var ocrText: String = ""
 
-    /// Relative path inside Documents/SnapDrillImages for the original cropped problem.
-    var originalImagePath: String?
-    /// Relative path inside Documents/SnapDrillImages for the handwriting-removed (or enhanced fallback) image.
-    var cleanedImagePath: String?
-    var handwritingRemovalSucceeded: Bool
+    /// Relative paths inside Documents/SnapDrillImages for local fast I/O.
+    var originalImagePath: String? = nil
+    var cleanedImagePath: String? = nil
+    var pageImagePath: String? = nil
+    var cropRectNormalizedData: Data? = nil
+    var handwritingRemovalSucceeded: Bool = false
 
-    var reviewCount: Int
-    var lastReviewedAt: Date?
+    /// CloudKit CKAsset-backed binary replicas enabling cross-device image sync (AC-08).
+    @Attribute(.externalStorage) var originalImageData: Data? = nil
+    @Attribute(.externalStorage) var cleanedImageData: Data? = nil
+    @Attribute(.externalStorage) var pageImageData: Data? = nil
+    @Attribute(.externalStorage) var answerImageData0: Data? = nil
+    @Attribute(.externalStorage) var answerImageData1: Data? = nil
+    @Attribute(.externalStorage) var answerImageData2: Data? = nil
 
-    var subject: Subject?
-    var tags: [MistakeTag] = []
+    var reviewCount: Int = 0
+    var lastReviewedAt: Date? = nil
+
+    var subject: Subject? = nil
+    var tags: [MistakeTag]? = []
 
     init(
         id: UUID = UUID(),
@@ -98,7 +108,12 @@ final class MistakeItem {
         ocrText: String = "",
         originalImagePath: String? = nil,
         cleanedImagePath: String? = nil,
+        pageImagePath: String? = nil,
+        cropRectNormalized: CGRect? = nil,
         handwritingRemovalSucceeded: Bool = false,
+        originalImageData: Data? = nil,
+        cleanedImageData: Data? = nil,
+        pageImageData: Data? = nil,
         reviewCount: Int = 0,
         lastReviewedAt: Date? = nil,
         subject: Subject? = nil
@@ -115,10 +130,20 @@ final class MistakeItem {
         self.ocrText = ocrText
         self.originalImagePath = originalImagePath
         self.cleanedImagePath = cleanedImagePath
+        self.pageImagePath = pageImagePath
+        self.cropRectNormalizedData = Self.encodeRect(cropRectNormalized)
         self.handwritingRemovalSucceeded = handwritingRemovalSucceeded
+        self.originalImageData = originalImageData
+        self.cleanedImageData = cleanedImageData
+        self.pageImageData = pageImageData
         self.reviewCount = reviewCount
         self.lastReviewedAt = lastReviewedAt
         self.subject = subject
+    }
+
+    var tagList: [MistakeTag] {
+        get { tags ?? [] }
+        set { tags = newValue }
     }
 
     var causes: [MistakeCause] {
@@ -129,5 +154,87 @@ final class MistakeItem {
     var mastery: MasteryLevel {
         get { MasteryLevel(rawValue: masteryRaw) ?? .unknown }
         set { masteryRaw = newValue.rawValue }
+    }
+
+    var cropRectNormalized: CGRect? {
+        get { Self.decodeRect(cropRectNormalizedData) }
+        set { cropRectNormalizedData = Self.encodeRect(newValue) }
+    }
+
+    var syncedAnswerImageDatas: [Data] {
+        [answerImageData0, answerImageData1, answerImageData2].compactMap { $0 }
+    }
+
+    func setSyncedAnswerImageDatas(_ datas: [Data]) {
+        let capped = Array(datas.prefix(MistakeLimits.maxAnswerImages))
+        answerImageData0 = capped.indices.contains(0) ? capped[0] : nil
+        answerImageData1 = capped.indices.contains(1) ? capped[1] : nil
+        answerImageData2 = capped.indices.contains(2) ? capped[2] : nil
+    }
+
+    func resolvedOriginalImageData(imageStore: MistakeImageStore) -> Data? {
+        Self.resolveData(relativePath: originalImagePath, externalData: originalImageData, imageStore: imageStore)
+    }
+
+    func resolvedCleanedImageData(imageStore: MistakeImageStore) -> Data? {
+        if let cleaned = Self.resolveData(relativePath: cleanedImagePath, externalData: cleanedImageData, imageStore: imageStore) {
+            return cleaned
+        }
+        return resolvedOriginalImageData(imageStore: imageStore)
+    }
+
+    func resolvedPageImageData(imageStore: MistakeImageStore) -> Data? {
+        if let page = Self.resolveData(relativePath: pageImagePath, externalData: pageImageData, imageStore: imageStore) {
+            return page
+        }
+        return resolvedOriginalImageData(imageStore: imageStore)
+    }
+
+    func resolvedAnswerImageDatas(imageStore: MistakeImageStore) -> [Data] {
+        let externalSlots: [Data?] = [answerImageData0, answerImageData1, answerImageData2]
+        let count = max(answerImagePaths.count, externalSlots.compactMap { $0 }.count)
+        guard count > 0 else { return [] }
+
+        var result: [Data] = []
+        for idx in 0..<min(MistakeLimits.maxAnswerImages, count) {
+            let relPath = answerImagePaths.indices.contains(idx) ? answerImagePaths[idx] : nil
+            let ext = externalSlots.indices.contains(idx) ? externalSlots[idx] : nil
+            if let data = Self.resolveData(relativePath: relPath, externalData: ext, imageStore: imageStore) {
+                result.append(data)
+            }
+        }
+        return result
+    }
+
+    private static func resolveData(
+        relativePath: String?,
+        externalData: Data?,
+        imageStore: MistakeImageStore
+    ) -> Data? {
+        if let local = imageStore.loadData(relativePath: relativePath) {
+            return local
+        }
+        if let externalData, !externalData.isEmpty {
+            if let relativePath, !relativePath.isEmpty {
+                try? imageStore.cacheRawDataIfMissing(externalData, relativePath: relativePath)
+            }
+            return externalData
+        }
+        return nil
+    }
+
+    private static func encodeRect(_ rect: CGRect?) -> Data? {
+        guard let rect else { return nil }
+        let coords = [Double(rect.origin.x), Double(rect.origin.y), Double(rect.size.width), Double(rect.size.height)]
+        return try? JSONEncoder().encode(coords)
+    }
+
+    private static func decodeRect(_ data: Data?) -> CGRect? {
+        guard let data,
+              let coords = try? JSONDecoder().decode([Double].self, from: data),
+              coords.count == 4 else {
+            return nil
+        }
+        return CGRect(x: coords[0], y: coords[1], width: coords[2], height: coords[3])
     }
 }

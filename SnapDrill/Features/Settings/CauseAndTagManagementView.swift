@@ -74,7 +74,7 @@ struct CauseAndTagManagementView: View {
                     HStack {
                         Text("#\(tag.name)")
                         Spacer()
-                        Text("\(tag.mistakes.count)")
+                        Text("\(tag.mistakeList.count)")
                             .font(.caption.monospacedDigit())
                             .foregroundStyle(SnapDrillTheme.inkSecondary)
                     }

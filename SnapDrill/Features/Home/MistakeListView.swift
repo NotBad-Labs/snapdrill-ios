@@ -137,7 +137,7 @@ struct MistakeListView: View {
             if let items = exportBatchMistakes {
                 PDFExportPreviewView(
                     mistakes: items,
-                    defaultTitle: subject?.name ?? String(localized: "SnapDrill Practice Sheet")
+                    defaultTitle: PDFExportOptions.defaultTitle(subjectName: subject?.name)
                 )
             }
         }
@@ -293,7 +293,7 @@ struct MistakeListView: View {
             VStack(alignment: .leading, spacing: 6) {
                 ZStack(alignment: .topTrailing) {
                     MistakeThumbnailImage(
-                        relativePath: mistake.cleanedImagePath ?? mistake.originalImagePath,
+                        mistake: mistake,
                         imageStore: environment.imageStore
                     )
                     .frame(height: 112)

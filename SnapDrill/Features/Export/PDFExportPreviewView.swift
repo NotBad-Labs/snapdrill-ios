@@ -189,9 +189,10 @@ struct PDFExportPreviewView: View {
 
     private func buildPayloads() -> [PDFQuestionPayload] {
         mistakes.enumerated().map { idx, item in
-            let imagePath = useCleanedImages ? (item.cleanedImagePath ?? item.originalImagePath) : item.originalImagePath
-            let imgData = environment.imageStore.loadData(relativePath: imagePath)
-            let ansDatas = item.answerImagePaths.compactMap { environment.imageStore.loadData(relativePath: $0) }
+            let imgData = useCleanedImages
+                ? item.resolvedCleanedImageData(imageStore: environment.imageStore)
+                : item.resolvedOriginalImageData(imageStore: environment.imageStore)
+            let ansDatas = item.resolvedAnswerImageDatas(imageStore: environment.imageStore)
             let causes = item.causes.map(\.localizedTitle) + item.customCauseNames
 
             return PDFQuestionPayload(
@@ -237,7 +238,7 @@ struct PDFExportPreviewView: View {
         }
         let controller = UIPrintInteractionController.shared
         let info = UIPrintInfo(dictionary: nil)
-        info.outputType = .grayscale
+        info.outputType = .general
         info.jobName = effectiveOptions.title
         controller.printInfo = info
         controller.printingItem = data

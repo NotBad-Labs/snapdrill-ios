@@ -24,8 +24,6 @@
 	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>SnapDrill uses the camera to photograph homework and exam mistakes entirely on your device.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>SnapDrill lets you import mistake photos from your library and strips GPS metadata locally.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

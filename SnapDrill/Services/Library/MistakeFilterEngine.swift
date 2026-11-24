@@ -85,7 +85,7 @@ enum MistakeFilterEngine {
             }
 
             if !criteria.tagNames.isEmpty {
-                let itemTagNames = Set(item.tags.map(\.name))
+                let itemTagNames = Set(item.tagList.map(\.name))
                 if criteria.tagNames.isDisjoint(with: itemTagNames) {
                     return false
                 }
@@ -104,7 +104,7 @@ enum MistakeFilterEngine {
                     item.notes.localizedCaseInsensitiveContains(query) ||
                     item.answerText.localizedCaseInsensitiveContains(query) ||
                     item.sourceTitle.localizedCaseInsensitiveContains(query) ||
-                    item.tags.contains { $0.name.localizedCaseInsensitiveContains(query) } ||
+                    item.tagList.contains { $0.name.localizedCaseInsensitiveContains(query) } ||
                     (item.subject?.name.localizedCaseInsensitiveContains(query) ?? false)
 
                 let matchesOCR = criteria.includeOCRTextSearch && item.ocrText.localizedCaseInsensitiveContains(query)

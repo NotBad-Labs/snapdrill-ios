@@ -9,6 +9,9 @@ struct HomeView: View {
     @Query(sort: \Subject.sortOrder) private var subjects: [Subject]
     @Query(sort: \MistakeItem.createdAt, order: .reverse) private var allMistakes: [MistakeItem]
 
+    @ScaledMetric private var headerBadgeSize: CGFloat = 44
+    @ScaledMetric private var subjectDotSize: CGFloat = 12
+
     @State private var searchText = ""
     @State private var showingPaywall = false
 
@@ -78,7 +81,7 @@ struct HomeView: View {
                     Image(systemName: "tray.full.fill")
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(.white)
-                        .frame(width: 44, height: 44)
+                        .frame(width: headerBadgeSize, height: headerBadgeSize)
                         .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
 
                     VStack(alignment: .leading, spacing: 3) {
@@ -158,7 +161,7 @@ struct HomeView: View {
                                 HStack {
                                     Circle()
                                         .fill(Color(hexString: subject.colorHex))
-                                        .frame(width: 12, height: 12)
+                                        .frame(width: subjectDotSize, height: subjectDotSize)
                                     Spacer()
                                     Text("\(count)")
                                         .font(.title3.weight(.bold).monospacedDigit())
@@ -168,7 +171,8 @@ struct HomeView: View {
                                 Text(subject.name)
                                     .font(.headline)
                                     .foregroundStyle(SnapDrillTheme.inkBlack)
-                                    .lineLimit(1)
+                                    .lineLimit(2)
+                                    .multilineTextAlignment(.leading)
 
                                 Text(count == 0 ? String(localized: "Empty") : String(localized: "\(count) problems"))
                                     .font(.caption)
@@ -179,7 +183,7 @@ struct HomeView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityElement(children: .combine)
-                    .accessibilityLabel("\(subject.name), \(count)")
+                    .accessibilityLabel(String(localized: "\(subject.name), \(count) saved problems"))
                 }
             }
         }
@@ -248,7 +252,7 @@ struct MistakeRowCard: View {
         PaperCard(padding: 12) {
             HStack(spacing: 12) {
                 MistakeThumbnailImage(
-                    relativePath: mistake.cleanedImagePath ?? mistake.originalImagePath,
+                    mistake: mistake,
                     imageStore: imageStore
                 )
                 .frame(width: 82, height: 64)
@@ -308,7 +312,7 @@ struct MistakeRowCard: View {
                                 .padding(.vertical, 2)
                                 .background(SnapDrillTheme.gradingRedSoft, in: Capsule())
                         }
-                        ForEach(mistake.tags.prefix(2)) { tag in
+                        ForEach(mistake.tagList.prefix(2)) { tag in
                             Text("#\(tag.name)")
                                 .font(.caption2)
                                 .foregroundStyle(SnapDrillTheme.inkSecondary)
@@ -332,14 +336,15 @@ struct MistakeRowCard: View {
     }
 }
 
-/// Async-safe thumbnail loader reading JPEG files off MistakeImageStore.
+/// Thumbnail loader reading local disk cache or CloudKit-synced externalStorage bytes.
 struct MistakeThumbnailImage: View {
-    let relativePath: String?
+    let mistake: MistakeItem
     let imageStore: MistakeImageStore
 
     var body: some View {
         Group {
-            if let image = imageStore.loadImage(relativePath: relativePath) {
+            if let data = mistake.resolvedCleanedImageData(imageStore: imageStore),
+               let image = UIImage(data: data) {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()

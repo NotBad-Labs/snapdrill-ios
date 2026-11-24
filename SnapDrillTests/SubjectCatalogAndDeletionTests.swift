@@ -57,7 +57,7 @@ final class SubjectCatalogAndDeletionTests: XCTestCase {
             customCauseNames: [cause.name],
             subject: math
         )
-        item.tags = [tag]
+        item.tagList = [tag]
         context.insert(item)
         try context.save()
 
@@ -65,7 +65,7 @@ final class SubjectCatalogAndDeletionTests: XCTestCase {
         try saveService.deleteTag(tag, in: context)
         try saveService.deleteCustomCause(cause, in: context)
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<MistakeItem>()), 1)
-        XCTAssertTrue(item.tags.isEmpty)
+        XCTAssertTrue(item.tagList.isEmpty)
         XCTAssertTrue(item.customCauseNames.isEmpty)
 
         // Deleting non-empty subject with moveToUncategorized retains mistake under fallback bucket

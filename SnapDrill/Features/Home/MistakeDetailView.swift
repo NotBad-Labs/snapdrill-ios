@@ -3,7 +3,7 @@ import SwiftData
 import SwiftUI
 
 /// Detailed mistake inspection screen featuring lossless Cleaned/Original toggle, pinch zoom,
-/// manual eraser launch, re-crop, collapsible self-test answer block, and edit sheet (PRD §8.3, AC-04, AC-05).
+/// full-page re-crop, manual eraser, collapsible self-test answer block, and edit sheet (PRD §8.3, AC-04, AC-05).
 struct MistakeDetailView: View {
     @Bindable var mistake: MistakeItem
 
@@ -18,12 +18,13 @@ struct MistakeDetailView: View {
     @State private var showingEditSheet = false
     @State private var showingPDFPreview = false
     @State private var shareImageItem: UIImage?
+    @State private var errorMessage: String?
 
     private var displayedImage: UIImage? {
-        let relPath = showOriginalImage
-            ? mistake.originalImagePath
-            : (mistake.cleanedImagePath ?? mistake.originalImagePath)
-        return environment.imageStore.loadImage(relativePath: relPath)
+        let data = showOriginalImage
+            ? mistake.resolvedOriginalImageData(imageStore: environment.imageStore)
+            : mistake.resolvedCleanedImageData(imageStore: environment.imageStore)
+        return data.flatMap { UIImage(data: $0) }
     }
 
     var body: some View {
@@ -47,6 +48,7 @@ struct MistakeDetailView: View {
                 Button("Edit") {
                     showingEditSheet = true
                 }
+                .accessibilityLabel(String(localized: "Edit Mistake"))
 
                 Menu {
                     Button {
@@ -74,27 +76,42 @@ struct MistakeDetailView: View {
                 } label: {
                     Image(systemName: "ellipsis.circle")
                 }
+                .accessibilityLabel(String(localized: "More Actions"))
             }
         }
         .fullScreenCover(isPresented: $showingEraser) {
-            if let current = environment.imageStore.loadImage(relativePath: mistake.cleanedImagePath ?? mistake.originalImagePath),
-               let original = environment.imageStore.loadImage(relativePath: mistake.originalImagePath) {
+            if let currentData = mistake.resolvedCleanedImageData(imageStore: environment.imageStore),
+               let current = UIImage(data: currentData),
+               let origData = mistake.resolvedOriginalImageData(imageStore: environment.imageStore),
+               let original = UIImage(data: origData) {
                 HandwritingEraserView(initialImage: current, originalReferenceImage: original) { edited in
-                    try? environment.saveService.saveManualCleanedImage(edited, for: mistake, in: modelContext)
-                    showOriginalImage = false
+                    do {
+                        try environment.saveService.saveManualCleanedImage(edited, for: mistake, in: modelContext)
+                        showOriginalImage = false
+                    } catch {
+                        errorMessage = error.localizedDescription
+                    }
                 }
             }
         }
         .sheet(isPresented: $showingRecrop) {
-            if let orig = environment.imageStore.loadImage(relativePath: mistake.originalImagePath) {
-                SingleMistakeRecropSheet(sourceImage: orig) { normalizedRect in
+            if let pageData = mistake.resolvedPageImageData(imageStore: environment.imageStore),
+               let pageImg = UIImage(data: pageData) {
+                SingleMistakeRecropSheet(
+                    sourceImage: pageImg,
+                    initialNormalizedRect: mistake.cropRectNormalized ?? CGRect(x: 0.05, y: 0.05, width: 0.90, height: 0.90)
+                ) { normalizedRect in
                     Task {
-                        try? await environment.saveService.recropMistake(
-                            mistake,
-                            normalizedRect: normalizedRect,
-                            mode: environment.preferences.defaultInkRemovalMode,
-                            in: modelContext
-                        )
+                        do {
+                            try await environment.saveService.recropMistake(
+                                mistake,
+                                normalizedRect: normalizedRect,
+                                mode: environment.preferences.defaultInkRemovalMode,
+                                in: modelContext
+                            )
+                        } catch {
+                            errorMessage = error.localizedDescription
+                        }
                     }
                 }
             }
@@ -105,7 +122,7 @@ struct MistakeDetailView: View {
         .sheet(isPresented: $showingPDFPreview) {
             PDFExportPreviewView(
                 mistakes: [mistake],
-                defaultTitle: mistake.subject?.name ?? String(localized: "Mistake Sheet")
+                defaultTitle: PDFExportOptions.defaultTitle(subjectName: mistake.subject?.name)
             )
         }
         .sheet(isPresented: Binding(
@@ -115,6 +132,14 @@ struct MistakeDetailView: View {
             if let shareImageItem {
                 ActivityShareSheet(items: [shareImageItem])
             }
+        }
+        .alert("Notice", isPresented: Binding(
+            get: { errorMessage != nil },
+            set: { if !$0 { errorMessage = nil } }
+        )) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(errorMessage ?? "")
         }
     }
 
@@ -145,6 +170,19 @@ struct MistakeDetailView: View {
                     }
                     .pickerStyle(.segmented)
                     .frame(width: 170)
+                }
+
+                if !mistake.handwritingRemovalSucceeded && !showOriginalImage {
+                    HStack(spacing: 8) {
+                        Image(systemName: "hand.draw")
+                            .foregroundStyle(SnapDrillTheme.inkBlue)
+                        Text("Auto-clean kept dark ink untouched. Tap Manual Eraser to clean handwritten spots.")
+                            .font(.caption2)
+                            .foregroundStyle(SnapDrillTheme.inkSecondary)
+                        Spacer()
+                    }
+                    .padding(8)
+                    .background(SnapDrillTheme.elevatedSurface, in: RoundedRectangle(cornerRadius: 8))
                 }
 
                 if let displayedImage {
@@ -178,6 +216,7 @@ struct MistakeDetailView: View {
                     .background(SnapDrillTheme.cardSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1))
             }
+            .accessibilityLabel(String(localized: "Open Manual Eraser"))
 
             Button {
                 showingRecrop = true
@@ -190,6 +229,7 @@ struct MistakeDetailView: View {
                     .background(SnapDrillTheme.cardSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1))
             }
+            .accessibilityLabel(String(localized: "Re-crop Question"))
 
             Button {
                 showingPDFPreview = true
@@ -201,6 +241,7 @@ struct MistakeDetailView: View {
                     .padding(.vertical, 10)
                     .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
+            .accessibilityLabel(String(localized: "Export PDF / Print"))
         }
         .buttonStyle(.plain)
     }
@@ -237,7 +278,9 @@ struct MistakeDetailView: View {
     }
 
     private var collapsibleAnswerCard: some View {
-        PaperCard(padding: 14) {
+        let resolvedAnswerDatas = mistake.resolvedAnswerImageDatas(imageStore: environment.imageStore)
+
+        return PaperCard(padding: 14) {
             VStack(alignment: .leading, spacing: 12) {
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) {
@@ -259,7 +302,7 @@ struct MistakeDetailView: View {
                 if showAnswerBlock {
                     RuledDivider()
 
-                    if mistake.answerText.isEmpty && mistake.answerImagePaths.isEmpty {
+                    if mistake.answerText.isEmpty && resolvedAnswerDatas.isEmpty {
                         Text("No answer recorded yet. Tap Edit to add a solution or photo.")
                             .font(.subheadline)
                             .foregroundStyle(SnapDrillTheme.inkSecondary)
@@ -271,11 +314,11 @@ struct MistakeDetailView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                         }
 
-                        if !mistake.answerImagePaths.isEmpty {
+                        if !resolvedAnswerDatas.isEmpty {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 10) {
-                                    ForEach(mistake.answerImagePaths, id: \.self) { path in
-                                        if let img = environment.imageStore.loadImage(relativePath: path) {
+                                    ForEach(Array(resolvedAnswerDatas.enumerated()), id: \.offset) { _, data in
+                                        if let img = UIImage(data: data) {
                                             Image(uiImage: img)
                                                 .resizable()
                                                 .scaledToFill()
@@ -347,14 +390,14 @@ struct MistakeDetailView: View {
                     Text("Tags")
                         .font(.caption.weight(.medium))
                         .foregroundStyle(SnapDrillTheme.inkSecondary)
-                    if mistake.tags.isEmpty {
+                    if mistake.tagList.isEmpty {
                         Text("No tags")
                             .font(.subheadline)
                             .foregroundStyle(SnapDrillTheme.inkSecondary)
                     } else {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 6) {
-                                ForEach(mistake.tags) { tag in
+                                ForEach(mistake.tagList) { tag in
                                     Text("#\(tag.name)")
                                         .font(.caption.weight(.medium))
                                         .foregroundStyle(SnapDrillTheme.inkBlue)
@@ -416,6 +459,8 @@ struct MistakeEditSheet: View {
     @State private var answerText = ""
     @State private var notes = ""
     @State private var pickedAnswerItems: [PhotosPickerItem] = []
+    @State private var stagedDeletedAnswerPaths: Set<String> = []
+    @State private var editErrorMessage: String?
 
     var body: some View {
         NavigationStack {
@@ -522,11 +567,12 @@ struct MistakeEditSheet: View {
                                         }
                                         Button {
                                             mistake.answerImagePaths.removeAll { $0 == path }
-                                            environment.imageStore.deleteFile(relativePath: path)
+                                            stagedDeletedAnswerPaths.insert(path)
                                         } label: {
                                             Image(systemName: "xmark.circle.fill")
                                                 .foregroundStyle(.white, SnapDrillTheme.gradingRed)
                                         }
+                                        .accessibilityLabel(String(localized: "Remove Answer Photo"))
                                     }
                                 }
                             }
@@ -560,7 +606,7 @@ struct MistakeEditSheet: View {
                 sourceTitle = mistake.sourceTitle
                 selectedCauses = Set(mistake.causes)
                 selectedCustomCauses = Set(mistake.customCauseNames)
-                selectedTagNames = Set(mistake.tags.map(\.name))
+                selectedTagNames = Set(mistake.tagList.map(\.name))
                 answerText = mistake.answerText
                 notes = mistake.notes
             }
@@ -569,11 +615,23 @@ struct MistakeEditSheet: View {
                     for pickerItem in newItems {
                         if let data = try? await pickerItem.loadTransferable(type: Data.self),
                            let uiImg = UIImage(data: data) {
-                            try? environment.saveService.appendAnswerImage(uiImg, to: mistake, in: modelContext)
+                            do {
+                                try environment.saveService.appendAnswerImage(uiImg, to: mistake, in: modelContext)
+                            } catch {
+                                editErrorMessage = error.localizedDescription
+                            }
                         }
                     }
                     pickedAnswerItems = []
                 }
+            }
+            .alert("Notice", isPresented: Binding(
+                get: { editErrorMessage != nil },
+                set: { if !$0 { editErrorMessage = nil } }
+            )) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(editErrorMessage ?? "")
             }
         }
     }
@@ -588,7 +646,6 @@ struct MistakeEditSheet: View {
         mistake.answerText = String(answerText.prefix(MistakeLimits.maxAnswerCharacters))
         mistake.notes = String(notes.prefix(MistakeLimits.maxNotesCharacters))
 
-        // Resolve or create tags up to maxTagsPerMistake
         var resolved: [MistakeTag] = []
         for name in Array(selectedTagNames).sorted().prefix(MistakeLimits.maxTagsPerMistake) {
             if let existing = allTags.first(where: { $0.name.caseInsensitiveCompare(name) == .orderedSame }) {
@@ -599,19 +656,36 @@ struct MistakeEditSheet: View {
                 resolved.append(newTag)
             }
         }
-        mistake.tags = resolved
-        try? modelContext.save()
-        dismiss()
+        mistake.tagList = resolved
+        environment.saveService.syncAnswerImageSlots(for: mistake)
+
+        do {
+            try modelContext.save()
+            for path in stagedDeletedAnswerPaths {
+                environment.imageStore.deleteFile(relativePath: path)
+            }
+            dismiss()
+        } catch {
+            editErrorMessage = error.localizedDescription
+        }
     }
 }
 
-/// Interactive single-box re-crop modal launched from MistakeDetailView (PRD §8.3, AC-05).
+/// Interactive single-box re-crop modal launched from MistakeDetailView over the preserved full page (PRD §8.3, AC-05, M-04).
 struct SingleMistakeRecropSheet: View {
     let sourceImage: UIImage
+    let initialNormalizedRect: CGRect
     let onConfirm: (CGRect) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var cropBox = CaptureCropBox(normalizedRect: CGRect(x: 0.05, y: 0.05, width: 0.90, height: 0.90))
+    @State private var cropBox: CaptureCropBox
+
+    init(sourceImage: UIImage, initialNormalizedRect: CGRect, onConfirm: @escaping (CGRect) -> Void) {
+        self.sourceImage = sourceImage
+        self.initialNormalizedRect = initialNormalizedRect
+        self.onConfirm = onConfirm
+        _cropBox = State(initialValue: CaptureCropBox(normalizedRect: initialNormalizedRect))
+    }
 
     var body: some View {
         NavigationStack {
@@ -641,6 +715,7 @@ struct SingleMistakeRecropSheet: View {
                             onUpdate: { cropBox = $0 }
                         )
                     }
+                    .coordinateSpace(name: MultiBoxCropOverlay.canvasSpaceName)
                 }
                 .padding(16)
             }

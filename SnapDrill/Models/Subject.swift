@@ -1,20 +1,25 @@
 import Foundation
 import SwiftData
 
-/// Mistake notebook subject container (e.g. Math, Physics, English) plus a hidden fallback uncategorized bucket.
+/// CloudKit-compatible mistake notebook subject container plus hidden fallback uncategorized bucket.
 @Model
 final class Subject {
-    var id: UUID
-    var name: String
-    var colorHex: String
-    var sortOrder: Int
-    var isBuiltin: Bool
+    var id: UUID = UUID()
+    var name: String = ""
+    var colorHex: String = "2C5689"
+    var sortOrder: Int = 0
+    var isBuiltin: Bool = false
     /// PRD §8.6: System fallback bucket ("Uncategorized"), cannot be deleted and hidden on Home when empty.
-    var isUncategorizedBucket: Bool
-    var createdAt: Date
+    var isUncategorizedBucket: Bool = false
+    var createdAt: Date = Date.now
 
     @Relationship(deleteRule: .nullify, inverse: \MistakeItem.subject)
-    var mistakes: [MistakeItem] = []
+    var mistakes: [MistakeItem]? = []
+
+    var mistakeList: [MistakeItem] {
+        get { mistakes ?? [] }
+        set { mistakes = newValue }
+    }
 
     init(
         id: UUID = UUID(),

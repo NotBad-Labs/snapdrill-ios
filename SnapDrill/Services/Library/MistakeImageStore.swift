@@ -18,7 +18,8 @@ enum ImageStoreError: Error, LocalizedError, Sendable {
     }
 }
 
-/// Manages sandbox image storage under Documents/SnapDrillImages with compression and disk-space checks (PRD §8.6, §9).
+/// Manages sandbox image storage under Documents/SnapDrillImages with adaptive downscale+JPEG compression,
+/// disk-space checks, and CloudKit asset hydration caching (PRD §8.6, §9).
 final class MistakeImageStore: @unchecked Sendable {
     let rootDirectory: URL
 
@@ -31,27 +32,49 @@ final class MistakeImageStore: @unchecked Sendable {
         }
     }
 
-    /// Saves JPEG data under a relative path, downscaling/compressing to keep size ≤ ~900 KB per image.
-    func saveJPEG(_ data: Data, relativePath: String, minFreeBytes: Int64 = 15 * 1024 * 1024) throws -> String {
+    /// Saves JPEG data under a relative path, enforcing <= maxBytes (default 450 KB/image so dual orig+clean stays < 1 MB/question).
+    func saveJPEG(
+        _ data: Data,
+        relativePath: String,
+        maxBytes: Int = 450 * 1024,
+        minFreeBytes: Int64 = 15 * 1024 * 1024
+    ) throws -> String {
+        try saveJPEGWithData(data, relativePath: relativePath, maxBytes: maxBytes, minFreeBytes: minFreeBytes).relativePath
+    }
+
+    /// Compresses once and writes atomically to disk, returning both relativePath and exact bytes for SwiftData externalStorage sync.
+    func saveJPEGWithData(
+        _ data: Data,
+        relativePath: String,
+        maxBytes: Int = 450 * 1024,
+        minFreeBytes: Int64 = 15 * 1024 * 1024
+    ) throws -> (relativePath: String, compressedData: Data) {
         try ensureDiskCapacity(minFreeBytes: minFreeBytes)
 
-        let prepared = compressToBudget(data, maxBytes: 900 * 1024)
+        let prepared = Self.compressToBudget(data, maxBytes: maxBytes)
         let targetURL = rootDirectory.appendingPathComponent(relativePath)
         let parent = targetURL.deletingLastPathComponent()
 
         try FileManager.default.createDirectory(at: parent, withIntermediateDirectories: true)
         do {
             try prepared.write(to: targetURL, options: [.atomic])
-            return relativePath
+            return (relativePath, prepared)
         } catch {
             throw ImageStoreError.writeFailed(error.localizedDescription)
         }
     }
 
+    /// Lazily writes CloudKit-synced bytes onto local disk cache when absent locally.
+    func cacheRawDataIfMissing(_ data: Data, relativePath: String) throws {
+        guard !relativePath.isEmpty, !data.isEmpty else { return }
+        let targetURL = rootDirectory.appendingPathComponent(relativePath)
+        guard !FileManager.default.fileExists(atPath: targetURL.path) else { return }
+        try FileManager.default.createDirectory(at: targetURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try data.write(to: targetURL, options: [.atomic])
+    }
+
     func loadImage(relativePath: String?) -> UIImage? {
-        guard let relativePath, !relativePath.isEmpty else { return nil }
-        let url = rootDirectory.appendingPathComponent(relativePath)
-        guard let data = try? Data(contentsOf: url) else { return nil }
+        guard let data = loadData(relativePath: relativePath) else { return nil }
         return UIImage(data: data)
     }
 
@@ -121,7 +144,7 @@ final class MistakeImageStore: @unchecked Sendable {
         return removedCount
     }
 
-    // MARK: - Helpers
+    // MARK: - Compression Budget Helpers
 
     private func ensureDiskCapacity(minFreeBytes: Int64) throws {
         try FileManager.default.createDirectory(at: rootDirectory, withIntermediateDirectories: true)
@@ -132,20 +155,48 @@ final class MistakeImageStore: @unchecked Sendable {
         }
     }
 
-    private func compressToBudget(_ data: Data, maxBytes: Int) -> Data {
+    /// Progressively lowers JPEG quality and longest edge resolution until encoded size fits inside maxBytes.
+    static func compressToBudget(_ data: Data, maxBytes: Int) -> Data {
         if data.count <= maxBytes {
             return data
         }
-        guard let image = UIImage(data: data) else {
+        guard let original = UIImage(data: data) else {
             return data
         }
-        var quality: CGFloat = 0.80
-        while quality >= 0.45 {
-            if let compressed = image.jpegData(compressionQuality: quality), compressed.count <= maxBytes {
-                return compressed
+
+        for quality in [CGFloat(0.80), 0.68, 0.56] {
+            if let encoded = original.jpegData(compressionQuality: quality), encoded.count <= maxBytes {
+                return encoded
             }
-            quality -= 0.12
         }
-        return image.jpegData(compressionQuality: 0.45) ?? data
+
+        let longest = max(original.size.width, original.size.height)
+        for maxDim in [CGFloat(1600), 1280, 1024, 800, 640] {
+            let candidateImage = longest > maxDim ? downscale(original, maxDimension: maxDim) : original
+            for quality in [CGFloat(0.76), 0.64, 0.52, 0.44] {
+                if let encoded = candidateImage.jpegData(compressionQuality: quality), encoded.count <= maxBytes {
+                    return encoded
+                }
+            }
+        }
+
+        return downscale(original, maxDimension: 640).jpegData(compressionQuality: 0.44) ?? data
+    }
+
+    private static func downscale(_ image: UIImage, maxDimension: CGFloat) -> UIImage {
+        let size = image.size
+        let longest = max(size.width, size.height)
+        guard longest > maxDimension, longest > 0 else { return image }
+        let ratio = maxDimension / longest
+        let target = CGSize(
+            width: max(16, (size.width * ratio).rounded(.down)),
+            height: max(16, (size.height * ratio).rounded(.down))
+        )
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        format.opaque = true
+        return UIGraphicsImageRenderer(size: target, format: format).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: target))
+        }
     }
 }

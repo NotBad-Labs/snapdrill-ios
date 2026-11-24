@@ -42,8 +42,8 @@ enum DemoNotebookSeeder {
             let ocrText = template.printedHeader + "\n" + template.printedLines.joined(separator: "\n")
 
             let itemID = UUID()
-            let origRel = try imageStore.saveJPEG(originalData, relativePath: "orig/\(itemID.uuidString).jpg")
-            let cleanRel = try imageStore.saveJPEG(cleanedData, relativePath: "clean/\(itemID.uuidString).jpg")
+            let (origRel, origCompressed) = try imageStore.saveJPEGWithData(originalData, relativePath: "orig/\(itemID.uuidString).jpg")
+            let (cleanRel, cleanCompressed) = try imageStore.saveJPEGWithData(cleanedData, relativePath: "clean/\(itemID.uuidString).jpg")
 
             let resolvedTags = resolveTags(named: template.tags, in: context)
             let mistake = MistakeItem(
@@ -57,12 +57,17 @@ enum DemoNotebookSeeder {
                 ocrText: ocrText,
                 originalImagePath: origRel,
                 cleanedImagePath: cleanRel,
+                pageImagePath: origRel,
+                cropRectNormalized: CGRect(x: 0, y: 0, width: 1, height: 1),
                 handwritingRemovalSucceeded: succeeded,
+                originalImageData: origCompressed,
+                cleanedImageData: cleanCompressed,
+                pageImageData: origCompressed,
                 reviewCount: template.mastery == .mastered ? 2 : 1,
                 lastReviewedAt: Date().addingTimeInterval(-template.hoursAgo * 1800),
                 subject: subject
             )
-            mistake.tags = resolvedTags
+            mistake.tagList = resolvedTags
             context.insert(mistake)
         }
 

@@ -2,7 +2,7 @@ import PhotosUI
 import SwiftData
 import SwiftUI
 
-/// Full 3-step mistake capture wizard strictly consuming CapturePipelineServing (zero Vision/CoreImage/AVFoundation imports).
+/// Full 3-step mistake capture wizard strictly consuming CapturePipelineServing (zero Vision/VisionKit/CoreImage/AVFoundation imports).
 struct CaptureFlowView: View {
     let initialSession: CaptureSession?
     let onDismiss: () -> Void
@@ -19,6 +19,8 @@ struct CaptureFlowView: View {
     @State private var step: Int = 0 // 0: Source, 1: Correct/Enhance, 2: Multi-box Frame, 3: Preview & Save
     @State private var currentPageIndex: Int = 0
     @State private var activeBoxID: UUID?
+    @State private var isEditingCorners: Bool = false
+    @State private var hasAutoLaunchedCamera: Bool = false
 
     @State private var cameraAuthState: CameraAuthorizationState = .notDetermined
     @State private var showingCameraPicker: Bool = false
@@ -164,6 +166,7 @@ struct CaptureFlowView: View {
                             .foregroundStyle(SnapDrillTheme.inkBlue)
                             .frame(width: 78, height: 78)
                             .background(SnapDrillTheme.inkBlueSoft, in: Circle())
+                            .accessibilityHidden(true)
 
                         Text("Photograph Homework or Exam Pages")
                             .font(.headline)
@@ -228,74 +231,108 @@ struct CaptureFlowView: View {
         }
     }
 
-    // MARK: - Step 1: Edges & Enhancement
+    // MARK: - Step 1: Edges & Enhancement (Overlay strictly bound to rawImageData coordinates)
 
     private var step1CorrectionView: some View {
         VStack(spacing: 12) {
-            if let page = currentPage,
-               let uiImage = UIImage(data: page.enhancedImageData) {
-                GeometryReader { geo in
-                    let imageFrame = AspectFitCalculator.fittedRect(imageSize: uiImage.size, in: geo.size)
+            if let page = currentPage {
+                // Explicit toggle between Raw Corner Alignment and Rectified Enhanced Preview
+                Picker("Step 1 View Mode", selection: $isEditingCorners) {
+                    Text("Preview Sheet").tag(false)
+                    Text("Adjust Corners").tag(true)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, SnapDrillTheme.screenPadding)
 
-                    ZStack {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: geo.size.width, height: geo.size.height)
+                let displayData = isEditingCorners ? page.rawImageData : page.enhancedImageData
+                if let uiImage = UIImage(data: displayData) {
+                    GeometryReader { geo in
+                        let imageFrame = AspectFitCalculator.fittedRect(imageSize: uiImage.size, in: geo.size)
 
-                        PerspectiveCornerOverlay(
-                            corners: Binding(
-                                get: { page.corners },
-                                set: { newCorners in
-                                    if let idx = session?.pages.firstIndex(where: { $0.id == page.id }) {
-                                        session?.pages[idx].corners = newCorners
+                        ZStack {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: geo.size.width, height: geo.size.height)
+
+                            // Guarantee PerspectiveCornerOverlay ALWAYS maps over unwarped rawImageData coordinates
+                            if isEditingCorners {
+                                PerspectiveCornerOverlay(
+                                    corners: Binding(
+                                        get: { page.corners },
+                                        set: { newCorners in
+                                            if let idx = session?.pages.firstIndex(where: { $0.id == page.id }) {
+                                                session?.pages[idx].corners = newCorners
+                                            }
+                                        }
+                                    ),
+                                    imageFrame: imageFrame
+                                ) { committed in
+                                    Task {
+                                        guard let s = session else { return }
+                                        session = try? await environment.capturePipeline.updateCorners(committed, pageID: page.id, in: s)
+                                        persistDraftAsync()
                                     }
                                 }
-                            ),
-                            imageFrame: imageFrame
-                        ) { committed in
-                            Task {
-                                guard let s = session else { return }
-                                session = try? await environment.capturePipeline.updateCorners(committed, pageID: page.id, in: s)
-                                persistDraftAsync()
                             }
                         }
                     }
+                    .padding(.horizontal, 12)
                 }
-                .padding(.horizontal, 12)
 
-                // Enhancement mode switcher (PRD F-04)
-                HStack(spacing: 8) {
-                    ForEach(ImageEnhancementMode.allCases) { mode in
-                        let selected = page.enhancementMode == mode
-                        Button {
-                            Task {
-                                guard let s = session else { return }
-                                session = try? await environment.capturePipeline.setEnhancement(mode: mode, pageID: page.id, in: s)
-                                persistDraftAsync()
-                            }
-                        } label: {
-                            Text(mode.localizedTitle)
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(selected ? .white : SnapDrillTheme.inkBlack)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 9)
-                                .background(
-                                    Capsule().fill(selected ? SnapDrillTheme.inkBlue : SnapDrillTheme.cardSurface)
-                                )
-                                .overlay(
-                                    Capsule().strokeBorder(selected ? Color.clear : SnapDrillTheme.ruledLine, lineWidth: 1)
-                                )
+                if isEditingCorners {
+                    Button {
+                        Task {
+                            guard let s = session else { return }
+                            session = try? await environment.capturePipeline.updateCorners(page.corners, pageID: page.id, in: s)
+                            isEditingCorners = false
+                            persistDraftAsync()
                         }
-                        .buttonStyle(.plain)
+                    } label: {
+                        Label("Apply Corners & Straighten", systemImage: "checkmark.rectangle")
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(SnapDrillTheme.inkBlue)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(SnapDrillTheme.inkBlueSoft, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, SnapDrillTheme.screenPadding)
+                } else {
+                    // Enhancement mode switcher (PRD F-04)
+                    HStack(spacing: 8) {
+                        ForEach(ImageEnhancementMode.allCases) { mode in
+                            let selected = page.enhancementMode == mode
+                            Button {
+                                Task {
+                                    guard let s = session else { return }
+                                    session = try? await environment.capturePipeline.setEnhancement(mode: mode, pageID: page.id, in: s)
+                                    persistDraftAsync()
+                                }
+                            } label: {
+                                Text(mode.localizedTitle)
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(selected ? .white : SnapDrillTheme.inkBlack)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 9)
+                                    .background(
+                                        Capsule().fill(selected ? SnapDrillTheme.inkBlue : SnapDrillTheme.cardSurface)
+                                    )
+                                    .overlay(
+                                        Capsule().strokeBorder(selected ? Color.clear : SnapDrillTheme.ruledLine, lineWidth: 1)
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, SnapDrillTheme.screenPadding)
                 }
-                .padding(.horizontal, SnapDrillTheme.screenPadding)
             }
 
             pageThumbnailStrip(allowAddingMore: true)
 
             Button {
+                isEditingCorners = false
                 step = 2
                 activeBoxID = currentPage?.boxes.first?.id
                 persistDraftAsync()
@@ -481,6 +518,7 @@ struct CaptureFlowView: View {
                                     .font(.title3)
                             }
                             .disabled(currentPreviewIndex == 0)
+                            .accessibilityLabel(String(localized: "Previous Question"))
 
                             Spacer()
                             Text("Question \(currentPreviewIndex + 1) of \(preview.items.count)")
@@ -494,6 +532,7 @@ struct CaptureFlowView: View {
                                     .font(.title3)
                             }
                             .disabled(currentPreviewIndex >= preview.items.count - 1)
+                            .accessibilityLabel(String(localized: "Next Question"))
                         }
                         .foregroundStyle(SnapDrillTheme.inkBlue)
                     }
@@ -503,11 +542,11 @@ struct CaptureFlowView: View {
                         VStack(spacing: 10) {
                             HStack {
                                 Label(
-                                    isPeekingOriginal ? String(localized: "Original") : String(localized: "Handwriting Removed"),
-                                    systemImage: isPeekingOriginal ? "photo" : "wand.and.stars"
+                                    isPeekingOriginal ? String(localized: "Original") : (item.handwritingRemovalSucceeded ? String(localized: "Handwriting Removed") : String(localized: "Enhanced Original")),
+                                    systemImage: isPeekingOriginal ? "photo" : (item.handwritingRemovalSucceeded ? "wand.and.stars" : "info.circle")
                                 )
                                 .font(.caption.weight(.semibold))
-                                .foregroundStyle(SnapDrillTheme.inkBlue)
+                                .foregroundStyle(item.handwritingRemovalSucceeded ? SnapDrillTheme.inkBlue : SnapDrillTheme.inkSecondary)
 
                                 Spacer()
 
@@ -524,6 +563,7 @@ struct CaptureFlowView: View {
                                         .onChanged { _ in isPeekingOriginal = true }
                                         .onEnded { _ in isPeekingOriginal = false }
                                 )
+                                .accessibilityLabel(String(localized: "Hold to Compare Original"))
 
                                 Button {
                                     eraserTargetIndex = currentPreviewIndex
@@ -536,6 +576,20 @@ struct CaptureFlowView: View {
                                         .background(SnapDrillTheme.inkBlue, in: Capsule())
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityLabel(String(localized: "Open Manual Eraser"))
+                            }
+
+                            if !item.handwritingRemovalSucceeded && inkMode != .off {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "hand.draw")
+                                        .foregroundStyle(SnapDrillTheme.inkBlue)
+                                    Text("Dark pen ink could not be auto-removed safely. Enhanced original is kept — tap Eraser to clean spots.")
+                                        .font(.caption2)
+                                        .foregroundStyle(SnapDrillTheme.inkSecondary)
+                                    Spacer()
+                                }
+                                .padding(8)
+                                .background(SnapDrillTheme.elevatedSurface, in: RoundedRectangle(cornerRadius: 8))
                             }
 
                             if let uiImg = UIImage(data: isPeekingOriginal ? item.originalImageData : item.cleanedImageData) {
@@ -584,6 +638,23 @@ struct CaptureFlowView: View {
                                             }
                                             .buttonStyle(.plain)
                                         }
+
+                                        ForEach(customCauses) { custom in
+                                            let selected = item.customCauseNames.contains(custom.name)
+                                            Button {
+                                                toggleCustomCause(custom.name, at: currentPreviewIndex)
+                                            } label: {
+                                                Text(custom.name)
+                                                    .font(.caption)
+                                                    .foregroundStyle(selected ? .white : SnapDrillTheme.inkBlack)
+                                                    .padding(.horizontal, 10)
+                                                    .padding(.vertical, 6)
+                                                    .background(
+                                                        Capsule().fill(selected ? SnapDrillTheme.gradingRed : SnapDrillTheme.elevatedSurface)
+                                                    )
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
                                     }
                                 }
 
@@ -593,7 +664,10 @@ struct CaptureFlowView: View {
                                     Button("Add") {
                                         addTagToCurrentItem()
                                     }
-                                    .disabled(newTagInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                                    .disabled(
+                                        newTagInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+                                        item.tagNames.count >= MistakeLimits.maxTagsPerMistake
+                                    )
                                 }
 
                                 if !item.tagNames.isEmpty {
@@ -659,6 +733,7 @@ struct CaptureFlowView: View {
         }
         .padding(.horizontal, SnapDrillTheme.screenPadding)
         .padding(.vertical, 6)
+        .accessibilityHidden(true)
     }
 
     @ViewBuilder
@@ -697,6 +772,7 @@ struct CaptureFlowView: View {
                             }
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel(String(localized: "Page \(idx + 1)"))
                     }
 
                     if allowAddingMore && session.pages.count < environment.capturePipeline.maxPhotoCount {
@@ -708,6 +784,7 @@ struct CaptureFlowView: View {
                                     .frame(width: 48, height: 60)
                                     .background(SnapDrillTheme.elevatedSurface, in: RoundedRectangle(cornerRadius: 6))
                             }
+                            .accessibilityLabel(String(localized: "Capture Another Page"))
                         }
 
                         PhotosPicker(
@@ -719,6 +796,7 @@ struct CaptureFlowView: View {
                                 .frame(width: 48, height: 60)
                                 .background(SnapDrillTheme.elevatedSurface, in: RoundedRectangle(cornerRadius: 6))
                         }
+                        .accessibilityLabel(String(localized: "Import More Photos"))
                     }
                 }
                 .padding(.horizontal, SnapDrillTheme.screenPadding)
@@ -734,9 +812,16 @@ struct CaptureFlowView: View {
 
         if let initialSession {
             session = initialSession
-            step = max(1, min(2, initialSession.activeStep))
             currentPageIndex = 0
             activeBoxID = initialSession.pages.first?.boxes.first?.id
+            if initialSession.activeStep >= 3 {
+                await buildPreviewForStep3()
+            } else {
+                step = max(1, min(2, initialSession.activeStep))
+            }
+        } else if !hasAutoLaunchedCamera && cameraAuthState == .authorized {
+            hasAutoLaunchedCamera = true
+            showingCameraPicker = true
         }
     }
 
@@ -776,6 +861,7 @@ struct CaptureFlowView: View {
                 session = created
                 currentPageIndex = 0
             }
+            isEditingCorners = false
             step = 1
             persistDraftAsync()
         } catch {
@@ -817,9 +903,22 @@ struct CaptureFlowView: View {
         }
     }
 
+    private func toggleCustomCause(_ name: String, at index: Int) {
+        guard savePreview?.items.indices.contains(index) == true else { return }
+        if savePreview?.items[index].customCauseNames.contains(name) == true {
+            savePreview?.items[index].customCauseNames.removeAll { $0 == name }
+        } else {
+            savePreview?.items[index].customCauseNames.append(name)
+        }
+    }
+
     private func addTagToCurrentItem() {
         let clean = newTagInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !clean.isEmpty, savePreview?.items.indices.contains(currentPreviewIndex) == true else { return }
+        guard !clean.isEmpty,
+              savePreview?.items.indices.contains(currentPreviewIndex) == true,
+              (savePreview?.items[currentPreviewIndex].tagNames.count ?? 0) < MistakeLimits.maxTagsPerMistake else {
+            return
+        }
         if savePreview?.items[currentPreviewIndex].tagNames.contains(clean) == false {
             savePreview?.items[currentPreviewIndex].tagNames.append(clean)
         }
@@ -848,7 +947,13 @@ struct CaptureFlowView: View {
         guard var current = session else { return }
         current.activeStep = step
         Task {
-            await environment.draftStore.saveDraft(current)
+            do {
+                try await environment.draftStore.saveDraft(current)
+            } catch {
+                await MainActor.run {
+                    errorMessage = error.localizedDescription
+                }
+            }
         }
     }
 }

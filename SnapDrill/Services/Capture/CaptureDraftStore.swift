@@ -1,6 +1,6 @@
 import Foundation
 
-/// Persists unfinished Step 2/3 capture sessions to Application Support so killing the app never loses cropped drafts (PRD §8.6, AC-09).
+/// Persists unfinished Step 1/2/3 capture sessions to Application Support so killing the app never loses cropped drafts (PRD §8.6, AC-09).
 actor CaptureDraftStore: CaptureDraftPersisting {
     private let draftFileURL: URL
 
@@ -10,16 +10,15 @@ actor CaptureDraftStore: CaptureDraftPersisting {
         self.draftFileURL = baseDir.appendingPathComponent("pending_capture_draft.json")
     }
 
-    func saveDraft(_ session: CaptureSession) async {
+    func saveDraft(_ session: CaptureSession) async throws {
         guard !session.pages.isEmpty else {
             await clearDraft()
             return
         }
         let dir = draftFileURL.deletingLastPathComponent()
-        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        if let data = try? JSONEncoder().encode(session) {
-            try? data.write(to: draftFileURL, options: [.atomic])
-        }
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let data = try JSONEncoder().encode(session)
+        try data.write(to: draftFileURL, options: [.atomic])
     }
 
     func loadDraft() async -> CaptureSession? {

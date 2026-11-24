@@ -32,7 +32,7 @@ struct ReviewHubView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 11) {
                     summaryCard
                     subjectFilterCard
                     masteryAndCauseFilterCard
@@ -44,8 +44,8 @@ struct ReviewHubView: View {
                     startReviewButton
                 }
                 .padding(.horizontal, SnapDrillTheme.screenPadding)
-                .padding(.top, 8)
-                .padding(.bottom, 108)
+                .padding(.top, 4)
+                .padding(.bottom, 140)
             }
             .paperBackground()
             .navigationTitle(String(localized: "Review"))
@@ -65,7 +65,7 @@ struct ReviewHubView: View {
     // MARK: - Cards
 
     private var summaryCard: some View {
-        PaperCard(padding: 18) {
+        PaperCard(padding: 13) {
             HStack(spacing: 16) {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Ready to Practice")
@@ -84,13 +84,18 @@ struct ReviewHubView: View {
 
                 Spacer()
 
-                PandaMascotView(mood: .welcoming, size: 78)
+                Image(systemName: "rectangle.stack.fill")
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(SnapDrillTheme.inkBlue)
+                    .frame(width: 56, height: 56)
+                    .background(SnapDrillTheme.inkBlueSoft, in: Circle())
+                    .accessibilityHidden(true)
             }
         }
     }
 
     private var subjectFilterCard: some View {
-        PaperCard(padding: 14) {
+        PaperCard(padding: 12) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("Subjects")
@@ -135,7 +140,7 @@ struct ReviewHubView: View {
     }
 
     private var masteryAndCauseFilterCard: some View {
-        PaperCard(padding: 14) {
+        PaperCard(padding: 12) {
             VStack(alignment: .leading, spacing: 12) {
                 Text("Mastery Level")
                     .font(.subheadline.weight(.semibold))
@@ -193,7 +198,7 @@ struct ReviewHubView: View {
     }
 
     private var tagFilterCard: some View {
-        PaperCard(padding: 14) {
+        PaperCard(padding: 12) {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Tags")
                     .font(.subheadline.weight(.semibold))
@@ -232,7 +237,7 @@ struct ReviewHubView: View {
                 .font(.headline)
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 52)
+                .frame(height: 48)
                 .background(
                     matchingMistakes.isEmpty ? SnapDrillTheme.inkSecondary.opacity(0.4) : SnapDrillTheme.inkBlue,
                     in: RoundedRectangle(cornerRadius: 14, style: .continuous)

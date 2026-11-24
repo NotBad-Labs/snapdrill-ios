@@ -11,6 +11,7 @@ final class AppPreferencesStore {
         static let appearanceMode = "snapdrill.appearanceMode"
         static let defaultInkRemovalMode = "snapdrill.defaultInkRemovalMode"
         static let iCloudSyncEnabled = "snapdrill.iCloudSyncEnabled"
+        static let lastKnownProActive = "snapdrill.lastKnownProActive"
     }
 
     private let defaults: UserDefaults
@@ -45,6 +46,13 @@ final class AppPreferencesStore {
         }
     }
 
+    /// Cached hint used only on synchronous launch before StoreKit finishes verifying currentEntitlements.
+    var lastKnownProActive: Bool {
+        didSet {
+            defaults.set(lastKnownProActive, forKey: Keys.lastKnownProActive)
+        }
+    }
+
     init(userDefaults: UserDefaults = .standard, locale: Locale = .current) {
         self.defaults = userDefaults
 
@@ -76,5 +84,10 @@ final class AppPreferencesStore {
         }
 
         self.iCloudSyncEnabled = userDefaults.bool(forKey: Keys.iCloudSyncEnabled)
+        self.lastKnownProActive = userDefaults.bool(forKey: Keys.lastKnownProActive)
+    }
+
+    func shouldEnableCloudKit(isPro: Bool) -> Bool {
+        isPro && iCloudSyncEnabled
     }
 }

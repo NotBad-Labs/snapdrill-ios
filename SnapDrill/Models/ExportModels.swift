@@ -108,6 +108,15 @@ struct PDFExportOptions: Sendable, Equatable {
             includeFooterWatermark: includeWatermark
         )
     }
+
+    /// PRD §8.5 default PDF title combining Subject name and localized export date.
+    static func defaultTitle(subjectName: String?, date: Date = .now) -> String {
+        let base = (subjectName?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false)
+            ? subjectName!
+            : String(localized: "SnapDrill Practice Sheet")
+        let formattedDate = date.formatted(date: .abbreviated, time: .omitted)
+        return "\(base) · \(formattedDate)"
+    }
 }
 
 /// Value-type problem payload passed into PDFExportServing without coupling renderer to SwiftData context.

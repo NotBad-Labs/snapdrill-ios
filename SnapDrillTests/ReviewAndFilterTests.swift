@@ -5,12 +5,7 @@ import XCTest
 @MainActor
 final class ReviewAndFilterTests: XCTestCase {
     private func makeInMemoryContainer() throws -> ModelContainer {
-        let schema = Schema([
-            Subject.self,
-            MistakeItem.self,
-            MistakeTag.self,
-            CustomCause.self
-        ])
+        let schema = ModelContainerFactory.schema
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         return try ModelContainer(for: schema, configurations: [config])
     }
@@ -38,7 +33,7 @@ final class ReviewAndFilterTests: XCTestCase {
             ocrText: "quadratic discriminant delta",
             subject: math
         )
-        m1.tags = [tagExam]
+        m1.tagList = [tagExam]
 
         let m2 = MistakeItem(
             createdAt: oldDate,
@@ -70,20 +65,28 @@ final class ReviewAndFilterTests: XCTestCase {
         XCTAssertEqual(MistakeFilterEngine.filter([m1, m2], using: criteria, referenceDate: now).map(\.id), [m1.id])
     }
 
-    func testUndoDeleteAndDraftStoreRecovery() async throws {
+    func testUndoDeleteTimerExpiryAndDraftStoreRecovery() async throws {
         let container = try makeInMemoryContainer()
         let context = container.mainContext
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("SnapDrillUndo-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: tempDir) }
 
+        let imageStore = MistakeImageStore(rootDirectory: tempDir)
         let env = AppEnvironment(
             preferences: AppPreferencesStore(userDefaults: UserDefaults(suiteName: UUID().uuidString)!),
             proStore: ProEntitlementStore(startListeners: false),
-            imageStore: MistakeImageStore(rootDirectory: tempDir),
-            draftStore: CaptureDraftStore(directoryURL: tempDir)
+            imageStore: imageStore,
+            draftStore: CaptureDraftStore(directoryURL: tempDir),
+            undoDelay: .milliseconds(150)
         )
 
-        let item = MistakeItem(notes: "Temporary note")
+        let dummyJPG = UIGraphicsImageRenderer(size: CGSize(width: 40, height: 40)).image { ctx in
+            UIColor.white.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 40, height: 40))
+        }.jpegData(compressionQuality: 0.8)!
+        let savedPath = try imageStore.saveJPEG(dummyJPG, relativePath: "orig/undo-test.jpg")
+
+        let item = MistakeItem(notes: "Temporary note", originalImagePath: savedPath)
         context.insert(item)
         try context.save()
 
@@ -91,25 +94,27 @@ final class ReviewAndFilterTests: XCTestCase {
         XCTAssertTrue(env.pendingDeletionIDs.contains(item.id))
         XCTAssertEqual(env.undoBannerCount, 1)
 
-        // Undo restores visibility and keeps DB row intact
+        // Undo restores visibility and keeps DB row and disk file intact
         env.undoLastDeletion()
         XCTAssertFalse(env.pendingDeletionIDs.contains(item.id))
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<MistakeItem>()), 1)
+        XCTAssertNotNil(imageStore.loadData(relativePath: savedPath))
 
-        // Commit deletion permanently removes row
+        // Schedule again and allow async timer to expire naturally
         env.scheduleSoftDelete([item], in: context)
-        env.commitPendingDeletions()
+        try await Task.sleep(for: .milliseconds(350))
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<MistakeItem>()), 0)
+        XCTAssertNil(imageStore.loadData(relativePath: savedPath))
 
-        // Draft persistence round-trip (AC-09)
+        // Draft persistence round-trip (AC-09) including Step 3
         let draftSession = CaptureSession(
             pages: [CapturePage(rawImageData: Data([0xFF, 0xD8]))],
-            activeStep: 2
+            activeStep: 3
         )
-        await env.draftStore.saveDraft(draftSession)
+        try await env.draftStore.saveDraft(draftSession)
         let loaded = await env.draftStore.loadDraft()
         XCTAssertEqual(loaded?.id, draftSession.id)
-        XCTAssertEqual(loaded?.activeStep, 2)
+        XCTAssertEqual(loaded?.activeStep, 3)
 
         await env.draftStore.clearDraft()
         let afterClear = await env.draftStore.loadDraft()

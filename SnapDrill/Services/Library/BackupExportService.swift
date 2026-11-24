@@ -50,6 +50,14 @@ enum BackupExportService {
         let customCauses = (try? context.fetch(FetchDescriptor<CustomCause>(sortBy: [SortDescriptor(\CustomCause.sortOrder)]))) ?? []
         let mistakes = (try? context.fetch(FetchDescriptor<MistakeItem>(sortBy: [SortDescriptor(\MistakeItem.createdAt, order: .reverse)]))) ?? []
 
+        // Materialize any CloudKit-synced externalStorage images into local cache so backup ZIP includes all photos
+        for item in mistakes {
+            _ = item.resolvedOriginalImageData(imageStore: imageStore)
+            _ = item.resolvedCleanedImageData(imageStore: imageStore)
+            _ = item.resolvedPageImageData(imageStore: imageStore)
+            _ = item.resolvedAnswerImageDatas(imageStore: imageStore)
+        }
+
         let manifest = BackupManifest(
             exportedAt: .now,
             appVersion: "1.0.0",
@@ -75,7 +83,7 @@ enum BackupExportService {
                     answerText: $0.answerText,
                     causes: $0.causesRaw,
                     customCauseNames: $0.customCauseNames,
-                    tagNames: $0.tags.map(\.name),
+                    tagNames: $0.tagList.map(\.name),
                     mastery: $0.masteryRaw,
                     ocrText: $0.ocrText,
                     originalImagePath: $0.originalImagePath,

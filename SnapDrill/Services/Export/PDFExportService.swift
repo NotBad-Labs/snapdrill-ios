@@ -1,8 +1,10 @@
+import CoreText
 import Foundation
 import PDFKit
 import UIKit
 
-/// Renders print-ready A4/B5/Letter practice sheets with strict anti-page-splitting and answer appendix (PRD §8.5, AC-07).
+/// Renders print-ready A4/B5/Letter practice sheets with strict anti-page-splitting for problem images,
+/// full multi-page pagination for 2,000-character answers & all 3 answer images, and PRD-compliant watermarks (PRD §8.5, AC-07).
 struct PDFExportService: PDFExportServing {
     func renderPDFData(questions: [PDFQuestionPayload], options: PDFExportOptions) throws -> Data {
         guard !questions.isEmpty else {
@@ -12,7 +14,7 @@ struct PDFExportService: PDFExportServing {
         let pageSize = options.paperSize.pointSize
         let marginX: CGFloat = 38
         let marginTop: CGFloat = 40
-        let footerReserve: CGFloat = 38
+        let footerReserve: CGFloat = 40
         let contentWidth = pageSize.width - marginX * 2
         let maxContentY = pageSize.height - footerReserve
 
@@ -27,6 +29,17 @@ struct PDFExportService: PDFExportServing {
 
         let data = renderer.pdfData { pdfContext in
             var pageNumber = 1
+
+            func startNewPage() {
+                drawFooter(
+                    pageNumber: pageNumber,
+                    pageSize: pageSize,
+                    includeWatermark: options.includeFooterWatermark
+                )
+                pageNumber += 1
+                pdfContext.beginPage()
+            }
+
             pdfContext.beginPage()
             var cursorY = drawDocumentHeader(
                 title: options.title,
@@ -42,25 +55,16 @@ struct PDFExportService: PDFExportServing {
                 let fittedImageSize = fitImageSize(
                     decodedImage?.size,
                     maxWidth: contentWidth,
-                    maxHeight: (pageSize.height - marginTop - footerReserve) * 0.62
+                    maxHeight: (maxContentY - marginTop) * 0.62
                 )
 
                 let headerHeight: CGFloat = 22
-                let inlineExtraHeight: CGFloat = options.answerPlacement == .inlineBelow
-                    ? estimateAnswerBlockHeight(question: question, width: contentWidth)
-                    : (options.blankSpace.points)
-
-                let totalBlockHeight = headerHeight + fittedImageSize.height + inlineExtraHeight + 16
+                let inlinePreviewHeight: CGFloat = options.answerPlacement == .inlineBelow ? 64 : options.blankSpace.points
+                let requiredStemHeight = headerHeight + fittedImageSize.height + (options.answerPlacement == .none || options.answerPlacement == .endAppendix ? inlinePreviewHeight : 20) + 16
 
                 // Strictly avoid splitting a single problem image across pages (PRD §8.5)
-                if cursorY + totalBlockHeight > maxContentY && cursorY > marginTop + 50 {
-                    drawFooter(
-                        pageNumber: pageNumber,
-                        pageSize: pageSize,
-                        includeWatermark: options.includeFooterWatermark
-                    )
-                    pageNumber += 1
-                    pdfContext.beginPage()
+                if cursorY + requiredStemHeight > maxContentY && cursorY > marginTop + 20 {
+                    startNewPage()
                     cursorY = marginTop
                 }
 
@@ -75,6 +79,10 @@ struct PDFExportService: PDFExportServing {
 
                 // Draw question image
                 if let decodedImage, fittedImageSize.height > 0 {
+                    if cursorY + fittedImageSize.height > maxContentY && cursorY > marginTop + 20 {
+                        startNewPage()
+                        cursorY = marginTop
+                    }
                     let imageRect = CGRect(
                         x: marginX,
                         y: cursorY,
@@ -86,18 +94,40 @@ struct PDFExportService: PDFExportServing {
                     let border = UIBezierPath(roundedRect: imageRect, cornerRadius: 3)
                     border.lineWidth = 0.6
                     border.stroke()
-                    cursorY += fittedImageSize.height + 8
+                    cursorY += fittedImageSize.height + 10
                 }
 
-                // Draw inline answer or practice blank space
                 if options.answerPlacement == .inlineBelow {
-                    cursorY = drawInlineAnswer(
-                        question: question,
-                        x: marginX,
-                        y: cursorY,
-                        width: contentWidth
-                    )
-                    cursorY += 12
+                    let body = buildAnswerSummaryText(question: question)
+                    if !body.isEmpty {
+                        let prefix = String(localized: "Answer")
+                        cursorY = drawPaginatedText(
+                            "\(prefix): \(body)",
+                            attrs: [
+                                .font: UIFont.systemFont(ofSize: 10.5),
+                                .foregroundColor: UIColor(red: 0.28, green: 0.28, blue: 0.30, alpha: 1.0)
+                            ],
+                            x: marginX,
+                            startY: cursorY,
+                            width: contentWidth,
+                            marginTop: marginTop,
+                            maxContentY: maxContentY,
+                            onPageBreak: { startNewPage() }
+                        )
+                        cursorY += 6
+                    }
+
+                    for ansData in question.answerImageDatas {
+                        guard let ansImage = UIImage(data: ansData) else { continue }
+                        let fitted = fitImageSize(ansImage.size, maxWidth: contentWidth * 0.55, maxHeight: 120)
+                        if cursorY + fitted.height > maxContentY {
+                            startNewPage()
+                            cursorY = marginTop
+                        }
+                        ansImage.draw(in: CGRect(x: marginX, y: cursorY, width: fitted.width, height: fitted.height))
+                        cursorY += fitted.height + 8
+                    }
+                    cursorY += 10
                 } else {
                     drawPracticeBlankArea(
                         x: marginX,
@@ -115,35 +145,55 @@ struct PDFExportService: PDFExportServing {
             }
 
             if options.answerPlacement == .endAppendix && !questionsWithDetails.isEmpty {
-                drawFooter(
-                    pageNumber: pageNumber,
-                    pageSize: pageSize,
-                    includeWatermark: options.includeFooterWatermark
-                )
-                pageNumber += 1
-                pdfContext.beginPage()
+                startNewPage()
                 cursorY = drawAppendixHeader(x: marginX, y: marginTop, width: contentWidth)
 
                 for question in questionsWithDetails {
-                    let estHeight = estimateAnswerBlockHeight(question: question, width: contentWidth) + 28
-                    if cursorY + estHeight > maxContentY && cursorY > marginTop + 40 {
-                        drawFooter(
-                            pageNumber: pageNumber,
-                            pageSize: pageSize,
-                            includeWatermark: options.includeFooterWatermark
-                        )
-                        pageNumber += 1
-                        pdfContext.beginPage()
+                    // Keep index title + first lines together if near page bottom
+                    if cursorY + 46 > maxContentY {
+                        startNewPage()
                         cursorY = marginTop
                     }
 
-                    cursorY = drawAppendixEntry(
-                        question: question,
-                        x: marginX,
-                        y: cursorY,
-                        width: contentWidth
-                    )
-                    cursorY += 14
+                    let titleAttrs: [NSAttributedString.Key: Any] = [
+                        .font: UIFont.systemFont(ofSize: 11.5, weight: .semibold),
+                        .foregroundColor: UIColor(red: 0.12, green: 0.12, blue: 0.14, alpha: 1.0)
+                    ]
+                    let header = "\(question.index). [\(question.subjectName)]"
+                    (header as NSString).draw(at: CGPoint(x: marginX, y: cursorY), withAttributes: titleAttrs)
+                    cursorY += 18
+
+                    let body = buildAnswerSummaryText(question: question)
+                    if !body.isEmpty {
+                        cursorY = drawPaginatedText(
+                            body,
+                            attrs: [
+                                .font: UIFont.systemFont(ofSize: 10.5),
+                                .foregroundColor: UIColor(red: 0.25, green: 0.25, blue: 0.27, alpha: 1.0)
+                            ],
+                            x: marginX + 12,
+                            startY: cursorY,
+                            width: contentWidth - 12,
+                            marginTop: marginTop,
+                            maxContentY: maxContentY,
+                            onPageBreak: { startNewPage() }
+                        )
+                        cursorY += 6
+                    }
+
+                    // Render ALL up to 3 answer images cleanly with page breaks (M4)
+                    for ansData in question.answerImageDatas {
+                        guard let ansImage = UIImage(data: ansData) else { continue }
+                        let fitted = fitImageSize(ansImage.size, maxWidth: (contentWidth - 12) * 0.62, maxHeight: 130)
+                        if cursorY + fitted.height > maxContentY {
+                            startNewPage()
+                            cursorY = marginTop
+                        }
+                        ansImage.draw(in: CGRect(x: marginX + 12, y: cursorY, width: fitted.width, height: fitted.height))
+                        cursorY += fitted.height + 8
+                    }
+
+                    cursorY += 12
                 }
             }
 
@@ -159,13 +209,80 @@ struct PDFExportService: PDFExportServing {
 
     func writeTemporaryPDF(questions: [PDFQuestionPayload], options: PDFExportOptions) throws -> URL {
         let data = try renderPDFData(questions: questions, options: options)
-        let safeTitle = options.title
-            .replacingOccurrences(of: "/", with: "-")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let safeTitle = Self.sanitizedFilename(options.title)
         let filename = (safeTitle.isEmpty ? "SnapDrill-Export" : safeTitle) + ".pdf"
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
         try data.write(to: url, options: [.atomic])
         return url
+    }
+
+    static func sanitizedFilename(_ raw: String) -> String {
+        let illegal = CharacterSet(charactersIn: "/\\:*?\"<>|\r\n\t")
+        let parts = raw.components(separatedBy: illegal)
+        return parts.joined(separator: "-")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    // MARK: - Paginated CoreText-Sliced UIKit Text Drawing
+
+    private func drawPaginatedText(
+        _ text: String,
+        attrs: [NSAttributedString.Key: Any],
+        x: CGFloat,
+        startY: CGFloat,
+        width: CGFloat,
+        marginTop: CGFloat,
+        maxContentY: CGFloat,
+        onPageBreak: () -> Void
+    ) -> CGFloat {
+        let attrString = NSAttributedString(string: text, attributes: attrs)
+        guard attrString.length > 0 else { return startY }
+
+        let framesetter = CTFramesetterCreateWithAttributedString(attrString)
+        var currentY = startY
+        var location = 0
+
+        while location < attrString.length {
+            var availableHeight = maxContentY - currentY
+            if availableHeight < 20 {
+                onPageBreak()
+                currentY = marginTop
+                availableHeight = maxContentY - currentY
+            }
+
+            let boxPath = CGPath(rect: CGRect(x: 0, y: 0, width: width, height: max(20, availableHeight - 6)), transform: nil)
+            let frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(location, 0), boxPath, nil)
+            let visible = CTFrameGetVisibleStringRange(frame)
+
+            guard visible.length > 0 else {
+                if currentY > marginTop + 1 {
+                    onPageBreak()
+                    currentY = marginTop
+                    continue
+                } else {
+                    break
+                }
+            }
+
+            let slice = attrString.attributedSubstring(from: NSRange(location: visible.location, length: visible.length))
+            let measured = slice.boundingRect(
+                with: CGSize(width: width, height: .greatestFiniteMagnitude),
+                options: [.usesLineFragmentOrigin, .usesFontLeading],
+                context: nil
+            )
+            let drawHeight = ceil(measured.height) + 2
+            slice.draw(with: CGRect(x: x, y: currentY, width: width, height: drawHeight), options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
+
+            currentY += ceil(measured.height) + 6
+            location = visible.location + visible.length
+
+            if location < attrString.length {
+                onPageBreak()
+                currentY = marginTop
+            }
+        }
+
+        return currentY
     }
 
     // MARK: - Drawing Helpers
@@ -237,63 +354,6 @@ struct PDFExportService: PDFExportServing {
         }
     }
 
-    private func drawInlineAnswer(question: PDFQuestionPayload, x: CGFloat, y: CGFloat, width: CGFloat) -> CGFloat {
-        let label = String(localized: "Answer")
-        let body = buildAnswerSummaryText(question: question)
-        let text = "\(label): \(body)"
-        let attrs: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 10.5),
-            .foregroundColor: UIColor(red: 0.28, green: 0.28, blue: 0.30, alpha: 1.0)
-        ]
-        let rect = (text as NSString).boundingRect(
-            with: CGSize(width: width, height: 180),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            attributes: attrs,
-            context: nil
-        )
-        (text as NSString).draw(in: CGRect(x: x, y: y, width: width, height: ceil(rect.height)), withAttributes: attrs)
-        return y + ceil(rect.height) + 6
-    }
-
-    private func drawAppendixEntry(question: PDFQuestionPayload, x: CGFloat, y: CGFloat, width: CGFloat) -> CGFloat {
-        var cursorY = y
-        let titleAttrs: [NSAttributedString.Key: Any] = [
-            .font: UIFont.systemFont(ofSize: 11.5, weight: .semibold),
-            .foregroundColor: UIColor(red: 0.12, green: 0.12, blue: 0.14, alpha: 1.0)
-        ]
-        let header = "\(question.index). [\(question.subjectName)]"
-        (header as NSString).draw(at: CGPoint(x: x, y: cursorY), withAttributes: titleAttrs)
-        cursorY += 18
-
-        let body = buildAnswerSummaryText(question: question)
-        if !body.isEmpty {
-            let bodyAttrs: [NSAttributedString.Key: Any] = [
-                .font: UIFont.systemFont(ofSize: 10.5),
-                .foregroundColor: UIColor(red: 0.25, green: 0.25, blue: 0.27, alpha: 1.0)
-            ]
-            let bounding = (body as NSString).boundingRect(
-                with: CGSize(width: width - 12, height: 240),
-                options: [.usesLineFragmentOrigin, .usesFontLeading],
-                attributes: bodyAttrs,
-                context: nil
-            )
-            (body as NSString).draw(
-                in: CGRect(x: x + 12, y: cursorY, width: width - 12, height: ceil(bounding.height)),
-                withAttributes: bodyAttrs
-            )
-            cursorY += ceil(bounding.height) + 6
-        }
-
-        if let firstAnsData = question.answerImageDatas.first,
-           let ansImage = UIImage(data: firstAnsData) {
-            let fitted = fitImageSize(ansImage.size, maxWidth: width * 0.55, maxHeight: 110)
-            ansImage.draw(in: CGRect(x: x + 12, y: cursorY, width: fitted.width, height: fitted.height))
-            cursorY += fitted.height + 6
-        }
-
-        return cursorY
-    }
-
     private func drawFooter(pageNumber: Int, pageSize: CGSize, includeWatermark: Bool) {
         let footerY = pageSize.height - 24
         let pageAttrs: [NSAttributedString.Key: Any] = [
@@ -329,25 +389,6 @@ struct PDFExportService: PDFExportServing {
             parts.append("\(notePrefix): \(question.notes)")
         }
         return parts.joined(separator: "\n")
-    }
-
-    private func estimateAnswerBlockHeight(question: PDFQuestionPayload, width: CGFloat) -> CGFloat {
-        let summary = buildAnswerSummaryText(question: question)
-        var height: CGFloat = 24
-        if !summary.isEmpty {
-            let attrs: [NSAttributedString.Key: Any] = [.font: UIFont.systemFont(ofSize: 10.5)]
-            let rect = (summary as NSString).boundingRect(
-                with: CGSize(width: width - 12, height: 240),
-                options: [.usesLineFragmentOrigin, .usesFontLeading],
-                attributes: attrs,
-                context: nil
-            )
-            height += ceil(rect.height) + 8
-        }
-        if !question.answerImageDatas.isEmpty {
-            height += 116
-        }
-        return height
     }
 
     private func fitImageSize(_ originalSize: CGSize?, maxWidth: CGFloat, maxHeight: CGFloat) -> CGSize {

@@ -42,48 +42,59 @@ struct AppLaunchArguments: Sendable {
 struct SnapDrillApp: App {
     private let launchArgs = AppLaunchArguments.current()
 
-    @State private var environment = AppEnvironment()
-
-    private let modelContainer: ModelContainer?
-    private let storeInitializationError: String?
+    @State private var environment: AppEnvironment
+    @State private var storeResult: ContainerLoadResult
+    @State private var containerInstanceID = UUID()
 
     init() {
-        let schema = Schema([
-            Subject.self,
-            MistakeItem.self,
-            MistakeTag.self,
-            CustomCause.self
-        ])
+        let env = AppEnvironment()
+        let wantsCloudKit = env.preferences.shouldEnableCloudKit(isPro: env.proStore.isPro || env.preferences.lastKnownProActive)
+        let initialResult = ModelContainerFactory.makeContainer(cloudKitRequested: wantsCloudKit)
+        env.storeSyncStatus = initialResult.syncStatus
+        _environment = State(initialValue: env)
+        _storeResult = State(initialValue: initialResult)
+    }
 
-        // Try local-first CloudKit configuration if user enabled iCloud Sync & Pro,
-        // falling back gracefully to local store when unentitled (e.g. personal Simulator runs).
-        let localConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false, cloudKitDatabase: .none)
-        do {
-            self.modelContainer = try ModelContainer(for: schema, configurations: [localConfig])
-            self.storeInitializationError = nil
-        } catch {
-            self.modelContainer = nil
-            self.storeInitializationError = error.localizedDescription
-        }
+    private var desiredCloudKitActive: Bool {
+        environment.preferences.iCloudSyncEnabled && environment.proStore.isPro
     }
 
     var body: some Scene {
         WindowGroup {
             Group {
-                if let modelContainer {
+                if let modelContainer = storeResult.container {
                     RootTabView(launchArgs: launchArgs)
+                        .id(containerInstanceID)
                         .environment(environment)
                         .modelContainer(modelContainer)
                 } else {
                     DatabaseRecoveryView(
-                        errorDescription: storeInitializationError ?? "Unknown SwiftData store error",
-                        imageStore: environment.imageStore
+                        errorDescription: storeResult.errorDescription ?? String(localized: "Unknown SwiftData store error"),
+                        storeURL: ModelContainerFactory.defaultStoreURL(),
+                        imageStore: environment.imageStore,
+                        onRebuildLibrary: {
+                            reloadContainer(cloudKitRequested: desiredCloudKitActive)
+                        }
                     )
                 }
             }
             .preferredColorScheme(
                 launchArgs.forceDarkMode ? .dark : environment.preferences.appearanceMode.colorScheme
             )
+            .onChange(of: desiredCloudKitActive) { _, newValue in
+                environment.preferences.lastKnownProActive = environment.proStore.isPro
+                reloadContainer(cloudKitRequested: newValue)
+            }
+            .onChange(of: environment.proStore.isPro) { _, newIsPro in
+                environment.preferences.lastKnownProActive = newIsPro
+            }
         }
+    }
+
+    private func reloadContainer(cloudKitRequested: Bool) {
+        let refreshed = ModelContainerFactory.makeContainer(cloudKitRequested: cloudKitRequested)
+        environment.storeSyncStatus = refreshed.syncStatus
+        storeResult = refreshed
+        containerInstanceID = UUID()
     }
 }

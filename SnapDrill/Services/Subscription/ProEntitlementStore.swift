@@ -2,6 +2,14 @@ import Foundation
 import Observation
 import StoreKit
 
+/// Snapshot of a verified StoreKit entitlement used for deterministic ranking & unit tests.
+struct EntitlementSnapshot: Equatable, Sendable {
+    let productID: String
+    let expirationDate: Date?
+    let isTrial: Bool
+    let isRevoked: Bool
+}
+
 /// Manages StoreKit 2 Pro subscriptions, Family Sharing, restore purchases, and lossless degradation (PRD §6, §8.6, AC-08).
 @Observable
 @MainActor
@@ -9,22 +17,25 @@ final class ProEntitlementStore: ProEntitlementServing {
     private(set) var products: [Product] = []
     private(set) var statusState: SubscriptionStatusState = .free
     private(set) var isLoadingProducts: Bool = false
+    private(set) var productsLoadFailed: Bool = false
     private(set) var purchaseInFlight: Bool = false
     private(set) var statusMessage: String?
 
     private let defaults: UserDefaults
     private let hadPriorEntitlementKey = "snapdrill.hadPriorProEntitlement"
+    private let lastKnownProActiveKey = "snapdrill.lastKnownProActive"
     private var updatesTask: Task<Void, Never>?
 
     #if DEBUG
     var debugOverride: DebugSubscriptionOverride = .automatic {
         didSet {
-            recomputeStateFromEntitlements(lastActiveEntitlement: cachedEntitlement)
+            recomputeStateFromEntitlements(lastActiveEntitlement: cachedEntitlement, detectedPriorExpired: detectedPriorExpired)
         }
     }
     #endif
 
-    private var cachedEntitlement: (productID: String, isTrial: Bool)?
+    private var cachedEntitlement: EntitlementSnapshot?
+    private var detectedPriorExpired: Bool = false
 
     init(userDefaults: UserDefaults = .standard, startListeners: Bool = true) {
         self.defaults = userDefaults
@@ -50,6 +61,20 @@ final class ProEntitlementStore: ProEntitlementServing {
         products.first { $0.id == SnapDrillProductID.yearly.rawValue }
     }
 
+    /// Selects the highest-priority valid entitlement (non-revoked, non-expiring or latest expiration date).
+    nonisolated static func selectBestEntitlement(from snapshots: [EntitlementSnapshot]) -> EntitlementSnapshot? {
+        let valid = snapshots.filter { snapshot in
+            !snapshot.isRevoked && SnapDrillProductID(rawValue: snapshot.productID) != nil
+        }
+        return valid.max { lhs, rhs in
+            switch (lhs.expirationDate, rhs.expirationDate) {
+            case (nil, _): return false
+            case (_, nil): return true
+            case let (l?, r?): return l < r
+            }
+        }
+    }
+
     /// PRD §8.6 & AC-08: When Pro expires, keep all local data editable/printable/exportable,
     /// revert PDF to P0 watermark + end appendix layout, and lock Pro-only styling/features.
     nonisolated func effectivePDFOptions(requested: PDFExportOptions, isPro: Bool) -> PDFExportOptions {
@@ -71,13 +96,15 @@ final class ProEntitlementStore: ProEntitlementServing {
 
     func loadProducts() async {
         isLoadingProducts = true
+        productsLoadFailed = false
         defer { isLoadingProducts = false }
         do {
             let ids = SnapDrillProductID.allCases.map(\.rawValue)
             let loaded = try await Product.products(for: ids)
             self.products = loaded.sorted { $0.price < $1.price }
+            self.productsLoadFailed = self.products.isEmpty
         } catch {
-            // Silently tolerate offline / missing StoreKit config in Simulator while showing clear fallback pricing labels
+            self.productsLoadFailed = true
         }
     }
 
@@ -127,24 +154,51 @@ final class ProEntitlementStore: ProEntitlementServing {
     }
 
     func refreshEntitlements() async {
-        var found: (productID: String, isTrial: Bool)?
+        var activeSnapshots: [EntitlementSnapshot] = []
 
         for await result in Transaction.currentEntitlements {
             if case .verified(let transaction) = result,
-               SnapDrillProductID(rawValue: transaction.productID) != nil,
-               transaction.revocationDate == nil {
-                let isTrial = transaction.offer?.paymentMode == .freeTrial
-                found = (transaction.productID, isTrial)
-                defaults.set(true, forKey: hadPriorEntitlementKey)
-                break
+               SnapDrillProductID(rawValue: transaction.productID) != nil {
+                activeSnapshots.append(
+                    EntitlementSnapshot(
+                        productID: transaction.productID,
+                        expirationDate: transaction.expirationDate,
+                        isTrial: transaction.offer?.paymentMode == .freeTrial,
+                        isRevoked: transaction.revocationDate != nil
+                    )
+                )
             }
         }
 
-        cachedEntitlement = found
-        recomputeStateFromEntitlements(lastActiveEntitlement: found)
+        let bestActive = Self.selectBestEntitlement(from: activeSnapshots)
+        var foundPrior = defaults.bool(forKey: hadPriorEntitlementKey)
+
+        if bestActive != nil {
+            defaults.set(true, forKey: hadPriorEntitlementKey)
+            foundPrior = true
+        } else {
+            // Query Transaction.latest(for:) so expired subscriptions are still detected accurately after reinstall
+            for productID in SnapDrillProductID.allCases {
+                if let latest = await Transaction.latest(for: productID.rawValue),
+                   case .verified(let tx) = latest,
+                   tx.revocationDate == nil {
+                    foundPrior = true
+                    defaults.set(true, forKey: hadPriorEntitlementKey)
+                    break
+                }
+            }
+        }
+
+        cachedEntitlement = bestActive
+        detectedPriorExpired = foundPrior
+        recomputeStateFromEntitlements(lastActiveEntitlement: bestActive, detectedPriorExpired: foundPrior)
+        defaults.set(isPro, forKey: lastKnownProActiveKey)
     }
 
-    private func recomputeStateFromEntitlements(lastActiveEntitlement: (productID: String, isTrial: Bool)?) {
+    private func recomputeStateFromEntitlements(
+        lastActiveEntitlement: EntitlementSnapshot?,
+        detectedPriorExpired: Bool
+    ) {
         #if DEBUG
         switch debugOverride {
         case .forcePro:
@@ -160,7 +214,7 @@ final class ProEntitlementStore: ProEntitlementServing {
 
         if let active = lastActiveEntitlement {
             statusState = .pro(productID: active.productID, isTrial: active.isTrial)
-        } else if defaults.bool(forKey: hadPriorEntitlementKey) {
+        } else if detectedPriorExpired {
             statusState = .expiredFallback
         } else {
             statusState = .free
