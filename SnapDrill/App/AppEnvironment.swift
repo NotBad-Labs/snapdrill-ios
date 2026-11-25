@@ -3,6 +3,24 @@ import Observation
 import SwiftData
 import UIKit
 
+/// How the capture wizard should start (camera first, or straight into the photo picker).
+enum CaptureStartMode: Sendable, Equatable {
+    case cameraDefault
+    case photoLibrary
+}
+
+/// One-shot request to open the capture wizard from anywhere in the view hierarchy (toolbar buttons, empty states, quick actions).
+struct CaptureRequest: Equatable, Identifiable {
+    let id = UUID()
+    let mode: CaptureStartMode
+    let preferredSubjectID: UUID?
+    let resumeSession: CaptureSession?
+
+    static func == (lhs: CaptureRequest, rhs: CaptureRequest) -> Bool {
+        lhs.id == rhs.id
+    }
+}
+
 /// Global application coordinator holding shared services, 5-second undo deletion queue,
 /// draft recovery state, CloudKit status, and subtle save feedback banners.
 @Observable
@@ -37,6 +55,9 @@ final class AppEnvironment {
 
     /// Unfinished CaptureSession recovered from disk after an abrupt termination (PRD §8.6, AC-09).
     var recoverableDraft: CaptureSession?
+
+    /// Pending request to present the capture wizard; consumed by the root shell.
+    var captureRequest: CaptureRequest?
 
     init(
         preferences: AppPreferencesStore? = nil,
@@ -129,5 +150,17 @@ final class AppEnvironment {
     func discardRecoverableDraft() async {
         recoverableDraft = nil
         await draftStore.clearDraft()
+    }
+
+    func requestCapture(
+        mode: CaptureStartMode = .cameraDefault,
+        preferredSubjectID: UUID? = nil,
+        resumeSession: CaptureSession? = nil
+    ) {
+        captureRequest = CaptureRequest(
+            mode: mode,
+            preferredSubjectID: preferredSubjectID,
+            resumeSession: resumeSession
+        )
     }
 }

@@ -21,6 +21,7 @@ struct MistakeListFilterSheet: View {
                     .pickerStyle(.inline)
                     .labelsHidden()
                 }
+                .listRowBackground(SnapDrillTheme.cardSurface)
 
                 Section("Mastery Level") {
                     ForEach(MasteryLevel.allCases) { level in
@@ -40,6 +41,7 @@ struct MistakeListFilterSheet: View {
                         }
                     }
                 }
+                .listRowBackground(SnapDrillTheme.cardSurface)
 
                 Section("Error Causes") {
                     ForEach(MistakeCause.allCases) { cause in
@@ -76,6 +78,7 @@ struct MistakeListFilterSheet: View {
                         }
                     }
                 }
+                .listRowBackground(SnapDrillTheme.cardSurface)
 
                 if !tags.isEmpty {
                     Section("Tags") {
@@ -96,8 +99,11 @@ struct MistakeListFilterSheet: View {
                             }
                         }
                     }
+                    .listRowBackground(SnapDrillTheme.cardSurface)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .paperBackground()
             .navigationTitle(String(localized: "Filter Mistakes"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

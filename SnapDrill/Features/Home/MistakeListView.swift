@@ -39,43 +39,26 @@ struct MistakeListView: View {
         filteredMistakes.filter { selectedIDs.contains($0.id) }
     }
 
+    private var allFilteredSelected: Bool {
+        !filteredMistakes.isEmpty && filteredMistakes.allSatisfy { selectedIDs.contains($0.id) }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             filterControlStrip
                 .padding(.horizontal, SnapDrillTheme.screenPadding)
-                .padding(.vertical, 8)
+                .padding(.vertical, 4)
 
             if filteredMistakes.isEmpty {
-                Spacer()
-                PaperCard(padding: 24) {
-                    VStack(spacing: 12) {
-                        PandaMascotView(mood: .welcoming, size: 96)
-                        Text("No mistakes match these filters")
-                            .font(.headline)
-                            .foregroundStyle(SnapDrillTheme.inkBlack)
-                        if criteria.hasActiveModifiers {
-                            Button("Clear Filters") {
-                                criteria = MistakeFilterCriteria()
-                            }
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(SnapDrillTheme.inkBlue)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-                .padding(.horizontal, SnapDrillTheme.screenPadding)
-                Spacer()
+                emptyContent
             } else {
                 contentView
-            }
-
-            if isSelecting && !selectedMistakes.isEmpty {
-                batchActionBar
             }
         }
         .paperBackground()
         .navigationTitle(subject?.name ?? String(localized: "All Mistakes"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarVisibility(.hidden, for: .tabBar)
         .searchable(
             text: $criteria.searchQuery,
             prompt: environment.proStore.isPro
@@ -83,52 +66,118 @@ struct MistakeListView: View {
                 : Text("Search notes or tags")
         )
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                if !filteredMistakes.isEmpty && !isSelecting {
-                    Button {
-                        // PRD §8.4: Inherit exact current list filter results directly into review
-                        reviewBatchMistakes = filteredMistakes
-                    } label: {
-                        Label("Review", systemImage: "play.rectangle.fill")
-                    }
-                    .accessibilityLabel(String(localized: "Review Current List"))
-                }
-
-                Menu {
-                    Button {
-                        layout = layout == .list ? .grid : .list
-                    } label: {
-                        Label(
-                            layout == .list ? String(localized: "Grid View") : String(localized: "List View"),
-                            systemImage: layout == .list ? "square.grid.2x2" : "list.bullet"
-                        )
-                    }
-
-                    Button {
-                        isSelecting.toggle()
-                        if !isSelecting { selectedIDs.removeAll() }
-                    } label: {
-                        Label(
-                            isSelecting ? String(localized: "Done Selecting") : String(localized: "Select Multiple"),
-                            systemImage: isSelecting ? "checkmark.circle" : "checkmark.circle.badge.plus"
-                        )
-                    }
-
-                    if !filteredMistakes.isEmpty {
-                        Button {
-                            exportBatchMistakes = filteredMistakes
-                        } label: {
-                            Label("Export All Filtered as PDF", systemImage: "doc.richtext")
+            if isSelecting {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(allFilteredSelected ? String(localized: "Deselect All") : String(localized: "Select All")) {
+                        if allFilteredSelected {
+                            selectedIDs.removeAll()
+                        } else {
+                            selectedIDs = Set(filteredMistakes.map(\.id))
                         }
                     }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
                 }
-                .accessibilityLabel(String(localized: "More Actions"))
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") {
+                        isSelecting = false
+                        selectedIDs.removeAll()
+                    }
+                    .fontWeight(.semibold)
+                }
+
+                ToolbarItemGroup(placement: .bottomBar) {
+                    Button {
+                        exportBatchMistakes = selectedMistakes
+                    } label: {
+                        Label("PDF", systemImage: "doc.richtext")
+                    }
+                    .disabled(selectedMistakes.isEmpty)
+
+                    Spacer()
+
+                    Button {
+                        showingBatchMoveSheet = true
+                    } label: {
+                        Label("Move", systemImage: "folder")
+                    }
+                    .disabled(selectedMistakes.isEmpty)
+
+                    Spacer()
+
+                    Button(role: .destructive) {
+                        environment.scheduleSoftDelete(selectedMistakes, in: modelContext)
+                        selectedIDs.removeAll()
+                        isSelecting = false
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .disabled(selectedMistakes.isEmpty)
+                }
             }
+
+            if !isSelecting {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        environment.requestCapture(
+                            mode: .cameraDefault,
+                            preferredSubjectID: subject?.id
+                        )
+                    } label: {
+                        Label(String(localized: "Capture Mistakes"), systemImage: "camera.viewfinder")
+                    }
+                    .buttonStyle(.glassProminent)
+                    .tint(SnapDrillTheme.inkBlue)
+                    .accessibilityLabel(String(localized: "Capture Mistakes"))
+                }
+
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    if !filteredMistakes.isEmpty {
+                        Button {
+                            // PRD §8.4: Inherit exact current list filter results directly into review
+                            reviewBatchMistakes = filteredMistakes
+                        } label: {
+                            Label("Review", systemImage: "play.rectangle.fill")
+                        }
+                        .accessibilityLabel(String(localized: "Review Current List"))
+                    }
+
+                    Menu {
+                        Button {
+                            layout = layout == .list ? .grid : .list
+                        } label: {
+                            Label(
+                                layout == .list ? String(localized: "Grid View") : String(localized: "List View"),
+                                systemImage: layout == .list ? "square.grid.2x2" : "list.bullet"
+                            )
+                        }
+
+                        Button {
+                            isSelecting = true
+                        } label: {
+                            Label(String(localized: "Select Multiple"), systemImage: "checkmark.circle.badge.plus")
+                        }
+
+                        if !filteredMistakes.isEmpty {
+                            Button {
+                                exportBatchMistakes = filteredMistakes
+                            } label: {
+                                Label("Export All Filtered as PDF", systemImage: "doc.richtext")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .accessibilityLabel(String(localized: "More Actions"))
+                }
+            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            TransientStatusBanners()
         }
         .sheet(isPresented: $showingFilterSheet) {
             MistakeListFilterSheet(criteria: $criteria)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
         .sheet(isPresented: Binding(
             get: { exportBatchMistakes != nil },
@@ -170,6 +219,44 @@ struct MistakeListView: View {
         }
     }
 
+    @ViewBuilder
+    private var emptyContent: some View {
+        if !criteria.searchQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            ContentUnavailableView.search(text: criteria.searchQuery)
+        } else if criteria.hasActiveModifiers {
+            ContentUnavailableView {
+                Label("No mistakes match these filters", systemImage: "line.3.horizontal.decrease.circle")
+            } actions: {
+                Button("Clear Filters") {
+                    criteria = MistakeFilterCriteria()
+                }
+                .buttonStyle(.bordered)
+                .tint(SnapDrillTheme.inkBlue)
+            }
+        } else {
+            ContentUnavailableView {
+                VStack(spacing: 8) {
+                    PandaMascotView(mood: .welcoming, size: 96)
+                    Text("No mistakes yet")
+                        .font(.title3.weight(.semibold))
+                }
+            } description: {
+                Text("Snap a homework or exam page to add the first one here.")
+            } actions: {
+                Button {
+                    environment.requestCapture(
+                        mode: .cameraDefault,
+                        preferredSubjectID: subject?.id
+                    )
+                } label: {
+                    Label("Snap a Mistake", systemImage: "camera.viewfinder")
+                }
+                .buttonStyle(.glassProminent)
+                .tint(SnapDrillTheme.inkBlue)
+            }
+        }
+    }
+
     // MARK: - Subviews
 
     private var filterControlStrip: some View {
@@ -195,6 +282,8 @@ struct MistakeListView: View {
                 .padding(.vertical, 7)
                 .background(SnapDrillTheme.cardSurface, in: Capsule())
                 .overlay(Capsule().strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1))
+                .frame(minHeight: 44)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
@@ -217,8 +306,11 @@ struct MistakeListView: View {
                                 .overlay(
                                     Capsule().strokeBorder(active ? Color.clear : SnapDrillTheme.ruledLine, lineWidth: 1)
                                 )
+                                .frame(minHeight: 44)
+                                .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .accessibilityAddTraits(active ? .isSelected : [])
                     }
                 }
             }
@@ -283,7 +375,7 @@ struct MistakeListView: View {
                     }
                 }
                 .padding(.horizontal, SnapDrillTheme.screenPadding)
-                .padding(.bottom, 108)
+                .padding(.bottom, 16)
             }
         }
     }
@@ -323,40 +415,6 @@ struct MistakeListView: View {
                 }
             }
         }
-    }
-
-    private var batchActionBar: some View {
-        HStack(spacing: 16) {
-            Button {
-                exportBatchMistakes = selectedMistakes
-            } label: {
-                Label("PDF", systemImage: "doc.richtext")
-            }
-
-            Spacer()
-
-            Button {
-                showingBatchMoveSheet = true
-            } label: {
-                Label("Move", systemImage: "folder")
-            }
-
-            Spacer()
-
-            Button(role: .destructive) {
-                environment.scheduleSoftDelete(selectedMistakes, in: modelContext)
-                selectedIDs.removeAll()
-                isSelecting = false
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-        }
-        .font(.subheadline.weight(.semibold))
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
-        .background(SnapDrillTheme.cardSurface)
-        .overlay(alignment: .top) { RuledDivider() }
-        .padding(.bottom, 54)
     }
 
     private func toggleSelection(_ id: UUID) {

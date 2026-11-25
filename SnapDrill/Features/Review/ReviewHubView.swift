@@ -31,24 +31,39 @@ struct ReviewHubView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 11) {
-                    summaryCard
-                    subjectFilterCard
-                    masteryAndCauseFilterCard
+            Group {
+                if visibleMistakes.isEmpty {
+                    emptyReviewState
+                } else {
+                    ScrollView {
+                        VStack(spacing: 11) {
+                            summaryCard
+                            subjectFilterCard
+                            masteryAndCauseFilterCard
 
-                    if !tags.isEmpty {
-                        tagFilterCard
+                            if !tags.isEmpty {
+                                tagFilterCard
+                            }
+                        }
+                        .padding(.horizontal, SnapDrillTheme.screenPadding)
+                        .padding(.top, 4)
+                        .padding(.bottom, 16)
                     }
-
-                    startReviewButton
                 }
-                .padding(.horizontal, SnapDrillTheme.screenPadding)
-                .padding(.top, 4)
-                .padding(.bottom, 140)
             }
             .paperBackground()
             .navigationTitle(String(localized: "Review"))
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                VStack(spacing: 0) {
+                    TransientStatusBanners()
+
+                    if !visibleMistakes.isEmpty {
+                        BottomActionBarContainer {
+                            startReviewButton
+                        }
+                    }
+                }
+            }
             .fullScreenCover(isPresented: Binding(
                 get: { activeSessionMistakes != nil },
                 set: { if !$0 { activeSessionMistakes = nil } }
@@ -59,6 +74,28 @@ struct ReviewHubView: View {
                     }
                 }
             }
+        }
+    }
+
+    // MARK: - Empty State
+
+    private var emptyReviewState: some View {
+        ContentUnavailableView {
+            VStack(spacing: 8) {
+                PandaMascotView(mood: .welcoming, size: 100)
+                Text("No mistakes to review yet")
+                    .font(.title3.weight(.semibold))
+            }
+        } description: {
+            Text("Snap homework or exam mistakes first, then practice them here with hidden answers.")
+        } actions: {
+            Button {
+                environment.requestCapture(mode: .cameraDefault)
+            } label: {
+                Label("Snap Your First Mistake", systemImage: "camera.viewfinder")
+            }
+            .buttonStyle(.glassProminent)
+            .tint(SnapDrillTheme.inkBlue)
         }
     }
 

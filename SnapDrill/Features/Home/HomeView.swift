@@ -1,22 +1,46 @@
 import SwiftData
 import SwiftUI
 
-/// Tab 1: Home notebook overview displaying All Mistakes banner, keyword search, and 2-column subject cards (PRD §8.3, F-30).
-struct HomeView: View {
-    let onStartCapture: () -> Void
+/// Enables the system search field only once the library has content (no search chrome on a fresh, empty notebook).
+private struct HomeSearchModifier: ViewModifier {
+    let isEnabled: Bool
+    @Binding var text: String
+    let prompt: Text
 
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content.searchable(text: $text, prompt: prompt)
+        } else {
+            content
+        }
+    }
+}
+
+/// Tab 1: Home notebook overview. Distinct empty-library welcome state vs populated state with
+/// All Mistakes tile, keyword search, and 2-column subject tiles (PRD §8.3, F-30, AC-01).
+struct HomeView: View {
     @Environment(AppEnvironment.self) private var environment
     @Query(sort: \Subject.sortOrder) private var subjects: [Subject]
     @Query(sort: \MistakeItem.createdAt, order: .reverse) private var allMistakes: [MistakeItem]
 
     @ScaledMetric private var headerBadgeSize: CGFloat = 44
-    @ScaledMetric private var subjectDotSize: CGFloat = 12
+    @ScaledMetric private var subjectBadgeSize: CGFloat = 30
+    @ScaledMetric private var subjectDotSize: CGFloat = 10
 
     @State private var searchText = ""
     @State private var showingPaywall = false
 
     private var visibleMistakes: [MistakeItem] {
         allMistakes.filter { !environment.pendingDeletionIDs.contains($0.id) }
+    }
+
+    private var isLibraryEmpty: Bool {
+        visibleMistakes.isEmpty
+    }
+
+    private var isSearching: Bool {
+        !isLibraryEmpty && !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private var displayedSubjects: [Subject] {
@@ -38,39 +62,167 @@ struct HomeView: View {
         return MistakeFilterEngine.filter(visibleMistakes, using: criteria)
     }
 
+    private var searchPrompt: Text {
+        environment.proStore.isPro
+            ? Text("Search questions, notes, or tags")
+            : Text("Search notes, tags, or subjects")
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    if isSearching {
                         searchResultsSection
+                    } else if isLibraryEmpty {
+                        emptyLibraryHero
+                        compactSubjectsSection
                     } else {
                         allMistakesCard
-                        if visibleMistakes.isEmpty {
-                            emptyNotebookCard
-                        }
                         subjectGridSection
                     }
                 }
                 .padding(.horizontal, SnapDrillTheme.screenPadding)
                 .padding(.top, 8)
-                .padding(.bottom, 108)
+                .padding(.bottom, 16)
             }
             .paperBackground()
             .navigationTitle(String(localized: "Mistake Notebook"))
-            .searchable(
-                text: $searchText,
-                prompt: environment.proStore.isPro
-                    ? Text("Search questions, notes, or tags")
-                    : Text("Search notes, tags, or subjects")
-            )
+            .modifier(HomeSearchModifier(isEnabled: !isLibraryEmpty, text: $searchText, prompt: searchPrompt))
+            .toolbar {
+                if isLibraryEmpty {
+                    ToolbarItem(placement: .primaryAction) {
+                        NavigationLink {
+                            SubjectManagementView()
+                        } label: {
+                            Image(systemName: "slider.horizontal.3")
+                        }
+                        .accessibilityLabel(String(localized: "Manage Subjects"))
+                    }
+                }
+
+                if !isLibraryEmpty {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button {
+                            environment.requestCapture(mode: .cameraDefault)
+                        } label: {
+                            Label(String(localized: "Capture Mistakes"), systemImage: "camera.viewfinder")
+                        }
+                        .buttonStyle(.glassProminent)
+                        .tint(SnapDrillTheme.inkBlue)
+                        .accessibilityLabel(String(localized: "Capture Mistakes"))
+                    }
+                }
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                TransientStatusBanners()
+            }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
             }
         }
     }
 
-    // MARK: - Sections
+    // MARK: - Empty Library (first launch)
+
+    private var emptyLibraryHero: some View {
+        PaperCard(padding: 24) {
+            VStack(spacing: 14) {
+                PandaMascotView(mood: .welcoming, size: 108)
+
+                Text("Your notebook is fresh and clean")
+                    .font(.headline)
+                    .foregroundStyle(SnapDrillTheme.inkBlack)
+                    .multilineTextAlignment(.center)
+
+                Text("Snap a homework or test page instead of copying by hand. SnapDrill cleans annotations right on your iPhone.")
+                    .font(.subheadline)
+                    .foregroundStyle(SnapDrillTheme.inkSecondary)
+                    .multilineTextAlignment(.center)
+
+                VStack(spacing: 10) {
+                    Button {
+                        environment.requestCapture(mode: .cameraDefault)
+                    } label: {
+                        Label("Snap Your First Mistake", systemImage: "camera.viewfinder")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity, minHeight: 48)
+                    }
+                    .buttonStyle(.glassProminent)
+                    .tint(SnapDrillTheme.inkBlue)
+
+                    Button {
+                        environment.requestCapture(mode: .photoLibrary)
+                    } label: {
+                        Label("Import from Photos", systemImage: "photo.on.rectangle.angled")
+                            .font(.subheadline.weight(.semibold))
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                    .buttonStyle(.glass)
+                    .tint(SnapDrillTheme.inkBlue)
+                }
+                .padding(.top, 6)
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    private var compactSubjectsSection: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Subjects")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(SnapDrillTheme.inkSecondary)
+                    .padding(.leading, 4)
+
+                Spacer()
+
+                NavigationLink {
+                    SubjectManagementView()
+                } label: {
+                    Text("Manage")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(SnapDrillTheme.inkBlue)
+                        .frame(minHeight: 44)
+                }
+            }
+
+            let columns = [
+                GridItem(.flexible(), spacing: 10),
+                GridItem(.flexible(), spacing: 10)
+            ]
+
+            LazyVGrid(columns: columns, spacing: 10) {
+                ForEach(displayedSubjects) { subject in
+                    NavigationLink {
+                        MistakeListView(subject: subject)
+                    } label: {
+                        PaperCard(padding: 12) {
+                            HStack(spacing: 8) {
+                                Circle()
+                                    .fill(Color(hexString: subject.colorHex))
+                                    .frame(width: subjectDotSize, height: subjectDotSize)
+                                Text(subject.name)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(SnapDrillTheme.inkBlack)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.85)
+                                Spacer(minLength: 0)
+                                Image(systemName: "chevron.right")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(SnapDrillTheme.inkSecondary)
+                            }
+                            .frame(minHeight: 24)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(subject.name)
+                }
+            }
+        }
+    }
+
+    // MARK: - Populated Library
 
     private var allMistakesCard: some View {
         NavigationLink {
@@ -84,16 +236,15 @@ struct HomeView: View {
                         .frame(width: headerBadgeSize, height: headerBadgeSize)
                         .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
 
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("All Mistakes")
-                            .font(.headline)
-                            .foregroundStyle(SnapDrillTheme.inkBlack)
-                        Text("\(visibleMistakes.count) saved problems")
-                            .font(.caption)
-                            .foregroundStyle(SnapDrillTheme.inkSecondary)
-                    }
+                    Text("All Mistakes")
+                        .font(.headline)
+                        .foregroundStyle(SnapDrillTheme.inkBlack)
 
                     Spacer()
+
+                    Text("\(visibleMistakes.count)")
+                        .font(.title3.weight(.bold).monospacedDigit())
+                        .foregroundStyle(SnapDrillTheme.inkBlack)
 
                     Image(systemName: "chevron.right")
                         .font(.subheadline.weight(.semibold))
@@ -104,38 +255,6 @@ struct HomeView: View {
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(String(localized: "All Mistakes, \(visibleMistakes.count) saved problems"))
-    }
-
-    private var emptyNotebookCard: some View {
-        PaperCard(padding: 24) {
-            VStack(spacing: 14) {
-                PandaMascotView(mood: .welcoming, size: 112)
-
-                Text("Your notebook is fresh and clean")
-                    .font(.headline)
-                    .foregroundStyle(SnapDrillTheme.inkBlack)
-                    .multilineTextAlignment(.center)
-
-                Text("Snap a homework or test page instead of copying by hand. SnapDrill cleans annotations right on your iPhone.")
-                    .font(.subheadline)
-                    .foregroundStyle(SnapDrillTheme.inkSecondary)
-                    .multilineTextAlignment(.center)
-
-                Button {
-                    onStartCapture()
-                } label: {
-                    Label("Snap Your First Mistake", systemImage: "camera.viewfinder")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(SnapDrillTheme.inkBlue, in: Capsule(style: .continuous))
-                }
-                .buttonStyle(.plain)
-                .padding(.top, 4)
-            }
-            .frame(maxWidth: .infinity)
-        }
     }
 
     private var subjectGridSection: some View {
@@ -153,30 +272,32 @@ struct HomeView: View {
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(displayedSubjects) { subject in
                     let count = mistakeCount(for: subject)
+                    let tint = Color(hexString: subject.colorHex)
                     NavigationLink {
                         MistakeListView(subject: subject)
                     } label: {
                         PaperCard(padding: 14) {
-                            VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 14) {
                                 HStack {
                                     Circle()
-                                        .fill(Color(hexString: subject.colorHex))
-                                        .frame(width: subjectDotSize, height: subjectDotSize)
+                                        .fill(tint.opacity(0.18))
+                                        .frame(width: subjectBadgeSize, height: subjectBadgeSize)
+                                        .overlay {
+                                            Circle()
+                                                .fill(tint)
+                                                .frame(width: subjectDotSize, height: subjectDotSize)
+                                        }
                                     Spacer()
                                     Text("\(count)")
-                                        .font(.title3.weight(.bold).monospacedDigit())
+                                        .font(.title2.weight(.bold).monospacedDigit())
                                         .foregroundStyle(SnapDrillTheme.inkBlack)
                                 }
 
                                 Text(subject.name)
                                     .font(.headline)
                                     .foregroundStyle(SnapDrillTheme.inkBlack)
-                                    .lineLimit(2)
-                                    .multilineTextAlignment(.leading)
-
-                                Text(count == 0 ? String(localized: "Empty") : String(localized: "\(count) problems"))
-                                    .font(.caption)
-                                    .foregroundStyle(SnapDrillTheme.inkSecondary)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.85)
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
@@ -214,17 +335,7 @@ struct HomeView: View {
             }
 
             if searchMatches.isEmpty {
-                PaperCard(padding: 24) {
-                    VStack(spacing: 10) {
-                        Image(systemName: "magnifyingglass")
-                            .font(.title2)
-                            .foregroundStyle(SnapDrillTheme.inkSecondary)
-                        Text("No matching mistakes found")
-                            .font(.headline)
-                            .foregroundStyle(SnapDrillTheme.inkBlack)
-                    }
-                    .frame(maxWidth: .infinity)
-                }
+                ContentUnavailableView.search(text: searchText)
             } else {
                 ForEach(searchMatches) { item in
                     NavigationLink {

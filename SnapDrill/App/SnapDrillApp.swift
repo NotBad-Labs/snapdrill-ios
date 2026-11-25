@@ -1,11 +1,86 @@
 import SwiftData
 import SwiftUI
+import UIKit
 
 /// Primary application destinations.
 enum SnapDrillTab: String, Hashable, Sendable {
     case home
     case review
     case settings
+}
+
+/// Home Screen quick actions registered with the system.
+enum AppQuickAction: String, Sendable {
+    case capture = "com.notbadlabs.snapdrill.capture"
+    case review = "com.notbadlabs.snapdrill.review"
+}
+
+/// Bridges UIKit quick-action callbacks into SwiftUI state.
+@MainActor
+@Observable
+final class QuickActionRouter {
+    static let shared = QuickActionRouter()
+    var pendingAction: AppQuickAction?
+
+    func consume() -> AppQuickAction? {
+        defer { pendingAction = nil }
+        return pendingAction
+    }
+}
+
+@MainActor
+final class SnapDrillAppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        application.shortcutItems = [
+            UIApplicationShortcutItem(
+                type: AppQuickAction.capture.rawValue,
+                localizedTitle: String(localized: "Capture Mistakes"),
+                localizedSubtitle: nil,
+                icon: UIApplicationShortcutIcon(systemImageName: "camera.viewfinder"),
+                userInfo: nil
+            ),
+            UIApplicationShortcutItem(
+                type: AppQuickAction.review.rawValue,
+                localizedTitle: String(localized: "Start Review"),
+                localizedSubtitle: nil,
+                icon: UIApplicationShortcutIcon(systemImageName: "rectangle.stack.fill"),
+                userInfo: nil
+            )
+        ]
+        return true
+    }
+
+    func application(
+        _ application: UIApplication,
+        configurationForConnecting connectingSceneSession: UISceneSession,
+        options: UIScene.ConnectionOptions
+    ) -> UISceneConfiguration {
+        if let item = options.shortcutItem, let action = AppQuickAction(rawValue: item.type) {
+            QuickActionRouter.shared.pendingAction = action
+        }
+        let configuration = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
+        configuration.delegateClass = SnapDrillSceneDelegate.self
+        return configuration
+    }
+}
+
+@MainActor
+final class SnapDrillSceneDelegate: NSObject, UIWindowSceneDelegate {
+    func windowScene(
+        _ windowScene: UIWindowScene,
+        performActionFor shortcutItem: UIApplicationShortcutItem,
+        completionHandler: @escaping (Bool) -> Void
+    ) {
+        guard let action = AppQuickAction(rawValue: shortcutItem.type) else {
+            completionHandler(false)
+            return
+        }
+        QuickActionRouter.shared.pendingAction = action
+        completionHandler(true)
+    }
 }
 
 /// Optional launch flags supporting automated UI verification across routes and color schemes.
@@ -40,6 +115,7 @@ struct AppLaunchArguments: Sendable {
 
 @main
 struct SnapDrillApp: App {
+    @UIApplicationDelegateAdaptor(SnapDrillAppDelegate.self) private var appDelegate
     private let launchArgs = AppLaunchArguments.current()
 
     @State private var environment: AppEnvironment

@@ -31,32 +31,32 @@ struct MistakeDetailView: View {
         ScrollView {
             VStack(spacing: 16) {
                 problemImageCard
-                quickActionBar
-                masteryCard
                 collapsibleAnswerCard
-                metadataCard
+                studyRecordCard
             }
             .padding(.horizontal, SnapDrillTheme.screenPadding)
             .padding(.top, 8)
-            .padding(.bottom, 108)
+            .padding(.bottom, 16)
         }
         .paperBackground()
         .navigationTitle(mistake.subject?.name ?? String(localized: "Mistake Detail"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarVisibility(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    showingPDFPreview = true
+                } label: {
+                    Image(systemName: "printer")
+                }
+                .accessibilityLabel(String(localized: "Export PDF / Print"))
+
                 Button("Edit") {
                     showingEditSheet = true
                 }
                 .accessibilityLabel(String(localized: "Edit Mistake"))
 
                 Menu {
-                    Button {
-                        showingPDFPreview = true
-                    } label: {
-                        Label("Export PDF / Print", systemImage: "doc.richtext")
-                    }
-
                     if let img = displayedImage {
                         Button {
                             shareImageItem = img
@@ -192,7 +192,8 @@ struct MistakeDetailView: View {
                             ? String(localized: "Original Question Image")
                             : String(localized: "Cleaned Question Image")
                     )
-                    .frame(height: 280)
+                    .aspectRatio(adaptiveImageAspectRatio(for: displayedImage), contentMode: .fit)
+                    .frame(maxWidth: .infinity)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 } else {
                     RoundedRectangle(cornerRadius: 10)
@@ -204,6 +205,26 @@ struct MistakeDetailView: View {
                                 .foregroundStyle(SnapDrillTheme.inkSecondary)
                         }
                 }
+
+                RuledDivider()
+
+                quickActionBar
+            }
+        }
+    }
+
+    /// Keeps the problem image close to its true shape (no fixed 280pt box) while avoiding extreme heights.
+    private func adaptiveImageAspectRatio(for image: UIImage) -> CGFloat {
+        guard image.size.width > 0, image.size.height > 0 else { return 1.4 }
+        return min(max(image.size.width / image.size.height, 0.8), 2.0)
+    }
+
+    private var studyRecordCard: some View {
+        PaperCard(padding: 14) {
+            VStack(alignment: .leading, spacing: 12) {
+                masteryCard
+                RuledDivider()
+                metadataCard
             }
         }
     }
@@ -216,10 +237,9 @@ struct MistakeDetailView: View {
                 Label("Manual Eraser", systemImage: "eraser.fill")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(SnapDrillTheme.inkBlack)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(SnapDrillTheme.cardSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(SnapDrillTheme.elevatedSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .contentShape(Rectangle())
             }
             .accessibilityLabel(String(localized: "Open Manual Eraser"))
 
@@ -233,30 +253,18 @@ struct MistakeDetailView: View {
                 Label("Re-crop", systemImage: "crop")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(SnapDrillTheme.inkBlack)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(SnapDrillTheme.cardSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(SnapDrillTheme.elevatedSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .contentShape(Rectangle())
             }
             .accessibilityLabel(String(localized: "Re-crop Question"))
 
-            Button {
-                showingPDFPreview = true
-            } label: {
-                Label("PDF", systemImage: "doc.richtext")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            }
-            .accessibilityLabel(String(localized: "Export PDF / Print"))
         }
         .buttonStyle(.plain)
     }
 
     private var masteryCard: some View {
-        PaperCard(padding: 14) {
+        Group {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Text("Mastery")
@@ -305,6 +313,8 @@ struct MistakeDetailView: View {
                             .font(.caption.weight(.medium))
                             .foregroundStyle(SnapDrillTheme.inkBlue)
                     }
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
 
@@ -345,7 +355,7 @@ struct MistakeDetailView: View {
     }
 
     private var metadataCard: some View {
-        PaperCard(padding: 14) {
+        Group {
             VStack(alignment: .leading, spacing: 10) {
                 if !mistake.sourceTitle.isEmpty {
                     HStack {
@@ -615,6 +625,8 @@ struct MistakeEditSheet: View {
                                                     .white,
                                                     hasSubsequentUnhydrated ? SnapDrillTheme.inkSecondary : SnapDrillTheme.gradingRed
                                                 )
+                                                .frame(width: 44, height: 44)
+                                                .contentShape(Rectangle())
                                         }
                                         .disabled(hasSubsequentUnhydrated)
                                         .accessibilityLabel(String(localized: "Remove Answer Photo"))
@@ -635,6 +647,8 @@ struct MistakeEditSheet: View {
                         }
                 }
             }
+            .scrollContentBackground(.hidden)
+            .paperBackground()
             .navigationTitle(String(localized: "Edit Mistake"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

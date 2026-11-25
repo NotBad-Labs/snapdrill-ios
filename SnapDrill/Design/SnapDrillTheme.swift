@@ -148,3 +148,50 @@ extension View {
         modifier(PaperBackgroundModifier())
     }
 }
+
+/// Paper-toned inset text field replacing the legacy rounded-border style (Apple HIG grouped input look).
+struct PaperInputFieldModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(SnapDrillTheme.elevatedSurface)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1)
+            )
+    }
+}
+
+extension View {
+    func paperInputField() -> some View {
+        modifier(PaperInputFieldModifier())
+    }
+}
+
+/// Pinned bottom action container for `.safeAreaInset(edge: .bottom)` primary actions that must never scroll away.
+struct BottomActionBarContainer<Content: View>: View {
+    private let content: Content
+
+    init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+
+    var body: some View {
+        content
+            .padding(.horizontal, SnapDrillTheme.screenPadding)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity)
+            .background {
+                ZStack {
+                    Rectangle().fill(.ultraThinMaterial)
+                    SnapDrillTheme.paperBackground.opacity(0.88)
+                }
+                .ignoresSafeArea(edges: .bottom)
+            }
+            .overlay(alignment: .top) { RuledDivider() }
+    }
+}

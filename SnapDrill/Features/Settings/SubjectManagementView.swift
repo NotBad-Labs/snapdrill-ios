@@ -22,31 +22,35 @@ struct SubjectManagementView: View {
         List {
             Section {
                 ForEach(editableSubjects) { subject in
-                    HStack(spacing: 12) {
-                        Circle()
-                            .fill(Color(hexString: subject.colorHex))
-                            .frame(width: 14, height: 14)
+                    Button {
+                        editingSubject = subject
+                    } label: {
+                        HStack(spacing: 12) {
+                            Circle()
+                                .fill(Color(hexString: subject.colorHex))
+                                .frame(width: 14, height: 14)
 
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(subject.name)
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(SnapDrillTheme.inkBlack)
-                            Text("\(subject.mistakeList.count) problems")
-                                .font(.caption)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(subject.name)
+                                    .font(.subheadline.weight(.semibold))
+                                    .foregroundStyle(SnapDrillTheme.inkBlack)
+                                Text("\(subject.mistakeList.count) problems")
+                                    .font(.caption)
+                                    .foregroundStyle(SnapDrillTheme.inkSecondary)
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
                                 .foregroundStyle(SnapDrillTheme.inkSecondary)
                         }
-
-                        Spacer()
-
-                        Button {
-                            editingSubject = subject
-                        } label: {
-                            Image(systemName: "pencil")
-                                .foregroundStyle(SnapDrillTheme.inkBlue)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(String(localized: "Edit \(subject.name)"))
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(String(localized: "Edit \(subject.name)"))
+                    .listRowBackground(SnapDrillTheme.cardSurface)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) {
                             requestDelete(subject)
@@ -72,6 +76,7 @@ struct SubjectManagementView: View {
                             .font(.caption)
                             .foregroundStyle(SnapDrillTheme.inkSecondary)
                     }
+                    .listRowBackground(SnapDrillTheme.cardSurface)
                 }
             }
         }
@@ -79,6 +84,7 @@ struct SubjectManagementView: View {
         .paperBackground()
         .navigationTitle(String(localized: "Subjects"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarVisibility(.hidden, for: .tabBar)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 EditButton()
@@ -172,6 +178,7 @@ private struct SubjectEditorSheet: View {
                 Section("Subject Name") {
                     TextField("e.g. Biology, History", text: $name)
                 }
+                .listRowBackground(SnapDrillTheme.cardSurface)
 
                 Section("Color") {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 14) {
@@ -199,7 +206,10 @@ private struct SubjectEditorSheet: View {
                     }
                     .padding(.vertical, 6)
                 }
+                .listRowBackground(SnapDrillTheme.cardSurface)
             }
+            .scrollContentBackground(.hidden)
+            .paperBackground()
             .navigationTitle(subject == nil ? String(localized: "New Subject") : String(localized: "Edit Subject"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

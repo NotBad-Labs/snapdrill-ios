@@ -20,6 +20,7 @@ struct CauseAndTagManagementView: View {
                         .foregroundStyle(SnapDrillTheme.inkBlack)
                 }
             }
+            .listRowBackground(SnapDrillTheme.cardSurface)
 
             Section {
                 HStack {
@@ -53,6 +54,7 @@ struct CauseAndTagManagementView: View {
             } footer: {
                 Text("Removing a cause or tag only unlinks it from existing mistakes without deleting any questions.")
             }
+            .listRowBackground(SnapDrillTheme.cardSurface)
 
             Section("Tags") {
                 HStack {
@@ -87,10 +89,12 @@ struct CauseAndTagManagementView: View {
                     }
                 }
             }
+            .listRowBackground(SnapDrillTheme.cardSurface)
         }
         .scrollContentBackground(.hidden)
         .paperBackground()
         .navigationTitle(String(localized: "Causes & Tags"))
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarVisibility(.hidden, for: .tabBar)
     }
 }

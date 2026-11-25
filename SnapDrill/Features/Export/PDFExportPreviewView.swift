@@ -68,7 +68,7 @@ struct PDFExportPreviewView: View {
                                     .font(.caption.weight(.semibold))
                                     .foregroundStyle(SnapDrillTheme.inkSecondary)
                                 TextField("Practice Sheet Title", text: $title)
-                                    .textFieldStyle(.roundedBorder)
+                                    .paperInputField()
                                     .font(.subheadline)
                             }
 
@@ -119,6 +119,11 @@ struct PDFExportPreviewView: View {
                     }
                     .padding(.horizontal, SnapDrillTheme.screenPadding)
 
+                }
+                .padding(.top, 8)
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                BottomActionBarContainer {
                     // Export / AirPrint buttons (PRD §8.5)
                     HStack(spacing: 12) {
                         Button {
@@ -149,10 +154,7 @@ struct PDFExportPreviewView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    .padding(.horizontal, SnapDrillTheme.screenPadding)
-                    .padding(.bottom, 12)
                 }
-                .padding(.top, 8)
             }
             .paperBackground()
             .navigationTitle(String(localized: "PDF Export (\(mistakes.count))"))

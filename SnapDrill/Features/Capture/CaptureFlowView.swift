@@ -5,6 +5,8 @@ import SwiftUI
 /// Full 3-step mistake capture wizard strictly consuming CapturePipelineServing (zero Vision/VisionKit/CoreImage/AVFoundation imports).
 struct CaptureFlowView: View {
     let initialSession: CaptureSession?
+    var startMode: CaptureStartMode = .cameraDefault
+    var preferredSubjectID: UUID?
     let onDismiss: () -> Void
 
     @Environment(\.modelContext) private var modelContext
@@ -24,6 +26,7 @@ struct CaptureFlowView: View {
 
     @State private var cameraAuthState: CameraAuthorizationState = .notDetermined
     @State private var showingCameraPicker: Bool = false
+    @State private var showingPhotoPicker: Bool = false
     @State private var selectedPhotoItems: [PhotosPickerItem] = []
 
     @State private var savePreview: CaptureSavePreview?
@@ -78,25 +81,42 @@ struct CaptureFlowView: View {
             .navigationTitle(navigationTitleForStep)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        cancelAndDismiss()
+                if step <= 1 {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") {
+                            cancelAndDismiss()
+                        }
+                        .disabled(isDismissingOrSaving)
                     }
-                    .disabled(isDismissingOrSaving)
                 }
 
                 if step > 1 {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button("Back") {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
                             step -= 1
                             persistDraftAsync()
+                        } label: {
+                            Label("Back", systemImage: "chevron.left")
                         }
+                    }
+
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Cancel") {
+                            cancelAndDismiss()
+                        }
+                        .disabled(isDismissingOrSaving)
                     }
                 }
             }
             .task {
                 await initializeFlow()
             }
+            .photosPicker(
+                isPresented: $showingPhotoPicker,
+                selection: $selectedPhotoItems,
+                maxSelectionCount: environment.capturePipeline.maxPhotoCount,
+                matching: .images
+            )
             .sheet(isPresented: $showingCameraPicker) {
                 CameraPickerBridge { data in
                     guard let data else { return }
@@ -395,26 +415,30 @@ struct CaptureFlowView: View {
                 }
             }
 
-            pageThumbnailStrip(allowAddingMore: true)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            BottomActionBarContainer {
+                VStack(spacing: 10) {
+                    pageThumbnailStrip(allowAddingMore: true)
 
-            Button {
-                isEditingCorners = false
-                step = 2
-                activeBoxID = currentPage?.boxes.first?.id
-                persistDraftAsync()
-            } label: {
-                Text("Next: Frame Questions")
-                    .font(.headline)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.white)
-                    .padding(.vertical, 14)
-                    .padding(.horizontal, 16)
-                    .frame(maxWidth: .infinity, minHeight: 50)
-                    .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    Button {
+                        isEditingCorners = false
+                        step = 2
+                        activeBoxID = currentPage?.boxes.first?.id
+                        persistDraftAsync()
+                    } label: {
+                        Text("Next: Frame Questions")
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.white)
+                            .padding(.vertical, 14)
+                            .padding(.horizontal, 16)
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                            .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
             }
-            .buttonStyle(.plain)
-            .padding(.horizontal, SnapDrillTheme.screenPadding)
-            .padding(.bottom, 12)
         }
     }
 
@@ -519,23 +543,27 @@ struct CaptureFlowView: View {
                 .padding(.horizontal, SnapDrillTheme.screenPadding)
             }
 
-            pageThumbnailStrip(allowAddingMore: false)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            BottomActionBarContainer {
+                VStack(spacing: 10) {
+                    pageThumbnailStrip(allowAddingMore: false)
 
-            Button {
-                Task { await buildPreviewForStep3() }
-            } label: {
-                Text("Next: Clean & Save (\(session?.totalBoxCount ?? 1))")
-                    .font(.headline)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.white)
-                    .padding(.vertical, 14)
-                    .padding(.horizontal, 16)
-                    .frame(maxWidth: .infinity, minHeight: 50)
-                    .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    Button {
+                        Task { await buildPreviewForStep3() }
+                    } label: {
+                        Text("Next: Clean & Save (\(session?.totalBoxCount ?? 1))")
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.white)
+                            .padding(.vertical, 14)
+                            .padding(.horizontal, 16)
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                            .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                }
             }
-            .buttonStyle(.plain)
-            .padding(.horizontal, SnapDrillTheme.screenPadding)
-            .padding(.bottom, 12)
         }
     }
 
@@ -744,7 +772,7 @@ struct CaptureFlowView: View {
 
                                 HStack {
                                     TextField("Add tag...", text: $newTagInput)
-                                        .textFieldStyle(.roundedBorder)
+                                        .paperInputField()
                                     Button("Add") {
                                         addTagToCurrentItem()
                                     }
@@ -780,7 +808,7 @@ struct CaptureFlowView: View {
                                     }
                                 ), axis: .vertical)
                                 .lineLimit(2...4)
-                                .textFieldStyle(.roundedBorder)
+                                .paperInputField()
 
                                 let currentAnswerDatas = item.answerImageDatas
                                 if currentAnswerDatas.count < MistakeLimits.maxAnswerImages {
@@ -823,6 +851,8 @@ struct CaptureFlowView: View {
                                                     } label: {
                                                         Image(systemName: "xmark.circle.fill")
                                                             .foregroundStyle(.white, SnapDrillTheme.gradingRed)
+                                                            .frame(width: 44, height: 44)
+                                                            .contentShape(Rectangle())
                                                     }
                                                     .accessibilityLabel(String(localized: "Remove Answer Photo"))
                                                 }
@@ -843,13 +873,19 @@ struct CaptureFlowView: View {
                                     }
                                 ), axis: .vertical)
                                 .lineLimit(2...4)
-                                .textFieldStyle(.roundedBorder)
+                                .paperInputField()
                             }
                             .padding(.top, 10)
                         }
                     }
-
-                    // Primary 1-tap Fast Save button (PRD F-27)
+                }
+            }
+            .padding(SnapDrillTheme.screenPadding)
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if let preview = savePreview {
+                BottomActionBarContainer {
+                    // Primary 1-tap Fast Save button (PRD F-27), always pinned above the home indicator
                     Button {
                         commitAndDismiss()
                     } label: {
@@ -867,7 +903,6 @@ struct CaptureFlowView: View {
                     .accessibilityLabel(String(localized: "Save \(preview.questionCount) questions"))
                 }
             }
-            .padding(SnapDrillTheme.screenPadding)
         }
     }
 
@@ -949,7 +984,6 @@ struct CaptureFlowView: View {
                         .accessibilityLabel(String(localized: "Import More Photos"))
                     }
                 }
-                .padding(.horizontal, SnapDrillTheme.screenPadding)
             }
         }
     }
@@ -957,7 +991,11 @@ struct CaptureFlowView: View {
     private func initializeFlow() async {
         SubjectCatalog.ensureSeeded(in: modelContext)
         inkMode = environment.preferences.defaultInkRemovalMode
-        selectedSubjectID = environment.preferences.lastSubjectID ?? regularSubjects.first?.id
+        if let preferredSubjectID, regularSubjects.contains(where: { $0.id == preferredSubjectID }) {
+            selectedSubjectID = preferredSubjectID
+        } else {
+            selectedSubjectID = environment.preferences.lastSubjectID ?? regularSubjects.first?.id
+        }
         cameraAuthState = environment.cameraAccess.authorizationState()
 
         if let initialSession {
@@ -979,9 +1017,17 @@ struct CaptureFlowView: View {
             } else {
                 step = max(1, min(2, initialSession.activeStep))
             }
-        } else if !hasAutoLaunchedCamera && cameraAuthState == .authorized {
-            hasAutoLaunchedCamera = true
-            showingCameraPicker = true
+        } else if !hasAutoLaunchedCamera {
+            switch startMode {
+            case .photoLibrary:
+                hasAutoLaunchedCamera = true
+                showingPhotoPicker = true
+            case .cameraDefault:
+                if cameraAuthState == .authorized {
+                    hasAutoLaunchedCamera = true
+                    showingCameraPicker = true
+                }
+            }
         }
     }
 

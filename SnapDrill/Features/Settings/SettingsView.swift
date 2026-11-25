@@ -22,13 +22,19 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 proSection(prefs: prefs)
+                    .listRowBackground(SnapDrillTheme.cardSurface)
                 organizationSection
+                    .listRowBackground(SnapDrillTheme.cardSurface)
                 preferencesSection(prefs: prefs)
+                    .listRowBackground(SnapDrillTheme.cardSurface)
                 dataAndBackupSection
+                    .listRowBackground(SnapDrillTheme.cardSurface)
                 privacySection
+                    .listRowBackground(SnapDrillTheme.cardSurface)
 
                 #if DEBUG
                 debugTestingSection
+                    .listRowBackground(SnapDrillTheme.cardSurface)
                 #endif
             }
             .scrollContentBackground(.hidden)

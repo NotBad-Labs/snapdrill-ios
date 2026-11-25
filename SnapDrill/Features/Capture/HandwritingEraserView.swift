@@ -354,89 +354,60 @@ struct HandwritingEraserView: View {
                 }
                 .padding(.horizontal, 12)
 
-                // Tool controls
-                PaperCard(padding: 12) {
-                    VStack(spacing: 12) {
-                        HStack(spacing: 10) {
-                            ForEach(ToolMode.allCases) { mode in
-                                let selected = toolMode == mode
-                                Button {
-                                    toolMode = mode
-                                } label: {
-                                    Label(mode.title, systemImage: mode.symbolName)
-                                        .font(.caption.weight(.semibold))
-                                        .foregroundStyle(selected ? .white : SnapDrillTheme.inkBlack)
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 9)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                                .fill(selected ? SnapDrillTheme.inkBlue : SnapDrillTheme.elevatedSurface)
-                                        )
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel(mode.title)
-                            }
-                        }
-
-                        HStack(spacing: 12) {
-                            Text("Brush")
-                                .font(.caption.weight(.medium))
-                                .foregroundStyle(SnapDrillTheme.inkSecondary)
-
-                            ForEach(BrushPreset.allCases) { preset in
-                                let size = preset.radiusPoints
-                                let active = abs(brushRadiusPoints - size) < 1
-                                Button {
-                                    brushRadiusPoints = size
-                                } label: {
-                                    Circle()
-                                        .fill(active ? SnapDrillTheme.inkBlue : SnapDrillTheme.inkSecondary.opacity(0.35))
-                                        .frame(width: size * 0.85, height: size * 0.85)
-                                        .frame(width: 30, height: 30)
-                                        .background(
-                                            Circle()
-                                                .strokeBorder(active ? SnapDrillTheme.inkBlue : SnapDrillTheme.ruledLine, lineWidth: 1.2)
-                                        )
-                                }
-                                .buttonStyle(.plain)
-                                .accessibilityLabel(preset.accessibilityLabel)
-                            }
-
-                            Spacer()
-
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                BottomActionBarContainer {
+                    HStack(spacing: 6) {
+                        ForEach(ToolMode.allCases) { mode in
+                            let selected = toolMode == mode
                             Button {
-                                performUndo()
+                                toolMode = mode
                             } label: {
-                                Image(systemName: "arrow.uturn.backward")
-                                    .frame(width: 34, height: 34)
-                            }
-                            .disabled(undoStrokes.isEmpty || isFinalizing)
-                            .accessibilityLabel(String(localized: "Undo Stroke"))
-
-                            Button {
-                                performRedo()
-                            } label: {
-                                Image(systemName: "arrow.uturn.forward")
-                                    .frame(width: 34, height: 34)
-                            }
-                            .disabled(redoStrokes.isEmpty || isFinalizing)
-                            .accessibilityLabel(String(localized: "Redo Stroke"))
-
-                            Button {
-                                isPeekingOriginal.toggle()
-                            } label: {
-                                Image(systemName: isPeekingOriginal ? "eye.fill" : "eye")
-                                    .foregroundStyle(isPeekingOriginal ? SnapDrillTheme.inkBlue : SnapDrillTheme.inkBlack)
-                                    .frame(width: 34, height: 34)
+                                Image(systemName: mode.symbolName)
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(selected ? .white : SnapDrillTheme.inkBlack)
+                                    .frame(width: 44, height: 44)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                            .fill(selected ? SnapDrillTheme.inkBlue : SnapDrillTheme.elevatedSurface)
+                                    )
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel(String(localized: "Compare Original"))
-                            .accessibilityValue(isPeekingOriginal ? String(localized: "Showing Original") : String(localized: "Showing Cleaned"))
+                            .accessibilityLabel(mode.title)
+                            .accessibilityAddTraits(selected ? .isSelected : [])
                         }
+
+                        Divider()
+                            .frame(height: 24)
+                            .padding(.horizontal, 4)
+
+                        ForEach(BrushPreset.allCases) { preset in
+                            let size = preset.radiusPoints
+                            let active = abs(brushRadiusPoints - size) < 1
+                            Button {
+                                brushRadiusPoints = size
+                            } label: {
+                                Circle()
+                                    .fill(active ? SnapDrillTheme.inkBlue : SnapDrillTheme.inkSecondary.opacity(0.35))
+                                    .frame(width: size * 0.85, height: size * 0.85)
+                                    .frame(width: 44, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(preset.accessibilityLabel)
+                            .accessibilityAddTraits(active ? .isSelected : [])
+                        }
+
+                        Spacer(minLength: 0)
+
+                        Text(toolMode.title)
+                            .font(.caption.weight(.medium))
+                            .foregroundStyle(SnapDrillTheme.inkSecondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                     }
                 }
-                .padding(.horizontal, SnapDrillTheme.screenPadding)
-                .padding(.bottom, 8)
             }
             .paperBackground()
             .navigationTitle(String(localized: "Manual Eraser"))
@@ -445,6 +416,40 @@ struct HandwritingEraserView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                         .disabled(isFinalizing)
+                }
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: 2) {
+                        Button {
+                            performUndo()
+                        } label: {
+                            Image(systemName: "arrow.uturn.backward")
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .disabled(undoStrokes.isEmpty || isFinalizing)
+                        .accessibilityLabel(String(localized: "Undo Stroke"))
+
+                        Button {
+                            performRedo()
+                        } label: {
+                            Image(systemName: "arrow.uturn.forward")
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .disabled(redoStrokes.isEmpty || isFinalizing)
+                        .accessibilityLabel(String(localized: "Redo Stroke"))
+
+                        Button {
+                            isPeekingOriginal.toggle()
+                        } label: {
+                            Image(systemName: isPeekingOriginal ? "eye.fill" : "eye")
+                                .foregroundStyle(isPeekingOriginal ? SnapDrillTheme.inkBlue : SnapDrillTheme.inkBlack)
+                                .frame(width: 44, height: 44)
+                                .contentShape(Rectangle())
+                        }
+                        .accessibilityLabel(String(localized: "Compare Original"))
+                        .accessibilityValue(isPeekingOriginal ? String(localized: "Showing Original") : String(localized: "Showing Cleaned"))
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {

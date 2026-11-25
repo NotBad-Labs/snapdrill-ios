@@ -153,7 +153,7 @@ struct CropBoxOverlayItem: View {
                     Image(systemName: "xmark.circle.fill")
                         .font(.subheadline)
                         .foregroundStyle(.white, SnapDrillTheme.gradingRed)
-                        .frame(width: 36, height: 36)
+                        .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
                 .position(x: rect.maxX - 4, y: rect.minY + 4)

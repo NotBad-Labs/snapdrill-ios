@@ -49,7 +49,15 @@ struct ReviewSessionView: View {
                 }
 
                 if !isCompleted && currentItem != nil {
-                    ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        Button {
+                            goPrevious()
+                        } label: {
+                            Image(systemName: "chevron.left")
+                        }
+                        .disabled(currentIndex == 0)
+                        .accessibilityLabel(String(localized: "Previous"))
+
                         Button {
                             showOriginal.toggle()
                         } label: {
@@ -148,11 +156,13 @@ struct ReviewSessionView: View {
                 .padding(.bottom, 16)
             }
 
-            // Bottom navigation / mastery buttons
-            bottomControls(item: item)
-                .padding(.horizontal, SnapDrillTheme.screenPadding)
-                .padding(.bottom, 16)
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            BottomActionBarContainer {
+                bottomControls(item: item)
+            }
+        }
+        .sensoryFeedback(.selection, trigger: currentIndex)
     }
 
     private func revealedAnswerCard(item: MistakeItem) -> some View {
@@ -234,51 +244,62 @@ struct ReviewSessionView: View {
         }
     }
 
+    @ViewBuilder
     private func bottomControls(item: MistakeItem) -> some View {
-        VStack(spacing: 10) {
-            if isAnswerRevealed {
-                HStack(spacing: 10) {
-                    masteryActionButton(title: MasteryLevel.unknown.localizedTitle, color: SnapDrillTheme.gradingRed) {
-                        recordMastery(.unknown, for: item)
-                    }
-                    masteryActionButton(title: MasteryLevel.fuzzy.localizedTitle, color: SnapDrillTheme.pencilYellow, foreground: Color(hexString: "1F1F22")) {
-                        recordMastery(.fuzzy, for: item)
-                    }
-                    masteryActionButton(title: MasteryLevel.mastered.localizedTitle, color: SnapDrillTheme.masteryGreen) {
-                        recordMastery(.mastered, for: item)
-                    }
+        if isAnswerRevealed {
+            HStack(spacing: 10) {
+                masteryActionButton(
+                    title: MasteryLevel.unknown.localizedTitle,
+                    color: SnapDrillTheme.gradingRedSoft,
+                    foreground: SnapDrillTheme.gradingRed
+                ) {
+                    recordMastery(.unknown, for: item)
+                }
+                masteryActionButton(
+                    title: MasteryLevel.fuzzy.localizedTitle,
+                    color: SnapDrillTheme.pencilYellowSoft,
+                    foreground: SnapDrillTheme.inkBlack
+                ) {
+                    recordMastery(.fuzzy, for: item)
+                }
+                masteryActionButton(
+                    title: MasteryLevel.mastered.localizedTitle,
+                    color: SnapDrillTheme.masteryGreen,
+                    foreground: .white
+                ) {
+                    recordMastery(.mastered, for: item)
                 }
             }
-
-            HStack(spacing: 12) {
+        } else {
+            HStack(spacing: 10) {
                 Button {
-                    goPrevious()
+                    withAnimation(.easeInOut(duration: 0.22)) {
+                        isAnswerRevealed = true
+                    }
                 } label: {
-                    Label("Previous", systemImage: "chevron.left")
-                        .font(.subheadline.weight(.semibold))
-                        .multilineTextAlignment(.center)
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 12)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .background(SnapDrillTheme.cardSurface, in: RoundedRectangle(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1))
+                    Text("Reveal Answer")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                        .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
-                .disabled(currentIndex == 0)
+                .buttonStyle(.plain)
 
                 Button {
                     goNext()
                 } label: {
-                    Label(currentIndex == sessionQueue.count - 1 ? String(localized: "Finish") : String(localized: "Next"), systemImage: "chevron.right")
-                        .font(.subheadline.weight(.semibold))
-                        .multilineTextAlignment(.center)
-                        .foregroundStyle(.white)
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 12)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 12))
+                    Image(systemName: "chevron.right")
+                        .font(.headline)
+                        .foregroundStyle(SnapDrillTheme.inkBlue)
+                        .frame(width: 50, height: 50)
+                        .background(SnapDrillTheme.inkBlueSoft, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(
+                    currentIndex == sessionQueue.count - 1 ? String(localized: "Finish") : String(localized: "Next")
+                )
             }
-            .buttonStyle(.plain)
         }
     }
 
@@ -290,13 +311,13 @@ struct ReviewSessionView: View {
     ) -> some View {
         Button(action: action) {
             Text(title)
-                .font(.caption.weight(.bold))
+                .font(.subheadline.weight(.bold))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(foreground)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 8)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .background(color, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .frame(maxWidth: .infinity, minHeight: 50)
+                .background(color, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         .buttonStyle(.plain)
     }
