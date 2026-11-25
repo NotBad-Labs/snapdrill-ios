@@ -132,6 +132,7 @@ struct ReviewHubView: View {
                                 )
                             }
                             .buttonStyle(.plain)
+                            .accessibilityAddTraits(selected ? .isSelected : [])
                         }
                     }
                 }
@@ -163,6 +164,7 @@ struct ReviewHubView: View {
                                 )
                         }
                         .buttonStyle(.plain)
+                        .accessibilityAddTraits(selected ? .isSelected : [])
                     }
                 }
 
@@ -190,6 +192,7 @@ struct ReviewHubView: View {
                                     )
                             }
                             .buttonStyle(.plain)
+                            .accessibilityAddTraits(selected ? .isSelected : [])
                         }
                     }
                 }
@@ -222,6 +225,7 @@ struct ReviewHubView: View {
                                     )
                             }
                             .buttonStyle(.plain)
+                            .accessibilityAddTraits(selected ? .isSelected : [])
                         }
                     }
                 }

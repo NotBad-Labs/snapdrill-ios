@@ -165,9 +165,11 @@ struct SnapDrillApp: App {
                 if restored.container != nil {
                     activeCloudKitMode = previousMode
                     environment.activeCloudKitEnabled = previousMode
-                    environment.storeSyncStatus = .cloudKitFallbackToLocal(
-                        refreshed.errorDescription ?? String(localized: "Unable to switch sync mode right now.")
-                    )
+                    environment.storeSyncStatus = previousMode
+                        ? restored.syncStatus
+                        : .cloudKitFallbackToLocal(
+                            refreshed.errorDescription ?? String(localized: "Unable to switch sync mode right now.")
+                        )
                     storeResult = restored
                     containerInstanceID = UUID()
                     isSwitchingContainer = false
@@ -181,6 +183,9 @@ struct SnapDrillApp: App {
             storeResult = refreshed
             containerInstanceID = UUID()
             isSwitchingContainer = false
+            if refreshed.container != nil {
+                scheduleSafeContainerTransitionIfNeeded()
+            }
         }
     }
 }

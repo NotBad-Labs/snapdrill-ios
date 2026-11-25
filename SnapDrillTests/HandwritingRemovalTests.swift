@@ -155,4 +155,100 @@ final class HandwritingRemovalTests: XCTestCase {
         XCTAssertTrue(offSucceeded)
         XCTAssertEqual(offOut, garbage)
     }
+
+    func testJPEGBlackTextAntiAliasedFringeWithoutCoreMLDegradesHonestlyWithSucceededFalse() async throws {
+        let size = CGSize(width: 600, height: 320)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        format.opaque = true
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
+            UIColor(red: 0.96, green: 0.95, blue: 0.93, alpha: 1.0).setFill()
+            ctx.fill(CGRect(origin: .zero, size: size))
+
+            let attrs: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 28, weight: .regular),
+                .foregroundColor: UIColor(white: 0.06, alpha: 1.0)
+            ]
+            NSString(string: "1. Solve 2x + 3 = 11 for real x.").draw(at: CGPoint(x: 32, y: 48), withAttributes: attrs)
+            NSString(string: "2. Factor f(x) = x^2 - 4x + 3.").draw(at: CGPoint(x: 32, y: 120), withAttributes: attrs)
+            NSString(string: "Student answer: x = 4, roots 1 and 3").draw(at: CGPoint(x: 32, y: 192), withAttributes: attrs)
+        }
+        let jpegData = try XCTUnwrap(image.jpegData(compressionQuality: 0.85))
+        let remover = CoreMLCapableInkRemover()
+        let (_, succeeded) = await remover.removeInk(from: jpegData, mode: .autoAll)
+        XCTAssertFalse(succeeded)
+    }
+
+    func testFaintPencilStrokeIsCleanedInAutoAllMode() async throws {
+        let size = CGSize(width: 320, height: 200)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        format.opaque = true
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
+            UIColor(red: 0.96, green: 0.95, blue: 0.93, alpha: 1.0).setFill()
+            ctx.fill(CGRect(origin: .zero, size: size))
+            // Faint graphite pencil band (luma ~215, relDark ~28)
+            UIColor(red: 0.84, green: 0.83, blue: 0.82, alpha: 1.0).setFill()
+            ctx.fill(CGRect(x: 40, y: 80, width: 220, height: 14))
+        }
+        let jpegData = try XCTUnwrap(image.jpegData(compressionQuality: 0.92))
+        let remover = CoreMLCapableInkRemover()
+        let (cleanedData, succeeded) = await remover.removeInk(from: jpegData, mode: .autoAll)
+        XCTAssertTrue(succeeded)
+        let cleanedImg = try XCTUnwrap(UIImage(data: cleanedData))
+        let spot = samplePixelRGB(in: cleanedImg, x: 120, y: 87)
+        XCTAssertGreaterThan(spot.r, 232)
+    }
+
+    func testEraserOverThirtyStrokesPreservesEarlierStrokes() throws {
+        let size = CGSize(width: 240, height: 240)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        format.opaque = true
+        let base = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
+            UIColor.white.setFill()
+            ctx.fill(CGRect(origin: .zero, size: size))
+            // Dark stroke at top (y = 24) to be erased by stroke #1
+            UIColor.black.setFill()
+            ctx.fill(CGRect(x: 40, y: 20, width: 160, height: 12))
+        }
+
+        var undoStrokes: [EraserStroke] = []
+        var redoStrokes: [EraserStroke] = []
+        var bakedStrokes: [EraserStroke] = []
+
+        // Stroke #1 erases the black bar at normalized y = 0.11
+        let stroke1 = EraserStroke(
+            mode: .erase,
+            normalizedPoints: [CGPoint(x: 0.2, y: 0.11), CGPoint(x: 0.8, y: 0.11)],
+            normalizedRadiusX: 0.05,
+            paperColor: EraserStroke.PaperRGB(r: 1.0, g: 1.0, b: 1.0)
+        )
+        EraserStrokeEngine.pushStroke(stroke1, into: &undoStrokes, redoStack: &redoStrokes, bakedStrokes: &bakedStrokes)
+
+        // Add 35 more strokes elsewhere so undoStrokes exceeds maxUndoDepth (30)
+        for i in 0..<35 {
+            let yNorm = 0.45 + CGFloat(i % 10) * 0.04
+            let extra = EraserStroke(
+                mode: .erase,
+                normalizedPoints: [CGPoint(x: 0.2, y: yNorm), CGPoint(x: 0.5, y: yNorm)],
+                normalizedRadiusX: 0.02,
+                paperColor: EraserStroke.PaperRGB(r: 1.0, g: 1.0, b: 1.0)
+            )
+            EraserStrokeEngine.pushStroke(extra, into: &undoStrokes, redoStack: &redoStrokes, bakedStrokes: &bakedStrokes)
+        }
+
+        XCTAssertEqual(undoStrokes.count, EraserStrokeEngine.maxUndoDepth)
+        XCTAssertEqual(bakedStrokes.count, 6)
+
+        let composited = EraserStrokeEngine.composite(
+            baseImage: base,
+            originalReference: base,
+            strokes: bakedStrokes + undoStrokes
+        )
+        let erasedPixel = samplePixelRGB(in: composited, x: 120, y: 26)
+        XCTAssertGreaterThan(erasedPixel.r, 240)
+        XCTAssertGreaterThan(erasedPixel.g, 240)
+        XCTAssertGreaterThan(erasedPixel.b, 240)
+    }
 }

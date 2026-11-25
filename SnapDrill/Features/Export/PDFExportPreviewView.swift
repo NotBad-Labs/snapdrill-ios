@@ -20,6 +20,7 @@ struct PDFExportPreviewView: View {
     @State private var sharePDFURL: URL?
     @State private var showingPaywall = false
     @State private var errorMessage: String?
+    @State private var previewTask: Task<Void, Never>?
 
     init(mistakes: [MistakeItem], defaultTitle: String) {
         self.mistakes = mistakes
@@ -41,113 +42,117 @@ struct PDFExportPreviewView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 12) {
-                // Live embedded PDFKit preview
-                if let renderedPDFData {
-                    PDFKitPreviewRepresentable(data: renderedPDFData)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1)
-                        )
-                        .padding(.horizontal, SnapDrillTheme.screenPadding)
-                } else {
-                    Spacer()
-                    ProgressView("Generating PDF...")
-                    Spacer()
-                }
+            ScrollView {
+                VStack(spacing: 12) {
+                    // Live embedded PDFKit preview
+                    if let renderedPDFData {
+                        PDFKitPreviewRepresentable(data: renderedPDFData)
+                            .frame(minHeight: 260, idealHeight: 340)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1)
+                            )
+                            .padding(.horizontal, SnapDrillTheme.screenPadding)
+                    } else {
+                        ProgressView("Generating PDF...")
+                            .frame(maxWidth: .infinity, minHeight: 260)
+                            .padding(.horizontal, SnapDrillTheme.screenPadding)
+                    }
 
-                // Controls card
-                PaperCard(padding: 12) {
-                    VStack(spacing: 10) {
-                        HStack {
-                            Text("Title")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(SnapDrillTheme.inkSecondary)
-                            TextField("Practice Sheet Title", text: $title)
-                                .textFieldStyle(.roundedBorder)
-                                .font(.subheadline)
-                        }
-
-                        Picker("Paper Size", selection: $paperSize) {
-                            ForEach(PaperSize.allCases) { size in
-                                Text(size.shortLabel).tag(size)
+                    // Controls card
+                    PaperCard(padding: 12) {
+                        VStack(spacing: 10) {
+                            HStack {
+                                Text("Title")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(SnapDrillTheme.inkSecondary)
+                                TextField("Practice Sheet Title", text: $title)
+                                    .textFieldStyle(.roundedBorder)
+                                    .font(.subheadline)
                             }
-                        }
-                        .pickerStyle(.segmented)
 
-                        Toggle("Use Handwriting-Removed Images", isOn: $useCleanedImages)
-                            .font(.caption.weight(.medium))
-                            .tint(SnapDrillTheme.inkBlue)
-
-                        RuledDivider()
-
-                        // Pro-gated F-51 layout options (revert cleanly to P0 defaults on Free / Expired)
-                        HStack {
-                            Label("Layout Options", systemImage: environment.proStore.isPro ? "slider.horizontal.3" : "lock.fill")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(environment.proStore.isPro ? SnapDrillTheme.inkBlack : SnapDrillTheme.inkSecondary)
-                            Spacer()
-                            if !environment.proStore.isPro {
-                                Button("Unlock Watermark-Free & Layouts") {
-                                    showingPaywall = true
-                                }
-                                .font(.caption2.weight(.semibold))
-                                .foregroundStyle(SnapDrillTheme.inkBlue)
-                            }
-                        }
-
-                        if environment.proStore.isPro {
-                            Picker("Answers", selection: $answerPlacement) {
-                                ForEach(AnswerPlacement.allCases) { placement in
-                                    Text(placement.localizedTitle).tag(placement)
+                            Picker("Paper Size", selection: $paperSize) {
+                                ForEach(PaperSize.allCases) { size in
+                                    Text(size.shortLabel).tag(size)
                                 }
                             }
                             .pickerStyle(.segmented)
 
-                            Picker("Writing Space", selection: $blankSpace) {
-                                ForEach(BlankSpaceSize.allCases) { space in
-                                    Text(space.localizedTitle).tag(space)
+                            Toggle("Use Handwriting-Removed Images", isOn: $useCleanedImages)
+                                .font(.caption.weight(.medium))
+                                .tint(SnapDrillTheme.inkBlue)
+
+                            RuledDivider()
+
+                            // Pro-gated F-51 layout options (revert cleanly to P0 defaults on Free / Expired)
+                            HStack {
+                                Label("Layout Options", systemImage: environment.proStore.isPro ? "slider.horizontal.3" : "lock.fill")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(environment.proStore.isPro ? SnapDrillTheme.inkBlack : SnapDrillTheme.inkSecondary)
+                                Spacer()
+                                if !environment.proStore.isPro {
+                                    Button("Unlock Watermark-Free & Layouts") {
+                                        showingPaywall = true
+                                    }
+                                    .font(.caption2.weight(.semibold))
+                                    .foregroundStyle(SnapDrillTheme.inkBlue)
                                 }
                             }
-                            .pickerStyle(.segmented)
+
+                            if environment.proStore.isPro {
+                                Picker("Answers", selection: $answerPlacement) {
+                                    ForEach(AnswerPlacement.allCases) { placement in
+                                        Text(placement.localizedTitle).tag(placement)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+
+                                Picker("Writing Space", selection: $blankSpace) {
+                                    ForEach(BlankSpaceSize.allCases) { space in
+                                        Text(space.localizedTitle).tag(space)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+                            }
                         }
                     }
-                }
-                .padding(.horizontal, SnapDrillTheme.screenPadding)
+                    .padding(.horizontal, SnapDrillTheme.screenPadding)
 
-                // Export / AirPrint buttons (PRD §8.5)
-                HStack(spacing: 12) {
-                    Button {
-                        exportPDFFile()
-                    } label: {
-                        Label("Export PDF", systemImage: "square.and.arrow.up")
-                            .font(.subheadline.weight(.semibold))
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.white)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 12)
-                            .frame(maxWidth: .infinity, minHeight: 48)
-                            .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
+                    // Export / AirPrint buttons (PRD §8.5)
+                    HStack(spacing: 12) {
+                        Button {
+                            exportPDFFile()
+                        } label: {
+                            Label("Export PDF", systemImage: "square.and.arrow.up")
+                                .font(.subheadline.weight(.semibold))
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(.white)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 12)
+                                .frame(maxWidth: .infinity, minHeight: 48)
+                                .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        }
 
-                    Button {
-                        presentAirPrint()
-                    } label: {
-                        Label("Print", systemImage: "printer.fill")
-                            .font(.subheadline.weight(.semibold))
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(SnapDrillTheme.inkBlack)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 12)
-                            .frame(maxWidth: .infinity, minHeight: 48)
-                            .background(SnapDrillTheme.cardSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1))
+                        Button {
+                            presentAirPrint()
+                        } label: {
+                            Label("Print", systemImage: "printer.fill")
+                                .font(.subheadline.weight(.semibold))
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(SnapDrillTheme.inkBlack)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 12)
+                                .frame(maxWidth: .infinity, minHeight: 48)
+                                .background(SnapDrillTheme.cardSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1))
+                        }
                     }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, SnapDrillTheme.screenPadding)
+                    .padding(.bottom, 12)
                 }
-                .buttonStyle(.plain)
-                .padding(.horizontal, SnapDrillTheme.screenPadding)
-                .padding(.bottom, 12)
+                .padding(.top, 8)
             }
             .paperBackground()
             .navigationTitle(String(localized: "PDF Export (\(mistakes.count))"))
@@ -159,14 +164,17 @@ struct PDFExportPreviewView: View {
             }
             .onAppear {
                 paperSize = environment.preferences.preferredPaperSize
-                regeneratePreview()
+                schedulePreviewRegeneration(debounced: false)
             }
-            .onChange(of: paperSize) { _, _ in regeneratePreview() }
-            .onChange(of: useCleanedImages) { _, _ in regeneratePreview() }
-            .onChange(of: answerPlacement) { _, _ in regeneratePreview() }
-            .onChange(of: blankSpace) { _, _ in regeneratePreview() }
-            .onChange(of: title) { _, _ in regeneratePreview() }
-            .onChange(of: environment.proStore.statusState) { _, _ in regeneratePreview() }
+            .onDisappear {
+                previewTask?.cancel()
+            }
+            .onChange(of: paperSize) { _, _ in schedulePreviewRegeneration(debounced: false) }
+            .onChange(of: useCleanedImages) { _, _ in schedulePreviewRegeneration(debounced: false) }
+            .onChange(of: answerPlacement) { _, _ in schedulePreviewRegeneration(debounced: false) }
+            .onChange(of: blankSpace) { _, _ in schedulePreviewRegeneration(debounced: false) }
+            .onChange(of: title) { _, _ in schedulePreviewRegeneration(debounced: true) }
+            .onChange(of: environment.proStore.statusState) { _, _ in schedulePreviewRegeneration(debounced: false) }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
             }
@@ -213,14 +221,27 @@ struct PDFExportPreviewView: View {
         }
     }
 
-    private func regeneratePreview() {
-        do {
-            renderedPDFData = try environment.pdfService.renderPDFData(
-                questions: buildPayloads(),
-                options: effectiveOptions
-            )
-        } catch {
-            errorMessage = error.localizedDescription
+    private func schedulePreviewRegeneration(debounced: Bool) {
+        previewTask?.cancel()
+        let payloads = buildPayloads()
+        let options = effectiveOptions
+        let service = environment.pdfService
+
+        previewTask = Task {
+            if debounced {
+                try? await Task.sleep(for: .milliseconds(250))
+            }
+            guard !Task.isCancelled else { return }
+            do {
+                let data = try await Task.detached(priority: .userInitiated) {
+                    try service.renderPDFData(questions: payloads, options: options)
+                }.value
+                guard !Task.isCancelled else { return }
+                renderedPDFData = data
+            } catch {
+                guard !Task.isCancelled else { return }
+                errorMessage = error.localizedDescription
+            }
         }
     }
 

@@ -15,6 +15,29 @@ final class CloudKitAndRecoveryTests: XCTestCase {
         }.jpegData(compressionQuality: 0.9)!
     }
 
+    private func centerPixelRGB(of imageData: Data) throws -> (r: UInt8, g: UInt8, b: UInt8) {
+        let image = try XCTUnwrap(UIImage(data: imageData))
+        let cgImage = try XCTUnwrap(image.cgImage)
+        var pixel: [UInt8] = [0, 0, 0, 0]
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let ctx = try XCTUnwrap(
+            CGContext(
+                data: &pixel,
+                width: 1,
+                height: 1,
+                bitsPerComponent: 8,
+                bytesPerRow: 4,
+                space: colorSpace,
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+            )
+        )
+        let cx = cgImage.width / 2
+        let cy = cgImage.height / 2
+        let onePx = try XCTUnwrap(cgImage.cropping(to: CGRect(x: cx, y: cy, width: 1, height: 1)))
+        ctx.draw(onePx, in: CGRect(x: 0, y: 0, width: 1, height: 1))
+        return (pixel[0], pixel[1], pixel[2])
+    }
+
     func testCloudKitRequestedContainerGracefullyFallsBackOrOpensWithoutRecoveryTrap() throws {
         let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("SnapDrillCK-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: tempDir) }
@@ -181,6 +204,17 @@ final class CloudKitAndRecoveryTests: XCTestCase {
         // Re-crop first mistake onto LOWER half of the full page (would be impossible if cropping only inside old upperCrop)
         try await service.recropMistake(first, normalizedRect: CGRect(x: 0.1, y: 0.65, width: 0.8, height: 0.25), mode: .off, in: context)
         XCTAssertEqual(first.cropRectNormalized?.origin.y ?? 0, 0.65, accuracy: 0.01)
+
+        let recroppedOrig = try XCTUnwrap(first.resolvedOriginalImageData(imageStore: store))
+        let recroppedClean = try XCTUnwrap(first.resolvedCleanedImageData(imageStore: store))
+        let origRGB = try centerPixelRGB(of: recroppedOrig)
+        let cleanRGB = try centerPixelRGB(of: recroppedClean)
+        XCTAssertLessThan(origRGB.r, 40)
+        XCTAssertLessThan(origRGB.g, 40)
+        XCTAssertGreaterThan(origRGB.b, 200)
+        XCTAssertLessThan(cleanRGB.r, 40)
+        XCTAssertLessThan(cleanRGB.g, 40)
+        XCTAssertGreaterThan(cleanRGB.b, 200)
 
         // Delete first mistake -> shared page image stays alive for second mistake!
         try service.permanentlyDeleteMistake(first, in: context)
@@ -547,6 +581,107 @@ final class CloudKitAndRecoveryTests: XCTestCase {
         XCTAssertNotNil(mistake.answerImageData1)
         XCTAssertNil(mistake.answerImageData2)
         XCTAssertEqual(mistake.resolvedAnswerImageDatas(imageStore: store).count, 2)
+
+        // Verify disk + SwiftData rollback removes Step 3 answer files & new tags when a subsequent item fails to write
+        let rollbackDir = FileManager.default.temporaryDirectory.appendingPathComponent("SnapDrillStep3Rollback-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: rollbackDir) }
+        try FileManager.default.createDirectory(at: rollbackDir, withIntermediateDirectories: true)
+        // Block "page" directory with a regular file so item 0 succeeds (orig/clean/ans written) and item 1 fails on page/
+        try Data([0x00]).write(to: rollbackDir.appendingPathComponent("page"))
+
+        let rollbackStore = MistakeImageStore(rootDirectory: rollbackDir)
+        let rollbackService = LibrarySaveService(imageStore: rollbackStore, textRecognizer: { _ in "ocr" })
+        let failingPreview = CaptureSavePreview(
+            items: [
+                CaptureSaveItem(
+                    id: UUID(),
+                    pageIndex: 0,
+                    boxIndex: 0,
+                    originalImageData: qImg,
+                    cleanedImageData: qImg,
+                    handwritingRemovalSucceeded: true,
+                    ocrText: "q1",
+                    pageImageData: nil,
+                    tagNames: ["RollbackStep3Tag"],
+                    answerImageDatas: [ans0, ans1]
+                ),
+                CaptureSaveItem(
+                    id: UUID(),
+                    pageIndex: 1,
+                    boxIndex: 0,
+                    originalImageData: qImg,
+                    cleanedImageData: qImg,
+                    handwritingRemovalSucceeded: true,
+                    ocrText: "q2",
+                    pageImageData: qImg
+                )
+            ],
+            inkRemovalMode: .autoAll
+        )
+
+        XCTAssertThrowsError(try rollbackService.commitSave(preview: failingPreview, subject: subject, in: context))
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<MistakeItem>()), 1)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<MistakeTag>()), 0)
+        for folder in ["orig", "clean", "ans"] {
+            let files = (try? FileManager.default.contentsOfDirectory(atPath: rollbackDir.appendingPathComponent(folder).path)) ?? []
+            XCTAssertTrue(files.isEmpty, "Expected \(folder)/ to be rolled back cleanly, found: \(files)")
+        }
+    }
+
+    func testShiftingUnhydratedAnswerSlotThrowsWithoutWipingCloudKitBytes() throws {
+        let schema = ModelContainerFactory.schema
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: schema, configurations: [config])
+        let context = container.mainContext
+
+        let emptyDir = FileManager.default.temporaryDirectory.appendingPathComponent("SnapDrillShiftGuard-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: emptyDir) }
+        let store = MistakeImageStore(rootDirectory: emptyDir)
+        let service = LibrarySaveService(imageStore: store, textRecognizer: { _ in "" })
+
+        let ans0 = makeTestImageData(color: .systemRed, size: CGSize(width: 120, height: 120))
+        let mistake = MistakeItem(
+            notes: "Partial hydration",
+            answerImagePaths: ["ans/cloud-0.jpg", "ans/cloud-1.jpg"]
+        )
+        mistake.setAnswerImageSlot(ans0, at: 0)
+        // Slot 1 remains unhydrated (nil locally and not cached on disk yet)
+        XCTAssertNil(mistake.answerImageData1)
+        context.insert(mistake)
+        try context.save()
+
+        // Deleting slot 0 would shift unhydrated slot 1 ("ans/cloud-1.jpg") -> must throw without wiping bytes
+        XCTAssertThrowsError(
+            try service.applyAnswerImageEdits(
+                slots: [
+                    (path: "ans/cloud-1.jpg", data: nil)
+                ],
+                to: mistake
+            )
+        ) { error in
+            XCTAssertEqual(error as? AnswerImageEditError, .unhydratedSlotWouldShift)
+        }
+
+        // Inserting a new photo before unhydrated slot 1 also shifts index 1 -> 2 and must roll back written files
+        let newImg = makeTestImageData(color: .systemOrange, size: CGSize(width: 120, height: 120))
+        XCTAssertThrowsError(
+            try service.applyAnswerImageEdits(
+                slots: [
+                    (path: nil, data: newImg),
+                    (path: "ans/cloud-0.jpg", data: ans0),
+                    (path: "ans/cloud-1.jpg", data: nil)
+                ],
+                to: mistake
+            )
+        ) { error in
+            XCTAssertEqual(error as? AnswerImageEditError, .unhydratedSlotWouldShift)
+        }
+
+        XCTAssertEqual(mistake.answerImagePaths, ["ans/cloud-0.jpg", "ans/cloud-1.jpg"])
+        XCTAssertEqual(mistake.answerImageData0, ans0)
+        XCTAssertNil(mistake.answerImageData1)
+        let ansFiles = (try? FileManager.default.contentsOfDirectory(atPath: emptyDir.appendingPathComponent("ans").path)) ?? []
+        XCTAssertTrue(ansFiles.isEmpty)
     }
 
     func testTextOnlyEditAndAppendPreserveUnhydratedNilAnswerImageSlots() throws {

@@ -11,11 +11,81 @@ struct InkRemovalAnalysis: Sendable {
     let cleanedData: Data
     let succeeded: Bool
     let erasedPixelCount: Int
+    let coloredErasedCount: Int
+    let pencilErasedCount: Int
+    let totalPixelCount: Int
+
+    init(
+        cleanedData: Data,
+        succeeded: Bool,
+        erasedPixelCount: Int,
+        coloredErasedCount: Int = 0,
+        pencilErasedCount: Int = 0,
+        totalPixelCount: Int = 0
+    ) {
+        self.cleanedData = cleanedData
+        self.succeeded = succeeded
+        self.erasedPixelCount = erasedPixelCount
+        self.coloredErasedCount = coloredErasedCount
+        self.pencilErasedCount = pencilErasedCount
+        self.totalPixelCount = totalPixelCount
+    }
 }
 
-private enum TimeoutRaceOutcome<Value: Sendable>: Sendable {
-    case finished(Value)
-    case timedOut
+private actor InkTimeoutRaceGate<Value: Sendable> {
+    private var continuation: CheckedContinuation<Value, Never>?
+    private var resolvedValue: Value?
+
+    func wait() async -> Value {
+        if let resolvedValue {
+            return resolvedValue
+        }
+        return await withCheckedContinuation { cont in
+            if let resolvedValue {
+                cont.resume(returning: resolvedValue)
+            } else {
+                continuation = cont
+            }
+        }
+    }
+
+    func resolve(with value: Value) -> Bool {
+        guard resolvedValue == nil else { return false }
+        resolvedValue = value
+        continuation?.resume(returning: value)
+        continuation = nil
+        return true
+    }
+}
+
+private final class CancellableCoreMLRequestBox: @unchecked Sendable {
+    private let lock = NSLock()
+    private var request: VNRequest?
+    private var isCancelled = false
+
+    func attach(_ request: VNRequest) {
+        lock.lock()
+        let alreadyCancelled = isCancelled
+        self.request = request
+        lock.unlock()
+        if alreadyCancelled {
+            request.cancel()
+        }
+    }
+
+    func cancel() {
+        lock.lock()
+        isCancelled = true
+        let req = request
+        lock.unlock()
+        req?.cancel()
+    }
+
+    func clear() {
+        lock.lock()
+        request = nil
+        lock.unlock()
+    }
 }
 
 /// Off-MainActor heuristic handwriting & annotation remover with smooth bilinear paper-tone estimation
@@ -37,45 +107,48 @@ struct HeuristicInkRemover: InkRemoving {
             return InkRemovalAnalysis(cleanedData: imageData, succeeded: true, erasedPixelCount: 0)
         }
 
-        let workTask = Task.detached(priority: .userInitiated) { () -> InkRemovalAnalysis in
-            guard !Task.isCancelled,
-                  let sourceImage = UIImage(data: imageData),
-                  let (processed, erasedCount) = processImageDetailed(sourceImage, mode: mode),
-                  !Task.isCancelled,
-                  let encoded = processed.jpegData(compressionQuality: 0.88) else {
-                return InkRemovalAnalysis(cleanedData: imageData, succeeded: false, erasedPixelCount: 0)
-            }
-            return InkRemovalAnalysis(cleanedData: encoded, succeeded: true, erasedPixelCount: erasedCount)
-        }
-
+        let gate = InkTimeoutRaceGate<InkRemovalAnalysis>()
         let limit = timeoutSeconds
-        return await withTaskGroup(of: TimeoutRaceOutcome<InkRemovalAnalysis>?.self) { group in
-            group.addTask {
-                .finished(await workTask.value)
-            }
-            group.addTask {
-                do {
-                    try await Task.sleep(for: .seconds(limit))
-                    return .timedOut
-                } catch {
-                    return nil
-                }
-            }
 
-            while let outcome = await group.next() {
-                guard let outcome else { continue }
-                switch outcome {
-                case .finished(let result):
-                    group.cancelAll()
-                    return result
-                case .timedOut:
-                    workTask.cancel()
-                    group.cancelAll()
-                    return InkRemovalAnalysis(cleanedData: imageData, succeeded: false, erasedPixelCount: 0)
-                }
+        let workTask = Task.detached(priority: .userInitiated) {
+            let outcome: InkRemovalAnalysis
+            if !Task.isCancelled,
+               let sourceImage = UIImage(data: imageData),
+               let detailed = processImageDetailedWithBreakdown(sourceImage, mode: mode),
+               !Task.isCancelled,
+               let encoded = detailed.image.jpegData(compressionQuality: 0.88) {
+                outcome = InkRemovalAnalysis(
+                    cleanedData: encoded,
+                    succeeded: true,
+                    erasedPixelCount: detailed.coloredCount + detailed.pencilCount,
+                    coloredErasedCount: detailed.coloredCount,
+                    pencilErasedCount: detailed.pencilCount,
+                    totalPixelCount: detailed.totalPixels
+                )
+            } else {
+                outcome = InkRemovalAnalysis(cleanedData: imageData, succeeded: false, erasedPixelCount: 0)
             }
-            return InkRemovalAnalysis(cleanedData: imageData, succeeded: false, erasedPixelCount: 0)
+            _ = await gate.resolve(with: outcome)
         }
+
+        let timeoutTask = Task.detached(priority: .userInitiated) {
+            try? await Task.sleep(for: .seconds(limit))
+            guard !Task.isCancelled else { return }
+            let won = await gate.resolve(with: InkRemovalAnalysis(cleanedData: imageData, succeeded: false, erasedPixelCount: 0))
+            if won {
+                workTask.cancel()
+            }
+        }
+
+        let result = await withTaskCancellationHandler {
+            await gate.wait()
+        } onCancel: {
+            workTask.cancel()
+            timeoutTask.cancel()
+            Task { _ = await gate.resolve(with: InkRemovalAnalysis(cleanedData: imageData, succeeded: false, erasedPixelCount: 0)) }
+        }
+        timeoutTask.cancel()
+        return result
     }
 
     /// Synchronous helper exposed for deterministic unit tests and previews.
@@ -84,7 +157,17 @@ struct HeuristicInkRemover: InkRemoving {
     }
 
     func processImageDetailed(_ image: UIImage, mode: InkRemovalMode) -> (image: UIImage, erasedPixelCount: Int)? {
-        guard mode != .off else { return (image, 0) }
+        guard let detailed = processImageDetailedWithBreakdown(image, mode: mode) else {
+            return nil
+        }
+        return (detailed.image, detailed.coloredCount + detailed.pencilCount)
+    }
+
+    private func processImageDetailedWithBreakdown(
+        _ image: UIImage,
+        mode: InkRemovalMode
+    ) -> (image: UIImage, coloredCount: Int, pencilCount: Int, totalPixels: Int)? {
+        guard mode != .off else { return (image, 0, 0, 0) }
         guard let cgImage = image.cgImage else { return nil }
 
         let width = cgImage.width
@@ -129,8 +212,23 @@ struct HeuristicInkRemover: InkRemoving {
             rows: gridRows
         )
 
+        // Precompute luminance map so anti-aliased edge pixels adjacent to dark printed/black ink
+        // are never misclassified as faint pencil strokes.
+        var originalLuma = [UInt8](repeating: 255, count: width * height)
+        for y in 0..<height {
+            if y % 64 == 0, Task.isCancelled { return nil }
+            let rowOffset = y * bytesPerRow
+            let lumaRowOffset = y * width
+            for x in 0..<width {
+                let idx = rowOffset + x * 4
+                let luma = (299 * Int(pixels[idx]) + 587 * Int(pixels[idx + 1]) + 114 * Int(pixels[idx + 2])) / 1000
+                originalLuma[lumaRowOffset + x] = UInt8(clamping: luma)
+            }
+        }
+
         var erasedMask = [Bool](repeating: false, count: width * height)
-        var erasedPixelCount = 0
+        var coloredErasedCount = 0
+        var pencilErasedCount = 0
 
         // Step 2: Strip colored ink (red/blue/highlighter) & faint graphite pencil without altering dark printed/black ink.
         for y in 0..<height {
@@ -159,7 +257,7 @@ struct HeuristicInkRemover: InkRemoving {
                 let minC = min(r, min(g, b))
                 let chroma = maxC - minC
 
-                let luma = (299 * r + 587 * g + 114 * b) / 1000
+                let luma = Int(originalLuma[maskRowOffset + x])
                 let paperLuma = (299 * Int(paper.r) + 587 * Int(paper.g) + 114 * Int(paper.b)) / 1000
                 let relDark = paperLuma - luma
 
@@ -174,20 +272,23 @@ struct HeuristicInkRemover: InkRemoving {
                     pixels[idx + 2] = paper.b
                     pixels[idx + 3] = 255
                     erasedMask[maskRowOffset + x] = true
-                    erasedPixelCount += 1
+                    coloredErasedCount += 1
                     continue
                 }
 
                 guard mode == .autoAll else { continue }
 
-                // Faint pencil & paper smudge lift; dark black pen & printed ink remain untouched
+                // Faint pencil & paper smudge lift; skip anti-aliased fringe immediately bordering dark black ink
                 if relDark > 8 && relDark < 46 && luma > 138 && chroma <= 26 {
+                    if hasNearbyDarkInk(in: originalLuma, width: width, height: height, x: x, y: y) {
+                        continue
+                    }
                     let keepFactor = max(0.0, min(1.0, Double(relDark - 24) / 28.0)) * 0.25
                     pixels[idx] = UInt8(clamping: Int(Double(paper.r) * (1.0 - keepFactor) + Double(r) * keepFactor))
                     pixels[idx + 1] = UInt8(clamping: Int(Double(paper.g) * (1.0 - keepFactor) + Double(g) * keepFactor))
                     pixels[idx + 2] = UInt8(clamping: Int(Double(paper.b) * (1.0 - keepFactor) + Double(b) * keepFactor))
                     pixels[idx + 3] = 255
-                    erasedPixelCount += 1
+                    pencilErasedCount += 1
                 }
             }
         }
@@ -195,6 +296,7 @@ struct HeuristicInkRemover: InkRemoving {
         // Step 3: 1px anti-alias de-fringe pass around erased colored strokes to eliminate halos.
         if width > 2 && height > 2 {
             for y in 1..<(height - 1) {
+                if y % 64 == 0, Task.isCancelled { return nil }
                 for x in 1..<(width - 1) {
                     let maskIdx = y * width + x
                     if erasedMask[maskIdx] { continue }
@@ -249,7 +351,23 @@ struct HeuristicInkRemover: InkRemoving {
         }
 
         guard let outputImage else { return nil }
-        return (outputImage, erasedPixelCount)
+        return (outputImage, coloredErasedCount, pencilErasedCount, width * height)
+    }
+
+    private func hasNearbyDarkInk(in lumaMap: [UInt8], width: Int, height: Int, x: Int, y: Int) -> Bool {
+        let minY = max(0, y - 2)
+        let maxY = min(height - 1, y + 2)
+        let minX = max(0, x - 2)
+        let maxX = min(width - 1, x + 2)
+        for ny in minY...maxY {
+            let rowBase = ny * width
+            for nx in minX...maxX {
+                if lumaMap[rowBase + nx] < 125 {
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     private func estimatePaperGrid(
@@ -377,68 +495,82 @@ struct CoreMLCapableInkRemover: InkRemoving {
             return (heuristic.cleanedData, true)
         }
 
-        // In .autoAll without a trained Core ML model, only claim succeeded when colored/pencil strokes were actually detected & stripped;
-        // pure dark black-ink pages honestly report succeeded = false so PRD §8.6 prompts manual eraser.
-        let actuallyCleaned = heuristic.erasedPixelCount > 0
+        // In .autoAll without a trained Core ML model, require meaningful colored or faint-pencil stroke coverage
+        // (ignoring isolated JPEG anti-aliasing/DCT fringe) so pure dark black-ink pages honestly report succeeded = false.
+        let minPencilPixels = max(300, heuristic.totalPixelCount / 800)
+        let actuallyCleaned = heuristic.coloredErasedCount >= 80 || heuristic.pencilErasedCount >= minPencilPixels
+        if !actuallyCleaned && heuristic.erasedPixelCount == 0 {
+            return (imageData, false)
+        }
         return (heuristic.cleanedData, actuallyCleaned)
     }
 
     private func runCoreMLInference(modelURL: URL, imageData: Data) async -> Data? {
-        let workTask = Task.detached(priority: .userInitiated) { () -> Data? in
-            guard let sourceImage = UIImage(data: imageData),
-                  let cgImage = sourceImage.cgImage else {
-                return nil
-            }
-            let config = MLModelConfiguration()
-            config.computeUnits = .all
-            guard let mlModel = try? MLModel(contentsOf: modelURL, configuration: config),
-                  let vnModel = try? VNCoreMLModel(for: mlModel) else {
-                return nil
-            }
-
-            let request = VNCoreMLRequest(model: vnModel)
-            request.imageCropAndScaleOption = .scaleFill
-            let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-            do {
-                try handler.perform([request])
-                guard let pixelObs = request.results?.first as? VNPixelBufferObservation else {
-                    return nil
-                }
-                let ciOut = CIImage(cvPixelBuffer: pixelObs.pixelBuffer)
-                guard !ciOut.extent.isEmpty,
-                      let outCG = Self.inferenceContext.createCGImage(ciOut, from: ciOut.extent) else {
-                    return nil
-                }
-                return UIImage(cgImage: outCG).jpegData(compressionQuality: 0.88)
-            } catch {
-                return nil
-            }
-        }
-
+        let gate = InkTimeoutRaceGate<Data?>()
+        let requestBox = CancellableCoreMLRequestBox()
         let limit = timeoutSeconds
-        return await withTaskGroup(of: TimeoutRaceOutcome<Data?>?.self) { group in
-            group.addTask { .finished(await workTask.value) }
-            group.addTask {
+
+        let workTask = Task.detached(priority: .userInitiated) {
+            let result: Data? = await withTaskCancellationHandler {
+                guard !Task.isCancelled,
+                      let sourceImage = UIImage(data: imageData),
+                      let cgImage = sourceImage.cgImage else {
+                    return nil
+                }
+                let config = MLModelConfiguration()
+                config.computeUnits = .all
+                guard !Task.isCancelled,
+                      let mlModel = try? MLModel(contentsOf: modelURL, configuration: config),
+                      let vnModel = try? VNCoreMLModel(for: mlModel) else {
+                    return nil
+                }
+
+                let request = VNCoreMLRequest(model: vnModel)
+                request.imageCropAndScaleOption = .scaleFill
+                requestBox.attach(request)
+                defer { requestBox.clear() }
+
+                let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
                 do {
-                    try await Task.sleep(for: .seconds(limit))
-                    return .timedOut
+                    try handler.perform([request])
+                    guard !Task.isCancelled,
+                          let pixelObs = request.results?.first as? VNPixelBufferObservation else {
+                        return nil
+                    }
+                    let ciOut = CIImage(cvPixelBuffer: pixelObs.pixelBuffer)
+                    guard !ciOut.extent.isEmpty,
+                          let outCG = Self.inferenceContext.createCGImage(ciOut, from: ciOut.extent) else {
+                        return nil
+                    }
+                    return UIImage(cgImage: outCG).jpegData(compressionQuality: 0.88)
                 } catch {
                     return nil
                 }
+            } onCancel: {
+                requestBox.cancel()
             }
-            while let outcome = await group.next() {
-                guard let outcome else { continue }
-                switch outcome {
-                case .finished(let data):
-                    group.cancelAll()
-                    return data
-                case .timedOut:
-                    workTask.cancel()
-                    group.cancelAll()
-                    return nil
-                }
-            }
-            return nil
+            _ = await gate.resolve(with: result)
         }
+
+        let timeoutTask = Task.detached(priority: .userInitiated) {
+            try? await Task.sleep(for: .seconds(limit))
+            guard !Task.isCancelled else { return }
+            let won = await gate.resolve(with: nil)
+            if won {
+                requestBox.cancel()
+                workTask.cancel()
+            }
+        }
+
+        let output = await withTaskCancellationHandler {
+            await gate.wait()
+        } onCancel: {
+            requestBox.cancel()
+            workTask.cancel()
+            timeoutTask.cancel()
+            Task { _ = await gate.resolve(with: nil) }
+        }
+        timeoutTask.cancel()
+        return output
     }
 }

@@ -26,6 +26,7 @@ targets:
         excludes:
           - Resources/Info.plist
           - Resources/SnapDrill.entitlements
+          - Resources/SnapDrill.storekit
     info:
       path: SnapDrill/Resources/Info.plist
       properties:

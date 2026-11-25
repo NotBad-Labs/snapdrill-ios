@@ -1,3 +1,4 @@
+import Combine
 import CoreData
 import SwiftData
 import SwiftUI
@@ -88,6 +89,7 @@ struct RootTabView: View {
             }
             .animation(.spring(response: 0.3, dampingFraction: 0.85), value: environment.undoBannerCount)
             .animation(.spring(response: 0.3, dampingFraction: 0.85), value: environment.savedToastQuestionCount)
+            .animation(.spring(response: 0.3, dampingFraction: 0.85), value: environment.recoverableDraft?.id)
         }
         .task {
             await performStartup()
@@ -106,7 +108,7 @@ struct RootTabView: View {
         .onReceive(
             NotificationCenter.default
                 .publisher(for: .NSPersistentStoreRemoteChange)
-                .receive(on: RunLoop.main)
+                .debounce(for: .milliseconds(250), scheduler: RunLoop.main)
         ) { _ in
             SubjectCatalog.deduplicateExisting(in: modelContext)
         }

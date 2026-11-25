@@ -59,8 +59,10 @@ struct PDFExportService: PDFExportServing {
                 )
 
                 let headerHeight: CGFloat = 22
-                let inlinePreviewHeight: CGFloat = options.answerPlacement == .inlineBelow ? 64 : options.blankSpace.points
-                let requiredStemHeight = headerHeight + fittedImageSize.height + (options.answerPlacement == .none || options.answerPlacement == .endAppendix ? inlinePreviewHeight : 20) + 16
+                let trailingReserve: CGFloat = (options.answerPlacement == .none || options.answerPlacement == .endAppendix)
+                    ? options.blankSpace.points
+                    : 20
+                let requiredStemHeight = headerHeight + fittedImageSize.height + trailingReserve + 16
 
                 // Strictly avoid splitting a single problem image across pages (PRD §8.5)
                 if cursorY + requiredStemHeight > maxContentY && cursorY > marginTop + 20 {
@@ -317,7 +319,20 @@ struct PDFExportService: PDFExportServing {
             .font: UIFont.systemFont(ofSize: 17, weight: .bold),
             .foregroundColor: UIColor(red: 0.12, green: 0.12, blue: 0.14, alpha: 1.0)
         ]
-        (title as NSString).draw(in: CGRect(x: x, y: y, width: width, height: 26), withAttributes: titleAttrs)
+        let titleNS = title as NSString
+        let measuredTitle = titleNS.boundingRect(
+            with: CGSize(width: width, height: 120),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: titleAttrs,
+            context: nil
+        )
+        let titleHeight = max(22, ceil(measuredTitle.height))
+        titleNS.draw(
+            with: CGRect(x: x, y: y, width: width, height: titleHeight),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            attributes: titleAttrs,
+            context: nil
+        )
 
         let dateText = Date().formatted(date: .abbreviated, time: .omitted)
         let subtitle = String(localized: "\(questionCount) questions · \(dateText) · \(paperLabel)")
@@ -325,9 +340,10 @@ struct PDFExportService: PDFExportServing {
             .font: UIFont.systemFont(ofSize: 10, weight: .regular),
             .foregroundColor: UIColor(red: 0.42, green: 0.40, blue: 0.37, alpha: 1.0)
         ]
-        (subtitle as NSString).draw(at: CGPoint(x: x, y: y + 25), withAttributes: subAttrs)
+        let subtitleY = y + titleHeight + 4
+        (subtitle as NSString).draw(at: CGPoint(x: x, y: subtitleY), withAttributes: subAttrs)
 
-        let lineY = y + 44
+        let lineY = subtitleY + 19
         UIColor(red: 0.85, green: 0.82, blue: 0.76, alpha: 1.0).setStroke()
         let line = UIBezierPath()
         line.move(to: CGPoint(x: x, y: lineY))

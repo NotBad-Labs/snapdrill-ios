@@ -577,7 +577,11 @@ struct MistakeEditSheet: View {
                     if !editableAnswerSlots.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
-                                ForEach(editableAnswerSlots) { slot in
+                                ForEach(Array(editableAnswerSlots.enumerated()), id: \.element.id) { slotIndex, slot in
+                                    let hasSubsequentUnhydrated = editableAnswerSlots
+                                        .dropFirst(slotIndex + 1)
+                                        .contains { $0.data == nil }
+
                                     ZStack(alignment: .topTrailing) {
                                         if let data = slot.data, let img = UIImage(data: data) {
                                             Image(uiImage: img)
@@ -607,8 +611,12 @@ struct MistakeEditSheet: View {
                                             }
                                         } label: {
                                             Image(systemName: "xmark.circle.fill")
-                                                .foregroundStyle(.white, SnapDrillTheme.gradingRed)
+                                                .foregroundStyle(
+                                                    .white,
+                                                    hasSubsequentUnhydrated ? SnapDrillTheme.inkSecondary : SnapDrillTheme.gradingRed
+                                                )
                                         }
+                                        .disabled(hasSubsequentUnhydrated)
                                         .accessibilityLabel(String(localized: "Remove Answer Photo"))
                                     }
                                 }

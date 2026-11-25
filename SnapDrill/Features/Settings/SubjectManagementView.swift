@@ -45,6 +45,7 @@ struct SubjectManagementView: View {
                                 .foregroundStyle(SnapDrillTheme.inkBlue)
                         }
                         .buttonStyle(.plain)
+                        .accessibilityLabel(String(localized: "Edit \(subject.name)"))
                     }
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button(role: .destructive) {
@@ -174,7 +175,7 @@ private struct SubjectEditorSheet: View {
 
                 Section("Color") {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 14) {
-                        ForEach(SnapDrillTheme.subjectPaletteHexes, id: \.self) { hex in
+                        ForEach(Array(SnapDrillTheme.subjectPaletteHexes.enumerated()), id: \.element) { idx, hex in
                             Button {
                                 colorHex = hex
                             } label: {
@@ -192,6 +193,8 @@ private struct SubjectEditorSheet: View {
                                     )
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel(String(localized: "Color \(idx + 1)"))
+                            .accessibilityAddTraits(colorHex == hex ? .isSelected : [])
                         }
                     }
                     .padding(.vertical, 6)

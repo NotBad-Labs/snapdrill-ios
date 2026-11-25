@@ -92,7 +92,7 @@ struct DatabaseRecoveryView: View {
             .paperBackground()
             .navigationTitle(String(localized: "Storage Recovery"))
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showingShareSheet) {
+            .sheet(isPresented: $showingShareSheet, onDismiss: cleanUpExportedPackage) {
                 if let exportedPackageURL {
                     ActivityShareSheet(items: [exportedPackageURL])
                 }
@@ -113,6 +113,7 @@ struct DatabaseRecoveryView: View {
     }
 
     private func exportFullRecoveryArchive() {
+        cleanUpExportedPackage()
         do {
             let archiveURL = try ModelContainerFactory.createRecoveryPackageArchive(
                 storeURL: storeURL,
@@ -126,6 +127,13 @@ struct DatabaseRecoveryView: View {
         } catch {
             statusMessage = error.localizedDescription
         }
+    }
+
+    private func cleanUpExportedPackage() {
+        if let url = exportedPackageURL {
+            try? FileManager.default.removeItem(at: url)
+        }
+        exportedPackageURL = nil
     }
 
     private func archiveAndRebuildStore() {

@@ -26,6 +26,18 @@ enum RecropError: Error, LocalizedError, Equatable, Sendable {
     }
 }
 
+/// Errors surfaced when editing answer image slots would shift an unhydrated CloudKit asset.
+enum AnswerImageEditError: Error, LocalizedError, Equatable, Sendable {
+    case unhydratedSlotWouldShift
+
+    var errorDescription: String? {
+        switch self {
+        case .unhydratedSlotWouldShift:
+            return String(localized: "Cannot reorder or remove earlier answer photos while another synced photo is still downloading from iCloud.")
+        }
+    }
+}
+
 /// Coordinates atomic persistence of mistakes, image files, CloudKit binary sync assets, re-cropping, and safe deletions.
 @MainActor
 final class LibrarySaveService {
@@ -324,6 +336,8 @@ final class LibrarySaveService {
                     if originalIdx == targetIdx && resolvedData == nil {
                         // Path stayed at the same slot and bytes have not synced yet -> keep existing CKAsset attribute untouched
                         pendingSlotUpdates.append((targetIdx, nil, false))
+                    } else if originalIdx != targetIdx && resolvedData == nil {
+                        throw AnswerImageEditError.unhydratedSlotWouldShift
                     } else {
                         pendingSlotUpdates.append((targetIdx, resolvedData, true))
                     }

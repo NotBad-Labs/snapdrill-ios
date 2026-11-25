@@ -39,10 +39,17 @@ struct EraserStroke: Identifiable, Sendable, Equatable {
 enum EraserStrokeEngine {
     static let maxUndoDepth = 30
 
-    static func pushStroke(_ stroke: EraserStroke, into undoStack: inout [EraserStroke], redoStack: inout [EraserStroke]) {
+    static func pushStroke(
+        _ stroke: EraserStroke,
+        into undoStack: inout [EraserStroke],
+        redoStack: inout [EraserStroke],
+        bakedStrokes: inout [EraserStroke]
+    ) {
         undoStack.append(stroke)
         if undoStack.count > maxUndoDepth {
-            undoStack.removeFirst(undoStack.count - maxUndoDepth)
+            let overflowCount = undoStack.count - maxUndoDepth
+            bakedStrokes.append(contentsOf: undoStack.prefix(overflowCount))
+            undoStack.removeFirst(overflowCount)
         }
         redoStack.removeAll()
     }
@@ -256,6 +263,7 @@ struct HandwritingEraserView: View {
     private let workingOriginalImage: UIImage
 
     @State private var currentDisplayImage: UIImage
+    @State private var bakedBaseStrokes: [EraserStroke] = []
     @State private var undoStrokes: [EraserStroke] = []
     @State private var redoStrokes: [EraserStroke] = []
     @State private var toolMode: ToolMode = .erase
@@ -295,13 +303,17 @@ struct HandwritingEraserView: View {
                             .scaledToFit()
                             .frame(width: geo.size.width, height: geo.size.height)
 
-                        // Live vector stroke preview while dragging
+                        // Live vector stroke preview while dragging (supports single-tap dot & clipped to imageFrame)
                         if !activePoints.isEmpty && !isPeekingOriginal {
                             Path { path in
                                 guard let first = activePoints.first else { return }
                                 path.move(to: first)
-                                for pt in activePoints.dropFirst() {
-                                    path.addLine(to: pt)
+                                if activePoints.count == 1 {
+                                    path.addLine(to: CGPoint(x: first.x + 0.5, y: first.y + 0.5))
+                                } else {
+                                    for pt in activePoints.dropFirst() {
+                                        path.addLine(to: pt)
+                                    }
                                 }
                             }
                             .stroke(
@@ -310,6 +322,10 @@ struct HandwritingEraserView: View {
                                     : SnapDrillTheme.inkBlue.opacity(0.45),
                                 style: StrokeStyle(lineWidth: brushRadiusPoints * 2, lineCap: .round, lineJoin: .round)
                             )
+                            .clipShape(
+                                Rectangle()
+                                    .path(in: imageFrame)
+                            )
                         }
                     }
                     .coordinateSpace(name: Self.canvasSpaceName)
@@ -317,10 +333,16 @@ struct HandwritingEraserView: View {
                     .gesture(
                         DragGesture(minimumDistance: 0, coordinateSpace: .named(Self.canvasSpaceName))
                             .onChanged { value in
-                                guard !isPeekingOriginal, !isFinalizing else { return }
-                                if imageFrame.contains(value.location) {
-                                    activePoints.append(value.location)
+                                guard !isPeekingOriginal, !isFinalizing,
+                                      imageFrame.width > 0, imageFrame.height > 0 else { return }
+                                if activePoints.isEmpty && !imageFrame.contains(value.location) {
+                                    return
                                 }
+                                let clamped = CGPoint(
+                                    x: min(imageFrame.maxX, max(imageFrame.minX, value.location.x)),
+                                    y: min(imageFrame.maxY, max(imageFrame.minY, value.location.y))
+                                )
+                                activePoints.append(clamped)
                             }
                             .onEnded { _ in
                                 guard !activePoints.isEmpty else { return }
@@ -470,7 +492,12 @@ struct HandwritingEraserView: View {
             paperColor: localSample
         )
 
-        EraserStrokeEngine.pushStroke(stroke, into: &undoStrokes, redoStack: &redoStrokes)
+        EraserStrokeEngine.pushStroke(
+            stroke,
+            into: &undoStrokes,
+            redoStack: &redoStrokes,
+            bakedStrokes: &bakedBaseStrokes
+        )
         recompositeWorkingPreviewAsync()
     }
 
@@ -490,7 +517,7 @@ struct HandwritingEraserView: View {
         previewTask?.cancel()
         previewGeneration &+= 1
         let targetGeneration = previewGeneration
-        let strokesSnapshot = undoStrokes
+        let strokesSnapshot = bakedBaseStrokes + undoStrokes
         let base = workingInitialImage
         let orig = workingOriginalImage
 
@@ -515,9 +542,8 @@ struct HandwritingEraserView: View {
     private func finalizeAndDismiss() {
         previewTask?.cancel()
         previewGeneration &+= 1
-        let strokesSnapshot = undoStrokes
+        let strokesSnapshot = bakedBaseStrokes + undoStrokes
         if strokesSnapshot.isEmpty {
-            onSave(initialImage)
             dismiss()
             return
         }

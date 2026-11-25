@@ -60,6 +60,7 @@ struct ReviewSessionView: View {
                             .font(.caption.weight(.semibold))
                         }
                         .accessibilityLabel(String(localized: "Toggle Original or Cleaned Image"))
+                        .accessibilityValue(showOriginal ? String(localized: "Showing Original") : String(localized: "Showing Cleaned"))
                     }
                 }
             }
@@ -180,13 +181,14 @@ struct ReviewSessionView: View {
                 if !resolvedAnswerDatas.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(Array(resolvedAnswerDatas.enumerated()), id: \.offset) { _, data in
+                            ForEach(Array(resolvedAnswerDatas.enumerated()), id: \.offset) { idx, data in
                                 if let img = UIImage(data: data) {
                                     Image(uiImage: img)
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 140, height: 100)
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        .accessibilityLabel(String(localized: "Answer Photo \(idx + 1)"))
                                 }
                             }
                         }
@@ -293,7 +295,7 @@ struct ReviewSessionView: View {
                 .foregroundStyle(foreground)
                 .padding(.vertical, 10)
                 .padding(.horizontal, 8)
-                .frame(maxWidth: .infinity, minHeight: 40)
+                .frame(maxWidth: .infinity, minHeight: 44)
                 .background(color, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)

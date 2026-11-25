@@ -17,7 +17,6 @@
 		145223995742ABC3AF58C98C /* LibrarySaveService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E309D99DFF9AB66D6E17727 /* LibrarySaveService.swift */; };
 		17208ECB06F4FEA775F2A1A6 /* ProEntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C672F2C6613F09B2FC4462 /* ProEntitlementStore.swift */; };
 		1A042F61A1EF5FFF64651CB8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A286F14FEDF696DFEB643E0 /* Assets.xcassets */; };
-		1AA0355230E7178DD36471E4 /* SnapDrill.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 00FB615E97D3808C24E9365C /* SnapDrill.storekit */; };
 		1B0DF2F8444FEC15D4027A0D /* CapturePipelineLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53341D532A688A3151AF0073 /* CapturePipelineLive.swift */; };
 		1E8CF32B859AB74F664ADBC3 /* SubjectManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7116572034FBDEE93402464C /* SubjectManagementView.swift */; };
 		1F544340FBF66DAE82188B64 /* CustomCause.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61B915FEE7B87D2ECCBD5E66 /* CustomCause.swift */; };
@@ -85,7 +84,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		00FB615E97D3808C24E9365C /* SnapDrill.storekit */ = {isa = PBXFileReference; path = SnapDrill.storekit; sourceTree = "<group>"; };
 		02578D6D1BECDE568154B7B5 /* DatabaseRecoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseRecoveryView.swift; sourceTree = "<group>"; };
 		0501EA658EE23693742CC587 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		05F0704BB512B18D6AD50F16 /* SnapDrillTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = SnapDrillTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -328,7 +326,6 @@
 				1D4EB08738F1B75731A602F5 /* InfoPlist.xcstrings */,
 				0501EA658EE23693742CC587 /* Localizable.xcstrings */,
 				4070477F5157499E21CF92F1 /* PrivacyInfo.xcprivacy */,
-				00FB615E97D3808C24E9365C /* SnapDrill.storekit */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -474,7 +471,6 @@
 				0006F142258E29972EACEE6A /* InfoPlist.xcstrings in Resources */,
 				E9C73BEC054BC483F40DDDE4 /* Localizable.xcstrings in Resources */,
 				C6DD1E8233DBC66659B1E278 /* PrivacyInfo.xcprivacy in Resources */,
-				1AA0355230E7178DD36471E4 /* SnapDrill.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

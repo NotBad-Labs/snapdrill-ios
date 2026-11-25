@@ -1,4 +1,5 @@
 import SwiftData
+import UIKit
 import XCTest
 @testable import SnapDrill
 
@@ -76,5 +77,59 @@ final class SubjectCatalogAndDeletionTests: XCTestCase {
         // Attempting to delete fallback uncategorized bucket is ignored
         try saveService.deleteSubject(uncategorized, strategy: .deleteWithMistakes, in: context)
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<MistakeItem>()), 1)
+    }
+
+    func testDeleteSubjectWithMistakesCleansUpDatabaseAndUnsharedDiskFiles() throws {
+        let container = try makeInMemoryContainer()
+        let context = container.mainContext
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("SnapDrillDeleteAll-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let store = MistakeImageStore(rootDirectory: tempDir)
+        let saveService = LibrarySaveService(imageStore: store)
+
+        let subjects = SubjectCatalog.ensureSeeded(in: context, locale: Locale(identifier: "en_US"))
+        let math = try XCTUnwrap(subjects.first { !$0.isUncategorizedBucket })
+        let physics = try XCTUnwrap(subjects.first { !$0.isUncategorizedBucket && $0.id != math.id })
+
+        let jpeg = UIGraphicsImageRenderer(size: CGSize(width: 60, height: 60)).image { ctx in
+            UIColor.white.setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: 60, height: 60))
+        }.jpegData(compressionQuality: 0.8)!
+
+        let origPath = try store.saveJPEG(jpeg, relativePath: "orig/m1.jpg")
+        let cleanPath = try store.saveJPEG(jpeg, relativePath: "clean/m1.jpg")
+        let ansPath = try store.saveJPEG(jpeg, relativePath: "ans/m1-0.jpg")
+        let sharedPagePath = try store.saveJPEG(jpeg, relativePath: "page/shared.jpg")
+
+        let mathMistake = MistakeItem(
+            notes: "Delete me",
+            answerImagePaths: [ansPath],
+            originalImagePath: origPath,
+            cleanedImagePath: cleanPath,
+            pageImagePath: sharedPagePath,
+            subject: math
+        )
+        let survivingPhysicsMistake = MistakeItem(
+            notes: "Keep shared page",
+            pageImagePath: sharedPagePath,
+            subject: physics
+        )
+        context.insert(mathMistake)
+        context.insert(survivingPhysicsMistake)
+        try context.save()
+
+        try saveService.deleteSubject(math, strategy: .deleteWithMistakes, in: context)
+
+        let remainingSubjects = try context.fetch(FetchDescriptor<Subject>())
+        XCTAssertFalse(remainingSubjects.contains { $0.id == math.id })
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<MistakeItem>()), 1)
+
+        // Unshared files owned by deleted subject's mistake must be removed from disk
+        XCTAssertNil(store.loadData(relativePath: origPath))
+        XCTAssertNil(store.loadData(relativePath: cleanPath))
+        XCTAssertNil(store.loadData(relativePath: ansPath))
+        // Shared page image referenced by surviving mistake must remain intact
+        XCTAssertNotNil(store.loadData(relativePath: sharedPagePath))
     }
 }

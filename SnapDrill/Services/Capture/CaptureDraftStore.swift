@@ -1,5 +1,6 @@
 import CoreGraphics
 import Foundation
+import UIKit
 
 /// Persists unfinished Step 1/2/3 capture sessions using a lightweight JSON manifest + binary asset files
 /// in Application Support (avoiding 10-page inline Base64 bloat while preserving Step 3 metadata, M-01/M-02/M3).
@@ -177,7 +178,10 @@ actor CaptureDraftStore: CaptureDraftPersisting {
             for p in manifest.pages {
                 guard let raw = try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent(p.rawAssetFilename)),
                       let corr = try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent(p.correctedAssetFilename)),
-                      let enh = try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent(p.enhancedAssetFilename)) else {
+                      let enh = try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent(p.enhancedAssetFilename)),
+                      !raw.isEmpty,
+                      !corr.isEmpty,
+                      !enh.isEmpty else {
                     return nil
                 }
                 hydratedPages.append(
@@ -201,15 +205,29 @@ actor CaptureDraftStore: CaptureDraftPersisting {
                 var hadCorruptPreviewItem = false
                 for item in previewManifest.items {
                     guard let orig = try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent(item.originalAssetFilename)),
-                          let clean = try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent(item.cleanedAssetFilename)) else {
+                          let clean = try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent(item.cleanedAssetFilename)),
+                          isValidImageData(orig),
+                          isValidImageData(clean) else {
                         hadCorruptPreviewItem = true
                         break
                     }
-                    let pageData = item.pageAssetFilename.flatMap {
-                        try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent($0))
+                    let pageData: Data?
+                    if let pageFilename = item.pageAssetFilename {
+                        guard let loadedPage = try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent(pageFilename)),
+                              isValidImageData(loadedPage) else {
+                            hadCorruptPreviewItem = true
+                            break
+                        }
+                        pageData = loadedPage
+                    } else {
+                        pageData = nil
                     }
-                    let answerDatas = item.answerAssetFilenames.compactMap {
-                        try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent($0))
+                    let answerDatas = item.answerAssetFilenames.compactMap { filename -> Data? in
+                        guard let loaded = try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent(filename)),
+                              isValidImageData(loaded) else {
+                            return nil
+                        }
+                        return loaded
                     }
                     hydratedItems.append(
                         CaptureSaveItem(
@@ -270,6 +288,21 @@ actor CaptureDraftStore: CaptureDraftPersisting {
         if fm.fileExists(atPath: assetsDirectoryURL.path) {
             try? fm.removeItem(at: assetsDirectoryURL)
         }
+        if let entries = try? fm.contentsOfDirectory(at: baseDir, includingPropertiesForKeys: nil) {
+            for entry in entries {
+                let name = entry.lastPathComponent
+                if name.hasPrefix("assets-staging-") ||
+                    name.hasPrefix("assets-old-") ||
+                    name.hasPrefix("pending_capture_draft-old-") ||
+                    (name.hasPrefix("pending_capture_draft-") && name.hasSuffix(".tmp.json")) {
+                    try? fm.removeItem(at: entry)
+                }
+            }
+        }
+    }
+
+    private func isValidImageData(_ data: Data) -> Bool {
+        !data.isEmpty && UIImage(data: data) != nil
     }
 }
 

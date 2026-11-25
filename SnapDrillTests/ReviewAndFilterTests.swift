@@ -65,6 +65,22 @@ final class ReviewAndFilterTests: XCTestCase {
         XCTAssertEqual(MistakeFilterEngine.filter([m1, m2], using: criteria, referenceDate: now).map(\.id), [m1.id])
     }
 
+    private func waitUntil(
+        timeout: Duration = .seconds(3),
+        pollInterval: Duration = .milliseconds(25),
+        condition: () throws -> Bool
+    ) async throws -> Bool {
+        let clock = ContinuousClock()
+        let deadline = clock.now + timeout
+        while clock.now < deadline {
+            if try condition() {
+                return true
+            }
+            try await Task.sleep(for: pollInterval)
+        }
+        return try condition()
+    }
+
     func testUndoDeleteTimerExpiryAndDraftStoreRecovery() async throws {
         let container = try makeInMemoryContainer()
         let context = container.mainContext
@@ -100,9 +116,13 @@ final class ReviewAndFilterTests: XCTestCase {
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<MistakeItem>()), 1)
         XCTAssertNotNil(imageStore.loadData(relativePath: savedPath))
 
-        // Schedule again and allow async timer to expire naturally
+        // Schedule again and wait with bounded polling until async timer expires naturally
         env.scheduleSoftDelete([item], in: context)
-        try await Task.sleep(for: .milliseconds(350))
+        let deleted = try await waitUntil {
+            try context.fetchCount(FetchDescriptor<MistakeItem>()) == 0
+                && imageStore.loadData(relativePath: savedPath) == nil
+        }
+        XCTAssertTrue(deleted)
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<MistakeItem>()), 0)
         XCTAssertNil(imageStore.loadData(relativePath: savedPath))
 

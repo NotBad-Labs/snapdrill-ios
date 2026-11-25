@@ -137,6 +137,80 @@ final class PDFExportServiceTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(countImageXObjects(in: data), 7)
     }
 
+    func testInlineBelowLayoutTemporaryFileAndEmptySelectionError() throws {
+        let service = PDFExportService()
+
+        // Empty selection must throw PDFExportError.emptySelection
+        let emptyOptions = PDFExportOptions.p0Default(title: "Empty", paperSize: .a4, includeWatermark: false)
+        do {
+            _ = try service.renderPDFData(questions: [], options: emptyOptions)
+            XCTFail("Expected PDFExportError.emptySelection")
+        } catch let error as PDFExportError {
+            if case .emptySelection = error {
+                // Expected
+            } else {
+                XCTFail("Unexpected PDFExportError: \(error)")
+            }
+        }
+
+        let qImg = makeQuestionImageData(height: 260)
+        let ans1 = makeQuestionImageData(height: 240, color: .systemRed)
+        let ans2 = makeQuestionImageData(height: 240, color: .systemBlue)
+        let ans3 = makeQuestionImageData(height: 240, color: .systemGreen)
+
+        let longAnswer = String(repeating: "多步骤解析：先移项再配方验证判别式。", count: 90) + "\nINLINETAILMARK"
+        let longTitle = "高三数学冲刺错题汇编 · 函数导数与圆锥曲线综合专项复习训练卷"
+        let payload = PDFQuestionPayload(
+            id: UUID(),
+            index: 1,
+            subjectName: "数学",
+            imageData: qImg,
+            answerText: longAnswer,
+            answerImageDatas: [ans1, ans2, ans3],
+            causeLabels: ["计算失误"],
+            notes: "InlineNoteMark",
+            createdAt: .now
+        )
+
+        let inlineOptions = PDFExportOptions(
+            title: longTitle,
+            paperSize: .a4,
+            useCleanedImages: true,
+            answerPlacement: .inlineBelow,
+            blankSpace: .standard,
+            includeFooterWatermark: false
+        )
+
+        let data = try service.renderPDFData(questions: [payload], options: inlineOptions)
+        let doc = try XCTUnwrap(PDFDocument(data: data))
+        XCTAssertGreaterThanOrEqual(doc.pageCount, 2)
+
+        var allText = ""
+        for idx in 0..<doc.pageCount {
+            allText += "\n" + (doc.page(at: idx)?.string ?? "")
+        }
+        let compact = allText.components(separatedBy: .whitespacesAndNewlines).joined()
+        XCTAssertTrue(compact.contains("INLINETAILMARK"))
+        XCTAssertTrue(allText.contains("InlineNoteMark"))
+        XCTAssertTrue(compact.contains("圆锥曲线综合专项复习训练卷"))
+        XCTAssertGreaterThanOrEqual(countImageXObjects(in: data), 4) // 1 question + 3 answer images
+
+        // writeTemporaryPDF writes a valid PDF file with sanitized filename
+        let tempOptions = PDFExportOptions(
+            title: "Math/Quiz:Inline*?",
+            paperSize: .a4,
+            useCleanedImages: true,
+            answerPlacement: .inlineBelow,
+            blankSpace: .standard,
+            includeFooterWatermark: false
+        )
+        let url = try service.writeTemporaryPDF(questions: [payload], options: tempOptions)
+        defer { try? FileManager.default.removeItem(at: url) }
+        XCTAssertEqual(url.lastPathComponent, "Math-Quiz-Inline--.pdf")
+        let written = try Data(contentsOf: url)
+        XCTAssertEqual(String(data: written.prefix(5), encoding: .utf8), "%PDF-")
+    }
+
     private func countImageXObjects(in pdfData: Data) -> Int {
         guard let provider = CGDataProvider(data: pdfData as CFData),
               let cgDoc = CGPDFDocument(provider),

@@ -192,24 +192,87 @@ final class CapturePipelineContractTests: XCTestCase {
     }
 
     func testSmartQuestionDetectorRunsOffMainActorAndRespectsTimeout() async {
-        let size = CGSize(width: 600, height: 800)
+        let size = CGSize(width: 800, height: 1000)
         let format = UIGraphicsImageRendererFormat()
         format.scale = 1.0
         format.opaque = true
         let sheetData = UIGraphicsImageRenderer(size: size, format: format).image { ctx in
             UIColor.white.setFill()
             ctx.fill(CGRect(origin: .zero, size: size))
+            let attrs: [NSAttributedString.Key: Any] = [
+                .font: UIFont.systemFont(ofSize: 32, weight: .medium),
+                .foregroundColor: UIColor.black
+            ]
+            NSString(string: "1. Calculate the derivative of f(x) = x^3 + 2x.").draw(at: CGPoint(x: 60, y: 120), withAttributes: attrs)
+            NSString(string: "2. Solve the system: x + y = 7 and 2x - y = 2.").draw(at: CGPoint(x: 60, y: 580), withAttributes: attrs)
         }.jpegData(compressionQuality: 0.9)!
 
-        // Immediate timeout gracefully falls back to a valid default crop box without blocking MainActor
-        let tightTimeoutDetector = SmartQuestionDetector(timeoutSeconds: 0.0001)
+        // Immediate timeout gracefully falls back promptly without blocking on Vision perform
+        let start = ContinuousClock.now
+        let tightTimeoutDetector = SmartQuestionDetector(timeoutSeconds: 0.001)
         let timedOutBoxes = await tightTimeoutDetector.suggestBoxes(in: sheetData, maxBoxes: 10)
+        let elapsed = ContinuousClock.now - start
         XCTAssertEqual(timedOutBoxes.count, 1)
+        XCTAssertLessThan(elapsed, .seconds(0.8))
 
-        // Normal timeout returns bounded valid crop boxes
+        // Normal timeout detects question clusters within normalized unit bounds
         let normalDetector = SmartQuestionDetector(timeoutSeconds: 2.5)
         let boxes = await normalDetector.suggestBoxes(in: sheetData, maxBoxes: 10)
         XCTAssertFalse(boxes.isEmpty)
         XCTAssertLessThanOrEqual(boxes.count, 10)
+        for box in boxes {
+            XCTAssertGreaterThanOrEqual(box.normalizedRect.minX, 0.0)
+            XCTAssertGreaterThanOrEqual(box.normalizedRect.minY, 0.0)
+            XCTAssertLessThanOrEqual(box.normalizedRect.maxX, 1.0)
+            XCTAssertLessThanOrEqual(box.normalizedRect.maxY, 1.0)
+        }
+    }
+
+    func testCaptureDraftStoreValidatesCorruptPreviewAndCleansStagingFiles() async throws {
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent("CaptureDraftStoreTests-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let store = CaptureDraftStore(directoryURL: tempDir)
+        let pageImg = makeSolidImageData(color: .white, size: CGSize(width: 200, height: 200), drawRedStroke: true)
+        let page = CapturePage(rawImageData: pageImg)
+        let item = CaptureSaveItem(
+            id: page.boxes[0].id,
+            pageIndex: 0,
+            boxIndex: 0,
+            originalImageData: pageImg,
+            cleanedImageData: pageImg,
+            handwritingRemovalSucceeded: true,
+            ocrText: "Q1"
+        )
+        let session = CaptureSession(
+            pages: [page],
+            activeStep: 3,
+            savedPreview: CaptureSavePreview(items: [item], inkRemovalMode: .autoAll)
+        )
+
+        try await store.saveDraft(session)
+
+        // Corrupt cleaned preview asset with non-image bytes
+        let cleanFile = tempDir
+            .appendingPathComponent("assets", isDirectory: true)
+            .appendingPathComponent("item-\(item.id.uuidString)-clean.bin")
+        try Data([0x00, 0x01, 0x02]).write(to: cleanFile, options: [.atomic])
+
+        let loaded = await store.loadDraft()
+        XCTAssertNotNil(loaded)
+        XCTAssertEqual(loaded?.activeStep, 2)
+        XCTAssertNil(loaded?.savedPreview)
+        XCTAssertEqual(loaded?.pages.count, 1)
+
+        // Create leftover staging/tmp artifacts and verify clearDraft removes them
+        let staleStaging = tempDir.appendingPathComponent("assets-staging-stale", isDirectory: true)
+        try FileManager.default.createDirectory(at: staleStaging, withIntermediateDirectories: true)
+        let staleTmp = tempDir.appendingPathComponent("pending_capture_draft-stale.tmp.json")
+        try Data("{}".utf8).write(to: staleTmp)
+
+        await store.clearDraft()
+        XCTAssertFalse(FileManager.default.fileExists(atPath: staleStaging.path))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: staleTmp.path))
     }
 }

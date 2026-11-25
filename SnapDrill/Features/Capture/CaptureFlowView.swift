@@ -40,6 +40,9 @@ struct CaptureFlowView: View {
     @State private var isBusy: Bool = false
     @State private var errorMessage: String?
     @State private var draftSaveDebounceTask: Task<Void, Never>?
+    @State private var activeDraftSaveTask: Task<Void, Never>?
+    @State private var draftEpoch: UInt64 = 0
+    @State private var isDismissingOrSaving: Bool = false
 
     private var regularSubjects: [Subject] {
         subjects.filter { !$0.isUncategorizedBucket }
@@ -77,11 +80,9 @@ struct CaptureFlowView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        Task {
-                            await environment.draftStore.clearDraft()
-                            onDismiss()
-                        }
+                        cancelAndDismiss()
                     }
+                    .disabled(isDismissingOrSaving)
                 }
 
                 if step > 1 {
@@ -122,13 +123,24 @@ struct CaptureFlowView: View {
                     return
                 }
                 let targetIdx = currentPreviewIndex
+                let targetItemID = savePreview?.items[targetIdx].id
                 Task {
                     var appendedAny = false
                     for item in items {
-                        let existingCount = savePreview?.items[targetIdx].answerImageDatas.count ?? 0
-                        guard existingCount < MistakeLimits.maxAnswerImages else { break }
+                        guard let currentItems = savePreview?.items,
+                              currentItems.indices.contains(targetIdx),
+                              currentItems[targetIdx].id == targetItemID,
+                              currentItems[targetIdx].answerImageDatas.count < MistakeLimits.maxAnswerImages else {
+                            break
+                        }
                         if let data = try? await item.loadTransferable(type: Data.self),
                            UIImage(data: data) != nil {
+                            guard let latestItems = savePreview?.items,
+                                  latestItems.indices.contains(targetIdx),
+                                  latestItems[targetIdx].id == targetItemID,
+                                  latestItems[targetIdx].answerImageDatas.count < MistakeLimits.maxAnswerImages else {
+                                break
+                            }
                             savePreview?.items[targetIdx].answerImageDatas.append(data)
                             appendedAny = true
                         }
@@ -300,8 +312,16 @@ struct CaptureFlowView: View {
                                 ) { committed in
                                     Task {
                                         guard let s = session else { return }
-                                        session = try? await environment.capturePipeline.updateCorners(committed, pageID: page.id, in: s)
-                                        persistDraftAsync()
+                                        do {
+                                            let updated = try await environment.capturePipeline.updateCorners(committed, pageID: page.id, in: s)
+                                            if let updatedPage = updated.pages.first(where: { $0.id == page.id }),
+                                               let idx = session?.pages.firstIndex(where: { $0.id == page.id }) {
+                                                session?.pages[idx] = updatedPage
+                                            }
+                                            persistDraftAsync()
+                                        } catch {
+                                            errorMessage = error.localizedDescription
+                                        }
                                     }
                                 }
                             }
@@ -314,9 +334,17 @@ struct CaptureFlowView: View {
                     Button {
                         Task {
                             guard let s = session else { return }
-                            session = try? await environment.capturePipeline.updateCorners(page.corners, pageID: page.id, in: s)
-                            isEditingCorners = false
-                            persistDraftAsync()
+                            do {
+                                let updated = try await environment.capturePipeline.updateCorners(page.corners, pageID: page.id, in: s)
+                                if let updatedPage = updated.pages.first(where: { $0.id == page.id }),
+                                   let idx = session?.pages.firstIndex(where: { $0.id == page.id }) {
+                                    session?.pages[idx] = updatedPage
+                                }
+                                isEditingCorners = false
+                                persistDraftAsync()
+                            } catch {
+                                errorMessage = error.localizedDescription
+                            }
                         }
                     } label: {
                         Label("Apply Corners & Straighten", systemImage: "checkmark.rectangle")
@@ -336,8 +364,16 @@ struct CaptureFlowView: View {
                             Button {
                                 Task {
                                     guard let s = session else { return }
-                                    session = try? await environment.capturePipeline.setEnhancement(mode: mode, pageID: page.id, in: s)
-                                    persistDraftAsync()
+                                    do {
+                                        let updated = try await environment.capturePipeline.setEnhancement(mode: mode, pageID: page.id, in: s)
+                                        if let updatedPage = updated.pages.first(where: { $0.id == page.id }),
+                                           let idx = session?.pages.firstIndex(where: { $0.id == page.id }) {
+                                            session?.pages[idx] = updatedPage
+                                        }
+                                        persistDraftAsync()
+                                    } catch {
+                                        errorMessage = error.localizedDescription
+                                    }
                                 }
                             } label: {
                                 Text(mode.localizedTitle)
@@ -411,9 +447,13 @@ struct CaptureFlowView: View {
                             onDeleteBox: { boxID in
                                 Task {
                                     guard let s = session else { return }
-                                    session = try? await environment.capturePipeline.removeBox(boxID: boxID, on: page.id, in: s)
-                                    activeBoxID = currentPage?.boxes.first?.id
-                                    persistDraftAsync()
+                                    do {
+                                        session = try await environment.capturePipeline.removeBox(boxID: boxID, on: page.id, in: s)
+                                        activeBoxID = currentPage?.boxes.first?.id
+                                        persistDraftAsync()
+                                    } catch {
+                                        errorMessage = error.localizedDescription
+                                    }
                                 }
                             },
                             onDragEnded: {
@@ -431,7 +471,7 @@ struct CaptureFlowView: View {
                             do {
                                 let updated = try await environment.capturePipeline.addBox(on: page.id, rect: nil, in: s)
                                 session = updated
-                                activeBoxID = updated.pages[currentPageIndex].boxes.last?.id
+                                activeBoxID = updated.pages.first(where: { $0.id == page.id })?.boxes.last?.id
                                 persistDraftAsync()
                             } catch {
                                 errorMessage = error.localizedDescription
@@ -451,9 +491,13 @@ struct CaptureFlowView: View {
                         if environment.proStore.isPro {
                             Task {
                                 guard let s = session else { return }
-                                session = try? await environment.capturePipeline.suggestQuestionBoxes(on: page.id, in: s)
-                                activeBoxID = currentPage?.boxes.first?.id
-                                persistDraftAsync()
+                                do {
+                                    session = try await environment.capturePipeline.suggestQuestionBoxes(on: page.id, in: s)
+                                    activeBoxID = currentPage?.boxes.first?.id
+                                    persistDraftAsync()
+                                } catch {
+                                    errorMessage = error.localizedDescription
+                                }
                             }
                         } else {
                             showingPaywall = true
@@ -725,8 +769,12 @@ struct CaptureFlowView: View {
                                 }
 
                                 TextField("Correct answer / solution (optional)", text: Binding(
-                                    get: { savePreview?.items[currentPreviewIndex].answerText ?? "" },
+                                    get: {
+                                        guard savePreview?.items.indices.contains(currentPreviewIndex) == true else { return "" }
+                                        return savePreview?.items[currentPreviewIndex].answerText ?? ""
+                                    },
                                     set: {
+                                        guard savePreview?.items.indices.contains(currentPreviewIndex) == true else { return }
                                         savePreview?.items[currentPreviewIndex].answerText = String($0.prefix(MistakeLimits.maxAnswerCharacters))
                                         scheduleDebouncedDraftSave()
                                     }
@@ -784,8 +832,12 @@ struct CaptureFlowView: View {
                                 }
 
                                 TextField("Personal note (optional)", text: Binding(
-                                    get: { savePreview?.items[currentPreviewIndex].notes ?? "" },
+                                    get: {
+                                        guard savePreview?.items.indices.contains(currentPreviewIndex) == true else { return "" }
+                                        return savePreview?.items[currentPreviewIndex].notes ?? ""
+                                    },
                                     set: {
+                                        guard savePreview?.items.indices.contains(currentPreviewIndex) == true else { return }
                                         savePreview?.items[currentPreviewIndex].notes = String($0.prefix(MistakeLimits.maxNotesCharacters))
                                         scheduleDebouncedDraftSave()
                                     }
@@ -811,6 +863,7 @@ struct CaptureFlowView: View {
                             .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
                     .buttonStyle(.plain)
+                    .disabled(isDismissingOrSaving)
                     .accessibilityLabel(String(localized: "Save \(preview.questionCount) questions"))
                 }
             }
@@ -1036,47 +1089,89 @@ struct CaptureFlowView: View {
         persistDraftAsync()
     }
 
-    private func commitAndDismiss() {
+    private func cancelAndDismiss() {
+        guard !isDismissingOrSaving else { return }
+        isDismissingOrSaving = true
+        draftEpoch &+= 1
         draftSaveDebounceTask?.cancel()
+        draftSaveDebounceTask = nil
+        activeDraftSaveTask?.cancel()
+        let inFlightSave = activeDraftSaveTask
+        activeDraftSaveTask = nil
+        let draftStore = environment.draftStore
+
+        Task {
+            await inFlightSave?.value
+            await draftStore.clearDraft()
+            onDismiss()
+        }
+    }
+
+    private func commitAndDismiss() {
+        guard !isDismissingOrSaving else { return }
+        draftSaveDebounceTask?.cancel()
+        draftSaveDebounceTask = nil
         guard let preview = savePreview else { return }
         guard let subject = regularSubjects.first(where: { $0.id == selectedSubjectID }) ?? regularSubjects.first else {
             errorMessage = CapturePipelineError.subjectRequired.localizedDescription
             return
         }
 
+        isDismissingOrSaving = true
+        draftEpoch &+= 1
+        activeDraftSaveTask?.cancel()
+        let inFlightSave = activeDraftSaveTask
+        activeDraftSaveTask = nil
+
         do {
             let saved = try environment.saveService.commitSave(preview: preview, subject: subject, in: modelContext)
             environment.preferences.lastSubjectID = subject.id
-            Task { await environment.draftStore.clearDraft() }
-            environment.showSavedConfirmation(count: saved.count)
-            onDismiss()
+            let draftStore = environment.draftStore
+            Task {
+                await inFlightSave?.value
+                await draftStore.clearDraft()
+                environment.showSavedConfirmation(count: saved.count)
+                onDismiss()
+            }
         } catch {
+            isDismissingOrSaving = false
             errorMessage = error.localizedDescription
         }
     }
 
     private func scheduleDebouncedDraftSave() {
+        guard !isDismissingOrSaving else { return }
         draftSaveDebounceTask?.cancel()
         draftSaveDebounceTask = Task {
             try? await Task.sleep(for: .milliseconds(350))
-            guard !Task.isCancelled else { return }
+            guard !Task.isCancelled, !isDismissingOrSaving else { return }
             persistDraftAsync()
         }
     }
 
     private func persistDraftAsync() {
         draftSaveDebounceTask?.cancel()
-        guard var current = session else { return }
+        draftSaveDebounceTask = nil
+        guard !isDismissingOrSaving, var current = session else { return }
         current.activeStep = step
         current.selectedSubjectID = selectedSubjectID
         current.savedPreview = step >= 3 ? savePreview : nil
-        Task {
+        draftEpoch &+= 1
+        let targetEpoch = draftEpoch
+        let draftStore = environment.draftStore
+        let previousSave = activeDraftSaveTask
+        previousSave?.cancel()
+
+        activeDraftSaveTask = Task {
+            await previousSave?.value
+            guard !Task.isCancelled, !isDismissingOrSaving, draftEpoch == targetEpoch else { return }
             do {
-                try await environment.draftStore.saveDraft(current)
+                try await draftStore.saveDraft(current)
+            } catch is CancellationError {
+                return
             } catch {
-                await MainActor.run {
-                    errorMessage = error.localizedDescription
-                }
+                guard !isDismissingOrSaving, draftEpoch == targetEpoch else { return }
+                errorMessage = error.localizedDescription
             }
         }
     }
