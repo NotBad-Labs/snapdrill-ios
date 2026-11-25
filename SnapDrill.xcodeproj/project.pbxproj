@@ -50,6 +50,7 @@
 		9E06359550BF0524F03B7F7A /* PerspectiveCornerOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = E84A3AB21279E53691C45789 /* PerspectiveCornerOverlay.swift */; };
 		A13E3774636AEA97DE7A27B8 /* ReviewAndFilterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A97C5B6B4DF7BAB570F83D1 /* ReviewAndFilterTests.swift */; };
 		A7D3E11B4E8E8B4CF7E07CDC /* MistakeListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DC878EC6C7B1380E7899A1 /* MistakeListView.swift */; };
+		A9D2625B159B4B94E5DF8BAA /* TransientStatusBanners.swift in Sources */ = {isa = PBXBuildFile; fileRef = F81FB20288B9145F57D84DC9 /* TransientStatusBanners.swift */; };
 		AD20F19CD9C0BA4A53EABE28 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81ABC214444AB8053E27EDA3 /* AppConfig.swift */; };
 		B1E4A9761839CDD59B4C1F81 /* MistakeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4DFE0A8045FFEBE8310251B /* MistakeDetailView.swift */; };
 		BFE853D26A9AF0B6FE7ECDAB /* PhotoDataSanitizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10BD0E062A7C4417434186EE /* PhotoDataSanitizer.swift */; };
@@ -147,6 +148,7 @@
 		EA9C28830270566BFF4263BA /* SnapDrillTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapDrillTheme.swift; sourceTree = "<group>"; };
 		EB9DA6D5C79FD3D75C9E33C3 /* PandaMascotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PandaMascotView.swift; sourceTree = "<group>"; };
 		F621E2D87EB154CF05EF0920 /* ReviewHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewHubView.swift; sourceTree = "<group>"; };
+		F81FB20288B9145F57D84DC9 /* TransientStatusBanners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransientStatusBanners.swift; sourceTree = "<group>"; };
 		F90127BCF30C39339A6B4080 /* SnapDrill.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SnapDrill.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA48746E77D01953494A0986 /* MultiBoxCropOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiBoxCropOverlay.swift; sourceTree = "<group>"; };
 		FE314CCE4B6D1B3F71308C75 /* ReviewSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewSessionView.swift; sourceTree = "<group>"; };
@@ -306,6 +308,7 @@
 			children = (
 				EB9DA6D5C79FD3D75C9E33C3 /* PandaMascotView.swift */,
 				EA9C28830270566BFF4263BA /* SnapDrillTheme.swift */,
+				F81FB20288B9145F57D84DC9 /* TransientStatusBanners.swift */,
 				A029621708DEC416EA1E55C7 /* ZoomableImageView.swift */,
 			);
 			path = Design;
@@ -533,6 +536,7 @@
 				0BCFF92223C3102E8155EAC6 /* Subject.swift in Sources */,
 				466C558EF117F74CFB3C1969 /* SubjectCatalog.swift in Sources */,
 				1E8CF32B859AB74F664ADBC3 /* SubjectManagementView.swift in Sources */,
+				A9D2625B159B4B94E5DF8BAA /* TransientStatusBanners.swift in Sources */,
 				86C24C63FA9E29EE121639DF /* ZoomableImageView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
