@@ -91,7 +91,7 @@ struct SnapDrillApp: App {
                         storeURL: ModelContainerFactory.defaultStoreURL(),
                         imageStore: environment.imageStore,
                         onRebuildLibrary: {
-                            scheduleContainerReload(cloudKitRequested: desiredCloudKitActive)
+                            scheduleContainerReload(cloudKitRequested: desiredCloudKitActive, isRecoveryRebuild: true)
                         }
                     )
                 }
@@ -118,6 +118,11 @@ struct SnapDrillApp: App {
                     scheduleSafeContainerTransitionIfNeeded()
                 }
             }
+            .onChange(of: environment.undoBannerCount) { _, count in
+                if count == 0 {
+                    scheduleSafeContainerTransitionIfNeeded()
+                }
+            }
         }
     }
 
@@ -126,15 +131,19 @@ struct SnapDrillApp: App {
             activeMode: activeCloudKitMode,
             desiredMode: desiredCloudKitActive,
             hasCompletedInitialRefresh: environment.proStore.hasCompletedInitialRefresh,
-            isCaptureFlowActive: environment.isCaptureFlowActive
+            isCaptureFlowActive: environment.isCaptureFlowActive,
+            hasPendingUndoDeletions: environment.undoBannerCount > 0
         )
         guard shouldTransition else { return }
-        scheduleContainerReload(cloudKitRequested: desiredCloudKitActive)
+        scheduleContainerReload(cloudKitRequested: desiredCloudKitActive, isRecoveryRebuild: false)
     }
 
-    private func scheduleContainerReload(cloudKitRequested: Bool) {
+    private func scheduleContainerReload(cloudKitRequested: Bool, isRecoveryRebuild: Bool) {
         switchTask?.cancel()
-        environment.commitPendingDeletions()
+        let previousMode = activeCloudKitMode
+        if isRecoveryRebuild {
+            environment.commitPendingDeletions()
+        }
         isSwitchingContainer = true
         // Release strong reference to previous ModelContainer before unmounting and re-opening SQLite URL
         storeResult = ContainerLoadResult(container: nil, syncStatus: storeResult.syncStatus, errorDescription: nil)
@@ -142,7 +151,30 @@ struct SnapDrillApp: App {
         switchTask = Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(150))
             guard !Task.isCancelled else { return }
-            let refreshed = ModelContainerFactory.makeContainer(cloudKitRequested: cloudKitRequested)
+
+            var refreshed = ModelContainerFactory.makeContainer(cloudKitRequested: cloudKitRequested)
+            if !isRecoveryRebuild && refreshed.container == nil {
+                // Retry once after brief SQLite WAL/lock cooldown before falling back to previous working container
+                try? await Task.sleep(for: .milliseconds(250))
+                guard !Task.isCancelled else { return }
+                refreshed = ModelContainerFactory.makeContainer(cloudKitRequested: cloudKitRequested)
+            }
+
+            if !isRecoveryRebuild && refreshed.container == nil {
+                let restored = ModelContainerFactory.makeContainer(cloudKitRequested: previousMode)
+                if restored.container != nil {
+                    activeCloudKitMode = previousMode
+                    environment.activeCloudKitEnabled = previousMode
+                    environment.storeSyncStatus = .cloudKitFallbackToLocal(
+                        refreshed.errorDescription ?? String(localized: "Unable to switch sync mode right now.")
+                    )
+                    storeResult = restored
+                    containerInstanceID = UUID()
+                    isSwitchingContainer = false
+                    return
+                }
+            }
+
             activeCloudKitMode = cloudKitRequested
             environment.activeCloudKitEnabled = cloudKitRequested
             environment.storeSyncStatus = refreshed.syncStatus

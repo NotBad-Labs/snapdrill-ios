@@ -230,9 +230,11 @@ struct CaptureFlowView: View {
                             } label: {
                                 Label("Open Camera", systemImage: "camera.fill")
                                     .font(.headline)
+                                    .multilineTextAlignment(.center)
                                     .foregroundStyle(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 50)
+                                    .padding(.vertical, 13)
+                                    .padding(.horizontal, 16)
+                                    .frame(maxWidth: .infinity, minHeight: 50)
                                     .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                             }
                             .buttonStyle(.plain)
@@ -245,9 +247,11 @@ struct CaptureFlowView: View {
                         ) {
                             Label("Import from Photos (Up to 10)", systemImage: "photo.on.rectangle.angled")
                                 .font(.subheadline.weight(.semibold))
+                                .multilineTextAlignment(.center)
                                 .foregroundStyle(SnapDrillTheme.inkBlue)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 48)
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
+                                .frame(maxWidth: .infinity, minHeight: 48)
                                 .background(SnapDrillTheme.inkBlueSoft, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                         }
                     }
@@ -1012,7 +1016,7 @@ struct CaptureFlowView: View {
         guard savePreview?.items.indices.contains(index) == true else { return }
         if savePreview?.items[index].customCauseNames.contains(name) == true {
             savePreview?.items[index].customCauseNames.removeAll { $0 == name }
-        } else if (savePreview?.items[index].customCauseNames.count ?? 0) < MistakeLimits.maxTagsPerMistake {
+        } else if (savePreview?.items[index].customCauseNames.count ?? 0) < MistakeLimits.maxCustomCausesPerMistake {
             savePreview?.items[index].customCauseNames.append(name)
         }
         persistDraftAsync()

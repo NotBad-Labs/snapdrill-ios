@@ -17,6 +17,7 @@ final class ProEntitlementStore: ProEntitlementServing {
     private(set) var products: [Product] = []
     private(set) var statusState: SubscriptionStatusState = .free
     private(set) var hasCompletedInitialRefresh: Bool = false
+    private(set) var isEligibleForIntroOffer: Bool = false
     private(set) var isLoadingProducts: Bool = false
     private(set) var productsLoadFailed: Bool = false
     private(set) var purchaseInFlight: Bool = false
@@ -62,6 +63,17 @@ final class ProEntitlementStore: ProEntitlementServing {
         products.first { $0.id == SnapDrillProductID.yearly.rawValue }
     }
 
+    /// Computes rounded integer savings percent of annual plan vs 12x monthly plan, returning nil unless positive (M7).
+    nonisolated static func annualSavingsPercent(monthlyPrice: Decimal, yearlyPrice: Decimal) -> Int? {
+        guard monthlyPrice > 0, yearlyPrice > 0 else { return nil }
+        let annualAtMonthly = monthlyPrice * 12
+        guard annualAtMonthly > yearlyPrice else { return nil }
+        let savings = (annualAtMonthly - yearlyPrice) as NSDecimalNumber
+        let baseline = annualAtMonthly as NSDecimalNumber
+        let pct = Int(((savings.doubleValue / baseline.doubleValue) * 100.0).rounded())
+        return pct > 0 ? pct : nil
+    }
+
     /// Selects the highest-priority valid entitlement (non-revoked, non-expiring or latest expiration date).
     nonisolated static func selectBestEntitlement(from snapshots: [EntitlementSnapshot]) -> EntitlementSnapshot? {
         let valid = snapshots.filter { snapshot in
@@ -104,8 +116,17 @@ final class ProEntitlementStore: ProEntitlementServing {
             let loaded = try await Product.products(for: ids)
             self.products = loaded.sorted { $0.price < $1.price }
             self.productsLoadFailed = self.products.isEmpty
+            await refreshIntroOfferEligibility()
         } catch {
             self.productsLoadFailed = true
+        }
+    }
+
+    private func refreshIntroOfferEligibility() async {
+        if let sub = (yearlyProduct ?? monthlyProduct)?.subscription, sub.introductoryOffer != nil {
+            self.isEligibleForIntroOffer = await sub.isEligibleForIntroOffer
+        } else {
+            self.isEligibleForIntroOffer = false
         }
     }
 
@@ -195,6 +216,7 @@ final class ProEntitlementStore: ProEntitlementServing {
         detectedPriorExpired = foundPrior
         recomputeStateFromEntitlements(lastActiveEntitlement: bestActive, detectedPriorExpired: foundPrior)
         defaults.set(isPro, forKey: lastKnownProActiveKey)
+        await refreshIntroOfferEligibility()
     }
 
     private func recomputeStateFromEntitlements(

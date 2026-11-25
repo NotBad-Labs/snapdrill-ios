@@ -1,3 +1,4 @@
+import CoreData
 import SwiftData
 import SwiftUI
 
@@ -96,10 +97,18 @@ struct RootTabView: View {
                 showingCaptureFlow = false
                 resumeSessionForCapture = nil
                 environment.isCaptureFlowActive = false
+                Task { await environment.checkForRecoverableDraft() }
             }
         }
         .onChange(of: showingCaptureFlow) { _, isShowing in
             environment.isCaptureFlowActive = isShowing
+        }
+        .onReceive(
+            NotificationCenter.default
+                .publisher(for: .NSPersistentStoreRemoteChange)
+                .receive(on: RunLoop.main)
+        ) { _ in
+            SubjectCatalog.deduplicateExisting(in: modelContext)
         }
         .sheet(item: $debugInspectMistake) { mistake in
             NavigationStack {

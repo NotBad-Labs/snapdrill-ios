@@ -107,22 +107,52 @@ actor CaptureDraftStore: CaptureDraftPersisting {
                 savedPreview: previewManifest
             )
 
+            let stagingManifestURL = baseDir.appendingPathComponent("pending_capture_draft-\(UUID().uuidString).tmp.json")
+            let manifestData = try JSONEncoder().encode(manifest)
+            try manifestData.write(to: stagingManifestURL, options: [.atomic])
+
             let backupAssetsDir = baseDir.appendingPathComponent("assets-old-\(UUID().uuidString)", isDirectory: true)
+            let backupManifestURL = baseDir.appendingPathComponent("pending_capture_draft-old-\(UUID().uuidString).json")
             let hadExistingAssets = fm.fileExists(atPath: assetsDirectoryURL.path)
+            let hadExistingManifest = fm.fileExists(atPath: draftFileURL.path)
+
             if hadExistingAssets {
                 try fm.moveItem(at: assetsDirectoryURL, to: backupAssetsDir)
+            }
+            if hadExistingManifest {
+                do {
+                    try fm.moveItem(at: draftFileURL, to: backupManifestURL)
+                } catch {
+                    if hadExistingAssets, !fm.fileExists(atPath: assetsDirectoryURL.path) {
+                        try? fm.moveItem(at: backupAssetsDir, to: assetsDirectoryURL)
+                    }
+                    try? fm.removeItem(at: stagingManifestURL)
+                    throw error
+                }
             }
 
             do {
                 try fm.moveItem(at: stagingAssetsDir, to: assetsDirectoryURL)
-                let manifestData = try JSONEncoder().encode(manifest)
-                try manifestData.write(to: draftFileURL, options: [.atomic])
+                try fm.moveItem(at: stagingManifestURL, to: draftFileURL)
                 if hadExistingAssets {
                     try? fm.removeItem(at: backupAssetsDir)
                 }
+                if hadExistingManifest {
+                    try? fm.removeItem(at: backupManifestURL)
+                }
             } catch {
-                if !fm.fileExists(atPath: assetsDirectoryURL.path) && hadExistingAssets {
+                try? fm.removeItem(at: stagingManifestURL)
+                if fm.fileExists(atPath: assetsDirectoryURL.path) {
+                    try? fm.removeItem(at: assetsDirectoryURL)
+                }
+                if fm.fileExists(atPath: draftFileURL.path) {
+                    try? fm.removeItem(at: draftFileURL)
+                }
+                if hadExistingAssets {
                     try? fm.moveItem(at: backupAssetsDir, to: assetsDirectoryURL)
+                }
+                if hadExistingManifest {
+                    try? fm.moveItem(at: backupManifestURL, to: draftFileURL)
                 }
                 throw error
             }
@@ -164,13 +194,16 @@ actor CaptureDraftStore: CaptureDraftPersisting {
             }
 
             var hydratedPreview: CaptureSavePreview? = nil
+            var effectiveStep = manifest.activeStep
             if let previewManifest = manifest.savedPreview {
                 var hydratedItems: [CaptureSaveItem] = []
                 hydratedItems.reserveCapacity(previewManifest.items.count)
+                var hadCorruptPreviewItem = false
                 for item in previewManifest.items {
                     guard let orig = try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent(item.originalAssetFilename)),
                           let clean = try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent(item.cleanedAssetFilename)) else {
-                        continue
+                        hadCorruptPreviewItem = true
+                        break
                     }
                     let pageData = item.pageAssetFilename.flatMap {
                         try? Data(contentsOf: assetsDirectoryURL.appendingPathComponent($0))
@@ -199,7 +232,11 @@ actor CaptureDraftStore: CaptureDraftPersisting {
                         )
                     )
                 }
-                if !hydratedItems.isEmpty {
+                if hadCorruptPreviewItem || hydratedItems.isEmpty {
+                    // Never silently drop questions; fall back cleanly to Step 2 so all pages & crop boxes regenerate intact (M2)
+                    hydratedPreview = nil
+                    effectiveStep = min(manifest.activeStep, 2)
+                } else {
                     hydratedPreview = CaptureSavePreview(
                         items: hydratedItems,
                         inkRemovalMode: previewManifest.inkRemovalMode
@@ -211,7 +248,7 @@ actor CaptureDraftStore: CaptureDraftPersisting {
                 id: manifest.id,
                 createdAt: manifest.createdAt,
                 pages: hydratedPages,
-                activeStep: manifest.activeStep,
+                activeStep: effectiveStep,
                 selectedSubjectID: manifest.selectedSubjectID,
                 savedPreview: hydratedPreview
             )

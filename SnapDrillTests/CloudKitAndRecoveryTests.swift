@@ -20,9 +20,12 @@ final class CloudKitAndRecoveryTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: tempDir) }
         let storeURL = tempDir.appendingPathComponent("SnapDrill.sqlite")
 
-        let localResult = ModelContainerFactory.makeContainer(cloudKitRequested: false, storeURL: storeURL)
-        XCTAssertNotNil(localResult.container)
-        XCTAssertEqual(localResult.syncStatus, .localOnly)
+        var localResult: ContainerLoadResult? = ModelContainerFactory.makeContainer(cloudKitRequested: false, storeURL: storeURL)
+        XCTAssertNotNil(localResult?.container)
+        XCTAssertEqual(localResult?.syncStatus, .localOnly)
+
+        // Release first container before opening CloudKit/local fallback on the same SQLite URL
+        localResult = nil
 
         // Even when CloudKit entitlement/account is missing on unsigned simulator, factory must fall back to local instead of failing open
         let ckResult = ModelContainerFactory.makeContainer(cloudKitRequested: true, storeURL: storeURL)
@@ -283,6 +286,17 @@ final class CloudKitAndRecoveryTests: XCTestCase {
             )
         )
 
+        // Defer transition while 5-second undo delete banner is active
+        XCTAssertFalse(
+            CloudKitContainerPolicy.shouldTransitionContainer(
+                activeMode: true,
+                desiredMode: false,
+                hasCompletedInitialRefresh: true,
+                isCaptureFlowActive: false,
+                hasPendingUndoDeletions: true
+            )
+        )
+
         // Transition runs once refresh completed and capture is closed
         XCTAssertTrue(
             CloudKitContainerPolicy.shouldTransitionContainer(
@@ -533,5 +547,100 @@ final class CloudKitAndRecoveryTests: XCTestCase {
         XCTAssertNotNil(mistake.answerImageData1)
         XCTAssertNil(mistake.answerImageData2)
         XCTAssertEqual(mistake.resolvedAnswerImageDatas(imageStore: store).count, 2)
+    }
+
+    func testTextOnlyEditAndAppendPreserveUnhydratedNilAnswerImageSlots() throws {
+        let schema = ModelContainerFactory.schema
+        let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: schema, configurations: [config])
+        let context = container.mainContext
+
+        let emptyDir = FileManager.default.temporaryDirectory.appendingPathComponent("SnapDrillNilSlots-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: emptyDir) }
+        let store = MistakeImageStore(rootDirectory: emptyDir)
+        let service = LibrarySaveService(imageStore: store, textRecognizer: { _ in "" })
+
+        // Simulate CloudKit delivering answerImagePaths while externalStorage CKAssets are still nil
+        let mistake = MistakeItem(
+            notes: "Initial",
+            answerImagePaths: ["ans/cloud-pending-0.jpg"]
+        )
+        XCTAssertNil(mistake.answerImageData0)
+        context.insert(mistake)
+        try context.save()
+
+        // Text-only edit with no slot path changes is a clean no-op on CloudKit slots
+        let written = try service.applyAnswerImageEdits(
+            slots: [(path: "ans/cloud-pending-0.jpg", data: nil)],
+            to: mistake
+        )
+        XCTAssertTrue(written.isEmpty)
+        XCTAssertEqual(mistake.answerImagePaths, ["ans/cloud-pending-0.jpg"])
+        XCTAssertNil(mistake.answerImageData0)
+
+        // Appending a second answer image fills slot 1 without touching unhydrated slot 0
+        let newImgData = makeTestImageData(color: .systemOrange, size: CGSize(width: 140, height: 140))
+        let newImg = try XCTUnwrap(UIImage(data: newImgData))
+        try service.appendAnswerImage(newImg, to: mistake, in: context)
+
+        XCTAssertEqual(mistake.answerImagePaths.count, 2)
+        XCTAssertEqual(mistake.answerImagePaths[0], "ans/cloud-pending-0.jpg")
+        XCTAssertNil(mistake.answerImageData0)
+        XCTAssertNotNil(mistake.answerImageData1)
+    }
+
+    func testDraftLoadFallsBackToStep2WhenPreviewAssetMissing() async throws {
+        let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent("SnapDrillDraftCorrupt-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: tempDir) }
+
+        let store = CaptureDraftStore(directoryURL: tempDir)
+        let rawBytes = makeTestImageData(color: .white, size: CGSize(width: 400, height: 500))
+        let page = CapturePage(
+            rawImageData: rawBytes,
+            correctedImageData: rawBytes,
+            enhancedImageData: rawBytes,
+            boxes: [
+                CaptureCropBox(normalizedRect: CGRect(x: 0.05, y: 0.05, width: 0.9, height: 0.35)),
+                CaptureCropBox(normalizedRect: CGRect(x: 0.05, y: 0.55, width: 0.9, height: 0.35))
+            ]
+        )
+        let item1 = CaptureSaveItem(
+            id: UUID(),
+            pageIndex: 0,
+            boxIndex: 0,
+            originalImageData: rawBytes,
+            cleanedImageData: rawBytes,
+            handwritingRemovalSucceeded: true,
+            ocrText: "Q1"
+        )
+        let item2 = CaptureSaveItem(
+            id: UUID(),
+            pageIndex: 0,
+            boxIndex: 1,
+            originalImageData: rawBytes,
+            cleanedImageData: rawBytes,
+            handwritingRemovalSucceeded: true,
+            ocrText: "Q2"
+        )
+        let session = CaptureSession(
+            pages: [page],
+            activeStep: 3,
+            savedPreview: CaptureSavePreview(items: [item1, item2], inkRemovalMode: .autoAll)
+        )
+
+        try await store.saveDraft(session)
+
+        // Delete one preview asset file cleanly to simulate partial corruption
+        let assetsDir = tempDir.appendingPathComponent("assets")
+        let files = try FileManager.default.contentsOfDirectory(atPath: assetsDir.path)
+        let targetClean = try XCTUnwrap(files.first { $0.contains("-clean.bin") })
+        try FileManager.default.removeItem(at: assetsDir.appendingPathComponent(targetClean))
+
+        let loadedOptional = await store.loadDraft()
+        let loaded = try XCTUnwrap(loadedOptional)
+        // Must downgrade safely to Step 2 with ALL crop boxes preserved instead of dropping Q1/Q2
+        XCTAssertEqual(loaded.activeStep, 2)
+        XCTAssertNil(loaded.savedPreview)
+        XCTAssertEqual(loaded.pages.first?.boxes.count, 2)
     }
 }

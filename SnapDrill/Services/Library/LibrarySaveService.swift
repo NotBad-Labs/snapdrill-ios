@@ -253,24 +253,21 @@ final class LibrarySaveService {
         }
     }
 
-    /// Saves an answer attachment image (up to maxAnswerImages) and syncs CloudKit binary slots without compacting away unhydrated slots.
+    /// Saves an answer attachment image (up to maxAnswerImages) without rewriting or clearing earlier unhydrated CloudKit slots (B1).
     func appendAnswerImage(_ image: UIImage, to mistake: MistakeItem, in context: ModelContext) throws {
         guard mistake.answerImagePaths.count < MistakeLimits.maxAnswerImages else { return }
         guard let jpeg = image.jpegData(compressionQuality: 0.85) else {
             throw ImageStoreError.imageEncodingFailed
         }
+        let targetIndex = mistake.answerImagePaths.count
         let saved = try imageStore.saveJPEGWithData(
             jpeg,
             relativePath: "ans/\(mistake.id.uuidString)-\(UUID().uuidString.prefix(8)).jpg",
             maxBytes: 450 * 1024
         )
 
-        var preservedSlots: [Data?] = (0..<mistake.answerImagePaths.count).map { idx in
-            mistake.resolvedAnswerImageData(at: idx, imageStore: imageStore)
-        }
-        preservedSlots.append(saved.compressedData)
         mistake.answerImagePaths.append(saved.relativePath)
-        mistake.setAnswerImageSlots(preservedSlots)
+        mistake.setAnswerImageSlot(saved.compressedData, at: targetIndex)
 
         do {
             try context.save()
@@ -284,33 +281,52 @@ final class LibrarySaveService {
     /// Re-synchronizes answerImageData0..2 slots strictly by path index, preserving CloudKit externalStorage
     /// bytes when local ans/ files have not been hydrated yet on a secondary device (Blocker B2).
     func syncAnswerImageSlots(for mistake: MistakeItem) {
-        let slots: [Data?] = mistake.answerImagePaths
-            .prefix(MistakeLimits.maxAnswerImages)
-            .enumerated()
-            .map { idx, path in
-                imageStore.loadData(relativePath: path) ?? mistake.answerImageSlotData(at: idx)
+        for (idx, path) in mistake.answerImagePaths.prefix(MistakeLimits.maxAnswerImages).enumerated() {
+            if let local = imageStore.loadData(relativePath: path) {
+                if mistake.answerImageSlotData(at: idx) != local {
+                    mistake.setAnswerImageSlot(local, at: idx)
+                }
             }
-        mistake.setAnswerImageSlots(slots)
+        }
+        for trailingIdx in mistake.answerImagePaths.count..<MistakeLimits.maxAnswerImages {
+            if mistake.answerImageSlotData(at: trailingIdx) != nil {
+                mistake.setAnswerImageSlot(nil, at: trailingIdx)
+            }
+        }
     }
 
-    /// Commits staged answer photo additions/removals atomically to disk and CloudKit slots (Blocker B2).
+    /// Commits staged answer photo additions/removals atomically to disk and CloudKit slots without
+    /// dirty-writing `nil` over unhydrated CloudKit externalStorage slots (Grok R3 B1).
     func applyAnswerImageEdits(
         slots: [(path: String?, data: Data?)],
         to mistake: MistakeItem
     ) throws -> [String] {
+        let cappedSlots = Array(slots.prefix(MistakeLimits.maxAnswerImages))
+        if cappedSlots.allSatisfy({ $0.path != nil }),
+           cappedSlots.compactMap(\.path) == mistake.answerImagePaths {
+            return []
+        }
+
+        let previousPaths = mistake.answerImagePaths
         var finalPaths: [String] = []
-        var finalSlotDatas: [Data?] = []
+        var pendingSlotUpdates: [(index: Int, data: Data?, shouldWrite: Bool)] = []
         var newlyWrittenPaths: [String] = []
 
         do {
-            for slot in slots.prefix(MistakeLimits.maxAnswerImages) {
+            for (targetIdx, slot) in cappedSlots.enumerated() {
                 if let existingPath = slot.path {
-                    let originalIdx = mistake.answerImagePaths.firstIndex(of: existingPath)
+                    let originalIdx = previousPaths.firstIndex(of: existingPath)
                     let resolvedData = slot.data
                         ?? imageStore.loadData(relativePath: existingPath)
                         ?? originalIdx.flatMap { mistake.answerImageSlotData(at: $0) }
                     finalPaths.append(existingPath)
-                    finalSlotDatas.append(resolvedData)
+
+                    if originalIdx == targetIdx && resolvedData == nil {
+                        // Path stayed at the same slot and bytes have not synced yet -> keep existing CKAsset attribute untouched
+                        pendingSlotUpdates.append((targetIdx, nil, false))
+                    } else {
+                        pendingSlotUpdates.append((targetIdx, resolvedData, true))
+                    }
                 } else if let rawData = slot.data, let uiImg = UIImage(data: rawData),
                           let jpeg = uiImg.jpegData(compressionQuality: 0.85) {
                     let saved = try imageStore.saveJPEGWithData(
@@ -320,7 +336,7 @@ final class LibrarySaveService {
                     )
                     newlyWrittenPaths.append(saved.relativePath)
                     finalPaths.append(saved.relativePath)
-                    finalSlotDatas.append(saved.compressedData)
+                    pendingSlotUpdates.append((targetIdx, saved.compressedData, true))
                 }
             }
         } catch {
@@ -331,7 +347,12 @@ final class LibrarySaveService {
         }
 
         mistake.answerImagePaths = finalPaths
-        mistake.setAnswerImageSlots(finalSlotDatas)
+        for update in pendingSlotUpdates where update.shouldWrite {
+            mistake.setAnswerImageSlot(update.data, at: update.index)
+        }
+        for trailingIdx in finalPaths.count..<MistakeLimits.maxAnswerImages {
+            mistake.setAnswerImageSlot(nil, at: trailingIdx)
+        }
         return newlyWrittenPaths
     }
 

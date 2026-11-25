@@ -254,8 +254,10 @@ struct ReviewSessionView: View {
                 } label: {
                     Label("Previous", systemImage: "chevron.left")
                         .font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
+                        .multilineTextAlignment(.center)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .frame(maxWidth: .infinity, minHeight: 44)
                         .background(SnapDrillTheme.cardSurface, in: RoundedRectangle(cornerRadius: 12))
                         .overlay(RoundedRectangle(cornerRadius: 12).strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1))
                 }
@@ -266,9 +268,11 @@ struct ReviewSessionView: View {
                 } label: {
                     Label(currentIndex == sessionQueue.count - 1 ? String(localized: "Finish") : String(localized: "Next"), systemImage: "chevron.right")
                         .font(.subheadline.weight(.semibold))
+                        .multilineTextAlignment(.center)
                         .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 44)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .frame(maxWidth: .infinity, minHeight: 44)
                         .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 12))
                 }
             }
@@ -285,9 +289,11 @@ struct ReviewSessionView: View {
         Button(action: action) {
             Text(title)
                 .font(.caption.weight(.bold))
+                .multilineTextAlignment(.center)
                 .foregroundStyle(foreground)
-                .frame(maxWidth: .infinity)
-                .frame(height: 40)
+                .padding(.vertical, 10)
+                .padding(.horizontal, 8)
+                .frame(maxWidth: .infinity, minHeight: 40)
                 .background(color, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .buttonStyle(.plain)
@@ -319,9 +325,11 @@ struct ReviewSessionView: View {
                 } label: {
                     Text("Practice Again")
                         .font(.headline)
+                        .multilineTextAlignment(.center)
                         .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
+                        .padding(.vertical, 13)
+                        .padding(.horizontal, 16)
+                        .frame(maxWidth: .infinity, minHeight: 50)
                         .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14))
                 }
 
@@ -336,9 +344,11 @@ struct ReviewSessionView: View {
                     } label: {
                         Text("Drill Unmastered Only (\(unmastered.count))")
                             .font(.subheadline.weight(.semibold))
+                            .multilineTextAlignment(.center)
                             .foregroundStyle(SnapDrillTheme.inkBlue)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 46)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .frame(maxWidth: .infinity, minHeight: 46)
                             .background(SnapDrillTheme.inkBlueSoft, in: RoundedRectangle(cornerRadius: 14))
                     }
                 }

@@ -95,4 +95,17 @@ final class ProEntitlementAndBackupTests: XCTestCase {
         // Standard PK zip header bytes: 0x50 0x4B
         XCTAssertEqual(zipData.prefix(2), Data([0x50, 0x4B]))
     }
+
+    func testAnnualSavingsPercentCalculation() {
+        XCTAssertEqual(
+            ProEntitlementStore.annualSavingsPercent(monthlyPrice: Decimal(string: "1.99")!, yearlyPrice: Decimal(string: "14.99")!),
+            37
+        )
+        XCTAssertNil(
+            ProEntitlementStore.annualSavingsPercent(monthlyPrice: Decimal(0), yearlyPrice: Decimal(string: "14.99")!)
+        )
+        XCTAssertNil(
+            ProEntitlementStore.annualSavingsPercent(monthlyPrice: Decimal(1), yearlyPrice: Decimal(12))
+        )
+    }
 }

@@ -10,6 +10,7 @@ enum MistakeLimits {
     static let maxAnswerCharacters = 2_000
     static let maxAnswerImages = 3
     static let maxTagsPerMistake = 10
+    static let maxCustomCausesPerMistake = 10
 }
 
 /// Built-in error cause classifications (PRD F-21).
@@ -171,6 +172,15 @@ final class MistakeItem {
         case 1: return answerImageData1
         case 2: return answerImageData2
         default: return nil
+        }
+    }
+
+    func setAnswerImageSlot(_ data: Data?, at index: Int) {
+        switch index {
+        case 0: answerImageData0 = data
+        case 1: answerImageData1 = data
+        case 2: answerImageData2 = data
+        default: break
         }
     }
 

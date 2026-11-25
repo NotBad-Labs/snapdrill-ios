@@ -123,9 +123,11 @@ struct PDFExportPreviewView: View {
                     } label: {
                         Label("Export PDF", systemImage: "square.and.arrow.up")
                             .font(.subheadline.weight(.semibold))
+                            .multilineTextAlignment(.center)
                             .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 48)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 12)
+                            .frame(maxWidth: .infinity, minHeight: 48)
                             .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
 
@@ -134,9 +136,11 @@ struct PDFExportPreviewView: View {
                     } label: {
                         Label("Print", systemImage: "printer.fill")
                             .font(.subheadline.weight(.semibold))
+                            .multilineTextAlignment(.center)
                             .foregroundStyle(SnapDrillTheme.inkBlack)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 48)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 12)
+                            .frame(maxWidth: .infinity, minHeight: 48)
                             .background(SnapDrillTheme.cardSurface, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(SnapDrillTheme.ruledLine, lineWidth: 1))
                     }

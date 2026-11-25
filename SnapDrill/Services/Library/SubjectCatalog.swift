@@ -151,8 +151,20 @@ enum SubjectCatalog {
         return created
     }
 
+    /// Deduplicates any CloudKit-merged duplicate subjects without re-seeding user-deleted subjects (M5).
+    static func deduplicateExisting(in context: ModelContext) {
+        let descriptor = FetchDescriptor<Subject>(sortBy: [SortDescriptor(\Subject.sortOrder)])
+        guard let existing = try? context.fetch(descriptor), existing.count > 1 else { return }
+        let removedAny = deduplicateSubjectsIfNeeded(existing: existing, in: context)
+        if removedAny {
+            try? context.save()
+        }
+    }
+
     /// Merges duplicate Subjects (e.g., two CloudKit devices seeding before initial sync completes) onto the canonical record.
-    static func deduplicateSubjectsIfNeeded(existing: [Subject], in context: ModelContext) {
+    @discardableResult
+    static func deduplicateSubjectsIfNeeded(existing: [Subject], in context: ModelContext) -> Bool {
+        var didModify = false
         let uncategorizedRecords = existing
             .filter { $0.isUncategorizedBucket || $0.id == uncategorizedUUID }
             .sorted { lhs, rhs in
@@ -168,6 +180,7 @@ enum SubjectCatalog {
                     mistake.subject = canonicalUncat
                 }
                 context.delete(duplicate)
+                didModify = true
             }
         }
 
@@ -181,7 +194,9 @@ enum SubjectCatalog {
                     mistake.subject = canonical
                 }
                 context.delete(duplicate)
+                didModify = true
             }
         }
+        return didModify
     }
 }

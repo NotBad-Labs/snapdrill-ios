@@ -8,12 +8,31 @@ struct PaywallView: View {
     @Environment(AppEnvironment.self) private var environment
 
     @State private var selectedPlan: SnapDrillProductID = .yearly
+    @State private var showingManageSubs = false
 
     private var selectedProduct: Product? {
         switch selectedPlan {
         case .monthly: return environment.proStore.monthlyProduct
         case .yearly: return environment.proStore.yearlyProduct
         }
+    }
+
+    private var annualBadgeText: String {
+        if let monthly = environment.proStore.monthlyProduct,
+           let yearly = environment.proStore.yearlyProduct,
+           let savingsPercent = ProEntitlementStore.annualSavingsPercent(
+               monthlyPrice: monthly.price,
+               yearlyPrice: yearly.price
+           ) {
+            return String(localized: "Best Value · Save \(savingsPercent)%")
+        }
+        return String(localized: "Best Value")
+    }
+
+    private var ctaTitle: String {
+        environment.proStore.isEligibleForIntroOffer
+            ? String(localized: "Start 7-Day Free Trial")
+            : String(localized: "Subscribe Now")
     }
 
     var body: some View {
@@ -69,9 +88,11 @@ struct PaywallView: View {
                         planCard(
                             plan: .yearly,
                             title: String(localized: "Annual"),
-                            badge: String(localized: "Best Value · Save 37%"),
+                            badge: annualBadgeText,
                             priceText: environment.proStore.yearlyProduct?.displayPrice ?? String(localized: "Price unavailable"),
-                            periodText: String(localized: "/ year · 7-day free trial")
+                            periodText: environment.proStore.isEligibleForIntroOffer
+                                ? String(localized: "/ year · 7-day free trial")
+                                : String(localized: "/ year")
                         )
 
                         planCard(
@@ -79,7 +100,9 @@ struct PaywallView: View {
                             title: String(localized: "Monthly"),
                             badge: nil,
                             priceText: environment.proStore.monthlyProduct?.displayPrice ?? String(localized: "Price unavailable"),
-                            periodText: String(localized: "/ month · 7-day free trial")
+                            periodText: environment.proStore.isEligibleForIntroOffer
+                                ? String(localized: "/ month · 7-day free trial")
+                                : String(localized: "/ month")
                         )
                     }
 
@@ -109,7 +132,7 @@ struct PaywallView: View {
                             if environment.proStore.purchaseInFlight || environment.proStore.isLoadingProducts {
                                 ProgressView().tint(.white)
                             } else if selectedProduct != nil {
-                                Text("Start 7-Day Free Trial")
+                                Text(ctaTitle)
                                     .font(.headline)
                             } else {
                                 Text("Retry Loading Plans")
@@ -130,10 +153,19 @@ struct PaywallView: View {
                     }
                     .disabled(environment.proStore.purchaseInFlight || environment.proStore.isLoadingProducts)
                     .buttonStyle(.plain)
-                    .accessibilityLabel(selectedProduct != nil ? String(localized: "Start 7-Day Free Trial") : String(localized: "Retry Loading Plans"))
+                    .accessibilityLabel(selectedProduct != nil ? ctaTitle : String(localized: "Retry Loading Plans"))
 
                     // Restore + Family Sharing + Legal Links (Guideline 3.1.2)
                     VStack(spacing: 8) {
+                        if environment.proStore.isPro {
+                            Button("Manage Subscription") {
+                                showingManageSubs = true
+                            }
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(SnapDrillTheme.inkBlue)
+                            .accessibilityLabel(String(localized: "Manage Subscription"))
+                        }
+
                         Button("Restore Purchases") {
                             Task { await environment.proStore.restorePurchases() }
                         }
@@ -145,7 +177,11 @@ struct PaywallView: View {
                             .font(.caption2)
                             .foregroundStyle(SnapDrillTheme.inkSecondary)
 
-                        Text("Payment is charged to your Apple Account after the 7-day free trial unless canceled at least 24 hours before renewal. Even if Pro expires, all your existing mistakes and backups remain accessible.")
+                        Text(
+                            environment.proStore.isEligibleForIntroOffer
+                                ? String(localized: "Payment is charged to your Apple Account after the 7-day free trial unless canceled at least 24 hours before renewal. Even if Pro expires, all your existing mistakes and backups remain accessible.")
+                                : String(localized: "Payment is charged to your Apple Account at confirmation of purchase and renews automatically unless canceled at least 24 hours before the end of the current period. Even if Pro expires, all your existing mistakes and backups remain accessible.")
+                        )
                             .font(.caption2)
                             .foregroundStyle(SnapDrillTheme.inkSecondary)
                             .multilineTextAlignment(.center)
@@ -177,6 +213,7 @@ struct PaywallView: View {
                     await environment.proStore.loadProducts()
                 }
             }
+            .manageSubscriptionsSheet(isPresented: $showingManageSubs)
         }
     }
 

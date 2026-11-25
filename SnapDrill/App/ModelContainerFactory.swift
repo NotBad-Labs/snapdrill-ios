@@ -25,9 +25,13 @@ enum CloudKitContainerPolicy: Sendable {
         activeMode: Bool,
         desiredMode: Bool,
         hasCompletedInitialRefresh: Bool,
-        isCaptureFlowActive: Bool
+        isCaptureFlowActive: Bool,
+        hasPendingUndoDeletions: Bool = false
     ) -> Bool {
-        hasCompletedInitialRefresh && !isCaptureFlowActive && activeMode != desiredMode
+        hasCompletedInitialRefresh
+            && !isCaptureFlowActive
+            && !hasPendingUndoDeletions
+            && activeMode != desiredMode
     }
 }
 

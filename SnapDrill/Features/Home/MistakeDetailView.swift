@@ -475,6 +475,7 @@ struct MistakeEditSheet: View {
     @State private var notes = ""
     @State private var pickedAnswerItems: [PhotosPickerItem] = []
     @State private var editableAnswerSlots: [EditableAnswerSlot] = []
+    @State private var didModifyAnswerSlots = false
     @State private var stagedDeletedAnswerPaths: Set<String> = []
     @State private var editErrorMessage: String?
 
@@ -508,7 +509,11 @@ struct MistakeEditSheet: View {
                     ForEach(customCauses) { custom in
                         let selected = selectedCustomCauses.contains(custom.name)
                         Button {
-                            if selected { selectedCustomCauses.remove(custom.name) } else { selectedCustomCauses.insert(custom.name) }
+                            if selected {
+                                selectedCustomCauses.remove(custom.name)
+                            } else if selectedCustomCauses.count < MistakeLimits.maxCustomCausesPerMistake {
+                                selectedCustomCauses.insert(custom.name)
+                            }
                         } label: {
                             HStack {
                                 Text(custom.name).foregroundStyle(SnapDrillTheme.inkBlack)
@@ -585,12 +590,18 @@ struct MistakeEditSheet: View {
                                                 .fill(SnapDrillTheme.elevatedSurface)
                                                 .frame(width: 96, height: 72)
                                                 .overlay {
-                                                    Image(systemName: "photo")
-                                                        .foregroundStyle(SnapDrillTheme.inkSecondary)
+                                                    VStack(spacing: 4) {
+                                                        ProgressView()
+                                                            .controlSize(.small)
+                                                        Text("Syncing...")
+                                                            .font(.caption2)
+                                                            .foregroundStyle(SnapDrillTheme.inkSecondary)
+                                                    }
                                                 }
                                         }
                                         Button {
                                             editableAnswerSlots.removeAll { $0.id == slot.id }
+                                            didModifyAnswerSlots = true
                                             if let path = slot.path {
                                                 stagedDeletedAnswerPaths.insert(path)
                                             }
@@ -646,6 +657,7 @@ struct MistakeEditSheet: View {
                     return EditableAnswerSlot(id: UUID(), path: path, data: data)
                 }
                 stagedDeletedAnswerPaths.removeAll()
+                didModifyAnswerSlots = false
             }
             .onChange(of: pickedAnswerItems) { _, newItems in
                 guard !newItems.isEmpty else { return }
@@ -655,6 +667,7 @@ struct MistakeEditSheet: View {
                         if let data = try? await pickerItem.loadTransferable(type: Data.self),
                            UIImage(data: data) != nil {
                             editableAnswerSlots.append(EditableAnswerSlot(id: UUID(), path: nil, data: data))
+                            didModifyAnswerSlots = true
                         }
                     }
                     pickedAnswerItems = []
@@ -695,10 +708,12 @@ struct MistakeEditSheet: View {
 
         var newlyWrittenPaths: [String] = []
         do {
-            newlyWrittenPaths = try environment.saveService.applyAnswerImageEdits(
-                slots: editableAnswerSlots.map { ($0.path, $0.data) },
-                to: mistake
-            )
+            if didModifyAnswerSlots {
+                newlyWrittenPaths = try environment.saveService.applyAnswerImageEdits(
+                    slots: editableAnswerSlots.map { ($0.path, $0.data) },
+                    to: mistake
+                )
+            }
             try modelContext.save()
             for path in stagedDeletedAnswerPaths {
                 environment.imageStore.deleteFile(relativePath: path)

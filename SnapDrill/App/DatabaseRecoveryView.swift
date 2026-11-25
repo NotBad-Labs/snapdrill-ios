@@ -49,9 +49,11 @@ struct DatabaseRecoveryView: View {
                     } label: {
                         Label("Export Recovery Package (.zip)", systemImage: "square.and.arrow.up")
                             .font(.headline)
+                            .multilineTextAlignment(.center)
                             .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
+                            .padding(.vertical, 13)
+                            .padding(.horizontal, 16)
+                            .frame(maxWidth: .infinity, minHeight: 50)
                             .background(SnapDrillTheme.inkBlue, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
                     .buttonStyle(.plain)
@@ -62,9 +64,11 @@ struct DatabaseRecoveryView: View {
                     } label: {
                         Label("Archive Old Store & Rebuild Empty Library", systemImage: "arrow.triangle.2.circlepath")
                             .font(.subheadline.weight(.semibold))
+                            .multilineTextAlignment(.center)
                             .foregroundStyle(SnapDrillTheme.inkBlack)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 46)
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .frame(maxWidth: .infinity, minHeight: 46)
                             .background(SnapDrillTheme.cardSurface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 14, style: .continuous)
