@@ -3,6 +3,11 @@ import UIKit
 
 /// Central factory assembling live or stub capture pipelines cleanly.
 enum CapturePipelineFactory {
+    /// Whether the trained full-ink Core ML model is bundled in this build (false while Stage 0 is pending).
+    static var isCoreMLModelBundled: Bool {
+        CoreMLCapableInkRemover.isCoreMLModelBundled
+    }
+
     static func makeLivePipeline() -> CapturePipelineServing {
         CapturePipelineLive()
     }

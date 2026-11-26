@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import torch
 import torch.nn.functional as F
-from PIL import Image
+from PIL import Image, ImageOps
 from torch.utils.data import DataLoader, Dataset
 
 from model import MobileNetV3LargeUNet
@@ -31,7 +31,7 @@ class ExamDataset(Dataset):
 
     def __getitem__(self, index: int):
         path = self.images[index]
-        image = np.array(Image.open(path).convert("RGB"))
+        image = np.array(ImageOps.exif_transpose(Image.open(path)).convert("RGB"))
         mask = np.array(Image.open(self.mask_dir / f"{path.stem}.png"))
         if self.crop:
             h, w = mask.shape

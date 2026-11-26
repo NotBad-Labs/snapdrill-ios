@@ -31,7 +31,7 @@ struct CaptureSourceStepView: View {
                             .foregroundStyle(SnapDrillTheme.inkSecondary)
                             .multilineTextAlignment(.center)
 
-                        if cameraAuthState == .denied || cameraAuthState == .restricted {
+                        if cameraAuthState == .denied {
                             VStack(spacing: 10) {
                                 Text("Camera access is currently disabled. You can enable it in Settings or import photos directly from your album.")
                                     .font(.caption)
@@ -44,10 +44,17 @@ struct CaptureSourceStepView: View {
                                     .frame(minHeight: 44)
                             }
                             .padding(.top, 4)
+                        } else if cameraAuthState == .restricted {
+                            Text("Camera access is restricted by device policy. You can still import exam photos from your album below.")
+                                .font(.caption)
+                                .foregroundStyle(SnapDrillTheme.gradingRed)
+                                .multilineTextAlignment(.center)
+                                .padding(.top, 4)
                         } else if cameraAuthState == .unavailable {
-                            Text("Camera hardware is unavailable on this simulator; use Photos Import below.")
+                            Text("Camera hardware is unavailable on this device. You can import photos from your album below.")
                                 .font(.caption)
                                 .foregroundStyle(SnapDrillTheme.inkSecondary)
+                                .multilineTextAlignment(.center)
                         } else {
                             Button(action: onOpenCamera) {
                                 Label("Open Camera", systemImage: "camera.fill")

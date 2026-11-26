@@ -15,6 +15,7 @@ struct CapturePreviewSaveStepView: View {
     let regularSubjects: [Subject]
     let customCauses: [CustomCause]
     let isDismissingOrSaving: Bool
+    let isFullInkModelAvailable: Bool
 
     let onSelectSubject: () -> Void
     let onOpenEraser: (Int) -> Void
@@ -117,6 +118,8 @@ struct CapturePreviewSaveStepView: View {
             } label: {
                 Image(systemName: "chevron.left.circle.fill")
                     .font(.title3)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .disabled(currentPreviewIndex == 0)
             .accessibilityLabel(String(localized: "Previous Question"))
@@ -131,6 +134,8 @@ struct CapturePreviewSaveStepView: View {
             } label: {
                 Image(systemName: "chevron.right.circle.fill")
                     .font(.title3)
+                    .frame(minWidth: 44, minHeight: 44)
+                    .contentShape(Rectangle())
             }
             .disabled(currentPreviewIndex >= count - 1)
             .accessibilityLabel(String(localized: "Next Question"))
@@ -138,21 +143,41 @@ struct CapturePreviewSaveStepView: View {
         .foregroundStyle(SnapDrillTheme.inkBlue)
     }
 
+    /// Returns honest preview status copy so partial colored-ink cleanup never claims full black-pen removal.
+    nonisolated static func statusMetadata(
+        isPeekingOriginal: Bool,
+        inkMode: InkRemovalMode,
+        removalSucceeded: Bool,
+        isFullInkModelAvailable: Bool
+    ) -> (title: String, symbol: String, isHighlighted: Bool) {
+        if isPeekingOriginal {
+            return (String(localized: "Original"), "photo", false)
+        }
+        if inkMode == .off {
+            return (String(localized: "Enhanced Original"), "info.circle", false)
+        }
+        if removalSucceeded {
+            let title = (inkMode == .autoAll && isFullInkModelAvailable)
+                ? String(localized: "Handwriting Removed")
+                : String(localized: "Colored Marks Cleaned")
+            return (title, "wand.and.stars", true)
+        }
+        return (String(localized: "Enhanced Original"), "info.circle", false)
+    }
+
     private func previewCard(item: CaptureSaveItem) -> some View {
         PaperCard(padding: 12) {
             VStack(spacing: 10) {
                 HStack {
-                    let statusTitle = isPeekingOriginal
-                        ? String(localized: "Original")
-                        : (item.handwritingRemovalSucceeded
-                            ? String(localized: "Handwriting Removed")
-                            : String(localized: "Enhanced Original"))
-                    let statusSymbol = isPeekingOriginal
-                        ? "photo"
-                        : (item.handwritingRemovalSucceeded ? "wand.and.stars" : "info.circle")
-                    Label(statusTitle, systemImage: statusSymbol)
+                    let status = Self.statusMetadata(
+                        isPeekingOriginal: isPeekingOriginal,
+                        inkMode: inkMode,
+                        removalSucceeded: item.handwritingRemovalSucceeded,
+                        isFullInkModelAvailable: isFullInkModelAvailable
+                    )
+                    Label(status.title, systemImage: status.symbol)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(item.handwritingRemovalSucceeded ? SnapDrillTheme.inkBlue : SnapDrillTheme.inkSecondary)
+                        .foregroundStyle(status.isHighlighted ? SnapDrillTheme.inkBlue : SnapDrillTheme.inkSecondary)
 
                     Spacer()
 
@@ -195,7 +220,7 @@ struct CapturePreviewSaveStepView: View {
                     HStack(spacing: 8) {
                         Image(systemName: "hand.draw")
                             .foregroundStyle(SnapDrillTheme.inkBlue)
-                        Text("Dark pen ink could not be auto-removed safely. Enhanced original is kept — tap Eraser to clean spots.")
+                        Text("Dark pen ink could not be auto-removed safely. Any colored marks were cleaned where possible — tap Eraser to clean remaining spots.")
                             .font(.caption2)
                             .foregroundStyle(SnapDrillTheme.inkSecondary)
                         Spacer()

@@ -27,7 +27,7 @@
 ### C. SwiftUI 状态与 iOS 26 / 27 Liquid Glass
 - **【阻塞】现代 Observation 状态**：统一使用 `@Observable` + `@State` / `@Environment(Type.self)` / `@Bindable`；禁止新增 `ObservableObject`、`@StateObject`、`@ObservedObject`；互斥状态用 `enum` 建模。
 - **【阻塞】原生导航与主入口规范**：根导航采用系统 `TabView` + `Tab`（`tabBarMinimizeBehavior(.onScrollDown)`）；常规创建操作（如拍照收录）置于导航栏右上角 `.glassProminent` 或空状态卡片，**严禁将拍照等静态主操作塞入 `tabViewBottomAccessory`**（该槽位仅限播放条/计时器等持续会话状态，避免恢复双胶囊堆叠）。
-- **【阻塞】Liquid Glass 与可调透明度兼容**：只给浮在内容之上的控制层使用系统 `.glassEffect` / `.glassProminent`，禁止手叠多层 `ultraThinMaterial`；文字与前景必须用 `SnapDrillTheme` 自适应语义色（iOS 27 用户可调清透度，禁止在玻璃上写死纯白/纯黑文字）。
+- **【阻塞】Liquid Glass 与可调透明度兼容**：只给浮在内容之上的控制层/悬浮工具栏使用系统 `.glassEffect` / `.glassProminent`，底层固定操作条（如 `BottomActionBarContainer`）使用清晰的材质与主题表面底色，禁止手叠多层 `ultraThinMaterial`；文字与前景必须用 `SnapDrillTheme` 自适应语义色（iOS 27 用户可调清透度，禁止在玻璃上写死纯白/纯黑文字）。
 - **【阻塞】列表稳定性与无障碍**：`ForEach` 禁止使用 `id: \.offset`（图片列表使用 `IndexedPhotoData` 等内容/UUID 稳定 ID）；所有可交互控件热区 `≥ 44×44 pt`，图标按钮必配 `accessibilityLabel`，装饰插画标 `accessibilityHidden(true)`，关键页面适配 Dynamic Type（到 AX5 不截断、不重叠）。
 
 ### D. 端侧 AI、相机与多媒体
@@ -42,14 +42,14 @@
 - **【阻塞】五语种同步与调试隔离**：所有用户可见字符串纳入 `Localizable.xcstrings` 同步维护 `en / zh-Hans / zh-Hant / ja / ko`，首页及产品文案不得超前承诺未进包能力；调试深链、演示数据与内购覆盖全部包裹在 `#if DEBUG` 内。
 
 ### F. 自动化防腐与 AI 协同三条铁律
-- **【阻塞】SwiftLint 与测试**：提交前遵循 `.swiftlint.yml`（`force_cast / force_try / force_unwrapping` 为 `error`，放行图形/像素短变量名及教育术语 `mastery`）；核心逻辑与降级路径必带单元测试，新增单测优先采用 Swift Testing（`@Test` / `#expect`）。
+- **【阻塞】SwiftLint 与测试**：接入远端 CI 工作流前，每次提交前必须在本地执行 `.swiftlint.yml` 校验（`swiftlint lint`，`force_cast / force_try / force_unwrapping` 为 `error`，放行图形/像素短变量名及教育术语 `mastery`）；核心逻辑与降级路径必带单元测试，新增单测优先采用 Swift Testing（`@Test` / `#expect`）。
 - **AI 协同纪律**：1）没有第二使用者或测试桩，不抽空协议；2）任何降级必须同时具备「判别返回值 + UI 文案 + 测试断言」；3）编译报错必须正面修复隔离域或选用系统原生组件，严禁用 `@StateObject`、`DispatchQueue.main` 或 `#available(iOS 17)` 兼容补丁敷衍通过编译。
 
 ---
 
 ## 下卷 · 提审、合规与可观测性总检（随 TestFlight / App Store 发版必查）
 
-- **G1 Stage 0 真卷裁决**：在 iPhone 17 上完成 ≥ 80 张真实试卷盲评，记录运行时后处理掩码的印刷体保留率、黑笔 F1 与 P50/P95 耗时并填写 `Docs/STAGE0_CHARTER.md` §6 表，达标后方可将 `HandwritingRemover.mlmodelc` 纳入打包资源并解锁商店相关宣称。
+- **G1 Stage 0 真卷裁决**：在 iPhone 17 上完成 ≥ 80 张真实试卷盲评，记录运行时后处理掩码的印刷体保留率、黑笔 F1 与 P50/P95 耗时；在 PO 正式解冻并授权写入 `Docs/STAGE0_CHARTER.md` §6 前，评测结果先行留存于 PR 描述与外部评测记录（保持 `Docs/` 与 `origin/greenfield/rebuild-from-zero` zero diff），达标并经 PO 签核后方可将 `HandwritingRemover.mlmodelc` 纳入打包资源并解锁商店相关宣称。
 - **G2 Liquid Glass 四外观图标**：上线前使用 Icon Composer 核验 App Icon 的 Default / Dark / Clear / Tinted 四种桌面外观无破损与泛白。
 - **G3 极端可访问性走查**：在真机开启 **AX5 最大字号 + 温暖深色模式 + 降低透明度 + 减弱动态效果 + VoiceOver**，完整走通「首页 → 连拍框选 → 擦除保存 → 复习 → 订阅页」5 屏零截断、零遮挡。
 - **G4 iPhone 17 真机性能基线**：通过 Xcode Instruments（Time Profiler + Allocations）留存冷启动、10 页连拍峰值内存与分块 Core ML 单页耗时基线，确认主线程无整图解码与存储写入阻塞。

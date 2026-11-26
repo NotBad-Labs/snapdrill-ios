@@ -141,5 +141,6 @@ def composite(image_rgb: np.ndarray, printed: np.ndarray, handwriting: np.ndarra
     paper = (p00 * (1.0 - tx) + p10 * tx) * (1.0 - ty) + (p01 * (1.0 - tx) + p11 * tx) * ty
 
     out = image_rgb.copy()
-    out[erase] = np.clip(np.rint(paper[erase]), 0, 255).astype(np.uint8)
+    # Match Swift Float.rounded() (.toNearestOrAwayFromZero) on non-negative [0, 255] paper RGB values.
+    out[erase] = np.clip(np.floor(paper[erase] + 0.5), 0, 255).astype(np.uint8)
     return out, erase

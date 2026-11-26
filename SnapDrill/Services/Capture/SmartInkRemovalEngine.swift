@@ -465,19 +465,27 @@ struct CoreMLCapableInkRemover: InkRemoving {
     private let fallback: HeuristicInkRemover
     private let modelResourceName: String
     private let modelURLProvider: @Sendable () -> URL?
+    private let modelPreloader: @Sendable (URL) -> Bool
     private let timeoutSeconds: Double
+    private let preloadTimeoutSeconds: Double
 
     init(
         modelResourceName: String = "HandwritingRemover",
         timeoutSeconds: Double = 2.0,
+        preloadTimeoutSeconds: Double = 6.0,
         fallback: HeuristicInkRemover? = nil,
-        modelURLProvider: (@Sendable () -> URL?)? = nil
+        modelURLProvider: (@Sendable () -> URL?)? = nil,
+        modelPreloader: (@Sendable (URL) -> Bool)? = nil
     ) {
         self.modelResourceName = modelResourceName
         self.timeoutSeconds = timeoutSeconds
+        self.preloadTimeoutSeconds = preloadTimeoutSeconds
         self.fallback = fallback ?? HeuristicInkRemover(timeoutSeconds: timeoutSeconds)
         self.modelURLProvider = modelURLProvider ?? {
             Bundle.main.url(forResource: modelResourceName, withExtension: "mlmodelc")
+        }
+        self.modelPreloader = modelPreloader ?? { url in
+            CoreMLSegmentationModelCache.shared.model(at: url) != nil
         }
     }
 
@@ -519,12 +527,37 @@ struct CoreMLCapableInkRemover: InkRemoving {
         return (heuristic.cleanedData, actuallyCleaned)
     }
 
+    private func preloadModelWithTimeout(at modelURL: URL) async -> Bool {
+        let preloadGate = InkTimeoutRaceGate<Bool>()
+        let loader = modelPreloader
+        let limit = preloadTimeoutSeconds
+
+        let loadTask = Task.detached(priority: .userInitiated) {
+            let ready = !Task.isCancelled && loader(modelURL)
+            _ = await preloadGate.resolve(with: ready)
+        }
+        let timeoutTask = Task.detached(priority: .userInitiated) {
+            try? await Task.sleep(for: .seconds(limit))
+            guard !Task.isCancelled else { return }
+            if await preloadGate.resolve(with: false) {
+                loadTask.cancel()
+            }
+        }
+        let ready = await withTaskCancellationHandler {
+            await preloadGate.wait()
+        } onCancel: {
+            loadTask.cancel()
+            timeoutTask.cancel()
+            Task { _ = await preloadGate.resolve(with: false) }
+        }
+        timeoutTask.cancel()
+        return ready
+    }
+
     private func runCoreMLInference(modelURL: URL, imageData: Data) async -> Data? {
-        // Load & cache the Core ML program outside the per-image inference timeout so first-time Neural Engine
-        // compilation does not starve tile inference. Returns only Bool so MLModel never crosses Task boundaries.
-        let modelReady = await Task.detached(priority: .userInitiated) {
-            CoreMLSegmentationModelCache.shared.model(at: modelURL) != nil
-        }.value
+        // Load & cache the Core ML program outside the per-image inference timeout (bounded separately so
+        // a stalled compilation never hangs fallback indefinitely). Returns only Bool across Task boundaries.
+        let modelReady = await preloadModelWithTimeout(at: modelURL)
         guard modelReady, !Task.isCancelled else {
             return nil
         }

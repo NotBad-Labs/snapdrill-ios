@@ -107,7 +107,11 @@ struct CaptureFlowView: View {
             .onChange(of: selectedPhotoItems) { _, items in handlePickedPageItems(items) }
             .onChange(of: selectedAnswerPhotoItems) { _, items in handlePickedAnswerItems(items) }
             .onChange(of: inkMode) { _, newMode in
-                guard step == .previewSave else { return }
+                guard Self.shouldReprocessPreview(
+                    step: step,
+                    currentPreviewMode: savePreview?.inkRemovalMode,
+                    newMode: newMode
+                ) else { return }
                 Task { await reprocessAllPreviewItems(mode: newMode) }
             }
             .fullScreenCover(isPresented: Binding(
@@ -220,6 +224,7 @@ struct CaptureFlowView: View {
                 regularSubjects: regularSubjects,
                 customCauses: customCauses,
                 isDismissingOrSaving: isDismissingOrSaving,
+                isFullInkModelAvailable: CapturePipelineFactory.isCoreMLModelBundled,
                 onSelectSubject: persistDraftAsync,
                 onOpenEraser: { eraserTargetIndex = $0 },
                 onToggleCause: togglePreviewCause(_:at:),
@@ -564,6 +569,15 @@ struct CaptureFlowView: View {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+
+    /// Prevents draft restoration in Step 3 from overwriting manual edits when `inkMode` syncs with the saved preview.
+    nonisolated static func shouldReprocessPreview(
+        step: CaptureFlowStep,
+        currentPreviewMode: InkRemovalMode?,
+        newMode: InkRemovalMode
+    ) -> Bool {
+        step == .previewSave && currentPreviewMode != newMode
     }
 
     private func reprocessAllPreviewItems(mode: InkRemovalMode) async {

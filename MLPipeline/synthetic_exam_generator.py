@@ -87,9 +87,9 @@ HANDWRITTEN_SNIPPETS = [
 ]
 
 
-def pick_font(candidates: list[str], size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+def pick_font(candidates: list[str], size: int, rng: random.Random) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
     shuffled = list(candidates)
-    random.shuffle(shuffled)
+    rng.shuffle(shuffled)
     for path in shuffled:
         if Path(path).exists():
             try:
@@ -136,7 +136,7 @@ def draw_printed(rng: random.Random) -> Image.Image:
     y = rng.randint(14, 40)
     questions = rng.sample(ALL_QUESTIONS, k=rng.randint(2, 4))
     for script, text in questions:
-        font = pick_font(font_pool_for_script(script), rng.randint(17, 24))
+        font = pick_font(font_pool_for_script(script), rng.randint(17, 24), rng)
         x = rng.randint(14, 36)
         # naive wrap
         line = ""
@@ -221,7 +221,7 @@ def draw_handwriting(rng: random.Random, printed: Image.Image):
                 snippet = rng.choice(HANDWRITTEN_SNIPPETS)
                 needs_cjk = any(ord(ch) > 0x2000 for ch in snippet)
                 pool = FONT_CANDIDATES_HAND_CJK if needs_cjk else FONT_CANDIDATES_HAND
-                font = pick_font(pool, rng.randint(20, 32))
+                font = pick_font(pool, rng.randint(20, 32), rng)
                 draw.text((x, y), snippet, fill=255, font=font)
             elif kind == "underline":
                 bezier_stroke(draw, [(x, y), (x + 60, y + rng.randint(-6, 6)), (x + rng.randint(100, 180), y + rng.randint(-4, 8))], width)
@@ -242,10 +242,18 @@ def draw_handwriting(rng: random.Random, printed: Image.Image):
     return layers, combined
 
 
-def multiply_ink(canvas: np.ndarray, layer: Image.Image, color: tuple[int, int, int], opacity: float, grain: bool = False):
+def multiply_ink(
+    canvas: np.ndarray,
+    layer: Image.Image,
+    color: tuple[int, int, int],
+    opacity: float,
+    grain: bool = False,
+    rng: random.Random | None = None,
+):
     alpha = np.array(layer, dtype=np.float32) / 255.0 * opacity
     if grain:
-        alpha *= np.clip(np.random.default_rng().normal(0.85, 0.25, alpha.shape), 0.25, 1.0)
+        grain_seed = rng.randint(0, 10**6) if rng is not None else 0
+        alpha *= np.clip(np.random.default_rng(grain_seed).normal(0.85, 0.25, alpha.shape), 0.25, 1.0)
     ink = np.array(color, dtype=np.float32) / 255.0
     for c in range(3):
         canvas[..., c] = canvas[..., c] * (1 - alpha) + canvas[..., c] * ink[c] * alpha
@@ -258,11 +266,18 @@ def generate_sample(seed: int):
     canvas = np.array(paper, dtype=np.float32) / 255.0
 
     printed = draw_printed(rng).filter(ImageFilter.GaussianBlur(rng.uniform(0.0, 0.5)))
-    multiply_ink(canvas, printed, (rng.randint(8, 34),) * 3, rng.uniform(0.88, 1.0))
+    multiply_ink(canvas, printed, (rng.randint(8, 34),) * 3, rng.uniform(0.88, 1.0), rng=rng)
 
     layers, handwriting_mask = draw_handwriting(rng, printed)
     for color, pen_name, layer in layers:
-        multiply_ink(canvas, layer, color, rng.uniform(0.78, 1.0) if pen_name != "pencil" else rng.uniform(0.55, 0.85), grain=pen_name == "pencil")
+        multiply_ink(
+            canvas,
+            layer,
+            color,
+            rng.uniform(0.78, 1.0) if pen_name != "pencil" else rng.uniform(0.55, 0.85),
+            grain=pen_name == "pencil",
+            rng=rng,
+        )
 
     image = Image.fromarray(np.clip(canvas * 255, 0, 255).astype(np.uint8), "RGB")
     if rng.random() < 0.5:

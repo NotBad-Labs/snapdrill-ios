@@ -443,4 +443,54 @@ final class CapturePipelineContractTests: XCTestCase {
         let thumb = try XCTUnwrap(CapturePipelineFactory.makePageThumbnail(from: raw, maxPixel: 80))
         XCTAssertLessThanOrEqual(max(thumb.size.width, thumb.size.height), 81)
     }
+
+    func testStep3DraftRestoreGuardAndHonestStatusMetadata() {
+        // Restoring a draft with .coloredOnly sets both savePreview.inkRemovalMode and inkMode simultaneously;
+        // .onChange must NOT trigger reprocessing unless the user switches to a different mode.
+        XCTAssertFalse(
+            CaptureFlowView.shouldReprocessPreview(step: .previewSave, currentPreviewMode: .coloredOnly, newMode: .coloredOnly)
+        )
+        XCTAssertTrue(
+            CaptureFlowView.shouldReprocessPreview(step: .previewSave, currentPreviewMode: .coloredOnly, newMode: .autoAll)
+        )
+        XCTAssertFalse(
+            CaptureFlowView.shouldReprocessPreview(step: .cropping, currentPreviewMode: .coloredOnly, newMode: .autoAll)
+        )
+
+        let offStatus = CapturePreviewSaveStepView.statusMetadata(
+            isPeekingOriginal: false,
+            inkMode: .off,
+            removalSucceeded: true,
+            isFullInkModelAvailable: true
+        )
+        XCTAssertEqual(offStatus.title, String(localized: "Enhanced Original"))
+        XCTAssertFalse(offStatus.isHighlighted)
+
+        let coloredOnlyHeuristic = CapturePreviewSaveStepView.statusMetadata(
+            isPeekingOriginal: false,
+            inkMode: .autoAll,
+            removalSucceeded: true,
+            isFullInkModelAvailable: false
+        )
+        XCTAssertEqual(coloredOnlyHeuristic.title, String(localized: "Colored Marks Cleaned"))
+        XCTAssertTrue(coloredOnlyHeuristic.isHighlighted)
+
+        let fullCoreML = CapturePreviewSaveStepView.statusMetadata(
+            isPeekingOriginal: false,
+            inkMode: .autoAll,
+            removalSucceeded: true,
+            isFullInkModelAvailable: true
+        )
+        XCTAssertEqual(fullCoreML.title, String(localized: "Handwriting Removed"))
+        XCTAssertTrue(fullCoreML.isHighlighted)
+
+        let peeking = CapturePreviewSaveStepView.statusMetadata(
+            isPeekingOriginal: true,
+            inkMode: .autoAll,
+            removalSucceeded: true,
+            isFullInkModelAvailable: false
+        )
+        XCTAssertEqual(peeking.title, String(localized: "Original"))
+        XCTAssertFalse(peeking.isHighlighted)
+    }
 }

@@ -190,6 +190,8 @@ enum SegmentationMaskCompositor {
                     }
                 }
                 guard samples.count >= 4 else { continue }
+                // Row-major sample order + Swift's guaranteed-stable Timsort keeps luma ties deterministic,
+                // matching Python np.argsort(lum, kind="mergesort") in MLPipeline/postprocess.py.
                 samples.sort { $0.luma < $1.luma }
                 let pick = samples[min(samples.count - 1, Int(Double(samples.count - 1) * 0.85))]
                 grid[gy * cols + gx] = (Float(pick.r), Float(pick.g), Float(pick.b))
@@ -428,6 +430,7 @@ struct TiledCoreMLSegmentationRunner: Sendable {
             }
         }
         guard !samples.isEmpty else { return (245, 243, 238) }
+        // Row-major stride + Swift's stable sort matches Python np.argsort(..., kind="mergesort") on luma ties.
         samples.sort { $0.luma < $1.luma }
         let pick = samples[min(samples.count - 1, Int(Double(samples.count - 1) * 0.85))]
         return (pick.r, pick.g, pick.b)

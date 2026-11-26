@@ -272,4 +272,34 @@ final class HandwritingRemovalTests: XCTestCase {
         let keptBlack = samplePixelRGB(in: cleanedImage, x: 80, y: 42)
         XCTAssertLessThan(keptBlack.r, 65)
     }
+
+    func testCoreMLPreloadTimeoutDegradesPromptlyWithSucceededFalse() async throws {
+        let source = renderMixedInkTestImage()
+        let sourceData = try XCTUnwrap(source.jpegData(compressionQuality: 0.95))
+        let fakeModelURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("StalledModel-\(UUID().uuidString).mlmodelc")
+
+        let remover = CoreMLCapableInkRemover(
+            timeoutSeconds: 1.0,
+            preloadTimeoutSeconds: 0.03,
+            modelURLProvider: { fakeModelURL },
+            modelPreloader: { _ in
+                Thread.sleep(forTimeInterval: 0.60)
+                return true
+            }
+        )
+        let start = ContinuousClock().now
+        let (cleanedData, succeeded) = await remover.removeInk(from: sourceData, mode: .autoAll)
+        let elapsed = ContinuousClock().now - start
+
+        XCTAssertFalse(succeeded)
+        XCTAssertLessThan(elapsed, .milliseconds(450))
+        let cleanedImage = try XCTUnwrap(UIImage(data: cleanedData))
+        let redSpot = samplePixelRGB(in: cleanedImage, x: 80, y: 96)
+        XCTAssertGreaterThan(redSpot.g, 210)
+    }
+
+    func testFactoryReportsCoreMLModelNotBundledDuringStage0() {
+        XCTAssertFalse(CapturePipelineFactory.isCoreMLModelBundled)
+    }
 }

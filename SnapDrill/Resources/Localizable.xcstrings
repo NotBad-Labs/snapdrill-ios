@@ -2327,6 +2327,41 @@
         }
       }
     },
+    "Camera Restricted": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera Restricted"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カメラが制限されています"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카메라 사용이 제한됨"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机访问受限"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相機存取受限"
+          }
+        }
+      }
+    },
     "Camera access is currently disabled. You can enable it in Settings or import photos directly from your album.": {
       "extractionState": "manual",
       "localizations": {
@@ -2362,37 +2397,107 @@
         }
       }
     },
-    "Camera hardware is unavailable on this simulator; use Photos Import below.": {
+    "Camera access is restricted by device policy (Screen Time or MDM). You can still import photos from your album.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Camera hardware is unavailable on this simulator; use Photos Import below."
+            "value": "Camera access is restricted by device policy (Screen Time or MDM). You can still import photos from your album."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "シミュレータではカメラを利用できないため、下の写真から読み込んでください。"
+            "value": "デバイスポリシー（スクリーンタイムまたは MDM）によりカメラが制限されています。アルバムから写真を読み込めます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "시뮬레이터에서는 카메라를 사용할 수 없으니 아래 사진 가져오기를 이용하세요."
+            "value": "기기 정책(스크린 타임 또는 MDM)에 의해 카메라가 제한되었습니다. 사진 보관함에서 가져올 수 있습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "当前模拟器无相机硬件，请使用下方「从相册导入」。"
+            "value": "相机权限受设备策略（屏幕使用时间或设备管理）限制，仍可从相册导入照片。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "目前模擬器無相機硬體，請使用下方「從相簿匯入」。"
+            "value": "相機權限受裝置策略（螢幕使用時間或裝置管理）限制，仍可從相簿匯入照片。"
+          }
+        }
+      }
+    },
+    "Camera access is restricted by device policy. You can still import exam photos from your album below.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera access is restricted by device policy. You can still import exam photos from your album below."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デバイスポリシーによりカメラの使用が制限されています。下のアルバムから問題写真を読み込めます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기기 정책으로 인해 카메라 접근이 제한되었습니다. 아래 사진 보관함에서 시험 사진을 가져올 수 있습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机访问受设备策略限制，仍可通过下方「从相册导入」添加错题照片。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相機存取受裝置策略限制，仍可透過下方「從相簿匯入」加入錯題照片。"
+          }
+        }
+      }
+    },
+    "Camera hardware is unavailable on this device. You can import photos from your album below.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera hardware is unavailable on this device. You can import photos from your album below."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このデバイスではカメラを利用できません。下のアルバムから写真を読み込めます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 기기에서는 카메라를 사용할 수 없습니다. 아래 사진 보관함에서 가져올 수 있습니다."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前设备无可用相机，请使用下方「从相册导入」。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "目前裝置無可用相機，請使用下方「從相簿匯入」。"
           }
         }
       }
@@ -3097,6 +3202,41 @@
         }
       }
     },
+    "Colored Marks Cleaned": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colored Marks Cleaned"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カラー筆跡を消去済み"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "컬러 필기 제거됨"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已清彩色批改"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已清彩色批改"
+          }
+        }
+      }
+    },
     "Colored Pens Only": {
       "extractionState": "manual",
       "localizations": {
@@ -3482,37 +3622,37 @@
         }
       }
     },
-    "Dark pen ink could not be auto-removed safely. Enhanced original is kept — tap Eraser to clean spots.": {
+    "Dark pen ink could not be auto-removed safely. Any colored marks were cleaned where possible — tap Eraser to clean remaining spots.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dark pen ink could not be auto-removed safely. Enhanced original is kept — tap Eraser to clean spots."
+            "value": "Dark pen ink could not be auto-removed safely. Any colored marks were cleaned where possible — tap Eraser to clean remaining spots."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "濃いペン跡の自動除去を安全に行えなかったため補正原画を保持しました。消しゴムで手動調整できます。"
+            "value": "濃いペン跡の自動除去を安全に行えませんでした。カラー筆跡は可能な範囲で消去済みです。残った箇所は消しゴムで調整できます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "진한 펜 필기를 안전하게 자동 제거할 수 없어 보정 원본을 유지했습니다. 지우개로 직접 지울 수 있습니다."
+            "value": "진한 펜 필기를 안전하게 자동 제거할 수 없습니다. 컬러 필기는 가능한 범위 내에서 정리되었으며 남은 부분은 지우개로 지울 수 있습니다."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未能安全识别深色笔迹，已保留增强原图 — 可点右上角「橡皮擦」手动擦除。"
+            "value": "未能安全自动去除深色黑笔迹（已尽量清理彩色批改）— 可点右上角「橡皮擦」手动擦除残留。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "未能安全辨識深色筆跡，已保留增強原圖 — 可點右上角「橡皮擦」手動擦除。"
+            "value": "未能安全自動去除深色黑筆跡（已盡量清理彩色批改）— 可點右上角「橡皮擦」手動擦除殘留。"
           }
         }
       }

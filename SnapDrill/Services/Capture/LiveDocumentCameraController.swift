@@ -10,6 +10,7 @@ final class LiveDocumentCameraController: UIViewController {
     private enum FallbackReason {
         case unavailable
         case permissionDenied
+        case restricted
     }
 
     private let maxPhotos: Int
@@ -26,6 +27,8 @@ final class LiveDocumentCameraController: UIViewController {
     private var isCapturing = false
     private var isSessionInterrupted = false
     private var hasFinished = false
+    private var isFinishing = false
+    private var activeSanitizeTask: Task<Void, Never>?
     private var lastCaptureDate = Date.distantPast
     private var lastQuad: QuadCorners?
     private var lastImageSize: CGSize = .zero
@@ -84,11 +87,14 @@ final class LiveDocumentCameraController: UIViewController {
                     self.engine?.start()
                     self.hapticGenerator.prepare()
                 } else {
-                    self.buildUnavailableFallback(reason: .permissionDenied)
+                    let reason: FallbackReason = CameraEngine.authorizationStatus == .restricted ? .restricted : .permissionDenied
+                    self.buildUnavailableFallback(reason: reason)
                 }
             }
-        case .denied, .restricted:
+        case .denied:
             buildUnavailableFallback(reason: .permissionDenied)
+        case .restricted:
+            buildUnavailableFallback(reason: .restricted)
         @unknown default:
             buildUnavailableFallback(reason: .unavailable)
         }
@@ -346,20 +352,26 @@ final class LiveDocumentCameraController: UIViewController {
         return button
     }
 
-    // MARK: Unavailable Fallback (simulator, denied permission, session failure)
+    // MARK: Unavailable Fallback (no camera hardware, denied/restricted permission, session failure)
 
     private func buildUnavailableFallback(reason: FallbackReason) {
+        let isAuthIssue = (reason == .permissionDenied || reason == .restricted)
         let icon = UIImageView(
-            image: UIImage(systemName: reason == .permissionDenied ? "lock.shield" : "camera.metering.unknown")
+            image: UIImage(systemName: isAuthIssue ? "lock.shield" : "camera.metering.unknown")
         )
         icon.tintColor = UIColor.white.withAlphaComponent(0.8)
         icon.contentMode = .scaleAspectFit
         icon.heightAnchor.constraint(equalToConstant: 54).isActive = true
 
         let title = UILabel()
-        title.text = reason == .permissionDenied
-            ? String(localized: "Camera Access Needed")
-            : String(localized: "Camera Unavailable")
+        switch reason {
+        case .permissionDenied:
+            title.text = String(localized: "Camera Access Needed")
+        case .restricted:
+            title.text = String(localized: "Camera Restricted")
+        case .unavailable:
+            title.text = String(localized: "Camera Unavailable")
+        }
         title.textColor = .white
         title.font = .preferredFont(forTextStyle: .title3)
         title.adjustsFontForContentSizeCategory = true
@@ -367,9 +379,14 @@ final class LiveDocumentCameraController: UIViewController {
         title.textAlignment = .center
 
         let message = UILabel()
-        message.text = reason == .permissionDenied
-            ? String(localized: "Allow camera access in Settings to scan exam pages, or import photos from your album instead.")
-            : String(localized: "The camera is not available right now. You can import photos from your album instead.")
+        switch reason {
+        case .permissionDenied:
+            message.text = String(localized: "Allow camera access in Settings to scan exam pages, or import photos from your album instead.")
+        case .restricted:
+            message.text = String(localized: "Camera access is restricted by device policy (Screen Time or MDM). You can still import photos from your album.")
+        case .unavailable:
+            message.text = String(localized: "The camera is not available right now. You can import photos from your album instead.")
+        }
         message.textColor = UIColor.white.withAlphaComponent(0.75)
         message.font = .preferredFont(forTextStyle: .subheadline)
         message.adjustsFontForContentSizeCategory = true
@@ -496,7 +513,7 @@ final class LiveDocumentCameraController: UIViewController {
     // MARK: Capture
 
     private func takePhoto() {
-        guard !isCapturing, !hasFinished, !isSessionInterrupted, capturedPhotos.count < maxPhotos else { return }
+        guard !isCapturing, !hasFinished, !isFinishing, !isSessionInterrupted, capturedPhotos.count < maxPhotos else { return }
         isCapturing = true
         lastCaptureDate = Date()
         hapticGenerator.impactOccurred()
@@ -510,9 +527,9 @@ final class LiveDocumentCameraController: UIViewController {
             isCapturing = false
             return
         }
-        // Immediately downsample & strip GPS off-MainActor via ImageIO so burst capture never holds
-        // 10 full-resolution 12–48MP JPEGs in RAM at once.
-        Task { [weak self] in
+        // Immediately downsample & strip GPS off-MainActor via ImageIO, and retain the task handle so
+        // tapping Done or Album right after shutter awaits the in-flight capture instead of dropping it.
+        activeSanitizeTask = Task { [weak self] in
             let processed: (compact: Data, thumbData: Data?) = await Task.detached(priority: .userInitiated) {
                 let compact = PhotoDataSanitizer().sanitize(data, maxDimension: 2200) ?? data
                 let thumb = PhotoDataSanitizer.makeThumbnailData(from: compact, maxPixel: 96)
@@ -520,6 +537,7 @@ final class LiveDocumentCameraController: UIViewController {
             }.value
             guard let self else { return }
             self.isCapturing = false
+            self.activeSanitizeTask = nil
             guard !self.hasFinished else { return }
 
             self.capturedPhotos.append(processed.compact)
@@ -528,9 +546,9 @@ final class LiveDocumentCameraController: UIViewController {
             self.redrawOverlay()
             self.refreshGuidance(hasQuad: false)
             self.updateDoneButton(thumbData: processed.thumbData)
-            self.albumButton?.isEnabled = self.capturedPhotos.count < self.maxPhotos
+            self.albumButton?.isEnabled = !self.isFinishing && self.capturedPhotos.count < self.maxPhotos
 
-            if self.capturedPhotos.count >= self.maxPhotos {
+            if self.capturedPhotos.count >= self.maxPhotos, !self.isFinishing {
                 self.finishBatch()
             }
         }
@@ -549,10 +567,24 @@ final class LiveDocumentCameraController: UIViewController {
     }
 
     private func finishBatch() {
-        guard !hasFinished, !capturedPhotos.isEmpty else { return }
-        hasFinished = true
+        guard !hasFinished, !isFinishing else { return }
+        guard !capturedPhotos.isEmpty || activeSanitizeTask != nil else { return }
+        isFinishing = true
+        doneButton.isEnabled = false
+        albumButton?.isEnabled = false
         engine?.stop()
-        onFinishBatch(capturedPhotos)
+
+        let pendingTask = activeSanitizeTask
+        Task { [weak self] in
+            await pendingTask?.value
+            guard let self, !self.hasFinished else { return }
+            self.hasFinished = true
+            if self.capturedPhotos.isEmpty {
+                self.onCancel()
+            } else {
+                self.onFinishBatch(self.capturedPhotos)
+            }
+        }
     }
 
     // MARK: Actions
@@ -568,15 +600,27 @@ final class LiveDocumentCameraController: UIViewController {
     @objc private func cancelTapped() {
         guard !hasFinished else { return }
         hasFinished = true
+        isFinishing = true
+        activeSanitizeTask?.cancel()
+        activeSanitizeTask = nil
         engine?.stop()
         onCancel()
     }
 
     @objc private func albumTapped() {
-        guard !hasFinished else { return }
-        hasFinished = true
+        guard !hasFinished, !isFinishing else { return }
+        isFinishing = true
+        doneButton.isEnabled = false
+        albumButton?.isEnabled = false
         engine?.stop()
-        onRequestPhotoLibrary(capturedPhotos)
+
+        let pendingTask = activeSanitizeTask
+        Task { [weak self] in
+            await pendingTask?.value
+            guard let self, !self.hasFinished else { return }
+            self.hasFinished = true
+            self.onRequestPhotoLibrary(self.capturedPhotos)
+        }
     }
 
     @objc private func openSettingsTapped() {
