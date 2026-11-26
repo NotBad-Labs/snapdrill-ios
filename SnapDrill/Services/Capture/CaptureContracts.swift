@@ -293,3 +293,111 @@ extension CGRect {
         return CGRect(x: x, y: y, width: w, height: h)
     }
 }
+
+// MARK: - Live Camera Helpers
+
+/// Flash behavior of the live document scanner camera.
+enum LiveCameraFlashMode: String, CaseIterable, Sendable {
+    case auto
+    case on
+    case off
+
+    var symbolName: String {
+        switch self {
+        case .auto: return "bolt.badge.a"
+        case .on: return "bolt.fill"
+        case .off: return "bolt.slash"
+        }
+    }
+
+    var next: LiveCameraFlashMode {
+        switch self {
+        case .auto: return .on
+        case .on: return .off
+        case .off: return .auto
+        }
+    }
+}
+
+/// Pure exponential smoother for live document-edge detections. Keeps the on-screen quad steady and tells
+/// callers when the page has been held still long enough to auto-capture.
+struct QuadSmoother: Sendable {
+    let alpha: CGFloat
+    let stabilityThreshold: CGFloat
+    let requiredStableFrames: Int
+    let maxMissedFrames: Int
+
+    private(set) var currentQuad: QuadCorners?
+    private(set) var stableFrameCount: Int = 0
+    private(set) var missedFrameCount: Int = 0
+
+    init(
+        alpha: CGFloat = 0.35,
+        stabilityThreshold: CGFloat = 0.025,
+        requiredStableFrames: Int = 6,
+        maxMissedFrames: Int = 5
+    ) {
+        self.alpha = alpha
+        self.stabilityThreshold = stabilityThreshold
+        self.requiredStableFrames = requiredStableFrames
+        self.maxMissedFrames = maxMissedFrames
+    }
+
+    var isStable: Bool {
+        currentQuad != nil && stableFrameCount >= requiredStableFrames
+    }
+
+    @discardableResult
+    mutating func update(with detected: QuadCorners?) -> QuadCorners? {
+        guard let detected, detected.isConvexAndValid else {
+            missedFrameCount += 1
+            stableFrameCount = 0
+            if missedFrameCount >= maxMissedFrames {
+                currentQuad = nil
+            }
+            return currentQuad
+        }
+
+        guard let previous = currentQuad else {
+            currentQuad = detected
+            missedFrameCount = 0
+            stableFrameCount = 1
+            return currentQuad
+        }
+
+        func dist(_ a: CGPoint, _ b: CGPoint) -> CGFloat { hypot(a.x - b.x, a.y - b.y) }
+        func blend(_ a: CGPoint, _ b: CGPoint) -> CGPoint {
+            CGPoint(x: a.x * (1 - alpha) + b.x * alpha, y: a.y * (1 - alpha) + b.y * alpha)
+        }
+
+        let maxDelta = max(
+            dist(previous.topLeft, detected.topLeft),
+            dist(previous.topRight, detected.topRight),
+            dist(previous.bottomRight, detected.bottomRight),
+            dist(previous.bottomLeft, detected.bottomLeft)
+        )
+
+        let blended = QuadCorners(
+            topLeft: blend(previous.topLeft, detected.topLeft),
+            topRight: blend(previous.topRight, detected.topRight),
+            bottomRight: blend(previous.bottomRight, detected.bottomRight),
+            bottomLeft: blend(previous.bottomLeft, detected.bottomLeft)
+        )
+
+        if blended.isConvexAndValid {
+            currentQuad = blended
+            missedFrameCount = 0
+            stableFrameCount = maxDelta <= stabilityThreshold ? stableFrameCount + 1 : 1
+        } else {
+            missedFrameCount += 1
+            stableFrameCount = 0
+        }
+        return currentQuad
+    }
+
+    mutating func reset() {
+        currentQuad = nil
+        stableFrameCount = 0
+        missedFrameCount = 0
+    }
+}

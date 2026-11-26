@@ -43,3 +43,10 @@ build/
 # Stage 0 real exam photos — never commit
 Samples/stage0/raw/
 Samples/stage0/exports/
+
+# ML pipeline artifacts (large, regenerable)
+MLPipeline/.venv/
+MLPipeline/data/
+MLPipeline/runs/
+MLPipeline/exports/
+MLPipeline/__pycache__/

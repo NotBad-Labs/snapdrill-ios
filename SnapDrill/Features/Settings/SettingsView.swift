@@ -227,6 +227,13 @@ struct SettingsView: View {
     #if DEBUG
     private var debugTestingSection: some View {
         Section("Developer Diagnostics") {
+            LabeledContent {
+                Text(verbatim: CoreMLCapableInkRemover.isCoreMLModelBundled ? "Core ML segmentation" : "Heuristic fallback")
+                    .foregroundStyle(SnapDrillTheme.inkSecondary)
+            } label: {
+                Text(verbatim: "Ink Removal Engine")
+            }
+
             Picker(
                 "Subscription Simulation",
                 selection: Binding(

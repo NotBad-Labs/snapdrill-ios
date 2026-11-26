@@ -457,6 +457,11 @@ struct HeuristicInkRemover: InkRemoving {
 struct CoreMLCapableInkRemover: InkRemoving {
     private static let inferenceContext = CIContext(options: [.useSoftwareRenderer: false])
 
+    /// True when a compiled `HandwritingRemover` Core ML model ships inside the app bundle.
+    static var isCoreMLModelBundled: Bool {
+        Bundle.main.url(forResource: "HandwritingRemover", withExtension: "mlmodelc") != nil
+    }
+
     private let fallback: HeuristicInkRemover
     private let modelResourceName: String
     private let timeoutSeconds: Double
@@ -517,6 +522,13 @@ struct CoreMLCapableInkRemover: InkRemoving {
                       let cgImage = sourceImage.cgImage else {
                     return nil
                 }
+                // Preferred path: 3-class segmentation model run over overlapping high-resolution tiles.
+                if let cached = CoreMLSegmentationModelCache.shared.model(at: modelURL),
+                   TiledCoreMLSegmentationRunner.supports(cached) {
+                    return TiledCoreMLSegmentationRunner(modelURL: modelURL).run(imageData: imageData)?.cleanedData
+                }
+
+                // Legacy path: image-to-image models executed through Vision.
                 let config = MLModelConfiguration()
                 config.computeUnits = .all
                 guard !Task.isCancelled,

@@ -1,0 +1,13 @@
+[project]
+name = "snapdrill-ml-pipeline"
+version = "0.1.0"
+description = "On-device handwriting segmentation training and Core ML export for SnapDrill"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "torch",
+  "torchvision",
+  "coremltools",
+  "pillow",
+  "numpy",
+  "opencv-python-headless",
+]

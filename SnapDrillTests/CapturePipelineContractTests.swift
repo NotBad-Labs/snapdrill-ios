@@ -275,4 +275,141 @@ final class CapturePipelineContractTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: staleStaging.path))
         XCTAssertFalse(FileManager.default.fileExists(atPath: staleTmp.path))
     }
+
+    // MARK: - Live camera smoothing
+
+    func testQuadSmootherStabilizesSteadyDetectionsAndResetsOnLoss() {
+        let page = QuadCorners(
+            topLeft: CGPoint(x: 0.1, y: 0.1),
+            topRight: CGPoint(x: 0.9, y: 0.1),
+            bottomRight: CGPoint(x: 0.9, y: 0.9),
+            bottomLeft: CGPoint(x: 0.1, y: 0.9)
+        )
+        var smoother = QuadSmoother()
+        XCTAssertFalse(smoother.isStable)
+
+        for _ in 0..<5 {
+            smoother.update(with: page)
+        }
+        XCTAssertFalse(smoother.isStable)
+        smoother.update(with: page)
+        XCTAssertTrue(smoother.isStable)
+
+        // A large jump is blended (not snapped) and resets stability.
+        var shifted = page
+        shifted.topLeft.x += 0.2
+        shifted.bottomLeft.x += 0.2
+        smoother.update(with: shifted)
+        XCTAssertFalse(smoother.isStable)
+        let blendedX = smoother.currentQuad?.topLeft.x ?? 0
+        XCTAssertGreaterThan(blendedX, 0.1)
+        XCTAssertLessThan(blendedX, 0.3)
+
+        // Losing the page for several frames clears the tracked quad.
+        for _ in 0..<5 {
+            smoother.update(with: nil)
+        }
+        XCTAssertNil(smoother.currentQuad)
+        XCTAssertFalse(smoother.isStable)
+    }
+
+    func testTiledSegmentationPlannerCoversFullHighResImageWithOverlap() {
+        let tiles = TiledInkSegmentationPlanner.planTiles(imageWidth: 1400, imageHeight: 900, tileSize: 512, overlap: 64)
+        XCTAssertEqual(tiles.count, 6)
+
+        var covered = [Bool](repeating: false, count: 1400 * 900)
+        for tile in tiles {
+            XCTAssertGreaterThanOrEqual(tile.pixelRect.minX, 0)
+            XCTAssertGreaterThanOrEqual(tile.pixelRect.minY, 0)
+            XCTAssertLessThanOrEqual(tile.pixelRect.maxX, 1400)
+            XCTAssertLessThanOrEqual(tile.pixelRect.maxY, 900)
+            XCTAssertEqual(tile.pixelRect.width, 512)
+            XCTAssertEqual(tile.pixelRect.height, 512)
+            for y in Int(tile.pixelRect.minY)..<Int(tile.pixelRect.maxY) {
+                for x in Int(tile.pixelRect.minX)..<Int(tile.pixelRect.maxX) {
+                    covered[y * 1400 + x] = true
+                }
+            }
+        }
+        XCTAssertTrue(covered.allSatisfy { $0 })
+
+        let single = TiledInkSegmentationPlanner.planTiles(imageWidth: 400, imageHeight: 300)
+        XCTAssertEqual(single.count, 1)
+        XCTAssertEqual(single.first?.pixelRect, CGRect(x: 0, y: 0, width: 400, height: 300))
+
+        // Interior seam weights fade toward tile borders; outer image edges stay fully weighted.
+        let seam = TiledInkSegmentationPlanner.featherWeight(
+            localX: 0, localY: 256, tileWidth: 512, tileHeight: 512, overlap: 64,
+            isLeftEdge: false, isRightEdge: false, isTopEdge: true, isBottomEdge: true
+        )
+        let outer = TiledInkSegmentationPlanner.featherWeight(
+            localX: 0, localY: 256, tileWidth: 512, tileHeight: 512, overlap: 64,
+            isLeftEdge: true, isRightEdge: false, isTopEdge: true, isBottomEdge: true
+        )
+        XCTAssertLessThan(seam, 0.1)
+        XCTAssertEqual(outer, 1.0, accuracy: 0.001)
+    }
+
+    func testSegmentationMaskCompositorErasesBlackHandwritingWhilePreservingBlackPrint() throws {
+        let width = 300
+        let height = 200
+        let printedRect = CGRect(x: 30, y: 40, width: 200, height: 14)
+        let handwrittenRect = CGRect(x: 30, y: 120, width: 200, height: 14)
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        format.opaque = true
+        let image = UIGraphicsImageRenderer(size: CGSize(width: width, height: height), format: format).image { ctx in
+            UIColor(red: 0.97, green: 0.96, blue: 0.94, alpha: 1).setFill()
+            ctx.fill(CGRect(x: 0, y: 0, width: width, height: height))
+            UIColor(white: 0.05, alpha: 1).setFill()
+            ctx.fill(printedRect)
+            ctx.fill(handwrittenRect)
+        }
+        let cgImage = try XCTUnwrap(image.cgImage)
+
+        var handwritingProb = [Float](repeating: 0, count: width * height)
+        var printedProb = [Float](repeating: 0, count: width * height)
+        for y in 0..<height {
+            for x in 0..<width {
+                let point = CGPoint(x: x, y: y)
+                if printedRect.contains(point) {
+                    printedProb[y * width + x] = 0.95
+                } else if handwrittenRect.contains(point) {
+                    handwritingProb[y * width + x] = 0.95
+                }
+            }
+        }
+
+        let result = try XCTUnwrap(
+            SegmentationMaskCompositor.composite(
+                source: cgImage,
+                handwritingProb: handwritingProb,
+                printedProb: printedProb
+            )
+        )
+        XCTAssertGreaterThan(result.erasedPixelCount, 2000)
+
+        let out = try XCTUnwrap(result.image.cgImage)
+        func sample(_ x: Int, _ y: Int) -> (r: Int, g: Int, b: Int) {
+            var pixel = [UInt8](repeating: 0, count: 4)
+            let ctx = CGContext(
+                data: &pixel, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+                space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+            )!
+            ctx.draw(out, in: CGRect(x: -x, y: -(out.height - 1 - y), width: out.width, height: out.height))
+            return (Int(pixel[0]), Int(pixel[1]), Int(pixel[2]))
+        }
+
+        let erased = sample(120, 127)
+        XCTAssertGreaterThan(erased.r, 220)
+        XCTAssertGreaterThan(erased.g, 220)
+        XCTAssertGreaterThan(erased.b, 220)
+
+        let kept = sample(120, 47)
+        XCTAssertLessThan(kept.r, 50)
+        XCTAssertLessThan(kept.g, 50)
+        XCTAssertLessThan(kept.b, 50)
+    }
 }

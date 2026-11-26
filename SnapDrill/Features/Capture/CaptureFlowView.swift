@@ -117,11 +117,24 @@ struct CaptureFlowView: View {
                 maxSelectionCount: environment.capturePipeline.maxPhotoCount,
                 matching: .images
             )
-            .sheet(isPresented: $showingCameraPicker) {
-                CameraPickerBridge { data in
-                    guard let data else { return }
-                    Task { await appendImportedImageDatas([data]) }
-                }
+            .fullScreenCover(isPresented: $showingCameraPicker) {
+                CameraPickerBridge(
+                    maxPhotos: max(1, environment.capturePipeline.maxPhotoCount - (session?.pages.count ?? 0)),
+                    onFinishBatch: { datas in
+                        showingCameraPicker = false
+                        Task { await appendImportedImageDatas(datas) }
+                    },
+                    onRequestPhotoLibrary: {
+                        showingCameraPicker = false
+                        Task {
+                            try? await Task.sleep(for: .milliseconds(450))
+                            showingPhotoPicker = true
+                        }
+                    },
+                    onCancel: {
+                        showingCameraPicker = false
+                    }
+                )
                 .ignoresSafeArea()
             }
             .onChange(of: selectedPhotoItems) { _, items in
