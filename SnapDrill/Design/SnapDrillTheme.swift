@@ -1,3 +1,4 @@
+import CryptoKit
 import SwiftUI
 import UIKit
 
@@ -193,5 +194,22 @@ struct BottomActionBarContainer<Content: View>: View {
                 .ignoresSafeArea(edges: .bottom)
             }
             .overlay(alignment: .top) { RuledDivider() }
+    }
+}
+
+/// Stable deterministic identity wrapper for raw photo `Data` arrays in SwiftUI `ForEach`.
+struct IndexedPhotoData: Identifiable, Sendable {
+    let id: String
+    let index: Int
+    let data: Data
+
+    static func wrap(_ datas: [Data]) -> [IndexedPhotoData] {
+        var seenCounts: [String: Int] = [:]
+        return datas.enumerated().map { idx, data in
+            let digest = SHA256.hash(data: data).prefix(8).map { String(format: "%02x", $0) }.joined()
+            let occurrence = seenCounts[digest, default: 0]
+            seenCounts[digest] = occurrence + 1
+            return IndexedPhotoData(id: "\(digest)-\(occurrence)", index: idx, data: data)
+        }
     }
 }

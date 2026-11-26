@@ -1,0 +1,95 @@
+# SnapDrill SwiftLint configuration (iOS 26+ / Swift 6.0)
+excluded:
+  - MLPipeline
+  - .build
+  - DerivedData
+
+disabled_rules:
+  - trailing_whitespace
+  - opening_brace
+  - nesting
+  - inclusive_language
+  - large_tuple
+
+opt_in_rules:
+  - force_unwrapping
+  - empty_count
+  - explicit_init
+
+force_cast: error
+force_try: error
+force_unwrapping: error
+
+line_length:
+  warning: 160
+  error: 220
+
+file_length:
+  warning: 600
+  error: 900
+
+type_body_length:
+  warning: 450
+  error: 700
+
+function_body_length:
+  warning: 110
+  error: 180
+
+cyclomatic_complexity:
+  warning: 18
+  error: 28
+
+identifier_name:
+  min_length:
+    warning: 2
+    error: 1
+  excluded:
+    - x
+    - y
+    - z
+    - r
+    - g
+    - b
+    - w
+    - h
+    - i
+    - j
+    - k
+    - t
+    - p
+    - s
+    - o
+    - d
+    - c
+    - a
+    - e
+    - f
+    - n
+    - id
+    - dx
+    - dy
+    - tx
+    - ty
+    - x0
+    - y0
+    - x1
+    - y1
+    - p00
+    - p10
+    - p01
+    - p11
+    - fx
+    - fy
+    - gx
+    - gy
+    - xi
+    - yi
+    - nx
+    - ny
+    - cg
+    - ui
+    - ml
+    - vn
+    - ms
+    - ok

@@ -191,14 +191,14 @@ struct ReviewSessionView: View {
                 if !resolvedAnswerDatas.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(Array(resolvedAnswerDatas.enumerated()), id: \.offset) { idx, data in
-                                if let img = UIImage(data: data) {
+                            ForEach(IndexedPhotoData.wrap(resolvedAnswerDatas)) { photo in
+                                if let img = UIImage(data: photo.data) {
                                     Image(uiImage: img)
                                         .resizable()
                                         .scaledToFill()
                                         .frame(width: 140, height: 100)
                                         .clipShape(RoundedRectangle(cornerRadius: 8))
-                                        .accessibilityLabel(String(localized: "Answer Photo \(idx + 1)"))
+                                        .accessibilityLabel(String(localized: "Answer Photo \(photo.index + 1)"))
                                 }
                             }
                         }
