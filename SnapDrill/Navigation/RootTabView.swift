@@ -20,12 +20,14 @@ struct RootTabView: View {
     @State private var capturePreferredSubjectID: UUID?
     private let quickActionRouter = QuickActionRouter.shared
 
-    // Optional debug inspection deep-links
+    #if DEBUG
+    // Optional debug inspection deep-links (compiled out of Release builds)
     @State private var debugInspectMistake: MistakeItem?
     @State private var debugInspectEraserItem: MistakeItem?
     @State private var debugPDFItems: [MistakeItem]?
     @State private var debugShowPaywall: Bool = false
     @State private var debugReviewItems: [MistakeItem]?
+    #endif
     @State private var hasRunStartup: Bool = false
 
     var body: some View {
@@ -79,6 +81,7 @@ struct RootTabView: View {
         ) { _ in
             SubjectCatalog.deduplicateExisting(in: modelContext)
         }
+        #if DEBUG
         .sheet(item: $debugInspectMistake) { mistake in
             NavigationStack {
                 MistakeDetailView(mistake: mistake)
@@ -118,6 +121,7 @@ struct RootTabView: View {
                 }
             }
         }
+        #endif
     }
 
     // MARK: - Actions & Startup
@@ -150,6 +154,7 @@ struct RootTabView: View {
         await environment.checkForRecoverableDraft()
         handlePendingQuickAction()
 
+        #if DEBUG
         if launchArgs.seedDemoIfEmpty && allMistakes.isEmpty {
             try? await DemoNotebookSeeder.populateDemoMistakes(
                 in: modelContext,
@@ -175,5 +180,6 @@ struct RootTabView: View {
         if launchArgs.openPaywall {
             debugShowPaywall = true
         }
+        #endif
     }
 }

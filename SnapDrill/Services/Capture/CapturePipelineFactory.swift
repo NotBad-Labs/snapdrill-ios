@@ -24,7 +24,7 @@ enum CapturePipelineFactory {
     static func makeLiveDocumentCameraViewController(
         maxPhotos: Int,
         onFinishBatch: @escaping ([Data]) -> Void,
-        onRequestPhotoLibrary: @escaping () -> Void,
+        onRequestPhotoLibrary: @escaping ([Data]) -> Void,
         onCancel: @escaping () -> Void
     ) -> UIViewController {
         LiveDocumentCameraController(
@@ -33,5 +33,10 @@ enum CapturePipelineFactory {
             onRequestPhotoLibrary: onRequestPhotoLibrary,
             onCancel: onCancel
         )
+    }
+
+    /// Decodes a compact upright thumbnail via ImageIO so capture views never decode full JPEGs on MainActor.
+    nonisolated static func makePageThumbnail(from imageData: Data, maxPixel: Int = 160) -> UIImage? {
+        PhotoDataSanitizer.makeThumbnailImage(from: imageData, maxPixel: maxPixel)
     }
 }

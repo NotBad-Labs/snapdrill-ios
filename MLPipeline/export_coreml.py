@@ -28,7 +28,7 @@ def main():
         traced,
         convert_to="mlprogram",
         compute_precision=ct.precision.FLOAT16,
-        minimum_deployment_target=ct.target.iOS18,
+        minimum_deployment_target=ct.target.iOS26,
         inputs=[
             ct.ImageType(
                 name="image",

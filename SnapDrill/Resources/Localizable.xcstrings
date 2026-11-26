@@ -13491,6 +13491,251 @@
           }
         }
       }
+    },
+    "Snap a homework or test page instead of copying by hand. Straighten pages, clear colored marks, and touch up spots right on your iPhone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snap a homework or test page instead of copying by hand. Straighten pages, clear colored marks, and touch up spots right on your iPhone."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拍下作业或试卷页，告别手抄错题。在 iPhone 端侧自动拉直页面、清理彩色批注并轻点修补笔迹。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拍下作業或考卷頁，告別手抄錯題。在 iPhone 端側自動拉直頁面、清理彩色批註並輕點修補筆跡。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "問題を手書きで写す代わりにページを撮影。iPhone 上で傾き補正、カラー書き込みの除去、部分消しゴムが完結します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "손으로 옮겨 적는 대신 시험지나 숙제 페이지를 촬영하세요. iPhone에서 기울기 보정, 색펜 제거, 부분 지우기를 바로 처리합니다."
+          }
+        }
+      }
+    },
+    "Capture up to 10 pages in one batch. Scan, straighten, clean colored marks, and erase spots privately on your iPhone.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capture up to 10 pages in one batch. Scan, straighten, clean colored marks, and erase spots privately on your iPhone."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "单次最多连拍 10 页。所有扫描、透视校正、彩色笔迹清理与手动擦除均在 iPhone 本地私密完成。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "單次最多連拍 10 頁。所有掃描、透視校正、彩色筆跡清理與手動擦除皆在 iPhone 本機私密完成。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1回で最大10ページまで連続撮影できます。スキャン、傾き補正、カラー筆跡除去、手動消去はすべてiPhone内で完結します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한 번에 최대 10페이지까지 연속 촬영할 수 있습니다. 스캔, 왜곡 보정, 색펜 제거, 수동 지우기는 모두 iPhone 기기 내에서 안전하게 처리됩니다."
+          }
+        }
+      }
+    },
+    "Camera Access Needed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera Access Needed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要相机权限"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要相機權限"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カメラへのアクセスが必要です"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카메라 접근 권한 필요"
+          }
+        }
+      }
+    },
+    "Allow camera access in Settings to scan exam pages, or import photos from your album instead.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow camera access in Settings to scan exam pages, or import photos from your album instead."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在系统设置中开启相机权限以扫描试卷，或直接从相册导入照片。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請在系統設定中開啟相機權限以掃描考卷，或直接從相簿匯入照片。"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定でカメラへのアクセスを許可してテスト用紙をスキャンするか、写真から読み込んでください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시험지를 스캔하려면 설정에서 카메라 접근을 허용하거나 앨범에서 사진을 가져오세요."
+          }
+        }
+      }
+    },
+    "Camera paused": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera paused"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相机已暂停"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "相機已暫停"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カメラ一時停止中"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "카메라 일시 중지됨"
+          }
+        }
+      }
+    },
+    "Remove Page": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove Page"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除此页"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除此頁"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このページを削除"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이 페이지 삭제"
+          }
+        }
+      }
+    },
+    "Remove Page %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove Page %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除第 %lld 页"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除第 %lld 頁"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lldページ目を削除"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld페이지 삭제"
+          }
+        }
+      }
     }
   },
   "version": "1.1"

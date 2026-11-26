@@ -22,12 +22,20 @@ FONT_CANDIDATES_LATIN = [
     "/System/Library/Fonts/Supplemental/Arial.ttf",
     "/System/Library/Fonts/Menlo.ttc",
 ]
-FONT_CANDIDATES_CJK = [
+FONT_CANDIDATES_ZH = [
     "/System/Library/Fonts/PingFang.ttc",
     "/System/Library/Fonts/Hiragino Sans GB.ttc",
-    "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc",
-    "/System/Library/Fonts/AppleSDGothicNeo.ttc",
     "/System/Library/Fonts/STHeiti Light.ttc",
+    "/System/Library/Fonts/Supplemental/Songti.ttc",
+]
+FONT_CANDIDATES_JA = [
+    "/System/Library/Fonts/ヒラギノ角ゴシック W3.ttc",
+    "/System/Library/Fonts/Hiragino Sans GB.ttc",
+    "/System/Library/Fonts/PingFang.ttc",
+]
+FONT_CANDIDATES_KO = [
+    "/System/Library/Fonts/AppleSDGothicNeo.ttc",
+    "/System/Library/Fonts/PingFang.ttc",
 ]
 FONT_CANDIDATES_HAND = [
     "/System/Library/Fonts/Supplemental/Bradley Hand Bold.ttf",
@@ -36,45 +44,53 @@ FONT_CANDIDATES_HAND = [
     "/System/Library/Fonts/Supplemental/Marker Felt.ttc",
     "/System/Library/Fonts/Supplemental/SnellRoundhand.ttc",
 ]
+FONT_CANDIDATES_HAND_CJK = [
+    "/System/Library/Fonts/Supplemental/Kaiti.ttc",
+    "/System/Library/Fonts/Supplemental/Xingkai.ttc",
+    "/System/Library/Fonts/PingFang.ttc",
+    "/System/Library/Fonts/STHeiti Light.ttc",
+]
 
 QUESTIONS_ZH = [
-    "已知函数 f(x) = x² - 2ax + 3，求其在区间 [0, 2] 上的最小值。",
-    "如图，在△ABC中，AB = AC，D 为 BC 中点，求证：AD ⊥ BC。",
-    "解方程组：2x + y = 7，x - y = 2，并检验所得的解。",
-    "下列说法正确的是：A. 质量大的物体惯性大  B. 速度大的物体惯性大",
-    "用化学方程式表示铁在氧气中燃烧的反应，并注明反应条件。",
-    "阅读下面的文字，回答问题：作者为什么说“春天来了”？",
+    ("zh", "已知函数 f(x) = x² - 2ax + 3，求其在区间 [0, 2] 上的最小值。"),
+    ("zh", "如图，在△ABC中，AB = AC，D 为 BC 中点，求证：AD ⊥ BC。"),
+    ("zh", "解方程组：2x + y = 7，x - y = 2，并检验所得的解。"),
+    ("zh", "下列说法正确的是：A. 质量大的物体惯性大  B. 速度大的物体惯性大"),
+    ("zh", "用化学方程式表示铁在氧气中燃烧的反应，并注明反应条件。"),
+    ("zh", "閱讀下列短文，說明作者為何反覆強調「時間是最好的尺」。"),
+    ("zh", "若等差數列 {aₙ} 滿足 a₂ + a₆ = 14，則前 7 項和 S₇ 為多少？"),
 ]
 QUESTIONS_EN = [
-    "14. Find the minimum value of f(x) = x^2 - 2ax + 3 on the interval [0, 2].",
-    "Q5. Choose the best option: Hardly had she arrived (   ) the train left.",
-    "8. A block of mass m rests on a rough 30 degree incline; find the friction force.",
-    "Solve the system: x + y = 7 and 2x - y = 2, then verify your answer.",
-    "Which of the following is a prime number? A. 21  B. 27  C. 29  D. 33",
-    "Simplify (3x + 2)(x - 5) - 2x(x + 1) and factor the result completely.",
+    ("en", "14. Find the minimum value of f(x) = x^2 - 2ax + 3 on the interval [0, 2]."),
+    ("en", "Q5. Choose the best option: Hardly had she arrived (   ) the train left."),
+    ("en", "8. A block of mass m rests on a rough 30 degree incline; find the friction force."),
+    ("en", "Solve the system: x + y = 7 and 2x - y = 2, then verify your answer."),
+    ("en", "Which of the following is a prime number? A. 21  B. 27  C. 29  D. 33"),
+    ("en", "Simplify (3x + 2)(x - 5) - 2x(x + 1) and factor the result completely."),
 ]
 QUESTIONS_JA = [
-    "二次関数 y = x² - 4ax + 3a² + 2 (0 ≤ x ≤ 2) の最小値を求めよ。",
-    "次の文の（　）に入る最も適切な語を選びなさい。",
-    "三角形ABCにおいて、AB = AC のとき、角B = 角C を証明せよ。",
+    ("ja", "二次関数 y = x² - 4ax + 3a² + 2 (0 ≤ x ≤ 2) の最小値を求めよ。"),
+    ("ja", "次の文の（　）に入る最も適切な語を選びなさい。"),
+    ("ja", "三角形ABCにおいて、AB = AC のとき、角B = 角C を証明せよ。"),
 ]
 QUESTIONS_KO = [
-    "이차함수 y = x² - 4ax + 3a² + 2 의 최솟값을 구하시오.",
-    "다음 중 옳은 것을 고르시오. ① 2x+1  ② 3x-2  ③ x²+4",
-    "삼각형 ABC에서 AB = AC 일 때, 각 B = 각 C 임을 증명하시오.",
+    ("ko", "이차함수 y = x² - 4ax + 3a² + 2 의 최솟값을 구하시오."),
+    ("ko", "다음 중 옳은 것을 고르시오. ① 2x+1  ② 3x-2  ③ x²+4"),
+    ("ko", "삼각형 ABC에서 AB = AC 일 때, 각 B = 각 C 임을 증명하시오."),
 ]
-ALL_QUESTIONS = QUESTIONS_ZH * 3 + QUESTIONS_EN * 3 + QUESTIONS_JA + QUESTIONS_KO
+ALL_QUESTIONS = QUESTIONS_ZH * 2 + QUESTIONS_EN * 2 + QUESTIONS_JA * 2 + QUESTIONS_KO * 2
 
 HANDWRITTEN_SNIPPETS = [
     "x = 4, y = 3", "a < 0 时 g(a) = 3", "= 7 - 4a", "答: B", "(x-1)(x-3)", "f(a) = 3 - a²",
     "Ans: C", "2a < 0", "∴ x = -2", "forgot case!", "把 N = mg cosθ", "≈ 12.5", "①②③", "= 0",
-    "sin θ = 1/2", "B", "x² = 9", "c = 5", "so a ≥ √2", "ok", "?",
+    "sin θ = 1/2", "B", "x² = 9", "c = 5", "so a ≥ √2", "ok", "?", "解：原式 = 2x - 1",
 ]
 
 
 def pick_font(candidates: list[str], size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    random.shuffle(candidates := list(candidates))
-    for path in candidates:
+    shuffled = list(candidates)
+    random.shuffle(shuffled)
+    for path in shuffled:
         if Path(path).exists():
             try:
                 return ImageFont.truetype(path, size)
@@ -83,18 +99,33 @@ def pick_font(candidates: list[str], size: int) -> ImageFont.FreeTypeFont | Imag
     return ImageFont.load_default()
 
 
+def font_pool_for_script(script: str) -> list[str]:
+    if script == "zh":
+        return FONT_CANDIDATES_ZH
+    if script == "ja":
+        return FONT_CANDIDATES_JA
+    if script == "ko":
+        return FONT_CANDIDATES_KO
+    return FONT_CANDIDATES_LATIN
+
+
 def paper_background(rng: random.Random) -> Image.Image:
     base = np.array(
-        [rng.randint(236, 252), rng.randint(234, 250), rng.randint(222, 248)], dtype=np.float32
+        [rng.randint(232, 252), rng.randint(230, 250), rng.randint(218, 248)], dtype=np.float32
     )
     canvas = np.tile(base, (SIZE, SIZE, 1))
     # Directional shadow gradient
     angle = rng.uniform(0, 2 * math.pi)
     xs, ys = np.meshgrid(np.linspace(-1, 1, SIZE), np.linspace(-1, 1, SIZE))
-    gradient = (xs * math.cos(angle) + ys * math.sin(angle)) * rng.uniform(0, 0.12)
-    canvas *= (1.0 - gradient[..., None] - rng.uniform(0, 0.05))
+    gradient = (xs * math.cos(angle) + ys * math.sin(angle)) * rng.uniform(0, 0.16)
+    canvas *= (1.0 - gradient[..., None] - rng.uniform(0, 0.06))
+    # Occasional soft crease / fold shadow band
+    if rng.random() < 0.35:
+        cx = rng.uniform(-0.6, 0.6)
+        crease = np.exp(-((xs - cx) ** 2) / rng.uniform(0.008, 0.04)) * rng.uniform(0.04, 0.12)
+        canvas *= (1.0 - crease[..., None])
     # Paper grain
-    canvas += np.random.default_rng(rng.randint(0, 10**6)).normal(0, rng.uniform(0.8, 2.5), canvas.shape)
+    canvas += np.random.default_rng(rng.randint(0, 10**6)).normal(0, rng.uniform(0.8, 3.0), canvas.shape)
     return Image.fromarray(np.clip(canvas, 0, 255).astype(np.uint8), "RGB")
 
 
@@ -104,9 +135,8 @@ def draw_printed(rng: random.Random) -> Image.Image:
     draw = ImageDraw.Draw(layer)
     y = rng.randint(14, 40)
     questions = rng.sample(ALL_QUESTIONS, k=rng.randint(2, 4))
-    for text in questions:
-        cjk = any(ord(ch) > 0x2E80 for ch in text)
-        font = pick_font(FONT_CANDIDATES_CJK if cjk else FONT_CANDIDATES_LATIN, rng.randint(17, 24))
+    for script, text in questions:
+        font = pick_font(font_pool_for_script(script), rng.randint(17, 24))
         x = rng.randint(14, 36)
         # naive wrap
         line = ""
@@ -125,11 +155,11 @@ def draw_printed(rng: random.Random) -> Image.Image:
         if y > SIZE - 60:
             break
 
-    # printed diagrams / rules
+    # printed diagrams / tables / rules
     for _ in range(rng.randint(0, 3)):
-        kind = rng.choice(["triangle", "axes", "circle", "box", "underline"])
-        x0, y0 = rng.randint(220, 400), rng.randint(60, 380)
-        w = rng.randint(50, 110)
+        kind = rng.choice(["triangle", "axes", "circle", "box", "table", "underline"])
+        x0, y0 = rng.randint(200, 380), rng.randint(60, 360)
+        w = rng.randint(50, 115)
         if kind == "triangle":
             draw.polygon([(x0, y0 + w), (x0 + w, y0 + w), (x0 + w // 2, y0)], outline=255, width=2)
         elif kind == "axes":
@@ -140,6 +170,13 @@ def draw_printed(rng: random.Random) -> Image.Image:
             draw.ellipse([x0, y0, x0 + w, y0 + w], outline=255, width=2)
         elif kind == "box":
             draw.rectangle([x0, y0, x0 + w, y0 + w // 2], outline=255, width=2)
+        elif kind == "table":
+            rows_n, cols_n = 2, 3
+            ch, cw = 24, w // cols_n
+            for r in range(rows_n + 1):
+                draw.line([(x0, y0 + r * ch), (x0 + cols_n * cw, y0 + r * ch)], fill=255, width=1)
+            for c in range(cols_n + 1):
+                draw.line([(x0 + c * cw, y0), (x0 + c * cw, y0 + rows_n * ch)], fill=255, width=1)
         else:
             draw.line([(x0 - 100, y0), (x0 + w, y0)], fill=255, width=1)
     return layer
@@ -176,13 +213,16 @@ def draw_handwriting(rng: random.Random, printed: Image.Image):
         layer = Image.new("L", (SIZE, SIZE), 0)
         draw = ImageDraw.Draw(layer)
         width = {"black_gel": rng.choice([2, 2, 3]), "pencil": rng.choice([2, 3]), "blue": 2, "red": rng.choice([2, 3, 4])}[pen_name]
-        for _ in range(rng.randint(2, 6)):
+        for _ in range(rng.randint(3, 8)):
             kind = rng.choice(["text", "text", "text", "underline", "circle", "check", "cross", "scratch"])
             x = rng.randint(20, SIZE - 160)
             y = rng.randint(20, SIZE - 60)
             if kind == "text":
-                font = pick_font(FONT_CANDIDATES_HAND + FONT_CANDIDATES_CJK, rng.randint(20, 32))
-                draw.text((x, y), rng.choice(HANDWRITTEN_SNIPPETS), fill=255, font=font)
+                snippet = rng.choice(HANDWRITTEN_SNIPPETS)
+                needs_cjk = any(ord(ch) > 0x2000 for ch in snippet)
+                pool = FONT_CANDIDATES_HAND_CJK if needs_cjk else FONT_CANDIDATES_HAND
+                font = pick_font(pool, rng.randint(20, 32))
+                draw.text((x, y), snippet, fill=255, font=font)
             elif kind == "underline":
                 bezier_stroke(draw, [(x, y), (x + 60, y + rng.randint(-6, 6)), (x + rng.randint(100, 180), y + rng.randint(-4, 8))], width)
             elif kind == "circle":

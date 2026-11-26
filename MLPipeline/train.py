@@ -64,9 +64,13 @@ def evaluate(model, loader, device):
     union = np.zeros(3)
     printed_hit = printed_total = 0
     tp = fp = fn = 0  # handwriting F1 on dark-ink pixels (black pen vs black print)
+    pp_hw_inter = pp_hw_union = 0
+    pp_printed_hit = 0
     for images, masks in loader:
         images, masks = images.to(device), masks.to(device)
-        pred = model(images).argmax(1)
+        logits = model(images)
+        probs = torch.softmax(logits, dim=1)
+        pred = logits.argmax(1)
         for c in range(3):
             inter[c] += ((pred == c) & (masks == c)).sum().item()
             union[c] += ((pred == c) | (masks == c)).sum().item()
@@ -78,6 +82,19 @@ def evaluate(model, loader, device):
         tp += ((pred == 2) & (masks == 2) & dark).sum().item()
         fp += ((pred == 2) & (masks != 2) & dark).sum().item()
         fn += ((pred != 2) & (masks == 2) & dark).sum().item()
+
+        # Also evaluate the actual runtime post-processed erase mask (0.55 threshold + 1.15 printed guard + 1px dilation)
+        probs_np = probs.cpu().numpy()
+        masks_np = masks.cpu().numpy()
+        imgs_np = (images.permute(0, 2, 3, 1).cpu().numpy() * 255).astype(np.uint8)
+        for b in range(len(imgs_np)):
+            _, erase = composite(imgs_np[b], probs_np[b, 1], probs_np[b, 2])
+            gt_hw = masks_np[b] == 2
+            gt_pr = masks_np[b] == 1
+            pp_hw_inter += int((erase & gt_hw).sum())
+            pp_hw_union += int((erase | gt_hw).sum())
+            pp_printed_hit += int((~erase & gt_pr).sum())
+
     iou = inter / np.maximum(union, 1)
     f1 = 2 * tp / max(1, 2 * tp + fp + fn)
     return {
@@ -85,6 +102,8 @@ def evaluate(model, loader, device):
         "printed_iou": float(iou[1]),
         "printed_kept": printed_hit / max(1, printed_total),
         "dark_handwriting_f1": f1,
+        "pp_handwriting_iou": pp_hw_inter / max(1, pp_hw_union),
+        "pp_printed_kept": pp_printed_hit / max(1, printed_total),
     }
 
 
@@ -146,12 +165,12 @@ def main():
             scheduler.step()
             running += loss.item()
         metrics = evaluate(model, val_loader, device)
-        score = metrics["handwriting_iou"] + 0.5 * metrics["printed_kept"]
+        score = metrics["pp_handwriting_iou"] + 0.5 * metrics["pp_printed_kept"]
         print(
             f"epoch {epoch:02d}/{args.epochs} loss={running / len(train_loader):.4f} "
-            f"hw_iou={metrics['handwriting_iou']:.3f} printed_iou={metrics['printed_iou']:.3f} "
-            f"printed_kept={metrics['printed_kept']:.3f} dark_hw_f1={metrics['dark_handwriting_f1']:.3f} "
-            f"({time.time() - started:.0f}s)",
+            f"hw_iou={metrics['handwriting_iou']:.3f} pp_hw_iou={metrics['pp_handwriting_iou']:.3f} "
+            f"printed_kept={metrics['printed_kept']:.3f} pp_printed_kept={metrics['pp_printed_kept']:.3f} "
+            f"dark_hw_f1={metrics['dark_handwriting_f1']:.3f} ({time.time() - started:.0f}s)",
             flush=True,
         )
         if score > best:

@@ -1,10 +1,12 @@
 import AVFoundation
 import ImageIO
+import os
+import SwiftUI
 import UIKit
 import Vision
 
 /// Owns the AVCapture session and Vision edge tracking off the main actor.
-/// All mutable state is confined to `sessionQueue` / `visionQueue`; results are handed back as Sendable values.
+/// Session mutation is confined to `sessionQueue`; Vision throttling is guarded by an unfair lock.
 final class CameraEngine: NSObject, @unchecked Sendable, AVCaptureVideoDataOutputSampleBufferDelegate, AVCapturePhotoCaptureDelegate {
     let session = AVCaptureSession()
 
@@ -14,26 +16,44 @@ final class CameraEngine: NSObject, @unchecked Sendable, AVCaptureVideoDataOutpu
     private let visionQueue = DispatchQueue(label: "com.notbadlabs.snapdrill.camera.vision")
     private let onDetection: @Sendable (QuadCorners?, CGSize) -> Void
     private let onPhoto: @Sendable (Data?) -> Void
+    private let onSessionUnavailable: @Sendable () -> Void
+    private let onInterruptionChanged: @Sendable (Bool) -> Void
 
     private var device: AVCaptureDevice?
     private var isConfigured = false
-    private var lastDetectionTime: CFAbsoluteTime = 0
+    private let lastDetectionTimeLock = OSAllocatedUnfairLock<CFAbsoluteTime>(initialState: 0)
+    private var observers: [NSObjectProtocol] = []
 
     init(
         onDetection: @escaping @Sendable (QuadCorners?, CGSize) -> Void,
-        onPhoto: @escaping @Sendable (Data?) -> Void
+        onPhoto: @escaping @Sendable (Data?) -> Void,
+        onSessionUnavailable: @escaping @Sendable () -> Void,
+        onInterruptionChanged: @escaping @Sendable (Bool) -> Void
     ) {
         self.onDetection = onDetection
         self.onPhoto = onPhoto
+        self.onSessionUnavailable = onSessionUnavailable
+        self.onInterruptionChanged = onInterruptionChanged
         super.init()
+        registerSessionObservers()
+    }
+
+    deinit {
+        for token in observers {
+            NotificationCenter.default.removeObserver(token)
+        }
     }
 
     static var hasBackCamera: Bool {
         AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) != nil
     }
 
+    static var authorizationStatus: AVAuthorizationStatus {
+        AVCaptureDevice.authorizationStatus(for: .video)
+    }
+
     static var isAuthorized: Bool {
-        AVCaptureDevice.authorizationStatus(for: .video) == .authorized
+        authorizationStatus == .authorized
     }
 
     func start() {
@@ -41,7 +61,11 @@ final class CameraEngine: NSObject, @unchecked Sendable, AVCaptureVideoDataOutpu
             if !isConfigured {
                 isConfigured = configure()
             }
-            if isConfigured, !session.isRunning {
+            guard isConfigured else {
+                onSessionUnavailable()
+                return
+            }
+            if !session.isRunning {
                 session.startRunning()
             }
         }
@@ -98,6 +122,49 @@ final class CameraEngine: NSObject, @unchecked Sendable, AVCaptureVideoDataOutpu
         }
     }
 
+    private func registerSessionObservers() {
+        let center = NotificationCenter.default
+        let interrupted = center.addObserver(
+            forName: AVCaptureSession.wasInterruptedNotification,
+            object: session,
+            queue: nil
+        ) { [weak self] _ in
+            self?.onInterruptionChanged(true)
+        }
+        let resumed = center.addObserver(
+            forName: AVCaptureSession.interruptionEndedNotification,
+            object: session,
+            queue: nil
+        ) { [weak self] _ in
+            guard let self else { return }
+            self.onInterruptionChanged(false)
+            self.sessionQueue.async {
+                if self.isConfigured, !self.session.isRunning {
+                    self.session.startRunning()
+                }
+            }
+        }
+        let runtimeError = center.addObserver(
+            forName: AVCaptureSession.runtimeErrorNotification,
+            object: session,
+            queue: nil
+        ) { [weak self] notification in
+            guard let self else { return }
+            let error = notification.userInfo?[AVCaptureSessionErrorKey] as? AVError
+            self.sessionQueue.async {
+                if error?.code == .mediaServicesWereReset {
+                    if self.isConfigured, !self.session.isRunning {
+                        self.session.startRunning()
+                    }
+                    self.onInterruptionChanged(false)
+                } else if !self.session.isRunning {
+                    self.onSessionUnavailable()
+                }
+            }
+        }
+        observers = [interrupted, resumed, runtimeError]
+    }
+
     private func configure() -> Bool {
         guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
               let input = try? AVCaptureDeviceInput(device: camera) else {
@@ -105,7 +172,19 @@ final class CameraEngine: NSObject, @unchecked Sendable, AVCaptureVideoDataOutpu
         }
 
         session.beginConfiguration()
-        defer { session.commitConfiguration() }
+        var succeeded = false
+        defer {
+            if !succeeded {
+                for existingInput in session.inputs {
+                    session.removeInput(existingInput)
+                }
+                for existingOutput in session.outputs {
+                    session.removeOutput(existingOutput)
+                }
+                device = nil
+            }
+            session.commitConfiguration()
+        }
 
         session.sessionPreset = .photo
         guard session.canAddInput(input) else { return false }
@@ -124,6 +203,7 @@ final class CameraEngine: NSObject, @unchecked Sendable, AVCaptureVideoDataOutpu
         }
 
         device = camera
+        succeeded = true
         return true
     }
 
@@ -135,15 +215,20 @@ final class CameraEngine: NSObject, @unchecked Sendable, AVCaptureVideoDataOutpu
         from connection: AVCaptureConnection
     ) {
         let now = CFAbsoluteTimeGetCurrent()
-        guard now - lastDetectionTime >= 0.12,
+        let shouldProcess = lastDetectionTimeLock.withLock { lastTime -> Bool in
+            guard now - lastTime >= 0.12 else { return false }
+            lastTime = now
+            return true
+        }
+        guard shouldProcess,
               let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return
         }
-        lastDetectionTime = now
 
         let request = VNDetectRectanglesRequest()
         request.maximumObservations = 1
         request.minimumConfidence = 0.55
+        // Vision aspectRatio is always shortSide / longSide in [0.0, 1.0], matching both portrait and landscape sheets.
         request.minimumAspectRatio = 0.25
         request.maximumAspectRatio = 1.0
         request.minimumSize = 0.18
@@ -185,9 +270,14 @@ final class CameraEngine: NSObject, @unchecked Sendable, AVCaptureVideoDataOutpu
 /// capture views never touch AVFoundation directly.
 @MainActor
 final class LiveDocumentCameraController: UIViewController {
+    private enum FallbackReason {
+        case unavailable
+        case permissionDenied
+    }
+
     private let maxPhotos: Int
     private let onFinishBatch: ([Data]) -> Void
-    private let onRequestPhotoLibrary: () -> Void
+    private let onRequestPhotoLibrary: ([Data]) -> Void
     private let onCancel: () -> Void
 
     private var engine: CameraEngine?
@@ -197,6 +287,7 @@ final class LiveDocumentCameraController: UIViewController {
     private var flashMode: LiveCameraFlashMode = .auto
     private var autoCaptureEnabled = false
     private var isCapturing = false
+    private var isSessionInterrupted = false
     private var hasFinished = false
     private var lastCaptureDate = Date.distantPast
     private var lastQuad: QuadCorners?
@@ -209,13 +300,14 @@ final class LiveDocumentCameraController: UIViewController {
     private let focusReticle = UIView()
     private var autoButton: UIButton?
     private var flashButton: UIButton?
+    private var albumButton: UIButton?
     private let doneButton = UIButton(type: .system)
     private let hapticGenerator = UIImpactFeedbackGenerator(style: .medium)
 
     init(
         maxPhotos: Int,
         onFinishBatch: @escaping ([Data]) -> Void,
-        onRequestPhotoLibrary: @escaping () -> Void,
+        onRequestPhotoLibrary: @escaping ([Data]) -> Void,
         onCancel: @escaping () -> Void
     ) {
         self.maxPhotos = max(1, maxPhotos)
@@ -238,22 +330,31 @@ final class LiveDocumentCameraController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .black
 
-        guard CameraEngine.hasBackCamera, CameraEngine.isAuthorized else {
-            buildUnavailableFallback()
+        guard CameraEngine.hasBackCamera else {
+            buildUnavailableFallback(reason: .unavailable)
             return
         }
 
-        let engine = CameraEngine(
-            onDetection: { [weak self] quad, size in
-                Task { @MainActor in self?.handleDetection(quad, imageSize: size) }
-            },
-            onPhoto: { [weak self] data in
-                Task { @MainActor in self?.handlePhoto(data) }
+        switch CameraEngine.authorizationStatus {
+        case .authorized:
+            setupLiveCamera()
+        case .notDetermined:
+            Task { [weak self] in
+                let granted = await AVCaptureDevice.requestAccess(for: .video)
+                guard let self, !self.hasFinished else { return }
+                if granted {
+                    self.setupLiveCamera()
+                    self.engine?.start()
+                    self.hapticGenerator.prepare()
+                } else {
+                    self.buildUnavailableFallback(reason: .permissionDenied)
+                }
             }
-        )
-        self.engine = engine
-
-        buildLiveInterface(session: engine.session)
+        case .denied, .restricted:
+            buildUnavailableFallback(reason: .permissionDenied)
+        @unknown default:
+            buildUnavailableFallback(reason: .unavailable)
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -270,8 +371,52 @@ final class LiveDocumentCameraController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         previewLayer?.frame = previewContainer.bounds
+        if let connection = previewLayer?.connection, connection.isVideoRotationAngleSupported(90) {
+            connection.videoRotationAngle = 90
+        }
         overlayLayer.frame = previewContainer.bounds
         redrawOverlay()
+    }
+
+    private func setupLiveCamera() {
+        guard engine == nil else { return }
+        let engine = CameraEngine(
+            onDetection: { [weak self] quad, size in
+                Task { @MainActor in self?.handleDetection(quad, imageSize: size) }
+            },
+            onPhoto: { [weak self] data in
+                Task { @MainActor in self?.handlePhoto(data) }
+            },
+            onSessionUnavailable: { [weak self] in
+                Task { @MainActor in self?.handleSessionUnavailable() }
+            },
+            onInterruptionChanged: { [weak self] interrupted in
+                Task { @MainActor in self?.handleInterruptionChanged(interrupted) }
+            }
+        )
+        self.engine = engine
+        buildLiveInterface(session: engine.session)
+    }
+
+    private func handleSessionUnavailable() {
+        guard !hasFinished else { return }
+        engine?.stop()
+        engine = nil
+        previewLayer?.removeFromSuperlayer()
+        previewLayer = nil
+        view.subviews.forEach { $0.removeFromSuperview() }
+        buildUnavailableFallback(reason: .unavailable)
+    }
+
+    private func handleInterruptionChanged(_ interrupted: Bool) {
+        guard !hasFinished else { return }
+        isSessionInterrupted = interrupted
+        if interrupted {
+            smoother.reset()
+            lastQuad = nil
+            redrawOverlay()
+        }
+        refreshGuidance(hasQuad: lastQuad != nil)
     }
 
     // MARK: Live Interface
@@ -289,11 +434,15 @@ final class LiveDocumentCameraController: UIViewController {
 
         let layer = AVCaptureVideoPreviewLayer(session: session)
         layer.videoGravity = .resizeAspectFill
+        if let connection = layer.connection, connection.isVideoRotationAngleSupported(90) {
+            connection.videoRotationAngle = 90
+        }
         previewContainer.layer.addSublayer(layer)
         previewLayer = layer
 
-        overlayLayer.fillColor = UIColor(red: 0.35, green: 0.56, blue: 0.81, alpha: 0.20).cgColor
-        overlayLayer.strokeColor = UIColor(red: 0.35, green: 0.56, blue: 0.81, alpha: 1).cgColor
+        let accent = UIColor(SnapDrillTheme.inkBlue)
+        overlayLayer.fillColor = accent.withAlphaComponent(0.20).cgColor
+        overlayLayer.strokeColor = accent.cgColor
         overlayLayer.lineWidth = 3
         overlayLayer.lineJoin = .round
         previewContainer.layer.addSublayer(overlayLayer)
@@ -355,13 +504,16 @@ final class LiveDocumentCameraController: UIViewController {
         guidanceLabel.textColor = .white
         guidanceLabel.font = .preferredFont(forTextStyle: .footnote)
         guidanceLabel.adjustsFontForContentSizeCategory = true
+        guidanceLabel.numberOfLines = 2
+        guidanceLabel.adjustsFontSizeToFitWidth = true
+        guidanceLabel.minimumScaleFactor = 0.8
         guidanceLabel.textAlignment = .center
         pill.contentView.addSubview(guidanceLabel)
         NSLayoutConstraint.activate([
             guidanceLabel.topAnchor.constraint(equalTo: pill.contentView.topAnchor, constant: 7),
             guidanceLabel.bottomAnchor.constraint(equalTo: pill.contentView.bottomAnchor, constant: -7),
-            guidanceLabel.leadingAnchor.constraint(equalTo: pill.contentView.leadingAnchor, constant: 14),
-            guidanceLabel.trailingAnchor.constraint(equalTo: pill.contentView.trailingAnchor, constant: -14)
+            guidanceLabel.leadingAnchor.constraint(equalTo: pill.contentView.leadingAnchor, constant: 12),
+            guidanceLabel.trailingAnchor.constraint(equalTo: pill.contentView.trailingAnchor, constant: -12)
         ])
 
         let trailingStack = UIStackView(arrangedSubviews: [auto, flash])
@@ -391,6 +543,7 @@ final class LiveDocumentCameraController: UIViewController {
             label: String(localized: "Import from Photos"),
             action: #selector(albumTapped)
         )
+        albumButton = album
 
         let ring = UIView()
         ring.translatesAutoresizingMaskIntoConstraints = false
@@ -407,7 +560,7 @@ final class LiveDocumentCameraController: UIViewController {
         shutter.addTarget(self, action: #selector(shutterTapped), for: .touchUpInside)
 
         var doneConfig = UIButton.Configuration.filled()
-        doneConfig.baseBackgroundColor = UIColor(red: 0.17, green: 0.34, blue: 0.54, alpha: 1)
+        doneConfig.baseBackgroundColor = UIColor(SnapDrillTheme.inkBlue)
         doneConfig.baseForegroundColor = .white
         doneConfig.cornerStyle = .capsule
         doneConfig.imagePlacement = .leading
@@ -456,43 +609,74 @@ final class LiveDocumentCameraController: UIViewController {
         return button
     }
 
-    // MARK: Unavailable Fallback (simulator, denied permission)
+    // MARK: Unavailable Fallback (simulator, denied permission, session failure)
 
-    private func buildUnavailableFallback() {
-        let icon = UIImageView(image: UIImage(systemName: "camera.metering.unknown"))
+    private func buildUnavailableFallback(reason: FallbackReason) {
+        let icon = UIImageView(
+            image: UIImage(systemName: reason == .permissionDenied ? "lock.shield" : "camera.metering.unknown")
+        )
         icon.tintColor = UIColor.white.withAlphaComponent(0.8)
         icon.contentMode = .scaleAspectFit
         icon.heightAnchor.constraint(equalToConstant: 54).isActive = true
 
         let title = UILabel()
-        title.text = String(localized: "Camera Unavailable")
+        title.text = reason == .permissionDenied
+            ? String(localized: "Camera Access Needed")
+            : String(localized: "Camera Unavailable")
         title.textColor = .white
         title.font = .preferredFont(forTextStyle: .title3)
+        title.adjustsFontForContentSizeCategory = true
+        title.numberOfLines = 0
         title.textAlignment = .center
 
         let message = UILabel()
-        message.text = String(localized: "The camera is not available right now. You can import photos from your album instead.")
+        message.text = reason == .permissionDenied
+            ? String(localized: "Allow camera access in Settings to scan exam pages, or import photos from your album instead.")
+            : String(localized: "The camera is not available right now. You can import photos from your album instead.")
         message.textColor = UIColor.white.withAlphaComponent(0.75)
         message.font = .preferredFont(forTextStyle: .subheadline)
+        message.adjustsFontForContentSizeCategory = true
         message.numberOfLines = 0
         message.textAlignment = .center
 
-        var importConfig = UIButton.Configuration.filled()
+        var arranged: [UIView] = [icon, title, message]
+
+        if reason == .permissionDenied {
+            var settingsConfig = UIButton.Configuration.filled()
+            settingsConfig.title = String(localized: "Open System Settings")
+            settingsConfig.image = UIImage(systemName: "gear")
+            settingsConfig.imagePadding = 8
+            settingsConfig.cornerStyle = .capsule
+            settingsConfig.baseBackgroundColor = UIColor(SnapDrillTheme.inkBlue)
+            let settingsButton = UIButton(configuration: settingsConfig)
+            settingsButton.addTarget(self, action: #selector(openSettingsTapped), for: .touchUpInside)
+            settingsButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 48).isActive = true
+            arranged.append(settingsButton)
+        }
+
+        var importConfig = reason == .permissionDenied ? UIButton.Configuration.tinted() : UIButton.Configuration.filled()
         importConfig.title = String(localized: "Import from Photos")
         importConfig.image = UIImage(systemName: "photo.on.rectangle.angled")
         importConfig.imagePadding = 8
         importConfig.cornerStyle = .capsule
-        importConfig.baseBackgroundColor = UIColor(red: 0.17, green: 0.34, blue: 0.54, alpha: 1)
+        importConfig.baseBackgroundColor = UIColor(SnapDrillTheme.inkBlue)
+        if reason == .permissionDenied {
+            importConfig.baseForegroundColor = .white
+        }
         let importButton = UIButton(configuration: importConfig)
         importButton.addTarget(self, action: #selector(albumTapped), for: .touchUpInside)
+        importButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 48).isActive = true
+        arranged.append(importButton)
 
         var cancelConfig = UIButton.Configuration.plain()
         cancelConfig.title = String(localized: "Cancel")
         cancelConfig.baseForegroundColor = .white
         let cancelButton = UIButton(configuration: cancelConfig)
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
+        cancelButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 44).isActive = true
+        arranged.append(cancelButton)
 
-        let stack = UIStackView(arrangedSubviews: [icon, title, message, importButton, cancelButton])
+        let stack = UIStackView(arrangedSubviews: arranged)
         stack.axis = .vertical
         stack.spacing = 14
         stack.alignment = .fill
@@ -501,16 +685,14 @@ final class LiveDocumentCameraController: UIViewController {
         NSLayoutConstraint.activate([
             stack.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
-            importButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 48),
-            cancelButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 44)
+            stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32)
         ])
     }
 
     // MARK: Detection Overlay
 
     private func handleDetection(_ quad: QuadCorners?, imageSize: CGSize) {
-        guard !hasFinished else { return }
+        guard !hasFinished, !isSessionInterrupted else { return }
         lastImageSize = imageSize
         lastQuad = smoother.update(with: quad)
         redrawOverlay()
@@ -552,14 +734,18 @@ final class LiveDocumentCameraController: UIViewController {
         path.close()
 
         let color = smoother.isStable
-            ? UIColor(red: 0.38, green: 0.67, blue: 0.52, alpha: 1)
-            : UIColor(red: 0.35, green: 0.56, blue: 0.81, alpha: 1)
+            ? UIColor(SnapDrillTheme.masteryGreen)
+            : UIColor(SnapDrillTheme.inkBlue)
         overlayLayer.strokeColor = color.cgColor
         overlayLayer.fillColor = color.withAlphaComponent(0.20).cgColor
         overlayLayer.path = path.cgPath
     }
 
     private func refreshGuidance(hasQuad: Bool) {
+        if isSessionInterrupted {
+            guidanceLabel.text = String(localized: "Camera paused")
+            return
+        }
         let page = min(capturedPhotos.count + 1, maxPhotos)
         if !hasQuad {
             guidanceLabel.text = String(localized: "Align exam page")
@@ -573,7 +759,7 @@ final class LiveDocumentCameraController: UIViewController {
     // MARK: Capture
 
     private func takePhoto() {
-        guard !isCapturing, !hasFinished, capturedPhotos.count < maxPhotos else { return }
+        guard !isCapturing, !hasFinished, !isSessionInterrupted, capturedPhotos.count < maxPhotos else { return }
         isCapturing = true
         lastCaptureDate = Date()
         hapticGenerator.impactOccurred()
@@ -583,52 +769,46 @@ final class LiveDocumentCameraController: UIViewController {
     }
 
     private func handlePhoto(_ data: Data?) {
-        isCapturing = false
-        guard let data, !hasFinished else { return }
-        capturedPhotos.append(data)
-        smoother.reset()
-        lastQuad = nil
-        redrawOverlay()
-        refreshGuidance(hasQuad: false)
-        updateDoneButton(latest: data)
+        guard let data, !hasFinished else {
+            isCapturing = false
+            return
+        }
+        // Immediately downsample & strip GPS off-MainActor via ImageIO so burst capture never holds
+        // 10 full-resolution 12–48MP JPEGs in RAM at once.
+        Task { [weak self] in
+            let processed: (compact: Data, thumbData: Data?) = await Task.detached(priority: .userInitiated) {
+                let compact = PhotoDataSanitizer().sanitize(data, maxDimension: 2200) ?? data
+                let thumb = PhotoDataSanitizer.makeThumbnailData(from: compact, maxPixel: 96)
+                return (compact, thumb)
+            }.value
+            guard let self else { return }
+            self.isCapturing = false
+            guard !self.hasFinished else { return }
 
-        if capturedPhotos.count >= maxPhotos {
-            finishBatch()
+            self.capturedPhotos.append(processed.compact)
+            self.smoother.reset()
+            self.lastQuad = nil
+            self.redrawOverlay()
+            self.refreshGuidance(hasQuad: false)
+            self.updateDoneButton(thumbData: processed.thumbData)
+            self.albumButton?.isEnabled = self.capturedPhotos.count < self.maxPhotos
+
+            if self.capturedPhotos.count >= self.maxPhotos {
+                self.finishBatch()
+            }
         }
     }
 
-    private func updateDoneButton(latest: Data) {
+    private func updateDoneButton(thumbData: Data?) {
         doneButton.isHidden = capturedPhotos.isEmpty
         doneButton.configuration?.title = String(localized: "Done (\(capturedPhotos.count))")
-        Task {
-            let thumbData = await Task.detached(priority: .utility) {
-                Self.makeThumbnailData(from: latest, maxPixel: 96)
-            }.value
-            guard let thumbData, let image = UIImage(data: thumbData) else { return }
-            let side: CGFloat = 28
-            let rounded = UIGraphicsImageRenderer(size: CGSize(width: side, height: side)).image { _ in
-                UIBezierPath(roundedRect: CGRect(x: 0, y: 0, width: side, height: side), cornerRadius: 6).addClip()
-                image.draw(in: CGRect(x: 0, y: 0, width: side, height: side))
-            }
-            doneButton.configuration?.image = rounded
+        guard let thumbData, let image = UIImage(data: thumbData) else { return }
+        let side: CGFloat = 28
+        let rounded = UIGraphicsImageRenderer(size: CGSize(width: side, height: side)).image { _ in
+            UIBezierPath(roundedRect: CGRect(x: 0, y: 0, width: side, height: side), cornerRadius: 6).addClip()
+            image.draw(in: CGRect(x: 0, y: 0, width: side, height: side))
         }
-    }
-
-    private nonisolated static func makeThumbnailData(from data: Data, maxPixel: Int) -> Data? {
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
-        let options: [CFString: Any] = [
-            kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceThumbnailMaxPixelSize: maxPixel
-        ]
-        guard let cg = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
-        let output = NSMutableData()
-        guard let destination = CGImageDestinationCreateWithData(output, "public.jpeg" as CFString, 1, nil) else {
-            return nil
-        }
-        CGImageDestinationAddImage(destination, cg, nil)
-        guard CGImageDestinationFinalize(destination) else { return nil }
-        return output as Data
+        doneButton.configuration?.image = rounded
     }
 
     private func finishBatch() {
@@ -657,14 +837,14 @@ final class LiveDocumentCameraController: UIViewController {
 
     @objc private func albumTapped() {
         guard !hasFinished else { return }
-        if !capturedPhotos.isEmpty {
-            // Keep already-captured pages: continue to the editor, where more photos can be added from the album.
-            finishBatch()
-            return
-        }
         hasFinished = true
         engine?.stop()
-        onRequestPhotoLibrary()
+        onRequestPhotoLibrary(capturedPhotos)
+    }
+
+    @objc private func openSettingsTapped() {
+        guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+        UIApplication.shared.open(url)
     }
 
     @objc private func autoTapped() {
@@ -674,7 +854,7 @@ final class LiveDocumentCameraController: UIViewController {
             systemName: autoCaptureEnabled ? "viewfinder.circle.fill" : "viewfinder.circle"
         )
         autoButton?.configuration?.baseForegroundColor = autoCaptureEnabled
-            ? UIColor(red: 0.38, green: 0.67, blue: 0.52, alpha: 1)
+            ? UIColor(SnapDrillTheme.masteryGreen)
             : .white
         autoButton?.accessibilityValue = autoCaptureEnabled ? String(localized: "On") : String(localized: "Off")
     }

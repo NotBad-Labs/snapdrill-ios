@@ -411,5 +411,36 @@ final class CapturePipelineContractTests: XCTestCase {
         XCTAssertLessThan(kept.r, 50)
         XCTAssertLessThan(kept.g, 50)
         XCTAssertLessThan(kept.b, 50)
+
+        // Verify raw CGDataProvider row order directly (row 0 = top) so no hidden Y-flip exists.
+        let rawData = try XCTUnwrap(out.dataProvider?.data as Data?)
+        let bpr = out.bytesPerRow
+        let topPrintedOffset = 47 * bpr + 120 * 4
+        let bottomErasedOffset = 127 * bpr + 120 * 4
+        XCTAssertLessThan(Int(rawData[topPrintedOffset]), 50)
+        XCTAssertGreaterThan(Int(rawData[bottomErasedOffset]), 220)
+    }
+
+    func testTiledPlannerNoDuplicateOnExactStrideAndCenteredSmallTilePadding() throws {
+        // 512 + (512 - 64) = 960 -> exact stride multiple must emit exactly 2 tiles [0, 448]
+        let exact = TiledInkSegmentationPlanner.planTiles(imageWidth: 960, imageHeight: 512, tileSize: 512, overlap: 64)
+        XCTAssertEqual(exact.count, 2)
+        XCTAssertEqual(exact.map { Int($0.pixelRect.minX) }, [0, 448])
+
+        let pad = TiledCoreMLSegmentationRunner.tilePaddingOffsets(tileWidth: 300, tileHeight: 180, tileSize: 512)
+        XCTAssertEqual(pad.padX, 106)
+        XCTAssertEqual(pad.padY, 166)
+
+        // Rotated UIImage (.right) must normalize upright before tiled segmentation
+        let raw = makeSolidImageData(color: .white, size: CGSize(width: 240, height: 120))
+        let baseCG = try XCTUnwrap(UIImage(data: raw)?.cgImage)
+        let rotated = UIImage(cgImage: baseCG, scale: 1.0, orientation: .right)
+        let upright = try XCTUnwrap(TiledCoreMLSegmentationRunner.uprightCGImage(from: rotated))
+        XCTAssertEqual(upright.width, 120)
+        XCTAssertEqual(upright.height, 240)
+
+        // Thumbnail decoder respects maxPixel bound
+        let thumb = try XCTUnwrap(CapturePipelineFactory.makePageThumbnail(from: raw, maxPixel: 80))
+        XCTAssertLessThanOrEqual(max(thumb.size.width, thumb.size.height), 81)
     }
 }

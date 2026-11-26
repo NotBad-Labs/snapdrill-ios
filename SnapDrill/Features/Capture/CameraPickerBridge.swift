@@ -5,7 +5,7 @@ import UIKit
 struct CameraPickerBridge: UIViewControllerRepresentable {
     let maxPhotos: Int
     let onFinishBatch: ([Data]) -> Void
-    let onRequestPhotoLibrary: () -> Void
+    let onRequestPhotoLibrary: ([Data]) -> Void
     let onCancel: () -> Void
 
     func makeUIViewController(context: Context) -> UIViewController {

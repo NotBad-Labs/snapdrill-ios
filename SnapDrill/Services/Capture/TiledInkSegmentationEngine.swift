@@ -49,7 +49,10 @@ enum TiledInkSegmentationPlanner {
         var position = 0
         while true {
             if position + tile >= length {
-                starts.append(length - tile)
+                let finalStart = length - tile
+                if starts.last != finalStart {
+                    starts.append(finalStart)
+                }
                 break
             }
             starts.append(position)
@@ -177,8 +180,8 @@ enum SegmentationMaskCompositor {
                 var samples: [(luma: Int, r: UInt8, g: UInt8, b: UInt8)] = []
                 let x0 = gx * cell, x1 = min(width, x0 + cell)
                 let y0 = gy * cell, y1 = min(height, y0 + cell)
-                for y in stride(from: y0, to: y1, by: 2) {
-                    for x in stride(from: x0, to: x1, by: 2) {
+                for y in y0..<y1 {
+                    for x in x0..<x1 {
                         let i = y * width + x
                         guard !dilated[i], printedProb[i] < 0.30, handwritingProb[i] < 0.30 else { continue }
                         let o = i * 4
@@ -282,11 +285,11 @@ struct TiledCoreMLSegmentationRunner: Sendable {
             && model.modelDescription.inputDescriptionsByName[inputName] != nil
     }
 
-    func run(imageData: Data) -> Output? {
-        guard let model = CoreMLSegmentationModelCache.shared.model(at: modelURL),
+    func run(imageData: Data, preloadedModel: MLModel? = nil) -> Output? {
+        guard let model = preloadedModel ?? CoreMLSegmentationModelCache.shared.model(at: modelURL),
               Self.supports(model),
               let uiImage = UIImage(data: imageData),
-              let cgImage = uiImage.cgImage else {
+              let cgImage = Self.uprightCGImage(from: uiImage) else {
             return nil
         }
 
@@ -294,6 +297,8 @@ struct TiledCoreMLSegmentationRunner: Sendable {
         let height = cgImage.height
         guard width > 0, height > 0 else { return nil }
 
+        // Note: Quartz bitmap memory stores row 0 as the top row of the image when drawn with identity CTM,
+        // matching top-left pixel indexing (y * width + x) used by Core ML and SegmentationMaskCompositor.
         var rgba = [UInt8](repeating: 0, count: width * height * 4)
         guard let context = CGContext(
             data: &rgba,
@@ -308,6 +313,7 @@ struct TiledCoreMLSegmentationRunner: Sendable {
         }
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 
+        let padPaperRGB = Self.estimatePadPaperRGB(rgba: rgba, width: width, height: height)
         let total = width * height
         var printedAccum = [Float](repeating: 0, count: total)
         var handwritingAccum = [Float](repeating: 0, count: total)
@@ -319,14 +325,35 @@ struct TiledCoreMLSegmentationRunner: Sendable {
 
         for tile in tiles {
             if Task.isCancelled { return nil }
-            guard let probabilities = predict(tile: tile, rgba: rgba, imageWidth: width, model: model) else {
+            let tileWidth = Int(tile.pixelRect.width)
+            let tileHeight = Int(tile.pixelRect.height)
+            let padX = (tileSize - tileWidth) / 2
+            let padY = (tileSize - tileHeight) / 2
+
+            // Retry once on transient prediction failure; if still failing abort cleanly so caller can fall back.
+            let probabilities = predict(
+                tile: tile,
+                rgba: rgba,
+                imageWidth: width,
+                padX: padX,
+                padY: padY,
+                padRGB: padPaperRGB,
+                model: model
+            ) ?? predict(
+                tile: tile,
+                rgba: rgba,
+                imageWidth: width,
+                padX: padX,
+                padY: padY,
+                padRGB: padPaperRGB,
+                model: model
+            )
+            guard let probabilities else {
                 return nil
             }
 
             let originX = Int(tile.pixelRect.origin.x)
             let originY = Int(tile.pixelRect.origin.y)
-            let tileWidth = Int(tile.pixelRect.width)
-            let tileHeight = Int(tile.pixelRect.height)
 
             for ty in 0..<tileHeight {
                 for tx in 0..<tileWidth {
@@ -342,7 +369,7 @@ struct TiledCoreMLSegmentationRunner: Sendable {
                         isBottomEdge: tile.isBottomEdge
                     )
                     let dst = (originY + ty) * width + (originX + tx)
-                    let src = ty * tileSize + tx
+                    let src = (padY + ty) * tileSize + (padX + tx)
                     printedAccum[dst] += weight * probabilities.printed[src]
                     handwritingAccum[dst] += weight * probabilities.handwriting[src]
                     weightAccum[dst] += weight
@@ -369,6 +396,43 @@ struct TiledCoreMLSegmentationRunner: Sendable {
         return Output(cleanedData: encoded, erasedPixelCount: composed.erasedPixelCount, inferenceMs: ms)
     }
 
+    static func uprightCGImage(from image: UIImage) -> CGImage? {
+        if image.imageOrientation == .up, let cg = image.cgImage {
+            return cg
+        }
+        let size = image.size
+        guard size.width > 0, size.height > 0 else { return image.cgImage }
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = image.scale
+        format.opaque = true
+        let rendered = UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+        return rendered.cgImage
+    }
+
+    static func tilePaddingOffsets(tileWidth: Int, tileHeight: Int, tileSize: Int = 512) -> (padX: Int, padY: Int) {
+        (max(0, (tileSize - tileWidth) / 2), max(0, (tileSize - tileHeight) / 2))
+    }
+
+    private static func estimatePadPaperRGB(rgba: [UInt8], width: Int, height: Int) -> (r: UInt8, g: UInt8, b: UInt8) {
+        let stepX = max(1, width / 48)
+        let stepY = max(1, height / 48)
+        var samples: [(luma: Int, r: UInt8, g: UInt8, b: UInt8)] = []
+        for y in stride(from: 0, to: height, by: stepY) {
+            for x in stride(from: 0, to: width, by: stepX) {
+                let o = (y * width + x) * 4
+                let r = rgba[o], g = rgba[o + 1], b = rgba[o + 2]
+                let luma = (299 * Int(r) + 587 * Int(g) + 114 * Int(b)) / 1000
+                samples.append((luma, r, g, b))
+            }
+        }
+        guard !samples.isEmpty else { return (245, 243, 238) }
+        samples.sort { $0.luma < $1.luma }
+        let pick = samples[min(samples.count - 1, Int(Double(samples.count - 1) * 0.85))]
+        return (pick.r, pick.g, pick.b)
+    }
+
     private struct TileProbabilities {
         let printed: [Float]
         let handwriting: [Float]
@@ -378,6 +442,9 @@ struct TiledCoreMLSegmentationRunner: Sendable {
         tile: TiledInkSegmentationPlanner.TileSpec,
         rgba: [UInt8],
         imageWidth: Int,
+        padX: Int,
+        padY: Int,
+        padRGB: (r: UInt8, g: UInt8, b: UInt8),
         model: MLModel
     ) -> TileProbabilities? {
         var pixelBuffer: CVPixelBuffer?
@@ -409,17 +476,19 @@ struct TiledCoreMLSegmentationRunner: Sendable {
         let tileHeight = Int(tile.pixelRect.height)
 
         for y in 0..<tileSize {
+            let localY = y - padY
             for x in 0..<tileSize {
+                let localX = x - padX
                 let d = y * rowBytes + x * 4
-                if x < tileWidth, y < tileHeight {
-                    let s = ((originY + y) * imageWidth + (originX + x)) * 4
+                if localX >= 0, localX < tileWidth, localY >= 0, localY < tileHeight {
+                    let s = ((originY + localY) * imageWidth + (originX + localX)) * 4
                     dest[d] = rgba[s + 2]
                     dest[d + 1] = rgba[s + 1]
                     dest[d + 2] = rgba[s]
                 } else {
-                    dest[d] = 238
-                    dest[d + 1] = 243
-                    dest[d + 2] = 245
+                    dest[d] = padRGB.b
+                    dest[d + 1] = padRGB.g
+                    dest[d + 2] = padRGB.r
                 }
                 dest[d + 3] = 255
             }

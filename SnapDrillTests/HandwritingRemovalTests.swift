@@ -251,4 +251,25 @@ final class HandwritingRemovalTests: XCTestCase {
         XCTAssertGreaterThan(erasedPixel.g, 240)
         XCTAssertGreaterThan(erasedPixel.b, 240)
     }
+
+    func testCoreMLFailureFallsBackToHeuristicWhileReportingHonestFailure() async throws {
+        let source = renderMixedInkTestImage()
+        let sourceData = try XCTUnwrap(source.jpegData(compressionQuality: 0.95))
+        let brokenModelURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("NonExistent-\(UUID().uuidString).mlmodelc")
+
+        let remover = CoreMLCapableInkRemover(
+            timeoutSeconds: 2.0,
+            modelURLProvider: { brokenModelURL }
+        )
+        let (cleanedData, succeeded) = await remover.removeInk(from: sourceData, mode: .autoAll)
+        // Must report succeeded = false honestly so UI displays the manual eraser hint...
+        XCTAssertFalse(succeeded)
+        // ...while still running heuristic cleanup to erase colored annotations safely.
+        let cleanedImage = try XCTUnwrap(UIImage(data: cleanedData))
+        let redSpot = samplePixelRGB(in: cleanedImage, x: 80, y: 96)
+        XCTAssertGreaterThan(redSpot.g, 210)
+        let keptBlack = samplePixelRGB(in: cleanedImage, x: 80, y: 42)
+        XCTAssertLessThan(keptBlack.r, 65)
+    }
 }

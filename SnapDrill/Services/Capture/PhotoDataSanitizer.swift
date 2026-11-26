@@ -2,12 +2,18 @@ import ImageIO
 import UIKit
 
 /// Strips EXIF GPS location metadata, normalizes orientation, and keeps stored images compact (PRD §8.2, §9).
+/// Uses ImageIO downsampling at decode time so 48MP captures never allocate full-resolution bitmaps in memory.
 struct PhotoDataSanitizer: PhotoDataSanitizing {
     func sanitize(_ imageData: Data, maxDimension: CGFloat = 2200) -> Data? {
-        guard let image = UIImage(data: imageData) else { return nil }
-        let normalized = normalizeOrientation(image, maxDimension: maxDimension)
-        guard let cgImage = normalized.cgImage else {
-            return normalized.jpegData(compressionQuality: 0.86)
+        let downsampledCG = Self.decodeDownsampledCGImage(from: imageData, maxPixel: max(1, Int(maxDimension.rounded(.down))))
+        let cgImage: CGImage
+        if let downsampledCG {
+            cgImage = downsampledCG
+        } else if let image = UIImage(data: imageData),
+                  let fallbackCG = normalizeOrientation(image, maxDimension: maxDimension).cgImage {
+            cgImage = fallbackCG
+        } else {
+            return nil
         }
 
         // Write via ImageIO with an explicit clean metadata dictionary (no {GPS} / {TIFF} location tags)
@@ -18,7 +24,7 @@ struct PhotoDataSanitizer: PhotoDataSanitizing {
             1,
             nil
         ) else {
-            return normalized.jpegData(compressionQuality: 0.86)
+            return UIImage(cgImage: cgImage).jpegData(compressionQuality: 0.86)
         }
 
         let cleanProperties: [CFString: Any] = [
@@ -26,9 +32,41 @@ struct PhotoDataSanitizer: PhotoDataSanitizing {
         ]
         CGImageDestinationAddImage(destination, cgImage, cleanProperties as CFDictionary)
         guard CGImageDestinationFinalize(destination) else {
-            return normalized.jpegData(compressionQuality: 0.86)
+            return UIImage(cgImage: cgImage).jpegData(compressionQuality: 0.86)
         }
         return mutableData as Data
+    }
+
+    /// Decodes a compact upright thumbnail directly via ImageIO without decoding the full JPEG into RAM.
+    static func makeThumbnailImage(from data: Data, maxPixel: Int) -> UIImage? {
+        guard let cg = decodeDownsampledCGImage(from: data, maxPixel: max(16, maxPixel)) else {
+            return nil
+        }
+        return UIImage(cgImage: cg)
+    }
+
+    static func makeThumbnailData(from data: Data, maxPixel: Int) -> Data? {
+        guard let cg = decodeDownsampledCGImage(from: data, maxPixel: max(16, maxPixel)) else {
+            return nil
+        }
+        let output = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(output, "public.jpeg" as CFString, 1, nil) else {
+            return nil
+        }
+        CGImageDestinationAddImage(destination, cg, [kCGImageDestinationLossyCompressionQuality: 0.82] as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return output as Data
+    }
+
+    private static func decodeDownsampledCGImage(from data: Data, maxPixel: Int) -> CGImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxPixel
+        ]
+        return CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary)
     }
 
     private func normalizeOrientation(_ image: UIImage, maxDimension: CGFloat) -> UIImage {

@@ -135,7 +135,7 @@ struct HomeView: View {
                     .foregroundStyle(SnapDrillTheme.inkBlack)
                     .multilineTextAlignment(.center)
 
-                Text("Snap a homework or test page instead of copying by hand. SnapDrill cleans annotations right on your iPhone.")
+                Text("Snap a homework or test page instead of copying by hand. Straighten pages, clear colored marks, and touch up spots right on your iPhone.")
                     .font(.subheadline)
                     .foregroundStyle(SnapDrillTheme.inkSecondary)
                     .multilineTextAlignment(.center)

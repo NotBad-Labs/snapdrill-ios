@@ -35,22 +35,22 @@ struct TransientStatusBanners: View {
     private var undoDeleteBanner: some View {
         HStack(spacing: 12) {
             Image(systemName: "trash")
-                .foregroundStyle(.white.opacity(0.85))
+                .foregroundStyle(SnapDrillTheme.inkSecondary)
             Text("Deleted (\(environment.undoBannerCount))")
                 .font(.subheadline.weight(.medium))
-                .foregroundStyle(.white)
+                .foregroundStyle(SnapDrillTheme.inkBlack)
             Spacer()
             Button("Undo") {
                 environment.undoLastDeletion()
             }
             .font(.subheadline.weight(.bold))
-            .foregroundStyle(SnapDrillTheme.pencilYellow)
+            .foregroundStyle(SnapDrillTheme.inkBlue)
             .frame(minHeight: 44)
             .accessibilityLabel(String(localized: "Undo Delete"))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 4)
-        .background(Color(hexString: "1F1F22"), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .glassEffect(.regular, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         .padding(.horizontal, 16)
     }
 

@@ -464,16 +464,21 @@ struct CoreMLCapableInkRemover: InkRemoving {
 
     private let fallback: HeuristicInkRemover
     private let modelResourceName: String
+    private let modelURLProvider: @Sendable () -> URL?
     private let timeoutSeconds: Double
 
     init(
         modelResourceName: String = "HandwritingRemover",
         timeoutSeconds: Double = 2.0,
-        fallback: HeuristicInkRemover? = nil
+        fallback: HeuristicInkRemover? = nil,
+        modelURLProvider: (@Sendable () -> URL?)? = nil
     ) {
         self.modelResourceName = modelResourceName
         self.timeoutSeconds = timeoutSeconds
         self.fallback = fallback ?? HeuristicInkRemover(timeoutSeconds: timeoutSeconds)
+        self.modelURLProvider = modelURLProvider ?? {
+            Bundle.main.url(forResource: modelResourceName, withExtension: "mlmodelc")
+        }
     }
 
     func removeInk(from imageData: Data, mode: InkRemovalMode) async -> (cleanedData: Data, succeeded: Bool) {
@@ -481,12 +486,16 @@ struct CoreMLCapableInkRemover: InkRemoving {
             return (imageData, true)
         }
 
-        if mode == .autoAll,
-           let modelURL = Bundle.main.url(forResource: modelResourceName, withExtension: "mlmodelc") {
+        if mode == .autoAll, let modelURL = modelURLProvider() {
             if let mlCleaned = await runCoreMLInference(modelURL: modelURL, imageData: imageData) {
                 return (mlCleaned, true)
             }
-            // Core ML model failed or timed out -> degrade honestly per PRD §8.6
+            // Core ML model failed or timed out -> run heuristic fallback for colored/faint marks while still
+            // reporting succeeded = false honestly per PRD §8.6 so the user sees the manual eraser hint.
+            let heuristic = await fallback.removeInkDetailed(from: imageData, mode: mode)
+            if heuristic.succeeded && heuristic.erasedPixelCount > 0 {
+                return (heuristic.cleanedData, false)
+            }
             return (imageData, false)
         }
 
@@ -511,6 +520,15 @@ struct CoreMLCapableInkRemover: InkRemoving {
     }
 
     private func runCoreMLInference(modelURL: URL, imageData: Data) async -> Data? {
+        // Load & cache the Core ML program outside the per-image inference timeout so first-time Neural Engine
+        // compilation does not starve tile inference. Returns only Bool so MLModel never crosses Task boundaries.
+        let modelReady = await Task.detached(priority: .userInitiated) {
+            CoreMLSegmentationModelCache.shared.model(at: modelURL) != nil
+        }.value
+        guard modelReady, !Task.isCancelled else {
+            return nil
+        }
+
         let gate = InkTimeoutRaceGate<Data?>()
         let requestBox = CancellableCoreMLRequestBox()
         let limit = timeoutSeconds
@@ -518,22 +536,20 @@ struct CoreMLCapableInkRemover: InkRemoving {
         let workTask = Task.detached(priority: .userInitiated) {
             let result: Data? = await withTaskCancellationHandler {
                 guard !Task.isCancelled,
-                      let sourceImage = UIImage(data: imageData),
-                      let cgImage = sourceImage.cgImage else {
+                      let cachedModel = CoreMLSegmentationModelCache.shared.model(at: modelURL) else {
                     return nil
                 }
                 // Preferred path: 3-class segmentation model run over overlapping high-resolution tiles.
-                if let cached = CoreMLSegmentationModelCache.shared.model(at: modelURL),
-                   TiledCoreMLSegmentationRunner.supports(cached) {
-                    return TiledCoreMLSegmentationRunner(modelURL: modelURL).run(imageData: imageData)?.cleanedData
+                if TiledCoreMLSegmentationRunner.supports(cachedModel) {
+                    return TiledCoreMLSegmentationRunner(modelURL: modelURL)
+                        .run(imageData: imageData, preloadedModel: cachedModel)?
+                        .cleanedData
                 }
 
                 // Legacy path: image-to-image models executed through Vision.
-                let config = MLModelConfiguration()
-                config.computeUnits = .all
-                guard !Task.isCancelled,
-                      let mlModel = try? MLModel(contentsOf: modelURL, configuration: config),
-                      let vnModel = try? VNCoreMLModel(for: mlModel) else {
+                guard let sourceImage = UIImage(data: imageData),
+                      let cgImage = TiledCoreMLSegmentationRunner.uprightCGImage(from: sourceImage),
+                      let vnModel = try? VNCoreMLModel(for: cachedModel) else {
                     return nil
                 }
 

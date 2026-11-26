@@ -114,7 +114,7 @@ struct CaptureFlowView: View {
             .photosPicker(
                 isPresented: $showingPhotoPicker,
                 selection: $selectedPhotoItems,
-                maxSelectionCount: environment.capturePipeline.maxPhotoCount,
+                maxSelectionCount: max(1, environment.capturePipeline.maxPhotoCount - (session?.pages.count ?? 0)),
                 matching: .images
             )
             .fullScreenCover(isPresented: $showingCameraPicker) {
@@ -124,9 +124,14 @@ struct CaptureFlowView: View {
                         showingCameraPicker = false
                         Task { await appendImportedImageDatas(datas) }
                     },
-                    onRequestPhotoLibrary: {
+                    onRequestPhotoLibrary: { capturedDatas in
                         showingCameraPicker = false
                         Task {
+                            if !capturedDatas.isEmpty {
+                                await appendImportedImageDatas(capturedDatas)
+                            }
+                            let remaining = environment.capturePipeline.maxPhotoCount - (session?.pages.count ?? 0)
+                            guard remaining > 0 else { return }
                             try? await Task.sleep(for: .milliseconds(450))
                             showingPhotoPicker = true
                         }
@@ -244,7 +249,7 @@ struct CaptureFlowView: View {
                             .foregroundStyle(SnapDrillTheme.inkBlack)
                             .multilineTextAlignment(.center)
 
-                        Text("Capture up to 10 pages in one batch. All scanning, perspective correction, and handwriting removal run privately on your iPhone.")
+                        Text("Capture up to 10 pages in one batch. Scan, straighten, clean colored marks, and erase spots privately on your iPhone.")
                             .font(.subheadline)
                             .foregroundStyle(SnapDrillTheme.inkSecondary)
                             .multilineTextAlignment(.center)
@@ -263,6 +268,7 @@ struct CaptureFlowView: View {
                                 }
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundStyle(SnapDrillTheme.inkBlue)
+                                .frame(minHeight: 44)
                             }
                             .padding(.top, 4)
                         } else if cameraAuthState == .unavailable {
@@ -683,8 +689,10 @@ struct CaptureFlowView: View {
                                     .font(.caption.weight(.medium))
                                     .foregroundStyle(isPeekingOriginal ? .white : SnapDrillTheme.inkBlack)
                                     .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
+                                    .padding(.vertical, 6)
                                     .background(isPeekingOriginal ? SnapDrillTheme.inkBlue : SnapDrillTheme.elevatedSurface, in: Capsule())
+                                    .frame(minHeight: 44)
+                                    .contentShape(Rectangle())
                                 }
                                 .buttonStyle(.plain)
                                 .accessibilityLabel(String(localized: "Compare Original"))
@@ -697,8 +705,10 @@ struct CaptureFlowView: View {
                                         .font(.caption.weight(.semibold))
                                         .foregroundStyle(.white)
                                         .padding(.horizontal, 10)
-                                        .padding(.vertical, 5)
+                                        .padding(.vertical, 6)
                                         .background(SnapDrillTheme.inkBlue, in: Capsule())
+                                        .frame(minHeight: 44)
+                                        .contentShape(Rectangle())
                                 }
                                 .buttonStyle(.plain)
                                 .accessibilityLabel(String(localized: "Open Manual Eraser"))
@@ -938,39 +948,64 @@ struct CaptureFlowView: View {
     private func pageThumbnailStrip(allowAddingMore: Bool) -> some View {
         if let session {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
+                HStack(spacing: 10) {
                     ForEach(Array(session.pages.enumerated()), id: \.element.id) { idx, page in
                         let selected = idx == currentPageIndex
-                        Button {
-                            currentPageIndex = idx
-                            activeBoxID = page.boxes.first?.id
-                        } label: {
-                            ZStack(alignment: .bottomTrailing) {
-                                if let thumb = UIImage(data: page.enhancedImageData) {
-                                    Image(uiImage: thumb)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 48, height: 60)
-                                        .clipShape(RoundedRectangle(cornerRadius: 6))
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 6)
-                                                .strokeBorder(selected ? SnapDrillTheme.inkBlue : SnapDrillTheme.ruledLine, lineWidth: selected ? 2.5 : 1)
-                                        )
-                                }
+                        ZStack(alignment: .topTrailing) {
+                            Button {
+                                currentPageIndex = idx
+                                activeBoxID = page.boxes.first?.id
+                            } label: {
+                                ZStack(alignment: .bottomTrailing) {
+                                    CapturePageThumbnailView(
+                                        pageID: page.id,
+                                        imageData: page.enhancedImageData,
+                                        revisionKey: "\(page.id.uuidString)-\(page.enhancementMode.rawValue)-\(page.enhancedImageData.count)"
+                                    )
+                                    .frame(width: 48, height: 60)
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 6)
+                                            .strokeBorder(selected ? SnapDrillTheme.inkBlue : SnapDrillTheme.ruledLine, lineWidth: selected ? 2.5 : 1)
+                                    )
 
-                                if step == 2 {
-                                    Text("\(page.boxes.count)")
-                                        .font(.system(size: 10, weight: .bold))
-                                        .foregroundStyle(.white)
-                                        .padding(.horizontal, 5)
-                                        .padding(.vertical, 1)
-                                        .background(SnapDrillTheme.inkBlue, in: Capsule())
-                                        .offset(x: 3, y: 3)
+                                    if step == 2 {
+                                        Text("\(page.boxes.count)")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundStyle(.white)
+                                            .padding(.horizontal, 5)
+                                            .padding(.vertical, 1)
+                                            .background(SnapDrillTheme.inkBlue, in: Capsule())
+                                            .offset(x: 3, y: 3)
+                                    }
                                 }
                             }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(String(localized: "Page \(idx + 1)"))
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    removePage(id: page.id)
+                                } label: {
+                                    Label("Remove Page", systemImage: "trash")
+                                }
+                            }
+
+                            if selected && session.pages.count > 1 {
+                                Button {
+                                    removePage(id: page.id)
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundStyle(.white, SnapDrillTheme.gradingRed)
+                                        .frame(width: 28, height: 28)
+                                        .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+                                .offset(x: 8, y: -8)
+                                .accessibilityLabel(String(localized: "Remove Page \(idx + 1)"))
+                            }
                         }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(String(localized: "Page \(idx + 1)"))
+                        .padding(.top, 6)
                     }
 
                     if allowAddingMore && session.pages.count < environment.capturePipeline.maxPhotoCount {
@@ -983,6 +1018,7 @@ struct CaptureFlowView: View {
                                     .background(SnapDrillTheme.elevatedSurface, in: RoundedRectangle(cornerRadius: 6))
                             }
                             .accessibilityLabel(String(localized: "Capture Another Page"))
+                            .padding(.top, 6)
                         }
 
                         PhotosPicker(
@@ -995,10 +1031,38 @@ struct CaptureFlowView: View {
                                 .background(SnapDrillTheme.elevatedSurface, in: RoundedRectangle(cornerRadius: 6))
                         }
                         .accessibilityLabel(String(localized: "Import More Photos"))
+                        .padding(.top, 6)
                     }
                 }
+                .padding(.trailing, 8)
             }
         }
+    }
+
+    private func removePage(id: UUID) {
+        guard var current = session,
+              let removedIndex = current.pages.firstIndex(where: { $0.id == id }) else {
+            return
+        }
+        current.pages.remove(at: removedIndex)
+        savePreview = nil
+        if current.pages.isEmpty {
+            session = nil
+            currentPageIndex = 0
+            activeBoxID = nil
+            isEditingCorners = false
+            step = 0
+            draftEpoch &+= 1
+            draftSaveDebounceTask?.cancel()
+            activeDraftSaveTask?.cancel()
+            let draftStore = environment.draftStore
+            Task { await draftStore.clearDraft() }
+            return
+        }
+        session = current
+        currentPageIndex = min(removedIndex, current.pages.count - 1)
+        activeBoxID = currentPage?.boxes.first?.id
+        persistDraftAsync()
     }
 
     private func initializeFlow() async {
@@ -1232,6 +1296,35 @@ struct CaptureFlowView: View {
                 guard !isDismissingOrSaving, draftEpoch == targetEpoch else { return }
                 errorMessage = error.localizedDescription
             }
+        }
+    }
+}
+
+/// Decodes page strip thumbnails off the main actor via ImageIO so 10-page batches stay smooth.
+private struct CapturePageThumbnailView: View {
+    let pageID: UUID
+    let imageData: Data
+    let revisionKey: String
+
+    @State private var thumbnail: UIImage?
+
+    var body: some View {
+        Group {
+            if let thumbnail {
+                Image(uiImage: thumbnail)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                SnapDrillTheme.elevatedSurface
+            }
+        }
+        .task(id: revisionKey) {
+            let data = imageData
+            let decoded = await Task.detached(priority: .utility) {
+                CapturePipelineFactory.makePageThumbnail(from: data, maxPixel: 160)
+            }.value
+            guard !Task.isCancelled else { return }
+            thumbnail = decoded
         }
     }
 }
