@@ -1,8 +1,13 @@
 # Legacy 零件盘点（greenfield 拣复用）
 
 > **快照**：Git 标签 `legacy/pre-greenfield-2026-11`（`develop` 冻结 @ `f945b725`，2026-07-25）  
-> **红线**：greenfield **不 merge** `develop` / 任意 legacy 分支；只按需 **拣零件** 迁入，每零件 **单独 PR**。  
-> **权威**：[`ARCHITECTURE.md`](ARCHITECTURE.md) §3、§6；[`DEVELOPMENT_PRINCIPLES.md`](DEVELOPMENT_PRINCIPLES.md)；产品行为仍以 [`PRD.md`](PRD.md) 为准。
+> **红线**：greenfield 以全新实现为主，**不 merge** `develop` / 任意 legacy 分支；仅对下表已标 **`[x] 要`** 的项目按需拣入，每零件 **单独 PR**。  
+> **权威**：[`GOVERNANCE.md`](GOVERNANCE.md) §1、[`ARCHITECTURE.md`](ARCHITECTURE.md) §3/§6、[`DEVELOPMENT_PRINCIPLES.md`](DEVELOPMENT_PRINCIPLES.md)；产品行为以 [`PRD.md`](PRD.md) 文内当前版为准。
+
+| 文档版本 | 1.3 |
+|---|---|
+| 对应 PRD | 见 [`PRD.md`](PRD.md) 文内当前版 |
+| 最后更新 | 2026-11-27 |
 
 ---
 
@@ -10,54 +15,53 @@
 
 | 原则 | 说明 |
 |---|---|
-| **高内聚、低耦合** | 一次 PR 只迁入 **一个** 可命名「零件」（模块、Service、算法文件集、CI 工作流等），不夹带无关重构。 |
-| **合同接入** | 零件必须挂到 greenfield 已有或新建的 **protocol / Service 合同**（例：`CapturePipelineServing`、`HandwritingRemovalService`），Feature **不得** 直接 `import` legacy 包名或复刻旧 DI 容器。 |
-| **溯源** | PR 描述与本文盘点表须写明：**legacy 路径**、**快照 commit**（默认 `f945b725` 或标签）、**greenfield 落点目录**、**合同类型**。 |
-| **禁止整支 merge** | 不得 `git merge develop`、不得 cherry-pick **合并提交**（merge commit）；单文件按新合同改写迁入允许。不得把旧 `Packages/*` 整包拷入而不拆边界。 |
-| **考古只读** | 参考实现用 `git show legacy/pre-greenfield-2026-11:<路径>`；本地可 `git checkout develop` 浏览，**不在 develop 上开发**。 |
-| **PO 勾选** | 下表「PO 决策」列由 PO 标 **要 / 不要 / 以后**；未勾选前 Agent **默认不拣**该零件。 |
+| **高内聚、低耦合** | 一次 PR 只迁入 **一个** 已批准的零件（CI 工作流或单合同测试 fixture 集），不夹带无关重构。 |
+| **合同接入** | 若参考旧代码思路重写或迁入测试，必须严格挂到 greenfield 新接口合同与目录结构，**严禁**将旧 `Packages/*` 整包或旧 `UI` 文件直接拷入 `Services/`。 |
+| **精确溯源** | PR 描述与本文盘点表须写明：**精确 legacy 文件路径**（禁止使用省略号）、快照标签/commit、greenfield 落点目录。 |
+| **禁止整支 merge** | 严禁 `git merge develop`、严禁 cherry-pick 合并提交、严禁带回旧 DI 容器与未授权模块。 |
+| **考古只读** | 使用 `git show legacy/pre-greenfield-2026-11:<路径>` 查看历史参考；不在 `develop` 分支开发。 |
+| **PO 勾选闸门** | 仅下表 PO 决策标为 **`[x] 要`** 的条目可执行拣入；标 **`[x] 不要`** 的仅限只读参考思路（代码在 greenfield 全新重写）；标 **`[x] 以后`** 的属 P1/P2 范围，MVP 严禁拣入。若需例外，必须在 PR 中获得 PO 针对该 PR 的书面特批。 |
 
-### 1.1 与 greenfield 架构对齐
+### 1.1 与 greenfield 架构对齐校验
 
-- **Capture**：UI 仅经 `CapturePipelineServing`；legacy 中 `SnapDrillFeatureCapture` 的 View 一般 **不整文件复用**，可拣 **算法/工具** 进 `Services/Capture` 或 `Services/Image`。
-- **阶段 0**：去手写模型与指标在轨道 B；legacy 若仅有 backlog 文档而无实现，记为「无代码可拣」，按 PRD 重新做。
-- **测试 / fixture**：可拣 **测试数据与断言思路**；须适配 greenfield 目录与合同，不复制旧包结构。
+- **Capture（L02）**：因 greenfield 已废除把 `VNDocumentCameraViewController` 强塞进非 UI Service 的矛盾方案，P0 唯一锁定 `AVFoundation` 预览桥接 + Vision（见 [`ARCHITECTURE.md`](ARCHITECTURE.md) §3.1），旧扫描 View 不复用。
+- **Image（L03）**：`ImageCropperView.swift` 属于 SwiftUI 界面组件，**严禁落入 `Services/Image/`**（遵守 `ARCHITECTURE.md` §3 禁止 Service 塞业务 View 的红线）。
+- **Library / Review（L07b / L08）**：旧仓库包含 **P1 掌握度** 与 **P2 Pro 的 SM-2 间隔重复**（`F-26`/`F-32`/`F-42`），MVP 阶段严禁拣入，避免复杂度提前污染首版数据库 Schema。
 
 ---
 
-## 2. 零件盘点表（PO 勾选）
+## 2. 零件盘点表（PO 2026-11-27 拍板定稿）
 
-**图例**：☐ 要 · ☐ 不要 · ☐ 以后（在 PR 或本文编辑勾选）
+**图例**：`[x] 要`（可按新架构改写迁入） · `[x] 不要`（greenfield 全新重写，legacy 仅作只读思路参考） · `[x] 以后`（P1/P2 阶段再议，MVP 禁入）
 
-| ID | 零件 | Legacy 参考路径（快照内） | 建议 greenfield 落点 / 合同 | 备注 | PO 决策 |
+| ID | 零件 | Legacy 精确路径（`legacy/pre-greenfield-2026-11` 快照内） | Greenfield 口径 / 落点 | 范围校验与备注 | PO 决策 |
 |---|---|---|---|---|---|
-| **L01** | 去手写 ML（Core ML 推理、前后处理） | *快照内无独立 ML 实现*；设计见 `docs/features/backlog/` 等 | `Services/Handwriting/` · `HandwritingRemovalService` | 阶段 0 以新模型为主；legacy 多为占位 | ☐ 要 ☐ 不要 ☐ 以后 |
-| **L02** | Vision / 文档扫描（VNDocumentCamera、多页） | `Packages/.../SnapDrillFeatureCapture/DocumentScannerView.swift` | `Services/Capture/` · pipeline 内部 | UI 不复用；逻辑 Adapt 进 Live | ☐ 要 ☐ 不要 ☐ 以后 |
-| **L03** | 图像增强（三档、透视、裁剪） | `docs/features/backlog/feat-image-enhance.md`；`SnapDrillUI/.../ImageCropperView.swift` | `Services/Image/` · `ImageEnhancing` | 与 PRD 三档对齐再拣 | ☐ 要 ☐ 不要 ☐ 以后 |
-| **L04** | PDF 导出（版式、分页、选项） | `Packages/.../Service/PDFExportService.swift` 等 | `Services/Export/` · `PDFExportService`（待建） | 含测试 `PDFExportServiceTests.swift` 可参考 | ☐ 要 ☐ 不要 ☐ 以后 |
-| **L05** | StoreKit / Pro 权益 | `Packages/.../Service/ProEntitlementProvider.swift` | `Services/Subscription/` · `ProEntitlementStore` | 核对 PRD §8.6 降级策略 | ☐ 要 ☐ 不要 ☐ 以后 |
-| **L06** | CloudKit / iCloud 同步 | `docs/features/backlog/feat-icloud-sync.md`；`SnapDrill.entitlements` | SwiftData + CloudKit 配置；`Services/Subscription` 或横切 | 与 Pro 门槛一致 | ☐ 要 ☐ 不要 ☐ 以后 |
-| **L07** | 列表筛选（错因、掌握度、维度） | `Packages/.../SnapDrillFeatureLibrary/LibraryFilterSheet.swift` | `Features/Home/` + `Services/Library/` | greenfield 已有壳；拣 **交互/查询** 非 UI 拷贝 | ☐ 要 ☐ 不要 ☐ 以后 |
-| **L08** | 复习（调度、SM-2、会话） | `Packages/.../Engine/ReviewScheduler.swift`、`SM2State.swift` | `Features/Review/` + `Services/` 复习合同 | UI 已壳化；优先拣 **调度引擎** | ☐ 要 ☐ 不要 ☐ 以后 |
-| **L09** | 本地化（字符串、L10n 辅助） | `SnapDrill/Resources/*.lproj/Localizable.strings`；`LocalizationHelper.swift` | `*.xcstrings` / `Design` + Feature 文案 | 迁移到 String Catalog，不整文件覆盖 | ☐ 要 ☐ 不要 ☐ 以后 |
-| **L10** | CI（GitHub Actions、lint） | `.github/workflows/ci.yml`；`Scripts/ci-local.sh` | `.github/workflows/` | 按 greenfield 单 target 改写，非照搬多 Package | ☐ 要 ☐ 不要 ☐ 以后 |
-| **L11** | Stage 0 样张工具（批处理、指标脚本） | `Scripts/` 下通用脚本（非 stage0 专用目录） | `Scripts/`、`Samples/`（**不**提交 `raw/`） | 与 [`STAGE0_CHARTER.md`](STAGE0_CHARTER.md) 对齐 | ☐ 要 ☐ 不要 ☐ 以后 |
-| **L12** | 测试 fixture（JPEG 语法、草稿 adversarial） | `Packages/.../Tests/.../Fixtures/`、`CaptureDraftTestWireFixtures.swift` | `SnapDrillTests/` + `Fixtures/` | 仅拣与当前合同相关的用例 | ☐ 要 ☐ 不要 ☐ 以后 |
+| **L01** | 去手写 ML | *快照内无独立实现*；见 `docs/features/backlog/` | 轨道 B 全新验证 → `Services/Handwriting/` | 阶段 0 全新落地 `HandwritingRemovalService`（6s 超时降级） | `[x] 不要`（全新） |
+| **L02** | 文档扫描 View | `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureCapture/DocumentScannerView.swift` | `Services/Capture/`（全新实现） | 唯一锁定 `AVFoundation` 预览桥接 + Vision，不复用系统扫描封装 | `[x] 不要` |
+| **L03** | 图像增强与裁剪 | `docs/features/backlog/feat-image-enhance.md`<br>`Packages/SnapDrillUI/Sources/SnapDrillUI/ImageCropperView.swift` | `Services/Image/`（仅纯 `async` 滤波算法参考） | 严禁把 SwiftUI `ImageCropperView` 放入 `Services/Image/`；增强已改 `async` 后台执行 | `[x] 不要` |
+| **L04** | PDF 导出 | `Packages/SnapDrillCore/Sources/SnapDrillCore/Service/PDFExportService.swift` | `Services/Export/PDFExportService`（全新实现） | 按 `PRD §8.5` 全新实现（B5 默认、统一留白公式、双超页缩放、打印共用水印；测试参考 L12） | `[x] 不要` |
+| **L05** | StoreKit 权益 | `Packages/SnapDrillCore/Sources/SnapDrillCore/Service/ProEntitlementProvider.swift` | `Services/Subscription/ProEntitlementStore`（全新） | 按 iOS 26 StoreKit 2 + `isEligibleForIntroOffer` + 宽限/重试 + `.pending` 零权益 + `revocationDate` 重写 | `[x] 不要` |
+| **L06** | CloudKit 同步 | `docs/features/backlog/feat-icloud-sync.md`<br>`SnapDrill/SnapDrill.entitlements` | `Models/`（UUID/墓碑）+ `Services/Sync/CloudKitSyncEngine` | 改用单一本地 SwiftData 库 + **Apple 原生 `CKSyncEngine`** 实现真启停控制面 | `[x] 不要` |
+| **L07a** | P0 常规列表筛选 | `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryFilterSheet.swift` | `Features/Home/` + `Services/Library/`（全新） | P0 仅按科目/错因/标签/`createdAt` 日期筛选，全新实现 | `[x] 不要` |
+| **L07b** | P1 掌握度筛选部分 | `Packages/SnapDrillFeatures/Sources/SnapDrillFeatureLibrary/LibraryFilterSheet.swift` | P1 `F-26` / `F-32`（v1.1） | **P1 掌握度能力，MVP 严禁提前拣入** | `[x] 以后` |
+| **L08** | 复习调度 / SM-2 | `Packages/SnapDrillCore/Sources/SnapDrillCore/Engine/ReviewScheduler.swift`<br>`Packages/SnapDrillCore/Sources/SnapDrillCore/Engine/SM2State.swift` | P2 Pro `F-42`（v1.x） | **SM-2 为 P2 能力，MVP 严禁拣入**；P0 复习按 `PRD §8.4` 顺序/乱序全新实现 | `[x] 以后`（P2 阶段再审） |
+| **L09** | 本地化辅助 | `SnapDrill/Resources/*.lproj/Localizable.strings`<br>`Packages/SnapDrillCore/Sources/SnapDrillCore/Support/LocalizationHelper.swift` | `*.xcstrings` + 完整 `presetKey` | iOS 26 直接使用 String Catalog 与 `presetKey` 动态翻译，不迁旧 `.strings` | `[x] 不要` |
+| **L10** | CI 工作流与本地校验 | `.github/workflows/ci.yml`<br>`Scripts/ci-local.sh` | `.github/workflows/`、`Scripts/` | 按 greenfield 单 target 改写，落地自动静态守门（禁跨层/禁硬编码/单测/lint） | **`[x] 要`** |
+| **L11** | Stage 0 工具脚本 | *快照内无 stage0 专用目录*（通用在 `Scripts/`） | `Scripts/`、`MLPipeline/` | 按新版单题 Hold-out 评估规程独立实现 | `[x] 不要` |
+| **L12** | 测试与 Wire Fixtures | `Packages/SnapDrillCore/Tests/SnapDrillCoreTests/CaptureDraftTestWireFixtures.swift`<br>`Packages/SnapDrillCore/Tests/SnapDrillCoreTests/PDFExportServiceTests.swift`<br>`Packages/SnapDrillCore/Tests/SnapDrillCoreTests/ReviewSchedulerTests.swift` | `SnapDrillTests/` | 仅挑选适配当前新合同的极端 JPEG / 草稿 / PDF 分页断言思路与测试样例（**剔除 SM-2 用例**） | **`[x] 要`**（仅测试思路/样例） |
 
 ---
 
 ## 3. 单零件 PR 检查清单
 
-复制到 legacy 拣入 PR 描述（可与 [`PR_TEMPLATE.md`](PR_TEMPLATE.md) 并列使用）。
+拣入 `[x] 要` 条目（L10 / L12）时，在 PR 描述中同步核对（并配合 [`.github/pull_request_template.md`](../.github/pull_request_template.md)）：
 
-- [ ] 盘点 ID（L0x）与 PO 决策为 **要**（或 PO 在本 PR 书面批准例外）
-- [ ] PR **只做一件事**：一个零件边界清晰；无顺带大 refactor
-- [ ] 已写明 legacy **路径** + commit/标签 + greenfield **目标路径**
-- [ ] 通过 **合同** 接入；Capture UI 未直连 Vision/AVFoundation（若触及收录域）
-- [ ] 未 merge `develop`；diff 中无整个 `Packages/SnapDrill*` 无脑迁入
+- [ ] 盘点 ID（L10 / L12）已标 **`[x] 要`**（其他条目若需参考代码须有 PO 在本 PR 书面特批）
+- [ ] PR **只做一件事**：边界清晰，不夹带旧包架构或超范围功能（如 SM-2、掌握度）
+- [ ] 已写明上方精确 legacy 路径 + 标签 `legacy/pre-greenfield-2026-11` + greenfield 落点路径
+- [ ] 未 merge `develop`；diff 中无旧 `Packages/SnapDrill*` 模块或旧 UI 混入 `Services/`
 - [ ] 未提交密钥、`Samples/stage0/raw/`、`.xcuserdata`
-- [ ] 测试：`xcodebuild test` 或说明 docs-only / 为何跳过
-- [ ] 若改变模块边界：已更新 `ARCHITECTURE.md` §4.3 或 §8
+- [ ] `xcodebuild test` / CI 脚本在目标环境跑绿
 
 ---
 
@@ -69,17 +73,17 @@
 # 查看快照 commit
 git rev-parse legacy/pre-greenfield-2026-11^{commit}
 
-# 浏览 legacy 单文件内容
+# 浏览已标 [x] 要 的测试 fixture 思路
+git show legacy/pre-greenfield-2026-11:Packages/SnapDrillCore/Tests/SnapDrillCoreTests/PDFExportServiceTests.swift
+
+# 浏览已标 [x] 要 的 CI 工作流参考
+git show legacy/pre-greenfield-2026-11:.github/workflows/ci.yml
+
+# 仅只读对比旧算法思路（注意禁止将旧 SM-2 引入 MVP）
 git show legacy/pre-greenfield-2026-11:Packages/SnapDrillCore/Sources/SnapDrillCore/Service/PDFExportService.swift
-
-# 列出某目录下所有路径
-git ls-tree -r --name-only legacy/pre-greenfield-2026-11 -- Packages/SnapDrillCore/Sources/SnapDrillCore/Engine
-
-# 与 greenfield 某文件对比（需先存在 greenfield 路径）
-git show legacy/pre-greenfield-2026-11:Packages/.../ReviewScheduler.swift | diff -u - SnapDrill/Services/Review/ReviewScheduler.swift
 ```
 
-拣入时建议在 PR 中贴 **摘录 diff 摘要**（非整文件 paste），并说明已按 PRD v0.9 / 当前合同改签名之处。
+拣入 `[x] 要` 条目时，须在 PR 中附摘要并注明已按 [`PRD.md`](PRD.md) 文内当前版与 [`ARCHITECTURE.md`](ARCHITECTURE.md) 合同完成改写适配。
 
 ---
 
@@ -88,4 +92,6 @@ git show legacy/pre-greenfield-2026-11:Packages/.../ReviewScheduler.swift | diff
 | 日期 | 说明 |
 |---|---|
 | 2026-11-17 | 首版：政策 + L01–L12 盘点表 + PR 清单 + `git show` 示例 |
-| 2026-11-17 | 澄清 cherry-pick 合并提交 vs 单文件迁入；§8 审阅小修 |
+| 2026-11-17 | 澄清 cherry-pick 合并提交 vs 单文件迁入；审阅小修 |
+| 2026-11-27 | 盲审闭环（D8）：PO 完成全表勾选（仅 L10/L12 `[x] 要`，L08 SM-2 标 `[x] 以后`，其余 `[x] 不要`）；补齐全部精确 legacy 路径；消除硬编码 PRD 版本号 |
+| 2026-11-27 | 冻结前终审定案：将 L07 拆为 `L07a`/`L07b` 消除双勾歧义；L06 落点更新为单一本地 SwiftData 库 + Apple 原生 `CKSyncEngine` |
